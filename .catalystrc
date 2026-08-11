@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "53125000000013053",
+      "name": "Anarock",
+      "domain": {
+        "id": "50044832419",
+        "name": "anarock-60082403821.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60082403821",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

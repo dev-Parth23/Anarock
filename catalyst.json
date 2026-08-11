@@ -1,0 +1,15 @@
+{
+  "slate": [
+    {
+      "name": "nextjs",
+      "source": "D:\\Catalyst\\anarock"
+    }
+  ],
+  "functions": {
+    "targets": [
+      "anarock_function"
+    ],
+    "ignore": [],
+    "source": "functions"
+  }
+}

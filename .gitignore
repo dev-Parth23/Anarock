@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Logs
+catalyst-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Catalyst
+.catalyst/
+.build/
+
+# Next.js
+anarock/.next/
+anarock/out/
+
+# Environment files
+.env*.local
+
+# OS files
+.DS_Store
+Thumbs.db

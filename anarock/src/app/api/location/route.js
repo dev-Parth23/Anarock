@@ -2,103 +2,71 @@ import { NextResponse } from "next/server";
 
 export async function POST(request) {
   try {
-    const { latitude, longitude } = await request.json();
+    const body = await request.json();
 
-    if (
-      typeof latitude !== "number" ||
-      typeof longitude !== "number"
-    ) {
+    const { latitude, longitude } = body;
+
+    if (typeof latitude !== "number" || typeof longitude !== "number") {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid latitude or longitude.",
+          message: "Valid latitude and longitude are required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // OpenStreetMap Nominatim reverse geocoding
-    const url = new URL(
-      "https://nominatim.openstreetmap.org/reverse"
-    );
-
-    url.searchParams.set("lat", latitude);
-    url.searchParams.set("lon", longitude);
+    const url = new URL("https://nominatim.openstreetmap.org/reverse");
     url.searchParams.set("format", "jsonv2");
-    url.searchParams.set("addressdetails", "1");
+    url.searchParams.set("lat", latitude.toString());
+    url.searchParams.set("lon", longitude.toString());
     url.searchParams.set("zoom", "18");
-    url.searchParams.set("accept-language", "en");
+    url.searchParams.set("addressdetails", "1");
 
     const response = await fetch(url.toString(), {
       method: "GET",
       headers: {
-        "User-Agent": "Anarock-CLA-Commercial-Platform/1.0",
+        "User-Agent": "ANAROCK-Commercial-Website/1.0",
         Accept: "application/json",
       },
       cache: "no-store",
     });
 
+    console.log(response);
     if (!response.ok) {
       throw new Error(
-        `Reverse geocoding failed: ${response.status}`
+        `Nominatim request failed with status ${response.status}`,
       );
     }
 
-    const result = await response.json();
+    const data = await response.json();
 
-    const address = result.address || {};
+    const address = data?.address || {};
 
-    /*
-     * Try several possible fields because different
-     * locations return different OSM address structures.
-     */
-
-    const city =
-      address.city ||
-      address.town ||
-      address.municipality ||
-      address.village ||
-      address.city_district ||
-      "";
-
-    const area =
-      address.suburb ||
-      address.neighbourhood ||
-      address.locality ||
-      address.quarter ||
-      address.residential ||
-      "";
-
-    const pincode =
-      address.postcode ||
-      "";
-
-    const state =
-      address.state ||
-      "";
-
-    const country =
-      address.country ||
-      "";
+    const location = {
+      city:
+        address.city ||
+        address.town ||
+        address.municipality ||
+        address.village ||
+        address.city_district ||
+        "",
+      area:
+        address.suburb ||
+        address.neighbourhood ||
+        address.residential ||
+        address.quarter ||
+        address.city_district ||
+        "",
+      pincode: address.postcode || "",
+      state: address.state || "",
+      country: address.country || "",
+      displayName: data?.display_name || "",
+    };
 
     return NextResponse.json({
       success: true,
-
-      location: {
-        latitude,
-        longitude,
-
-        city,
-        area,
-        pincode,
-
-        state,
-        country,
-
-        displayName: result.display_name || "",
-      },
-
-      rawAddress: address,
+      location,
     });
   } catch (error) {
     console.error("Location API error:", error);
@@ -106,11 +74,9 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: false,
-        message:
-          error.message ||
-          "Unable to determine your location.",
+        message: "Unable to determine location.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,17 +1,18 @@
-import PropertiesPage from "@/pages/PropertiesPage";
+import { Suspense } from "react";
+import PropertiesClient from "./PropertiesClient";
 
-export const metadata = {
-  title: "Commercial Properties",
-  description:
-    "Search commercial office spaces, IT parks, GCC campuses and Grade A properties across India.",
-};
-
-export default async function Page({ searchParams }) {
-  const params = await searchParams;
-
+export default function PropertiesPage() {
   return (
-    <PropertiesPage
-      searchParams={params}
-    />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 px-4 py-10">
+          <div className="mx-auto max-w-7xl text-slate-600">
+            Loading properties...
+          </div>
+        </div>
+      }
+    >
+      <PropertiesClient />
+    </Suspense>
   );
 }

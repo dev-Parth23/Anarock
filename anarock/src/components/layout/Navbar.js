@@ -356,7 +356,7 @@ const phoneCountries = [
 
 const navigation = [
   { label: "Properties", href: "/properties", type: "link" },
-  { label: "Services & Tools", href: "/services&tools", type: "link" },
+  { label: "Services & Tools", href: "/services", type: "link" },
   { label: "About Us", href: "/#aboutus", type: "link" },
   { label: "Post a Requirement", href: "/#enquiry", type: "link" },
   {
@@ -382,8 +382,6 @@ export default function Navbar() {
   const [enquiryStatus, setEnquiryStatus] = useState("form");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [isVisible, setIsVisible] = useState(true);
-  const lastScrollYRef = useRef(0);
 
   const [selectedCountry, setSelectedCountry] = useState(phoneCountries[0]);
   const [phone, setPhone] = useState("");
@@ -543,27 +541,6 @@ export default function Navbar() {
       });
     }, 100);
   };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY < 10 || currentScrollY < lastScrollYRef.current) {
-        setIsVisible(true);
-      } else if (
-        currentScrollY > lastScrollYRef.current &&
-        currentScrollY > 70
-      ) {
-        setIsVisible(false);
-      }
-
-      lastScrollYRef.current = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1075,7 +1052,6 @@ export default function Navbar() {
       leadSource: "Listing Platform",
       leadStatus: "Not Contacted",
       subLeadSource: "Request a Callback",
-      futureContactDate: contactDate || null,
       leadOwnerTeam: finalLeadOwnerTeam,
       budget,
       areaRequirement,
@@ -1133,43 +1109,39 @@ export default function Navbar() {
 
   return (
     <>
-      <header
-        className={`fixed left-0 top-0 z-[100] w-full transition-all duration-300 ease-in-out
-          "-translate-y-full opacity-0"
-        `}
-      >
-        <div className="relative mx-auto w-full overflow-visible border border-white/30 bg-white/70 shadow-[0_8px_32px_rgba(160,84,160,0.08)] backdrop-blur-lg">
-          <div className="flex h-[58px] min-h-[58px] w-full items-center justify-between gap-2 px-3 sm:h-[70px] sm:min-h-[70px] sm:px-4 md:gap-3 md:px-5 lg:h-[68px] lg:min-h-[68px] lg:px-3 min-[1200px]:h-[72px] min-[1200px]:min-h-[72px] min-[1200px]:gap-3 min-[1200px]:px-3 2xl:h-[80px] 2xl:min-h-[88px] 2xl:px-8">
+      <header className="sticky inset-x-0 top-0 z-[100] w-full translate-y-0 opacity-100">
+        <div className="relative mx-auto w-full overflow-visible border  shadow-lg border-white/30 bg-transparent  backdrop-blur-2xl">
+          <div className="flex h-[65px] min-h-[65px] w-full items-center justify-between gap-2 px-3 sm:h-[70px] sm:min-h-[70px] sm:px-4 md:gap-3 md:px-5 lg:h-[75px] lg:min-h-[68px] lg:px-3 min-[1366px]:h-[72px] min-[1366px]:min-h-[72px] min-[1366px]:gap-2 min-[1366px]:px-3 min-[1920px]:h-[80px] min-[1920px]:min-h-[110px] min-[1920px]:px-8">
             <Link
               href="/"
               onClick={closeMenu}
               aria-label="Anarock Commercial Listing Platform"
               className="group flex min-w-0 shrink-0 items-center transition-transform duration-200 active:scale-90"
             >
-              <div className="flex min-w-0 items-center gap-2 sm:gap-3 md:gap-3.5 2xl:gap-5">
+              <div className="flex min-w-0 items-center gap-2 sm:gap-3 md:gap-3.5 min-[1920px]:gap-5">
                 <img
                   src="/Anarock.svg"
                   alt="Anarock"
-                  className="block h-auto w-[86px] object-contain transition-transform duration-300 group-hover:scale-105 sm:w-[102px] md:w-[112px] lg:w-[120px] min-[1280px]:w-[122px] 2xl:w-[150px]"
+                  className="block h-auto w-[90px] object-contain transition-transform duration-300 group-hover:scale-105 sm:w-[102px] md:w-[112px] lg:w-[120px] min-[1280px]:w-[122px] min-[1920px]:w-[150px]"
                 />
 
-                <div className="hidden h-6 w-px bg-[#A054A0]/20 sm:block md:h-7 2xl:h-8" />
+                <div className="hidden h-6 w-px bg-[#A054A0]/20 sm:block md:h-7 min-[1920px]:h-8" />
 
-                <div className="flex min-w-0 max-w-[116px] items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/50 px-2 py-1 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white/80 sm:max-w-[165px] sm:gap-2 sm:px-2.5 sm:py-1.5 md:max-w-[185px] lg:max-w-[205px] 2xl:max-w-[260px] 2xl:px-3 2xl:py-2">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#A054A0] text-white shadow-sm sm:h-7 sm:w-7 2xl:h-8 2xl:w-8">
+                <div className="flex min-w-0 max-w-[116px] items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white/80 sm:max-w-[165px] sm:gap-2 sm:px-2.5 sm:py-1.5 md:max-w-[185px] lg:max-w-[205px] min-[1920px]:max-w-[260px] min-[1920px]:px-3 min-[1920px]:py-2">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#A054A0] text-white shadow-sm sm:h-7 sm:w-7 min-[1920px]:h-8 min-[1920px]:w-8">
                     <MapPin
                       size={14}
                       strokeWidth={2.3}
-                      className="2xl:h-4 2xl:w-4"
+                      className="min-[1920px]:h-4 min-[1920px]:w-4"
                     />
                   </span>
 
                   <span className="min-w-0 leading-tight">
-                    <span className="hidden text-[9px] font-bold uppercase tracking-wider text-[#A054A0] sm:block 2xl:text-[10px]">
+                    <span className="hidden text-[12px] font-bold uppercase tracking-wider text-[#A054A0] sm:block min-[1920px]:text-[15px]">
                       Your location
                     </span>
 
-                    <span className="block truncate text-[9px] font-semibold text-slate-800 sm:text-[11px] md:text-[12px] lg:text-[12px] 2xl:text-[13px]">
+                    <span className="block truncate text-[12px] font-semibold text-slate-800 sm:text-[12px] md:text-[13px] lg:text-[13px] min-[1920px]:text-[15px]">
                       {userLocation?.city
                         ? `${userLocation.city}${
                             userLocation?.state ? `, ${userLocation.state}` : ""
@@ -1181,7 +1153,7 @@ export default function Navbar() {
               </div>
             </Link>
 
-            <nav className="mx-auto hidden flex-1 items-center justify-evenly gap-1 rounded-lg border border-white/50 bg-white/40 p-1 shadow-inner backdrop-blur-sm min-[1200px]:flex min-[1200px]:gap-1 2xl:gap-2 2xl:p-1.5">
+            <nav className="no-scrollbar mx-0 hidden min-w-0 items-center justify-center gap-1 bg-white/90 shadow-sm rounded-lg border border-white backdrop-blur-sm overflow-x-auto min-[1366px]:flex min-[1366px]:gap-1 min-[1920px]:gap-2 min-[1920px]:p-1.5">
               {navigation.map((item) => {
                 if (item.type === "scroll") {
                   return (
@@ -1189,7 +1161,7 @@ export default function Navbar() {
                       key={item.label}
                       type="button"
                       onClick={() => handleScrollNavigation(item.href)}
-                      className="group relative cursor-pointer whitespace-nowrap rounded-lg border-0 bg-transparent px-3 py-1.5 text-[12px] font-medium text-slate-700 transition-all duration-200 hover:bg-[#A054A0] hover:text-white hover:shadow-md min-[1200px]:px-2 min-[1200px]:text-[12px] 2xl:px-4 2xl:py-2 2xl:text-[15px]"
+                      className="group relative cursor-pointer whitespace-nowrap rounded-lg border-0 bg-transparent px-3 py-1.5 text-[14px] font-medium text-slate-700 transition-all duration-200 hover:bg-[#A054A0] hover:text-white hover:shadow-md min-[1366px]:px-1.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[20px]"
                     >
                       <span>{item.label}</span>
                     </button>
@@ -1201,7 +1173,7 @@ export default function Navbar() {
                     key={item.href}
                     href={item.href}
                     onClick={closeMenu}
-                    className="group relative whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-medium text-slate-700 transition-all duration-200 hover:bg-[#A054A0] hover:text-white hover:shadow-md min-[1200px]:px-2 min-[1200px]:text-[12px] 2xl:px-4 2xl:py-2 2xl:text-[15px]"
+                    className="group relative whitespace-nowrap rounded-lg px-3 py-1.5 text-[14px] font-medium text-slate-900 transition-all duration-200 hover:bg-[#A054A0] hover:text-white hover:shadow-md min-[1366px]:px-1.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[17px]"
                   >
                     <span>{item.label}</span>
                   </Link>
@@ -1209,137 +1181,141 @@ export default function Navbar() {
               })}
             </nav>
 
-            <div className="ml-1 hidden shrink-0 items-center gap-1.5 min-[1200px]:flex min-[1200px]:gap-2 2xl:ml-3 2xl:gap-3">
-              <div className="relative">
+            <div>
+              <div className="ml-1 hidden shrink-0 items-center gap-1.5 min-[1366px]:flex min-[1366px]:gap-1.5 min-[1920px]:ml-3 min-[1920px]:gap-3">
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setCurrencyOpen((prev) => !prev)}
+                    className="flex h-9 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/90 px-3 text-[11px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[13px]"
+                  >
+                    {currencyLabel}
+
+                    <ChevronDown
+                      size={13}
+                      strokeWidth={2}
+                      className={`transition-transform duration-300 ${
+                        currencyOpen
+                          ? "rotate-180 text-[#A054A0]"
+                          : "text-slate-500"
+                      }`}
+                    />
+                  </button>
+
+                  {currencyOpen && (
+                    <div className="absolute right-0 top-[calc(100%+8px)] z-[200] w-[150px] origin-top-right rounded-lg border border-white/80 bg-white/95 p-1.5 shadow-lg backdrop-blur-xl animate-[countryDrop_180ms_cubic-bezier(0.16,1,0.3,1)] min-[1920px]:w-[170px]">
+                      {currencies.map(([code, label]) => (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() => handleCurrencySelect(code)}
+                          className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 min-[1920px]:py-2.5 min-[1920px]:text-[14px] ${
+                            currencyCode === code
+                              ? "bg-[#A054A0] font-bold text-white shadow-sm"
+                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center rounded-lg border border-[#A054A0]/20 bg-white/90 p-0.5 shadow-sm backdrop-blur-md">
+                  <button
+                    type="button"
+                    onClick={() => handleUnitSelect("sq.ft")}
+                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${
+                      unit === "sqft"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                    }`}
+                  >
+                    sq.ft
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleUnitSelect("sq.m")}
+                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${
+                      unit === "sqm"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                    }`}
+                  >
+                    sq.m
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => setCurrencyOpen((prev) => !prev)}
-                  className="flex h-9 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[11px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1200px]:px-3 2xl:h-10 2xl:px-4 2xl:text-[13px]"
+                  onClick={openEnquiry}
+                  className="group inline-flex h-9 items-center justify-between gap-2 rounded-lg bg-[#A054A0] px-3.5 text-[14px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 min-[1366px]:gap-1 min-[1366px]:px-3 min-[1920px]:h-10 min-[1920px]:px-5 min-[1920px]:text-[16px]"
                 >
-                  {currencyLabel}
+                  <span className="relative z-10">Request Callback</span>
 
-                  <ChevronDown
-                    size={13}
+                  <ArrowUpRight
+                    size={16}
                     strokeWidth={2}
-                    className={`transition-transform duration-300 ${
-                      currencyOpen
-                        ? "rotate-180 text-[#A054A0]"
-                        : "text-slate-500"
-                    }`}
+                    className="relative z-10 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 min-[1920px]:h-5 min-[1920px]:w-5"
                   />
                 </button>
 
-                {currencyOpen && (
-                  <div className="absolute right-0 top-[calc(100%+8px)] z-[200] w-[150px] origin-top-right rounded-lg border border-white/80 bg-white/95 p-1.5 shadow-lg backdrop-blur-xl animate-[countryDrop_180ms_cubic-bezier(0.16,1,0.3,1)] 2xl:w-[170px]">
-                    {currencies.map(([code, label]) => (
-                      <button
-                        key={code}
-                        type="button"
-                        onClick={() => handleCurrencySelect(code)}
-                        className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 2xl:py-2.5 2xl:text-[14px] ${
-                          currencyCode === code
-                            ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                            : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center rounded-lg border border-[#A054A0]/20 bg-white/60 p-0.5 shadow-sm backdrop-blur-md">
-                <button
-                  type="button"
-                  onClick={() => handleUnitSelect("sq.ft")}
-                  className={`relative z-10 rounded-lg px-2.5 py-1 text-[10px] font-bold transition-all duration-200 active:scale-95 min-[1200px]:px-2.5 min-[1200px]:text-[11px] 2xl:px-4 2xl:py-1.5 2xl:text-[12px] ${
-                    unit === "sqft"
-                      ? "bg-[#A054A0] text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                <Link
+                  href="/wishlist"
+                  aria-label={`Wishlist${
+                    wishlistCount > 0
+                      ? `, ${wishlistCount} saved properties`
+                      : ""
                   }`}
+                  className="group relative hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
                 >
-                  sq.ft
-                </button>
+                  <Heart
+                    size={16}
+                    strokeWidth={1.8}
+                    className={`transition-all duration-200 min-[1920px]:h-5 min-[1920px]:w-5 ${
+                      wishlistCount > 0
+                        ? "fill-[#A054A0] text-[#A054A0]"
+                        : "text-slate-500 group-hover:text-[#A054A0]"
+                    }`}
+                  />
 
-                <button
-                  type="button"
-                  onClick={() => handleUnitSelect("sq.m")}
-                  className={`relative z-10 rounded-lg px-2.5 py-1 text-[10px] font-bold transition-all duration-200 active:scale-95 min-[1200px]:px-2.5 min-[1200px]:text-[11px] 2xl:px-4 2xl:py-1.5 2xl:text-[12px] ${
-                    unit === "sqm"
-                      ? "bg-[#A054A0] text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
-                  }`}
-                >
-                  sq.m
-                </button>
+                  <span>Shortlisted</span>
+
+                  {wishlistCount > 0 && (
+                    <span className="flex min-w-[18px] h-[18px] items-center justify-center rounded-lg bg-[#A054A0] px-1 text-[9px] font-bold leading-none text-white shadow-sm min-[1920px]:min-w-[20px] min-[1920px]:h-[20px] min-[1920px]:text-[11px]">
+                      {wishlistCount > 99 ? "99+" : wishlistCount}
+                    </span>
+                  )}
+                </Link>
               </div>
 
               <button
                 type="button"
-                onClick={openEnquiry}
-                className="group inline-flex h-9 items-center justify-between gap-2 rounded-lg bg-[#A054A0] px-3.5 text-[12px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 2xl:h-10 2xl:px-5 2xl:text-[14px]"
+                onClick={() => setMobileOpen((prev) => !prev)}
+                aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+                aria-expanded={mobileOpen}
+                className="group flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#A054A0]/20 bg-white/70 text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-90 sm:h-10 sm:w-10 min-[1366px]:hidden"
               >
-                <span className="relative z-10">Request Callback</span>
-
-                <ArrowUpRight
-                  size={16}
-                  strokeWidth={2}
-                  className="relative z-10 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 2xl:h-5 2xl:w-5"
-                />
-              </button>
-
-              <Link
-                href="/wishlist"
-                aria-label={`Wishlist${
-                  wishlistCount > 0 ? `, ${wishlistCount} saved properties` : ""
-                }`}
-                className="group relative hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[12px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1200px]:inline-flex 2xl:h-10 2xl:px-4 2xl:text-[14px]"
-              >
-                <Heart
-                  size={16}
-                  strokeWidth={1.8}
-                  className={`transition-all duration-200 2xl:h-5 2xl:w-5 ${
-                    wishlistCount > 0
-                      ? "fill-[#A054A0] text-[#A054A0]"
-                      : "text-slate-500 group-hover:text-[#A054A0]"
-                  }`}
-                />
-
-                <span>Shortlisted</span>
-
-                {wishlistCount > 0 && (
-                  <span className="flex min-w-[18px] h-[18px] items-center justify-center rounded-lg bg-[#A054A0] px-1 text-[9px] font-bold leading-none text-white shadow-sm 2xl:min-w-[20px] 2xl:h-[20px] 2xl:text-[11px]">
-                    {wishlistCount > 99 ? "99+" : wishlistCount}
-                  </span>
+                {mobileOpen ? (
+                  <X size={18} strokeWidth={2} className="text-[#A054A0]" />
+                ) : (
+                  <Menu size={18} strokeWidth={2} />
                 )}
-              </Link>
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setMobileOpen((prev) => !prev)}
-              aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
-              aria-expanded={mobileOpen}
-              className="group flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#A054A0]/20 bg-white/70 text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-90 sm:h-10 sm:w-10 min-[1200px]:hidden"
-            >
-              {mobileOpen ? (
-                <X size={18} strokeWidth={2} className="text-[#A054A0]" />
-              ) : (
-                <Menu size={18} strokeWidth={2} />
-              )}
-            </button>
           </div>
 
           <div
-            className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1200px]:hidden ${
+            className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${
               mobileOpen
                 ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
                 : "pointer-events-none max-h-0 opacity-0"
             }`}
           >
-            <div className="flex max-h-[calc(100dvh-100px)] flex-col justify-between overflow-y-auto px-3 pb-5 pt-3 sm:px-5 sm:pb-7 sm:pt-4">
-              <nav className="flex flex-col space-y-1.5">
+            <div className="flex max-h-[calc(100dvh-100px)] flex-col justify-between overflow-y-auto px-3 pb-5 pt-3 sm:px-5  sm:pb-7 sm:pt-4">
+              <nav className="flex flex-col space-y-1.5 bg-black">
                 {navigation.map((item, index) => {
                   if (item.type === "scroll") {
                     return (
@@ -1352,7 +1328,7 @@ export default function Navbar() {
                             ? `${index * 30}ms`
                             : "0ms",
                         }}
-                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${
+                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${
                           mobileOpen
                             ? "translate-x-0 opacity-100"
                             : "-translate-x-4 opacity-0"
@@ -1600,7 +1576,7 @@ export default function Navbar() {
                           htmlFor="enquiry-name"
                           className="mb-1.5 block text-[12px] font-bold text-slate-700 sm:text-[13px] 2xl:text-[15px]"
                         >
-                          Full Name
+                          Full Name<span className="text-red-500">*</span>
                         </label>
 
                         <input
@@ -1619,7 +1595,7 @@ export default function Navbar() {
                           htmlFor="enquiry-phone"
                           className="mb-1.5 block text-[12px] font-bold text-slate-700 sm:text-[13px] 2xl:text-[15px]"
                         >
-                          Phone Number
+                          Phone Number <span className="text-red-500">*</span>
                         </label>
 
                         <div className="relative w-full">
@@ -1928,6 +1904,15 @@ export default function Navbar() {
       )}
 
       <style jsx global>{`
+        .no-scrollbar {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+
         .rdp-caption_dropdowns {
           display: flex;
           align-items: center;

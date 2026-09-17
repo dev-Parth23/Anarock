@@ -1,7 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { WishlistProvider } from "@/lib/wishlist";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
@@ -39,6 +39,11 @@ export const metadata = {
     card: "summary_large_image",
     title: "Anarock - Premium Commercial Real Estate",
     description: "AI-powered commercial real estate search across India.",
+  },
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },

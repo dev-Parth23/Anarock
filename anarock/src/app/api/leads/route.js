@@ -275,9 +275,6 @@ export async function POST(request) {
 
     const email = String(body?.email || "").trim();
     const phone = String(body?.phone || "").trim();
-    const contactDate = String(
-      body?.contactDate || body?.futureContactDate || "",
-    ).trim();
     const company = String(body?.company || "").trim();
     const city = String(body?.city || location?.city || "").trim();
     const state = String(body?.state || location?.state || "").trim();
@@ -323,10 +320,6 @@ export async function POST(request) {
         Sublead_Source: body?.subLeadSource || "Request a Callback",
         Lead_Owner_Team: leadOwnerTeam,
       };
-
-      if (contactDate) {
-        recordData.Future_Contact_Date = contactDate;
-      }
 
       if (email) {
         recordData.Email = email;

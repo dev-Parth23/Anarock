@@ -2,9 +2,15 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import PropertyCard from "@/components/PropertyCard";
+import Breadcrumbs from "@/components/common/Breadcrumbs";
+import PropertyCard from "@/components/properties/PropertyCard";
 import { usePreferences } from "@/lib/preferences";
+import {
+  formatPrice,
+  formatArea,
+  convertCurrency,
+  convertArea,
+} from "@/lib/format";
 import {
   Sparkles,
   SlidersHorizontal,
@@ -23,7 +29,7 @@ const OFFICE_TYPES = [
 ];
 
 export default function PropertiesClient() {
-  const { currency, unit } = usePreferences();
+  const { currency, unit, exchangeRates } = usePreferences();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [properties, setProperties] = useState([]);
@@ -129,33 +135,85 @@ export default function PropertiesClient() {
       })
       .filter(Boolean);
   }, [selectedMicromarkets, micromarkets]);
+
   useEffect(() => {
-    setLoading(true);
-    setError("");
+    let cancelled = false;
 
-    const q = searchParams.toString();
+    async function fetchProperties() {
+      setLoading(true);
+      setError("");
 
-    fetch(`/api/properties${q ? `?${q}` : ""}`)
-      .then(async (r) => {
-        const d = await r.json();
+      try {
+        const params = new URLSearchParams(searchParams.toString());
+        if (filters.budget !== "") {
+          const enteredBudget = Number(filters.budget);
 
-        if (!r.ok || !d.success) {
-          throw new Error(d.error || "Failed to fetch properties");
+          if (Number.isFinite(enteredBudget)) {
+            const budgetInINR = convertCurrency(
+              enteredBudget,
+              currency,
+              "INR",
+              exchangeRates,
+            );
+
+            params.set("budget", String(Math.round(budgetInINR)));
+          }
         }
 
-        return d;
-      })
-      .then((d) => {
-        setProperties(d.data || []);
-      })
-      .catch((err) => {
-        setError(err?.message || "Failed to fetch properties");
-        setProperties([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [searchParams]);
+        if (filters.area !== "") {
+          const enteredArea = Number(filters.area);
+
+          if (Number.isFinite(enteredArea)) {
+            const areaInSqft = convertArea(enteredArea, unit, "sqft");
+
+            params.set("area", String(Math.round(areaInSqft)));
+          }
+        }
+
+        const query = params.toString();
+
+        const response = await fetch(
+          `/api/properties${query ? `?${query}` : ""}`,
+          {
+            cache: "no-store",
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Failed to fetch properties");
+        }
+
+        if (!cancelled) {
+          setProperties(data.data || []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err?.message || "Failed to fetch properties");
+
+          setProperties([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchProperties();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    searchParams,
+    currency,
+    unit,
+    exchangeRates,
+    filters.budget,
+    filters.area,
+  ]);
   useEffect(() => {
     if (!filters.city && !filters.micromarket) {
       return;
@@ -296,12 +354,18 @@ export default function PropertiesClient() {
       },
 
     filters.budget && {
-      label: `Budget: ${filters.budget}`,
+      label: `Budget: ${formatPrice(
+        convertCurrency(Number(filters.budget), currency, "INR", exchangeRates),
+        currency,
+        exchangeRates,
+      )}`,
       key: "budget",
     },
-
     filters.area && {
-      label: `Min Area: ${filters.area}`,
+      label: `Min Area: ${formatArea(
+        convertArea(Number(filters.area), unit, "sqft"),
+        unit,
+      )}`,
       key: "area",
     },
 
@@ -323,7 +387,7 @@ export default function PropertiesClient() {
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      <div className="container mx-auto px-4 py-4">
+      <div className=" justify-evenly px-4 py-4 ">
         <Breadcrumbs items={breadcrumbs} />
 
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
@@ -573,7 +637,9 @@ export default function PropertiesClient() {
                     type="number"
                     value={filters.budget}
                     onChange={(e) => updateFilter("budget", e.target.value)}
-                    placeholder="e.g. 5000000"
+                    placeholder={
+                      currency === "INR" ? "e.g. 5000000" : "Enter amount"
+                    }
                     className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -588,7 +654,7 @@ export default function PropertiesClient() {
                     type="number"
                     value={filters.area}
                     onChange={(e) => updateFilter("area", e.target.value)}
-                    placeholder="e.g. 2000"
+                    placeholder={unit === "sqft" ? "e.g. 2000" : "Enter area"}
                     className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -620,7 +686,7 @@ export default function PropertiesClient() {
           </aside>
           <div>
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}

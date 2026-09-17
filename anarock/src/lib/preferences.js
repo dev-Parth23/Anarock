@@ -12,14 +12,21 @@ const PREFERENCE_EVENT = "anarock-preferences-changed";
 const SERVER_SNAPSHOT = {
   currency: DEFAULT_CURRENCY,
   unit: DEFAULT_UNIT,
+  exchangeRates: {
+    INR: 1,
+  },
 };
 
 let state = {
   currency: DEFAULT_CURRENCY,
   unit: DEFAULT_UNIT,
+  exchangeRates: {
+    INR: 1,
+  },
 };
 
 let initialized = false;
+let ratesLoading = false;
 
 const listeners = new Set();
 
@@ -44,7 +51,12 @@ function getStoredPreferences() {
     currency: normalizeCurrency(
       window.localStorage.getItem(CURRENCY_STORAGE_KEY),
     ),
+
     unit: normalizeUnit(window.localStorage.getItem(UNIT_STORAGE_KEY)),
+
+    exchangeRates: state.exchangeRates || {
+      INR: 1,
+    },
   };
 }
 
@@ -54,25 +66,76 @@ function notify() {
   });
 }
 
+// Load exchange rates
+async function loadExchangeRates() {
+  if (ratesLoading) return;
+
+  ratesLoading = true;
+
+  try {
+    const response = await fetch("/api/exchange-rates?base=INR", {
+      cache: "no-store",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Failed to fetch exchange rates");
+    }
+
+    state = {
+      ...state,
+
+      exchangeRates: {
+        INR: 1,
+        ...(data.rates || {}),
+      },
+    };
+
+    notify();
+  } catch (error) {
+    console.error("Exchange rate loading failed:", error);
+  } finally {
+    ratesLoading = false;
+  }
+}
+
+// Initialize preferences
 function initialize() {
   if (initialized || typeof window === "undefined") {
     return;
   }
 
   initialized = true;
-  state = getStoredPreferences();
 
+  state = {
+    ...getStoredPreferences(),
+
+    exchangeRates: state.exchangeRates || {
+      INR: 1,
+    },
+  };
+
+  // Load live exchange rates
+  loadExchangeRates();
+
+  // Custom preference event
   const handlePreferenceChange = (event) => {
     const nextCurrency = normalizeCurrency(
-      event.detail?.currency ||
-        window.localStorage.getItem(CURRENCY_STORAGE_KEY),
+      event.detail?.currency ??
+        window.localStorage.getItem(CURRENCY_STORAGE_KEY) ??
+        state.currency,
     );
 
     const nextUnit = normalizeUnit(
-      event.detail?.unit || window.localStorage.getItem(UNIT_STORAGE_KEY),
+      event.detail?.unit ??
+        window.localStorage.getItem(UNIT_STORAGE_KEY) ??
+        state.unit,
     );
 
     state = {
+      ...state,
+
       currency: nextCurrency,
       unit: nextUnit,
     };
@@ -82,18 +145,28 @@ function initialize() {
 
   window.addEventListener(PREFERENCE_EVENT, handlePreferenceChange);
 
+  // Cross-tab storage changes
   const handleStorageChange = (event) => {
     if (event.key !== CURRENCY_STORAGE_KEY && event.key !== UNIT_STORAGE_KEY) {
       return;
     }
 
-    state = getStoredPreferences();
+    const storedPreferences = getStoredPreferences();
+
+    state = {
+      ...state,
+
+      currency: storedPreferences.currency,
+      unit: storedPreferences.unit,
+    };
+
     notify();
   };
 
   window.addEventListener("storage", handleStorageChange);
 }
 
+// Subscribe
 function subscribe(listener) {
   initialize();
 
@@ -104,16 +177,19 @@ function subscribe(listener) {
   };
 }
 
+// Client snapshot
 function getSnapshot() {
   initialize();
 
   return state;
 }
 
+// Server snapshot
 function getServerSnapshot() {
   return SERVER_SNAPSHOT;
 }
 
+// Set preferences
 export function setPreferences({ currency, unit }) {
   if (typeof window === "undefined") {
     return;
@@ -125,15 +201,21 @@ export function setPreferences({ currency, unit }) {
 
   const nextUnit = normalizeUnit(unit ?? state.unit);
 
+  // Preserve exchange rates
   state = {
+    ...state,
+
     currency: nextCurrency,
     unit: nextUnit,
   };
 
+  // Save currency
   window.localStorage.setItem(CURRENCY_STORAGE_KEY, nextCurrency);
 
+  // Save area unit
   window.localStorage.setItem(UNIT_STORAGE_KEY, nextUnit);
 
+  // Notify all components
   window.dispatchEvent(
     new CustomEvent(PREFERENCE_EVENT, {
       detail: {
@@ -142,8 +224,9 @@ export function setPreferences({ currency, unit }) {
       },
     }),
   );
-}
 
+  notify();
+}
 export function usePreferences() {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

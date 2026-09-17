@@ -1,14 +1,83 @@
 "use client";
 
+import { usePreferences } from "@/lib/preferences";
+import { formatPrice, formatArea } from "@/lib/format";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import PropertyCard from "@/components/PropertyCard";
+import PropertyCard from "@/components/properties/PropertyCard";
+
+const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
+
+const IMAGE_FILES = [
+  {
+    key: "project",
+    name: "Project Picture 1",
+    filename: "Project_Picture_1.jpg",
+  },
+  {
+    key: "floor-plan",
+    name: "Floor Plan 1",
+    filename: "Floor_Plan_1.jpg",
+  },
+  {
+    key: "property-1",
+    name: "Property Photo 1",
+    filename: "Property_Photo_1.jpg",
+  },
+  {
+    key: "property-2",
+    name: "Property Photo 2",
+    filename: "Property_Photo_2.jpg",
+  },
+  {
+    key: "property-3",
+    name: "Property Photo 3",
+    filename: "Property_Photo_3.jpg",
+  },
+  {
+    key: "property-4",
+    name: "Property Photo 4",
+    filename: "Property_Photo_4.jpg",
+  },
+  {
+    key: "property-5",
+    name: "Property Photo 5",
+    filename: "Property_Photo_5.jpg",
+  },
+  {
+    key: "property-6",
+    name: "Property Photo 6",
+    filename: "Property_Photo_6.jpg",
+  },
+  {
+    key: "property-7",
+    name: "Property Photo 7",
+    filename: "Property_Photo_7.jpg",
+  },
+  {
+    key: "property-8",
+    name: "Property Photo 8",
+    filename: "Property_Photo_8.jpg",
+  },
+  {
+    key: "property-9",
+    name: "Property Photo 9",
+    filename: "Property_Photo_9.jpg",
+  },
+  {
+    key: "property-10",
+    name: "Property Photo 10",
+    filename: "Property_Photo_10.jpg",
+  },
+];
 
 export default function PropertyDetailClient({ propertyId }) {
   const [property, setProperty] = useState(null);
   const [gallery, setGallery] = useState([]);
-  const [activeImg, setActiveImg] = useState(0);
+  const [activeImg, setActiveImg] = useState("project");
   const [related, setRelated] = useState([]);
+  const { currency, unit, exchangeRates } = usePreferences();
+  const [failedImages, setFailedImages] = useState(new Set());
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,12 +105,29 @@ export default function PropertyDetailClient({ propertyId }) {
 
         const propertyData = data.data;
 
-        setProperty(propertyData);
+        const imageFolderPath = String(
+          propertyData.imageFolderPath || "",
+        ).replace(/^\/+|\/+$/g, "");
 
-        const images = propertyData.gallery || [];
+        const images = imageFolderPath
+          ? IMAGE_FILES.map((image) => ({
+              ...image,
+              url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
+            }))
+          : [];
+
+        setProperty({
+          ...propertyData,
+          image: images.find((image) => image.key === "project")?.url || "",
+        });
 
         setGallery(images);
-        setActiveImg(0);
+        setActiveImg("project");
+        setFailedImages(new Set());
+
+        console.log("Property", propertyData);
+        console.log("Image Folder Path", imageFolderPath);
+        console.log("Gallery Images", images);
 
         if (propertyData.city) {
           try {
@@ -77,6 +163,24 @@ export default function PropertyDetailClient({ propertyId }) {
     loadProperty();
   }, [propertyId]);
 
+  const handleImageError = (imageKey) => {
+    setFailedImages((previous) => {
+      const updated = new Set(previous);
+      updated.add(imageKey);
+      return updated;
+    });
+
+    if (activeImg === imageKey) {
+      const nextImage = gallery.find(
+        (image) => image.key !== imageKey && !failedImages.has(image.key),
+      );
+
+      if (nextImage) {
+        setActiveImg(nextImage.key);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -99,12 +203,18 @@ export default function PropertyDetailClient({ propertyId }) {
     );
   }
 
-  const activeImage = gallery[activeImg]?.url || property.image || "";
+  const availableGallery = gallery.filter(
+    (image) => !failedImages.has(image.key),
+  );
+
+  const activeImage =
+    gallery.find((image) => image.key === activeImg)?.url ||
+    property.image ||
+    "";
 
   return (
     <main className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-3">
             {property.city && <span>{property.city}</span>}
@@ -133,48 +243,105 @@ export default function PropertyDetailClient({ propertyId }) {
           )}
         </div>
 
-        {/* Gallery */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          <div className="lg:col-span-3">
-            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-gray-100">
+        <section className="mt-6">
+          <div className="relative w-full overflow-hidden rounded-[24px] bg-gray-100">
+            <div className="relative aspect-[16/9] md:aspect-[21/10]">
               {activeImage ? (
                 <Image
+                  key={activeImg}
                   src={activeImage}
                   alt={property.name || "Property image"}
                   fill
                   priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 75vw"
+                  className="object-contain transition-opacity duration-300"
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  onError={() => handleImageError(activeImg)}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <div className="flex h-full items-center justify-center text-gray-400">
                   Image unavailable
                 </div>
               )}
+
+              <div className="absolute bottom-4 right-4 rounded-full bg-black/65 px-4 py-2 text-xs font-medium text-white backdrop-blur-md">
+                {Math.max(
+                  1,
+                  availableGallery.findIndex(
+                    (image) => image.key === activeImg,
+                  ) + 1,
+                )}{" "}
+                / {availableGallery.length}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 lg:grid-cols-1 gap-3">
-            {gallery.slice(0, 5).map((image, index) => (
-              <button
-                key={image.key || index}
-                type="button"
-                onClick={() => setActiveImg(index)}
-                className={`relative aspect-[4/3] overflow-hidden rounded-xl border-2 ${
-                  activeImg === index ? "border-black" : "border-transparent"
-                }`}
-              >
-                <Image
-                  src={image.url}
-                  alt={image.name || `Property image ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="200px"
-                />
-              </button>
-            ))}
+          <div className="mt-4">
+            <div
+              className="
+        flex
+        gap-3
+        overflow-x-auto
+        pb-3
+        scrollbar-thin
+        scrollbar-thumb-gray-300
+        scrollbar-track-transparent
+      "
+            >
+              {availableGallery.map((image, index) => {
+                const isActive = activeImg === image.key;
+
+                return (
+                  <button
+                    key={image.key}
+                    type="button"
+                    onClick={() => setActiveImg(image.key)}
+                    aria-label={`View ${image.name}`}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`
+              relative
+              flex-shrink-0
+              overflow-hidden
+              rounded-2xl
+              border-2
+              transition-all
+              duration-300
+              focus:outline-none
+              focus:ring-2
+              focus:ring-[#A054A0]
+              ${
+                isActive
+                  ? "border-[#A054A0] scale-95 shadow-lg"
+                  : "border-transparent opacity-70 hover:opacity-100"
+              }
+            `}
+                  >
+                    <div className="relative h-20 w-28 sm:h-24 sm:w-36">
+                      <Image
+                        src={image.url}
+                        alt={image.name}
+                        fill
+                        className="object-contain"
+                        sizes="144px"
+                        onError={() => handleImageError(image.key)}
+                      />
+
+                      {/* Active Overlay */}
+                      {isActive && (
+                        <div className="absolute inset-0 bg-[#A054A0]/10" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {availableGallery.length > 4 && (
+              <p className="mt-1 text-xs text-gray-400">
+                Swipe or scroll to view all images →
+              </p>
+            )}
           </div>
-        </div>
+        </section>
 
         {/* Basic Information */}
         <section className="mt-10">
@@ -182,9 +349,7 @@ export default function PropertyDetailClient({ propertyId }) {
             <Info
               label="Area"
               value={
-                property.areaSqft
-                  ? `${property.areaSqft.toLocaleString()} sq.ft`
-                  : "-"
+                property.areaSqft ? formatArea(property.areaSqft, unit) : "-"
               }
             />
 
@@ -222,7 +387,7 @@ export default function PropertyDetailClient({ propertyId }) {
               label="Quoted Rent"
               value={
                 property.quotedRent
-                  ? `₹${Number(property.quotedRent).toLocaleString()}`
+                  ? formatPrice(property.quotedRent, currency, exchangeRates)
                   : "-"
               }
             />
@@ -231,7 +396,11 @@ export default function PropertyDetailClient({ propertyId }) {
               label="Achievable Rent"
               value={
                 property.achievableRent
-                  ? `₹${Number(property.achievableRent).toLocaleString()}`
+                  ? formatPrice(
+                      property.achievableRent,
+                      currency,
+                      exchangeRates,
+                    )
                   : "-"
               }
             />
@@ -240,7 +409,7 @@ export default function PropertyDetailClient({ propertyId }) {
               label="CAM"
               value={
                 property.quotedCAM
-                  ? `₹${Number(property.quotedCAM).toLocaleString()}`
+                  ? formatPrice(property.quotedCAM, currency, exchangeRates)
                   : "-"
               }
             />

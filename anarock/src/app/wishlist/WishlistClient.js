@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import PropertyCard from "@/components/PropertyCard";
+import Breadcrumbs from "@/components/common/Breadcrumbs";
+import PropertyCard from "@/components/properties/PropertyCard";
 import { useWishlist } from "@/lib/wishlist";
 import { usePreferences } from "@/lib/preferences";
 import { Heart, ArrowRight } from "lucide-react";

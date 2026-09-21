@@ -28,20 +28,6 @@ export function WishlistProvider({ children }) {
   const sessionInitializedRef = useRef(false);
 
   useEffect(() => {
-    /*
-      IMPORTANT:
-
-      We intentionally DO NOT store the session ID in localStorage.
-
-      This means:
-
-      - Clicking ❤️ adds the property to the current wishlist.
-      - Navigating to /wishlist keeps the wishlist.
-      - Navigating between pages keeps the wishlist as long as the
-        WishlistProvider remains mounted.
-      - Refreshing the browser creates a completely new session,
-        therefore the previous liked properties disappear.
-    */
 
     if (sessionInitializedRef.current) return;
 
@@ -61,17 +47,12 @@ export function WishlistProvider({ children }) {
           setIds((d.items || []).map((i) => i.id));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const add = useCallback(
     async (propertyId) => {
       if (!sessionId) return;
-
-      /*
-        Optimistic update.
-        The heart/count updates immediately.
-      */
       setIds((prev) =>
         prev.includes(propertyId) ? prev : [...prev, propertyId],
       );
@@ -106,10 +87,6 @@ export function WishlistProvider({ children }) {
   const remove = useCallback(
     async (propertyId) => {
       if (!sessionId) return;
-
-      /*
-        Optimistic removal.
-      */
       setIds((prev) => prev.filter((i) => i !== propertyId));
 
       setItems((prev) => prev.filter((p) => p.id !== propertyId));
@@ -123,7 +100,7 @@ export function WishlistProvider({ children }) {
           sessionId,
           propertyId,
         }),
-      }).catch(() => {});
+      }).catch(() => { });
     },
     [sessionId],
   );
@@ -162,9 +139,9 @@ export function useWishlist() {
     return {
       ids: [],
       items: [],
-      add: () => {},
-      remove: () => {},
-      toggle: () => {},
+      add: () => { },
+      remove: () => { },
+      toggle: () => { },
       count: 0,
     };
   }

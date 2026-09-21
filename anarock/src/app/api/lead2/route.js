@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
 const ACCOUNTS_URL =
   process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
+
 const DEFAULT_API_URL = process.env.ZOHO_API_URL || "https://www.zohoapis.in";
+
 const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
@@ -19,20 +20,21 @@ async function generateZohoAccessToken() {
   if (!CLIENT_ID) {
     throw new Error("ZOHO_CLIENT_ID is missing from .env.local");
   }
+
   if (!CLIENT_SECRET) {
     throw new Error("ZOHO_CLIENT_SECRET is missing from .env.local");
   }
+
   if (!REFRESH_TOKEN) {
     throw new Error("ZOHO_REFRESH_TOKEN is missing from .env.local");
   }
-  console.log("[ZOHO AUTH] Generating fresh access token...");
+
   const tokenUrl = `${ACCOUNTS_URL}/oauth/v2/token`;
   const params = new URLSearchParams();
   params.set("refresh_token", REFRESH_TOKEN.trim());
   params.set("client_id", CLIENT_ID.trim());
   params.set("client_secret", CLIENT_SECRET.trim());
   params.set("grant_type", "refresh_token");
-
   const response = await fetch(tokenUrl, {
     method: "POST",
     headers: {
@@ -41,7 +43,6 @@ async function generateZohoAccessToken() {
     body: params.toString(),
     cache: "no-store",
   });
-
   const responseText = await response.text();
   let data;
   try {
@@ -68,6 +69,7 @@ async function generateZohoAccessToken() {
     59 * 60 * 1000,
     Math.max(60, expiresInSeconds - 60) * 1000,
   );
+
   const apiDomain = String(data.api_domain || DEFAULT_API_URL).replace(
     /\/$/,
     "",
@@ -75,7 +77,9 @@ async function generateZohoAccessToken() {
 
   zohoTokenCache = {
     accessToken,
+
     expiresAt: Date.now() + refreshAfterMilliseconds,
+
     apiDomain,
   };
 
@@ -98,13 +102,13 @@ async function findCityId(tokenInfo, cityName) {
   if (!cityName) {
     return null;
   }
-
   const cleanCity = String(cityName).trim();
   if (!cleanCity) {
     return null;
   }
 
   const criteria = `(Name:equals:${cleanCity})`;
+
   const url =
     `${tokenInfo.apiDomain}/crm/v8/City/search` +
     `?criteria=${encodeURIComponent(criteria)}` +
@@ -112,20 +116,26 @@ async function findCityId(tokenInfo, cityName) {
 
   const response = await fetch(url, {
     method: "GET",
+
     headers: {
       Authorization: `Zoho-oauthtoken ${tokenInfo.accessToken}`,
+
       "Content-Type": "application/json",
     },
+
     cache: "no-store",
   });
 
   if (response.status === 401) {
     const error = new Error("Zoho access token expired while searching City.");
+
     error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
+
     throw error;
   }
 
   const responseText = await response.text();
+
   let data;
 
   try {
@@ -139,6 +149,7 @@ async function findCityId(tokenInfo, cityName) {
   }
 
   const records = Array.isArray(data?.data) ? data.data : [];
+
   const exactCity = records.find(
     (record) =>
       String(record?.Name || "")
@@ -149,10 +160,12 @@ async function findCityId(tokenInfo, cityName) {
   return exactCity?.id || null;
 }
 
+
 function mapLocationToLeadOwnerTeam(city, state) {
   const cityLower = String(city || "")
     .trim()
     .toLowerCase();
+
   const stateLower = String(state || "")
     .trim()
     .toLowerCase();
@@ -160,18 +173,23 @@ function mapLocationToLeadOwnerTeam(city, state) {
   if (cityLower.includes("bengaluru") || cityLower.includes("bangalore")) {
     return "Bengaluru";
   }
+
   if (cityLower.includes("chennai")) {
     return "Chennai";
   }
+
   if (cityLower.includes("hyderabad")) {
     return "Hyderabad";
   }
+
   if (cityLower.includes("kolkata")) {
     return "Kolkata";
   }
+
   if (cityLower.includes("pune")) {
     return "Pune";
   }
+
   if (
     cityLower.includes("mumbai") ||
     cityLower.includes("ahmedabad") ||
@@ -184,6 +202,7 @@ function mapLocationToLeadOwnerTeam(city, state) {
   ) {
     return "West";
   }
+
   if (
     cityLower.includes("agra") ||
     cityLower.includes("delhi") ||
@@ -220,7 +239,6 @@ async function createLeadInCRM(tokenInfo, recordData) {
 
   const responseText = await response.text();
   let data;
-
   try {
     data = responseText ? JSON.parse(responseText) : {};
   } catch {
@@ -254,79 +272,151 @@ async function createLeadInCRM(tokenInfo, recordData) {
     throw error;
   }
 
-  return { leadId: result?.details?.id || null, zohoResponse: data };
+  return {
+    leadId: result?.details?.id || null,
+    zohoResponse: data,
+  };
 }
-
 export async function POST(request) {
   try {
     const body = await request.json();
-    console.log("Incoming Payload:", JSON.stringify(body, null, 2));
-
-    const location = body?.location || {};
-    let firstName = body?.firstName || "";
-    let lastName = body?.lastName || "";
-
+    console.log("[LEAD2] Incoming Payload:", JSON.stringify(body, null, 2));
+    let firstName = String(body?.firstName || "").trim();
+    let lastName = String(body?.lastName || "").trim();
     if (!firstName && !lastName && body?.name) {
       const fullName = String(body.name).trim().replace(/\s+/g, " ");
       const nameParts = fullName.split(" ");
       firstName = nameParts.shift() || "";
       lastName = nameParts.join(" ") || "";
     }
-
-    const rawEmail = String(body?.email || "").trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const email = emailRegex.test(rawEmail) ? rawEmail : ""; const phone = String(body?.phone || "").trim();
-    const company = String(body?.company || "").trim();
-    const city = String(body?.city || location?.city || "").trim();
-    const state = String(body?.state || location?.state || "").trim();
-    const country = String(body?.country || location?.country || "").trim();
-    const street = String(
-      body?.street || body?.area || location?.area || "",
+    const email = String(body?.email || "").trim();
+    const fullPhone = String(
+      body?.fullPhone || `${body?.countryDialCode || ""}${body?.phone || ""}`,
     ).trim();
-    const pincode = String(body?.pincode || location?.pincode || "").trim();
+    const company = String(body?.company || "").trim();
+    const requirementDetails = String(
+      body?.requirementDetails ||
+      body?.Requirement_Details ||
+      body?.message ||
+      body?.description ||
+      "",
+    ).trim();
+    const location = body?.location || {};
+    const street = String(
+      body?.Street || body?.street || location?.street || location?.area || "",
+    ).trim();
 
+    const addressCity = String(
+      body?.City || body?.addressCity || location?.city || "",
+    ).trim();
+
+    const province = String(
+      body?.Province ||
+      body?.province ||
+      body?.state ||
+      location?.province ||
+      location?.state ||
+      "",
+    ).trim();
+
+    const country = String(
+      body?.Country || body?.country || location?.country || "",
+    ).trim();
+
+    const postalCode = String(
+      body?.Postal_Code ||
+      body?.PostalCode ||
+      body?.postalCode ||
+      body?.pincode ||
+      location?.postalCode ||
+      location?.pincode ||
+      "",
+    ).trim();
+    const rawRequirementCity = String(
+      body?.requirementCity || body?.Requirement_City || "",
+    ).trim();
+
+    const requirementCity =
+      rawRequirementCity === "__NONE__" ? "" : rawRequirementCity;
+    const requirementType = String(
+      body?.requirementType || body?.Requirement_Type || "",
+    ).trim();
     if (!firstName && !lastName) {
       return NextResponse.json(
-        { success: false, message: "Name is required." },
-        { status: 400 },
+        {
+          success: false,
+          message: "Name is required.",
+        },
+        {
+          status: 400,
+        },
       );
     }
 
-    if (!phone) {
+    if (!fullPhone) {
       return NextResponse.json(
-        { success: false, message: "Phone number is required." },
-        { status: 400 },
+        {
+          success: false,
+          message: "Phone number is required.",
+        },
+        {
+          status: 400,
+        },
       );
     }
-
     let tokenInfo = await getZohoAccessToken();
-
     const processLead = async (currentToken) => {
-      const cityId = city ? await findCityId(currentToken, city) : null;
-      const leadOwnerTeam = mapLocationToLeadOwnerTeam(city, state);
-
+      const requirementCityId = requirementCity
+        ? await findCityId(currentToken, requirementCity)
+        : null;
+      const leadOwnerTeam = mapLocationToLeadOwnerTeam(addressCity, province);
       const recordData = {
         First_Name: firstName || undefined,
         Last_Name: lastName || firstName || "Website Enquiry",
-        Mobile: phone,
-        Company: company || "",
-        Street: street || undefined,
-        City: city || undefined,
-        State: state || undefined,
-        Country: country || undefined,
-        Zip_Code: pincode || undefined,
-        Lead_Source: "Listing Platform",
-        Lead_Status: "Not Contacted",
-        Sublead_Source: "Request a Callback",
+        Mobile: fullPhone,
+        Company: company || "Individual",
+        Lead_Source: body?.leadSource || "Listing Platform",
+        Lead_Status: body?.leadStatus || "Not Contacted",
+        Sublead_Source: body?.subLeadSource || "Post a Requirement",
         Lead_Owner_Team: leadOwnerTeam,
-      };
+        Requirement_Details: requirementDetails || undefined,
+        Requirement_Type: requirementType || undefined,
+        Street: street || undefined,
+        City: addressCity || undefined,
+        State: province || undefined,
+        Country: country || undefined,
+        Zip_Code: postalCode || undefined,
+        ...(requirementType === "Managed Office/Co-working"
+          ? {
+            Requirement_Seats:
+              body?.Requirement_Seats !== undefined
+                ? Number(body.Requirement_Seats)
+                : undefined,
 
+            Requirement_Seat_Price:
+              body?.Requirement_Seat_Price !== undefined
+                ? Number(body.Requirement_Seat_Price)
+                : undefined,
+          }
+          : {
+            Requirement_Area:
+              body?.Requirement_Area !== undefined
+                ? Number(body.Requirement_Area)
+                : undefined,
+
+            Requirement_Rent:
+              body?.Requirement_Rent !== undefined
+                ? Number(body.Requirement_Rent)
+                : undefined,
+          }),
+      };
       if (email) {
         recordData.Email = email;
       }
-
-      if (cityId) {
-        recordData.Requirement_City = { id: cityId };
+      if (requirementCityId) {
+        recordData.Requirement_City = {
+          id: requirementCityId,
+        };
       }
       Object.keys(recordData).forEach((key) => {
         if (
@@ -339,7 +429,7 @@ export async function POST(request) {
       });
 
       console.log(
-        "Posting record to Zoho CRM:",
+        "[LEAD2] Posting record to Zoho CRM:",
         JSON.stringify(recordData, null, 2),
       );
 
@@ -347,45 +437,50 @@ export async function POST(request) {
 
       return {
         ...result,
-        cityId,
+
+        requirementCityId,
+
         leadOwnerTeam,
       };
     };
-
     try {
       const result = await processLead(tokenInfo);
+
       return NextResponse.json(
         {
           success: true,
           message: "Lead created successfully.",
           leadId: result.leadId,
-          cityFound: Boolean(result.cityId),
-          cityId: result.cityId || null,
+          cityFound: Boolean(result.requirementCityId),
+          cityId: result.requirementCityId || null,
           leadOwnerTeam: result.leadOwnerTeam,
         },
-        { status: 200 },
+        {
+          status: 200,
+        },
       );
     } catch (error) {
       if (error?.code === "ZOHO_ACCESS_TOKEN_EXPIRED") {
         tokenInfo = await getZohoAccessToken(true);
         const retryResult = await processLead(tokenInfo);
-
         return NextResponse.json(
           {
             success: true,
             message: "Lead created successfully.",
             leadId: retryResult.leadId,
-            cityFound: Boolean(retryResult.cityId),
-            cityId: retryResult.cityId || null,
+            cityFound: Boolean(retryResult.requirementCityId),
+            cityId: retryResult.requirementCityId || null,
             leadOwnerTeam: retryResult.leadOwnerTeam,
           },
-          { status: 200 },
+          {
+            status: 200,
+          },
         );
       }
       throw error;
     }
   } catch (error) {
-    console.error("[API] LEAD CREATION ERROR:", error?.message);
+    console.error("[LEAD2] LEAD CREATION ERROR:", error?.message);
     return NextResponse.json(
       {
         success: false,

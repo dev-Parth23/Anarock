@@ -323,10 +323,9 @@ export default function CookieConsent({ onConsentGiven }) {
                       flex
                       items-center
                       shrink-0
-                      ${
-                        preferences.analytics
-                          ? "bg-[#8f3d8a] justify-end"
-                          : "bg-slate-300 justify-start"
+                      ${preferences.analytics
+                        ? "bg-[#8f3d8a] justify-end"
+                        : "bg-slate-300 justify-start"
                       }
                     `}
                   >
@@ -369,10 +368,9 @@ export default function CookieConsent({ onConsentGiven }) {
                       flex
                       items-center
                       shrink-0
-                      ${
-                        preferences.marketing
-                          ? "bg-[#8f3d8a] justify-end"
-                          : "bg-slate-300 justify-start"
+                      ${preferences.marketing
+                        ? "bg-[#8f3d8a] justify-end"
+                        : "bg-slate-300 justify-start"
                       }
                     `}
                   >
@@ -415,10 +413,9 @@ export default function CookieConsent({ onConsentGiven }) {
                       flex
                       items-center
                       shrink-0
-                      ${
-                        preferences.preferences
-                          ? "bg-[#8f3d8a] justify-end"
-                          : "bg-slate-300 justify-start"
+                      ${preferences.preferences
+                        ? "bg-[#8f3d8a] justify-end"
+                        : "bg-slate-300 justify-start"
                       }
                     `}
                   >

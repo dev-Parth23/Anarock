@@ -13,14 +13,9 @@ import {
   Check,
   MapPin,
   Heart,
-  Calendar as CalendarIcon,
 } from "lucide-react";
 
 import { useWishlist } from "@/lib/wishlist";
-import { DayPicker } from "react-day-picker";
-import { format } from "date-fns";
-import "react-day-picker/dist/style.css";
-
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -47,311 +42,45 @@ const currencies = [
 
 const phoneCountries = [
   { name: "India", code: "IN", dial: "+91", flag: "🇮🇳", min: 10, max: 10 },
-  {
-    name: "United States",
-    code: "US",
-    dial: "+1",
-    flag: "🇺🇸",
-    min: 10,
-    max: 10,
-  },
+  { name: "United States", code: "US", dial: "+1", flag: "🇺🇸", min: 10, max: 10 },
   { name: "Canada", code: "CA", dial: "+1", flag: "🇨🇦", min: 10, max: 10 },
-  {
-    name: "United Kingdom",
-    code: "GB",
-    dial: "+44",
-    flag: "🇬🇧",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "United Arab Emirates",
-    code: "AE",
-    dial: "+971",
-    flag: "🇦🇪",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Australia",
-    code: "AU",
-    dial: "+61",
-    flag: "🇦🇺",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Singapore",
-    code: "SG",
-    dial: "+65",
-    flag: "🇸🇬",
-    min: 8,
-    max: 8,
-  },
-  {
-    name: "Germany",
-    code: "DE",
-    dial: "+49",
-    flag: "🇩🇪",
-    min: 10,
-    max: 11,
-  },
-  {
-    name: "France",
-    code: "FR",
-    dial: "+33",
-    flag: "🇫🇷",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Italy",
-    code: "IT",
-    dial: "+39",
-    flag: "🇮🇹",
-    min: 9,
-    max: 10,
-  },
-  {
-    name: "Spain",
-    code: "ES",
-    dial: "+34",
-    flag: "🇪🇸",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Netherlands",
-    code: "NL",
-    dial: "+31",
-    flag: "🇳🇱",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Switzerland",
-    code: "CH",
-    dial: "+41",
-    flag: "🇨🇭",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Ireland",
-    code: "IE",
-    dial: "+353",
-    flag: "🇮🇪",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "New Zealand",
-    code: "NZ",
-    dial: "+64",
-    flag: "🇳🇿",
-    min: 8,
-    max: 10,
-  },
-  {
-    name: "Japan",
-    code: "JP",
-    dial: "+81",
-    flag: "🇯🇵",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "South Korea",
-    code: "KR",
-    dial: "+82",
-    flag: "🇰🇷",
-    min: 9,
-    max: 10,
-  },
-  {
-    name: "China",
-    code: "CN",
-    dial: "+86",
-    flag: "🇨🇳",
-    min: 11,
-    max: 11,
-  },
-  {
-    name: "Hong Kong",
-    code: "HK",
-    dial: "+852",
-    flag: "🇭🇰",
-    min: 8,
-    max: 8,
-  },
-  {
-    name: "Malaysia",
-    code: "MY",
-    dial: "+60",
-    flag: "🇲🇾",
-    min: 9,
-    max: 10,
-  },
-  {
-    name: "Thailand",
-    code: "TH",
-    dial: "+66",
-    flag: "🇹🇭",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Israel",
-    code: "IL",
-    dial: "+972",
-    flag: "🇮🇱",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Indonesia",
-    code: "ID",
-    dial: "+62",
-    flag: "🇮🇩",
-    min: 9,
-    max: 12,
-  },
-  {
-    name: "Philippines",
-    code: "PH",
-    dial: "+63",
-    flag: "🇵🇭",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "Vietnam",
-    code: "VN",
-    dial: "+84",
-    flag: "🇻🇳",
-    min: 9,
-    max: 10,
-  },
-  {
-    name: "South Africa",
-    code: "ZA",
-    dial: "+27",
-    flag: "🇿🇦",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Saudi Arabia",
-    code: "SA",
-    dial: "+966",
-    flag: "🇸🇦",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Qatar",
-    code: "QA",
-    dial: "+974",
-    flag: "🇶🇦",
-    min: 8,
-    max: 8,
-  },
-  {
-    name: "Kuwait",
-    code: "KW",
-    dial: "+965",
-    flag: "🇰🇼",
-    min: 8,
-    max: 8,
-  },
-  {
-    name: "Oman",
-    code: "OM",
-    dial: "+968",
-    flag: "🇴🇲",
-    min: 8,
-    max: 8,
-  },
-  {
-    name: "Bahrain",
-    code: "BH",
-    dial: "+973",
-    flag: "🇧🇭",
-    min: 8,
-    max: 8,
-  },
-  {
-    name: "Pakistan",
-    code: "PK",
-    dial: "+92",
-    flag: "🇵🇰",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "Bangladesh",
-    code: "BD",
-    dial: "+880",
-    flag: "🇧🇩",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "Nepal",
-    code: "NP",
-    dial: "+977",
-    flag: "🇳🇵",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "Sri Lanka",
-    code: "LK",
-    dial: "+94",
-    flag: "🇱🇰",
-    min: 9,
-    max: 9,
-  },
-  {
-    name: "Russia",
-    code: "RU",
-    dial: "+7",
-    flag: "🇷🇺",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "Brazil",
-    code: "BR",
-    dial: "+55",
-    flag: "🇧🇷",
-    min: 10,
-    max: 11,
-  },
-  {
-    name: "Mexico",
-    code: "MX",
-    dial: "+52",
-    flag: "🇲🇽",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "Argentina",
-    code: "AR",
-    dial: "+54",
-    flag: "🇦🇷",
-    min: 10,
-    max: 11,
-  },
-  {
-    name: "Turkey",
-    code: "TR",
-    dial: "+90",
-    flag: "🇹🇷",
-    min: 10,
-    max: 10,
-  },
+  { name: "United Kingdom", code: "GB", dial: "+44", flag: "🇬🇧", min: 10, max: 10 },
+  { name: "United Arab Emirates", code: "AE", dial: "+971", flag: "🇦🇪", min: 9, max: 9 },
+  { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺", min: 9, max: 9 },
+  { name: "Singapore", code: "SG", dial: "+65", flag: "🇸🇬", min: 8, max: 8 },
+  { name: "Germany", code: "DE", dial: "+49", flag: "🇩🇪", min: 10, max: 11 },
+  { name: "France", code: "FR", dial: "+33", flag: "🇫🇷", min: 9, max: 9 },
+  { name: "Italy", code: "IT", dial: "+39", flag: "🇮🇹", min: 9, max: 10 },
+  { name: "Spain", code: "ES", dial: "+34", flag: "🇪🇸", min: 9, max: 9 },
+  { name: "Netherlands", code: "NL", dial: "+31", flag: "🇳🇱", min: 9, max: 9 },
+  { name: "Switzerland", code: "CH", dial: "+41", flag: "🇨🇭", min: 9, max: 9 },
+  { name: "Ireland", code: "IE", dial: "+353", flag: "🇮🇪", min: 9, max: 9 },
+  { name: "New Zealand", code: "NZ", dial: "+64", flag: "🇳🇿", min: 8, max: 10 },
+  { name: "Japan", code: "JP", dial: "+81", flag: "🇯🇵", min: 10, max: 10 },
+  { name: "South Korea", code: "KR", dial: "+82", flag: "🇰🇷", min: 9, max: 10 },
+  { name: "China", code: "CN", dial: "+86", flag: "🇨🇳", min: 11, max: 11 },
+  { name: "Hong Kong", code: "HK", dial: "+852", flag: "🇭🇰", min: 8, max: 8 },
+  { name: "Malaysia", code: "MY", dial: "+60", flag: "🇲🇾", min: 9, max: 10 },
+  { name: "Thailand", code: "TH", dial: "+66", flag: "🇹🇭", min: 9, max: 9 },
+  { name: "Israel", code: "IL", dial: "+972", flag: "🇮🇱", min: 9, max: 9 },
+  { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩", min: 9, max: 12 },
+  { name: "Philippines", code: "PH", dial: "+63", flag: "🇵🇭", min: 10, max: 10 },
+  { name: "Vietnam", code: "VN", dial: "+84", flag: "🇻🇳", min: 9, max: 10 },
+  { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦", min: 9, max: 9 },
+  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", min: 9, max: 9 },
+  { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦", min: 8, max: 8 },
+  { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼", min: 8, max: 8 },
+  { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲", min: 8, max: 8 },
+  { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭", min: 8, max: 8 },
+  { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", min: 10, max: 10 },
+  { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", min: 10, max: 10 },
+  { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", min: 10, max: 10 },
+  { name: "Sri Lanka", code: "LK", dial: "+94", flag: "🇱🇰", min: 9, max: 9 },
+  { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", min: 10, max: 10 },
+  { name: "Brazil", code: "BR", dial: "+55", flag: "🇧🇷", min: 10, max: 11 },
+  { name: "Mexico", code: "MX", dial: "+52", flag: "🇲🇽", min: 10, max: 10 },
+  { name: "Argentina", code: "AR", dial: "+54", flag: "🇦🇷", min: 10, max: 11 },
+  { name: "Turkey", code: "TR", dial: "+90", flag: "🇹🇷", min: 10, max: 10 },
 ];
 
 const navigation = [
@@ -359,17 +88,11 @@ const navigation = [
   { label: "Services & Tools", href: "/services", type: "link" },
   { label: "About Us", href: "/#aboutus", type: "link" },
   { label: "Post a Requirement", href: "/#enquiry", type: "link" },
-  {
-    label: "List your Property",
-    href: "/list-your-property",
-    type: "link",
-  },
+  { label: "List your Property", href: "/list-your-property", type: "link" },
 ];
 
 export default function Navbar() {
   const { count: wishlistCount } = useWishlist();
-  const [date, setDate] = useState(null);
-  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
@@ -377,13 +100,15 @@ export default function Navbar() {
 
   const currencyLabel = CURRENCY_CONFIG[currencyCode]?.label || "₹  INR";
 
-  const unitLabel = unit === "sqm" ? "sq.m" : "sq.ft";
   const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const [enquiryStep, setEnquiryStep] = useState(1);
   const [enquiryStatus, setEnquiryStatus] = useState("form");
+  const [pendingLeadPayload, setPendingLeadPayload] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  const [selectedCountry, setSelectedCountry] = useState(phoneCountries[0]);
+  const [email, setEmail] = useState("");
+  const [company, setCompany] = useState("");
+  const [emailError, setEmailError] = useState(""); const [selectedCountry, setSelectedCountry] = useState(phoneCountries[0]);
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
@@ -394,43 +119,18 @@ export default function Navbar() {
   const countryButtonRef = useRef(null);
   const phoneInputRef = useRef(null);
 
-  const [countryMenuPosition, setCountryMenuPosition] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [manualCity, setManualCity] = useState("");
-  const [locationDenied, setLocationDenied] = useState(false);
   const thankYouTimerRef = useRef(null);
-
-  const getCurrencySymbol = () => CURRENCY_CONFIG[currencyCode]?.symbol || "₹";
-
-  const formatCurrencyValue = (baseINR) => {
-    const config = CURRENCY_CONFIG[currencyCode] || CURRENCY_CONFIG.INR;
-    const converted = baseINR * config.rate;
-    return `${config.symbol} ${converted.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-  };
-
-  const formatAreaValue = (baseSqFt) => {
-    const config = UNIT_FACTORS[unit] || UNIT_FACTORS.sqft;
-    const converted = Math.round(baseSqFt * config.factor);
-
-    return `${converted.toLocaleString()} ${config.label}`;
-  };
 
   const handleCurrencySelect = (code) => {
     setCurrencyOpen(false);
-
-    setPreferences({
-      currency: code,
-      unit,
-    });
+    setPreferences({ currency: code, unit });
   };
 
   const handleUnitSelect = (selectedUnit) => {
     const normalizedUnit = selectedUnit === "sq.m" ? "sqm" : "sqft";
-
-    setPreferences({
-      currency: currencyCode,
-      unit: normalizedUnit,
-    });
+    setPreferences({ currency: currencyCode, unit: normalizedUnit });
   };
 
   useEffect(() => {
@@ -439,19 +139,11 @@ export default function Navbar() {
     const readUserLocation = () => {
       try {
         const savedLocation = sessionStorage.getItem("anarock_user_location");
-
-        const denied =
-          sessionStorage.getItem("anarock_location_denied") === "true";
-
-        setLocationDenied(denied);
-
         if (!savedLocation) {
           setUserLocation(null);
           return;
         }
-
         const parsedLocation = JSON.parse(savedLocation);
-
         setUserLocation(
           parsedLocation && typeof parsedLocation === "object"
             ? parsedLocation
@@ -464,18 +156,13 @@ export default function Navbar() {
     };
 
     readUserLocation();
-
     const locationInterval = window.setInterval(readUserLocation, 1000);
-
     window.addEventListener("anarock-location-updated", readUserLocation);
-
     window.addEventListener("storage", readUserLocation);
 
     return () => {
       window.clearInterval(locationInterval);
-
       window.removeEventListener("anarock-location-updated", readUserLocation);
-
       window.removeEventListener("storage", readUserLocation);
     };
   }, []);
@@ -487,7 +174,11 @@ export default function Navbar() {
 
   const openEnquiry = () => {
     setSubmitError("");
+    setEmail("");
+    setEmailError("");
     setPhoneError("");
+    setEnquiryStep(1);
+    setPendingLeadPayload(null);
     setEnquiryStatus("form");
     setEnquiryOpen(true);
   };
@@ -498,40 +189,33 @@ export default function Navbar() {
       thankYouTimerRef.current = null;
     }
 
+    setEmail("");
+    setEmailError("");
     setEnquiryOpen(false);
     setEnquiryStatus("form");
+    setEnquiryStep(1);
+    setPendingLeadPayload(null);
     setSubmitError("");
+    setCompany("");
     setPhoneError("");
     setPhone("");
     setSelectedCountry(phoneCountries[0]);
     setCountryOpen(false);
     setCountrySearch("");
     setIsSubmitting(false);
-    setCalendarOpen(false);
-    setDate(null);
     setManualCity("");
-    setLocationDenied(false);
   };
 
   const handleScrollNavigation = (href) => {
     closeMenu();
-
     const targetId = href?.replace("#", "");
-
     if (!targetId) return;
 
     setTimeout(() => {
       const section = document.getElementById(targetId);
-
-      if (!section) {
-        console.warn(`Scroll target not found: #${targetId}`);
-        return;
-      }
-
+      if (!section) return;
       const header = document.querySelector("header");
-
       const headerHeight = header?.offsetHeight || 80;
-
       const sectionTop =
         section.getBoundingClientRect().top + window.pageYOffset - headerHeight;
 
@@ -549,30 +233,39 @@ export default function Navbar() {
         setCurrencyOpen(false);
       }
     };
-
     handleResize();
-
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    if (mobileOpen || enquiryOpen || calendarOpen) {
+    if (mobileOpen || enquiryOpen) {
       document.body.style.overflow = "hidden";
-
       document.body.style.touchAction = "none";
     } else {
       document.body.style.overflow = "";
-
       document.body.style.touchAction = "";
     }
-
     return () => {
       document.body.style.overflow = "";
       document.body.style.touchAction = "";
     };
-  }, [mobileOpen, enquiryOpen, calendarOpen]);
+  }, [mobileOpen, enquiryOpen]);
+
+  // Handle ESC Key & Backdrop Close
+  const handleModalClose = async () => {
+    if (
+      enquiryStep === 2 &&
+      pendingLeadPayload &&
+      enquiryStatus !== "success" &&
+      !isSubmitting
+    ) {
+      // User closed Form 2 without submitting: send Form 1 data to CRM
+      await submitLeadToCRM("", "");
+      return;
+    }
+    closeEnquiry();
+  };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -581,17 +274,15 @@ export default function Navbar() {
       setMobileOpen(false);
       setCurrencyOpen(false);
       setCountryOpen(false);
-      setCalendarOpen(false);
 
       if (enquiryOpen) {
-        closeEnquiry();
+        handleModalClose();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [enquiryOpen]);
+  }, [enquiryOpen, enquiryStep, pendingLeadPayload, enquiryStatus, isSubmitting]);
 
   useEffect(() => {
     return () => {
@@ -603,46 +294,33 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!countryOpen) return;
-
     const timer = setTimeout(() => {
       countrySearchRef.current?.focus();
     }, 50);
-
     return () => clearTimeout(timer);
   }, [countryOpen]);
 
   const normalizePhoneInput = (rawValue, currentCountry = selectedCountry) => {
     const raw = String(rawValue || "").trim();
-
     if (!raw) {
-      return {
-        country: currentCountry,
-        digits: "",
-        countryDetected: false,
-      };
+      return { country: currentCountry, digits: "", countryDetected: false };
     }
 
     const allDigits = raw.replace(/\D/g, "");
-
     const sortedCountries = [...phoneCountries].sort(
       (a, b) => b.dial.length - a.dial.length,
     );
 
     let detectedCountry = currentCountry;
-
     let localDigits = allDigits;
-
     let countryDetected = false;
-
     const hasPlusSign = raw.startsWith("+");
 
     const matchedCountry = sortedCountries.find((country) => {
       const dialDigits = country.dial.replace("+", "");
-
       if (hasPlusSign) {
         return allDigits.startsWith(dialDigits);
       }
-
       return (
         allDigits.startsWith(dialDigits) &&
         allDigits.length > dialDigits.length &&
@@ -652,35 +330,25 @@ export default function Navbar() {
 
     if (matchedCountry) {
       detectedCountry = matchedCountry;
-
       const dialDigits = matchedCountry.dial.replace("+", "");
-
       localDigits = allDigits.slice(dialDigits.length);
-
       countryDetected = true;
     }
 
     localDigits = localDigits.replace(/^0+/, "");
-
     if (localDigits.length > detectedCountry.max) {
       localDigits = localDigits.slice(0, detectedCountry.max);
     }
 
-    return {
-      country: detectedCountry,
-      digits: localDigits,
-      countryDetected,
-    };
+    return { country: detectedCountry, digits: localDigits, countryDetected };
   };
 
   const validatePhone = (value = phone, country = selectedCountry) => {
     const digits = String(value || "").replace(/\D/g, "");
-
     if (!digits) {
       setPhoneError("Phone number is required.");
       return false;
     }
-
     if (digits.length < country.min) {
       if (country.min === country.max) {
         setPhoneError(`Phone number must be exactly ${country.min} digits.`);
@@ -689,20 +357,15 @@ export default function Navbar() {
           `Phone number must be between ${country.min} and ${country.max} digits.`,
         );
       }
-
       return false;
     }
-
     if (digits.length > country.max) {
       setPhoneError(
         `Phone number cannot exceed ${country.max} digits for ${country.name}.`,
       );
-
       return false;
     }
-
     setPhoneError("");
-
     return true;
   };
 
@@ -712,14 +375,12 @@ export default function Navbar() {
     setCountrySearch("");
 
     const digits = phone.replace(/\D/g, "");
-
     setPhone(digits);
 
     if (!digits) {
       setPhoneError("");
       return;
     }
-
     validatePhone(digits, country);
   };
 
@@ -728,26 +389,20 @@ export default function Navbar() {
       rawValue,
       selectedCountry,
     );
-
     if (countryDetected && country.code !== selectedCountry.code) {
       setSelectedCountry(country);
     }
-
     setPhone(digits);
-
     if (!digits) {
       setPhoneError("");
       return;
     }
-
     validatePhone(digits, country);
   };
 
   const filteredCountries = phoneCountries.filter((country) => {
     const search = countrySearch.trim().toLowerCase();
-
     if (!search) return true;
-
     return (
       country.name.toLowerCase().includes(search) ||
       country.code.toLowerCase().includes(search) ||
@@ -757,95 +412,49 @@ export default function Navbar() {
 
   const resolveCityState = async (cityName) => {
     const normalizedCity = String(cityName || "").trim();
-
     if (!normalizedCity) {
-      return {
-        city: "",
-        state: "",
-        country: "India",
-      };
+      return { city: "", state: "", country: "India" };
     }
-
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&country=India&city=${encodeURIComponent(
           normalizedCity,
         )}`,
-        {
-          headers: {
-            Accept: "application/json",
-          },
-        },
+        { headers: { Accept: "application/json" } },
       );
 
-      if (!response.ok) {
-        throw new Error(`Location lookup failed: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error("Lookup failed");
       const results = await response.json();
       const result = results?.[0];
 
       if (!result) {
-        return {
-          city: normalizedCity,
-          state: "",
-          country: "India",
-        };
+        return { city: normalizedCity, state: "", country: "India" };
       }
 
       const address = result.address || {};
-
       return {
         city:
           address.city ||
           address.town ||
           address.municipality ||
           normalizedCity,
-
         state: address.state || address.state_district || "",
-
         country: address.country || "India",
       };
     } catch (error) {
-      console.warn("Unable to resolve searched city state:", error);
-
-      return {
-        city: normalizedCity,
-        state: "",
-        country: "India",
-      };
+      return { city: normalizedCity, state: "", country: "India" };
     }
   };
 
   const mapLocationToLeadOwnerTeam = (city, state) => {
-    const cityLower = String(city || "")
-      .trim()
-      .toLowerCase();
+    const cityLower = String(city || "").trim().toLowerCase();
+    const stateLower = String(state || "").trim().toLowerCase();
 
-    const stateLower = String(state || "")
-      .trim()
-      .toLowerCase();
-
-    if (cityLower.includes("bengaluru") || cityLower.includes("bangalore")) {
-      return "Bengaluru";
-    }
-
-    if (cityLower.includes("chennai")) {
-      return "Chennai";
-    }
-
-    if (cityLower.includes("hyderabad")) {
-      return "Hyderabad";
-    }
-
-    if (cityLower.includes("kolkata")) {
-      return "Kolkata";
-    }
-
-    if (cityLower.includes("pune")) {
-      return "Pune";
-    }
-
+    if (cityLower.includes("bengaluru") || cityLower.includes("bangalore")) return "Bengaluru";
+    if (cityLower.includes("chennai")) return "Chennai";
+    if (cityLower.includes("hyderabad")) return "Hyderabad";
+    if (cityLower.includes("kolkata")) return "Kolkata";
+    if (cityLower.includes("pune")) return "Pune";
     if (
       cityLower.includes("mumbai") ||
       cityLower.includes("ahmedabad") ||
@@ -858,7 +467,6 @@ export default function Navbar() {
     ) {
       return "West";
     }
-
     if (
       cityLower.includes("agra") ||
       cityLower.includes("delhi") ||
@@ -874,11 +482,82 @@ export default function Navbar() {
     ) {
       return "North";
     }
-
     return "Platform";
   };
 
-  const handleEnquirySubmit = async (event) => {
+  // Submits the combined payload to Zoho CRM
+  const submitLeadToCRM = async (email = "", company = "") => {
+    if (!pendingLeadPayload || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setSubmitError("");
+    setEmailError("");
+
+    const finalPayload = {
+      ...pendingLeadPayload,
+      email: email.trim(),
+      company: company.trim(),
+    };
+
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(finalPayload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || "Unable to create lead in CRM.");
+      }
+
+      setEnquiryStatus("success");
+      thankYouTimerRef.current = setTimeout(() => {
+        closeEnquiry();
+      }, 5000);
+    } catch (error) {
+      console.error("CRM Lead creation error:", error);
+
+      // Fallback: If sending Form 2 data fails, attempt creating lead using Form 1 data only
+      if (email.trim() || company.trim()) {
+        try {
+          const fallbackPayload = {
+            ...pendingLeadPayload,
+            email: "",
+            company: "",
+          };
+
+          const fallbackResponse = await fetch("/api/lead", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(fallbackPayload),
+          });
+
+          const fallbackResult = await fallbackResponse.json();
+
+          if (fallbackResponse.ok && fallbackResult?.success) {
+            setEnquiryStatus("success");
+            thankYouTimerRef.current = setTimeout(() => {
+              closeEnquiry();
+            }, 5000);
+            return;
+          }
+        } catch (fallbackError) {
+          console.error("Fallback lead creation error:", fallbackError);
+        }
+      }
+
+      setSubmitError(
+        error?.message || "Something went wrong while creating the lead.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Form 1 Submission: Validates name & phone, stores data, moves to Form 2
+  const handleFormOneSubmit = async (event) => {
     event.preventDefault();
 
     if (isSubmitting) return;
@@ -892,7 +571,6 @@ export default function Navbar() {
       return;
     }
 
-    setIsSubmitting(true);
     setSubmitError("");
 
     const formData = new FormData(form);
@@ -903,8 +581,6 @@ export default function Navbar() {
     let country = "";
     let area = "";
     let pincode = "";
-    let latitude = null;
-    let longitude = null;
 
     let searchCity = "";
     let searchMicromarket = "";
@@ -912,44 +588,29 @@ export default function Navbar() {
 
     try {
       const searchParams = new URLSearchParams(window.location.search);
-
       const urlCity = String(searchParams.get("city") || "").trim();
-
-      const urlMicromarket = String(
-        searchParams.get("micromarket") || "",
-      ).trim();
+      const urlMicromarket = String(searchParams.get("micromarket") || "").trim();
 
       if (urlCity) {
         searchCity = urlCity;
         hasActiveSearch = true;
       }
-
-      if (urlMicromarket) {
-        searchMicromarket = urlMicromarket;
-      }
+      if (urlMicromarket) searchMicromarket = urlMicromarket;
     } catch (error) {
-      console.error("Unable to read active search parameters:", error);
+      console.error("Unable to read search parameters:", error);
     }
 
     if (!searchCity) {
       try {
-        const lastSearched = localStorage.getItem(
-          "anarock_last_searched_location",
-        );
-
+        const lastSearched = localStorage.getItem("anarock_last_searched_location");
         if (lastSearched) {
           const parsedSearch = JSON.parse(lastSearched);
-
           const storedCity = String(parsedSearch?.city || "").trim();
-
           if (storedCity) {
             searchCity = storedCity;
             hasActiveSearch = true;
-
             if (!searchMicromarket) {
-              searchMicromarket = String(
-                parsedSearch?.micromarket || "",
-              ).trim();
+              searchMicromarket = String(parsedSearch?.micromarket || "").trim();
             }
           }
         }
@@ -960,18 +621,13 @@ export default function Navbar() {
 
     try {
       const savedLocation = sessionStorage.getItem("anarock_user_location");
-
       if (savedLocation) {
         const parsed = JSON.parse(savedLocation);
-
         city = String(parsed?.city || "").trim();
         state = String(parsed?.state || "").trim();
         country = String(parsed?.country || "").trim();
         area = String(parsed?.area || "").trim();
         pincode = String(parsed?.pincode || "").trim();
-
-        latitude = parsed?.latitude ?? null;
-        longitude = parsed?.longitude ?? null;
       }
     } catch (error) {
       console.error("Unable to read saved user location:", error);
@@ -984,24 +640,11 @@ export default function Navbar() {
       state = "";
       country = "India";
       pincode = "";
-      latitude = null;
-      longitude = null;
     } else if (!city) {
       city = String(manualCity || "").trim();
     }
 
     const name = String(formData.get("name") || "").trim();
-    const formCity = String(formData.get("city") || "").trim();
-
-    if (!hasActiveSearch && !city && formCity) {
-      city = formCity;
-    }
-
-    const email = String(formData.get("email") || "").trim();
-    const company = String(formData.get("company") || "").trim();
-    const budget = String(formData.get("budget") || "").trim();
-    const areaRequirement = String(formData.get("area") || "").trim();
-    const contactDate = date ? format(date, "yyyy-MM-dd") : null;
     const fullPhone = `${selectedCountry.dial}${cleanPhone}`;
 
     const nameParts = name.split(/\s+/).filter(Boolean);
@@ -1017,33 +660,21 @@ export default function Navbar() {
 
     if (hasActiveSearch && searchCity) {
       const resolvedSearchLocation = await resolveCityState(searchCity);
-
       city = resolvedSearchLocation.city || searchCity;
-
       state = resolvedSearchLocation.state || "";
-
       country = resolvedSearchLocation.country || "India";
       micromarket = searchMicromarket || "";
       area = micromarket;
-      pincode = "";
-      latitude = null;
-      longitude = null;
     }
 
     const finalCity = city || "";
     const finalState = state || "";
-
-    const finalLeadOwnerTeam = mapLocationToLeadOwnerTeam(
-      finalCity,
-      finalState,
-    );
+    const finalLeadOwnerTeam = mapLocationToLeadOwnerTeam(finalCity, finalState);
 
     const payload = {
       firstName,
       lastName,
-      email,
       phone: fullPhone,
-      company,
       street: area || micromarket || "",
       city: finalCity,
       state: finalState,
@@ -1053,65 +684,47 @@ export default function Navbar() {
       leadStatus: "Not Contacted",
       subLeadSource: "Request a Callback",
       leadOwnerTeam: finalLeadOwnerTeam,
-      budget,
-      areaRequirement,
       preferredCurrency: currencyCode,
       preferredUnit: unit,
       countryCode: selectedCountry.code,
       countryDialCode: selectedCountry.dial,
     };
 
-    console.log("Submitting enquiry lead payload:", payload);
+    setPendingLeadPayload(payload);
+    setEnquiryStep(2);
+  };
 
-    try {
-      const response = await fetch("/api/leads", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+  const handleFormTwoSubmit = async (event) => {
+    event.preventDefault();
 
-      let result = null;
+    if (isSubmitting) return;
 
-      try {
-        result = await response.json();
-        console.log("API response received:", result);
-      } catch (jsonError) {
-        throw new Error("Invalid response received from the server.");
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") || "").trim();
+    const company = String(formData.get("company") || "").trim();
+
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setEmailError("Please enter a valid email address.");
+        return;
       }
-
-      if (!response.ok || !result?.success) {
-        throw new Error(result?.message || "Unable to create lead in CRM.");
-      }
-
-      form.reset();
-      setPhone("");
-      setPhoneError("");
-      setSelectedCountry(phoneCountries[0]);
-      setCountryOpen(false);
-      setCountrySearch("");
-      setIsSubmitting(false);
-      setEnquiryStatus("success");
-
-      thankYouTimerRef.current = setTimeout(() => {
-        closeEnquiry();
-      }, 5000);
-    } catch (error) {
-      console.error("Lead creation error:", error);
-      setIsSubmitting(false);
-      setSubmitError(
-        error?.message ||
-          "Something went wrong while creating the lead. Please try again.",
-      );
     }
+
+    setEmailError("");
+    await submitLeadToCRM(email, company);
+  };
+
+  // Skip Form 2 and submit using Form 1 data
+  const handleSkipFormTwo = async () => {
+    await submitLeadToCRM("", "");
   };
 
   return (
     <>
       <header className="sticky inset-x-0 top-0 z-[100] w-full translate-y-0 opacity-100">
-        <div className="relative mx-auto w-full overflow-visible border  shadow-lg border-white/30 bg-transparent  backdrop-blur-2xl">
-          <div className="flex h-[65px] min-h-[65px] w-full items-center justify-between gap-2 px-3 sm:h-[70px] sm:min-h-[70px] sm:px-4 md:gap-3 md:px-5 lg:h-[75px] lg:min-h-[68px] lg:px-3 min-[1366px]:h-[72px] min-[1366px]:min-h-[72px] min-[1366px]:gap-2 min-[1366px]:px-3 min-[1920px]:h-[80px] min-[1920px]:min-h-[110px] min-[1920px]:px-8">
+        <div className="relative mx-auto w-full overflow-visible border shadow-lg border-white/30 bg-transparent backdrop-blur-2xl">
+          <div className="flex h-[70px] min-h-[70px] w-full items-center justify-between gap-2 px-3 sm:h-[70px] sm:min-h-[70px] sm:px-4 md:gap-3 md:px-5 lg:h-[85px] lg:min-h-[85px] lg:px-3 min-[1366px]:h-[80px] min-[1366px]:min-h-[80px] min-[1366px]:gap-2 min-[1366px]:px-3 min-[1920px]:h-[80px] min-[1920px]:min-h-[110px] min-[1920px]:px-8">
             <Link
               href="/"
               onClick={closeMenu}
@@ -1143,9 +756,8 @@ export default function Navbar() {
 
                     <span className="block truncate text-[12px] font-semibold text-slate-800 sm:text-[12px] md:text-[13px] lg:text-[13px] min-[1920px]:text-[15px]">
                       {userLocation?.city
-                        ? `${userLocation.city}${
-                            userLocation?.state ? `, ${userLocation.state}` : ""
-                          }`
+                        ? `${userLocation.city}${userLocation?.state ? `, ${userLocation.state}` : ""
+                        }`
                         : userLocation?.state || "Detecting location..."}
                     </span>
                   </span>
@@ -1153,7 +765,7 @@ export default function Navbar() {
               </div>
             </Link>
 
-            <nav className="no-scrollbar mx-0 hidden min-w-0 items-center justify-center gap-1 bg-white/90 shadow-sm rounded-lg border border-white backdrop-blur-sm overflow-x-auto min-[1366px]:flex min-[1366px]:gap-1 min-[1920px]:gap-2 min-[1920px]:p-1.5">
+            <nav className="no-scrollbar mx-0 hidden min-w-0 items-center justify-center gap-1 bg-white/90 px-4 rounded-lg border border-white backdrop-blur-sm overflow-x-auto min-[1366px]:flex min-[1366px]:gap-1 min-[1920px]:gap-2 min-[1920px]:p-1.5">
               {navigation.map((item) => {
                 if (item.type === "scroll") {
                   return (
@@ -1194,11 +806,10 @@ export default function Navbar() {
                     <ChevronDown
                       size={13}
                       strokeWidth={2}
-                      className={`transition-transform duration-300 ${
-                        currencyOpen
-                          ? "rotate-180 text-[#A054A0]"
-                          : "text-slate-500"
-                      }`}
+                      className={`transition-transform duration-300 ${currencyOpen
+                        ? "rotate-180 text-[#A054A0]"
+                        : "text-slate-500"
+                        }`}
                     />
                   </button>
 
@@ -1209,11 +820,10 @@ export default function Navbar() {
                           key={code}
                           type="button"
                           onClick={() => handleCurrencySelect(code)}
-                          className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 min-[1920px]:py-2.5 min-[1920px]:text-[14px] ${
-                            currencyCode === code
-                              ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
-                          }`}
+                          className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 min-[1920px]:py-2.5 min-[1920px]:text-[14px] ${currencyCode === code
+                            ? "bg-[#A054A0] font-bold text-white shadow-sm"
+                            : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                            }`}
                         >
                           {label}
                         </button>
@@ -1226,11 +836,10 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => handleUnitSelect("sq.ft")}
-                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${
-                      unit === "sqft"
-                        ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
-                    }`}
+                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqft"
+                      ? "bg-[#A054A0] text-white shadow-sm"
+                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                      }`}
                   >
                     sq.ft
                   </button>
@@ -1238,11 +847,10 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => handleUnitSelect("sq.m")}
-                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${
-                      unit === "sqm"
-                        ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
-                    }`}
+                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqm"
+                      ? "bg-[#A054A0] text-white shadow-sm"
+                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                      }`}
                   >
                     sq.m
                   </button>
@@ -1264,21 +872,17 @@ export default function Navbar() {
 
                 <Link
                   href="/wishlist"
-                  aria-label={`Wishlist${
-                    wishlistCount > 0
-                      ? `, ${wishlistCount} saved properties`
-                      : ""
-                  }`}
+                  aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} saved properties` : ""
+                    }`}
                   className="group relative hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
                 >
                   <Heart
                     size={16}
                     strokeWidth={1.8}
-                    className={`transition-all duration-200 min-[1920px]:h-5 min-[1920px]:w-5 ${
-                      wishlistCount > 0
-                        ? "fill-[#A054A0] text-[#A054A0]"
-                        : "text-slate-500 group-hover:text-[#A054A0]"
-                    }`}
+                    className={`transition-all duration-200 min-[1920px]:h-5 min-[1920px]:w-5 ${wishlistCount > 0
+                      ? "fill-[#A054A0] text-[#A054A0]"
+                      : "text-slate-500 group-hover:text-[#A054A0]"
+                      }`}
                   />
 
                   <span>Shortlisted</span>
@@ -1308,14 +912,13 @@ export default function Navbar() {
           </div>
 
           <div
-            className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${
-              mobileOpen
-                ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
-                : "pointer-events-none max-h-0 opacity-0"
-            }`}
+            className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${mobileOpen
+              ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
+              : "pointer-events-none max-h-0 opacity-0"
+              }`}
           >
-            <div className="flex max-h-[calc(100dvh-100px)] flex-col justify-between overflow-y-auto px-3 pb-5 pt-3 sm:px-5  sm:pb-7 sm:pt-4">
-              <nav className="flex flex-col space-y-1.5 bg-black">
+            <div className="flex max-h-[calc(100dvh-100px)] flex-col justify-between overflow-y-auto px-3 pb-5 pt-3 sm:px-5 sm:pb-7 sm:pt-4">
+              <nav className="flex flex-col space-y-1.5">
                 {navigation.map((item, index) => {
                   if (item.type === "scroll") {
                     return (
@@ -1324,18 +927,14 @@ export default function Navbar() {
                         type="button"
                         onClick={() => handleScrollNavigation(item.href)}
                         style={{
-                          transitionDelay: mobileOpen
-                            ? `${index * 30}ms`
-                            : "0ms",
+                          transitionDelay: mobileOpen ? `${index * 30}ms` : "0ms",
                         }}
-                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${
-                          mobileOpen
-                            ? "translate-x-0 opacity-100"
-                            : "-translate-x-4 opacity-0"
-                        }`}
+                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
+                          ? "translate-x-0 opacity-100"
+                          : "-translate-x-4 opacity-0"
+                          }`}
                       >
                         <span>{item.label}</span>
-
                         <ArrowUpRight
                           size={18}
                           strokeWidth={2}
@@ -1353,14 +952,12 @@ export default function Navbar() {
                       style={{
                         transitionDelay: mobileOpen ? `${index * 30}ms` : "0ms",
                       }}
-                      className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${
-                        mobileOpen
-                          ? "translate-x-0 opacity-100"
-                          : "-translate-x-4 opacity-0"
-                      }`}
+                      className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
+                        ? "translate-x-0 opacity-100"
+                        : "-translate-x-4 opacity-0"
+                        }`}
                     >
                       <span>{item.label}</span>
-
                       <ArrowUpRight
                         size={18}
                         strokeWidth={2}
@@ -1386,7 +983,6 @@ export default function Navbar() {
                         : "text-slate-700"
                     }
                   />
-
                   <span className="font-semibold">Wishlist</span>
                 </div>
 
@@ -1403,11 +999,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => handleUnitSelect("sq.ft")}
-                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${
-                        unit === "sqft"
-                          ? "bg-[#A054A0] text-white shadow-sm"
-                          : "text-slate-600 hover:bg-white/80"
-                      }`}
+                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqft"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80"
+                        }`}
                     >
                       sq.ft
                     </button>
@@ -1415,11 +1010,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => handleUnitSelect("sq.m")}
-                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${
-                        unit === "sqm"
-                          ? "bg-[#A054A0] text-white shadow-sm"
-                          : "text-slate-600 hover:bg-white/80"
-                      }`}
+                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqm"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80"
+                        }`}
                     >
                       sq.m
                     </button>
@@ -1432,12 +1026,10 @@ export default function Navbar() {
                       className="flex h-8 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white px-2.5 text-[11px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 active:scale-95 sm:px-3"
                     >
                       {currencyLabel}
-
                       <ChevronDown
                         size={13}
-                        className={`transition-transform duration-200 ${
-                          currencyOpen ? "rotate-180 text-[#A054A0]" : ""
-                        }`}
+                        className={`transition-transform duration-200 ${currencyOpen ? "rotate-180 text-[#A054A0]" : ""
+                          }`}
                       />
                     </button>
 
@@ -1448,14 +1040,12 @@ export default function Navbar() {
                             key={code}
                             type="button"
                             onClick={() => handleCurrencySelect(code)}
-                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
-                              currencyCode === code
-                                ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                                : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
-                            }`}
+                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${currencyCode === code
+                              ? "bg-[#A054A0] font-bold text-white shadow-sm"
+                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                              }`}
                           >
                             <span>{label}</span>
-
                             {currencyCode === code && (
                               <Check size={14} className="text-white" />
                             )}
@@ -1470,15 +1060,11 @@ export default function Navbar() {
                   type="button"
                   onClick={() => {
                     closeMenu();
-
-                    setTimeout(() => {
-                      openEnquiry();
-                    }, 200);
+                    setTimeout(() => openEnquiry(), 200);
                   }}
                   className="group relative flex h-[48px] w-full items-center justify-between overflow-hidden rounded-lg bg-[#A054A0] px-5 text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 sm:text-[15px]"
                 >
                   <span className="relative z-10">Request a Callback</span>
-
                   <ArrowUpRight
                     size={20}
                     strokeWidth={2}
@@ -1491,12 +1077,13 @@ export default function Navbar() {
         </div>
       </header>
 
+      {/* ENQUIRY MODAL */}
       {enquiryOpen && (
         <div
           className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm animate-[navbarFadeIn_200ms_ease-out] sm:p-4 md:p-6"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              closeEnquiry();
+              handleModalClose();
             }
           }}
         >
@@ -1511,7 +1098,7 @@ export default function Navbar() {
 
             <button
               type="button"
-              onClick={closeEnquiry}
+              onClick={handleModalClose}
               aria-label="Close enquiry form"
               className="absolute right-3.5 top-3.5 z-30 flex h-9 w-9 items-center justify-center rounded-lg border border-white/80 bg-white/80 text-slate-500 shadow-sm backdrop-blur-md transition-all duration-200 hover:rotate-90 hover:bg-white hover:text-[#A054A0] hover:shadow-md active:scale-95 sm:right-5 sm:top-5 sm:h-10 sm:w-10 2xl:h-12 2xl:w-12"
             >
@@ -1544,15 +1131,10 @@ export default function Navbar() {
                   This window will close automatically.
                 </p>
               </div>
-            ) : (
+            ) : enquiryStep === 1 ? (
+              /* FORM 1: Name and Phone */
               <>
                 <div className="relative shrink-0 border-b border-[#A054A0]/10 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
-                  <div className="mb-3 inline-flex items-center rounded-lg border border-[#A054A0]/20 bg-[#A054A0]/10 px-3 py-1 shadow-sm">
-                    <span className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#A054A0] sm:text-[11px] 2xl:text-[13px]">
-                      Get in touch
-                    </span>
-                  </div>
-
                   <h2
                     id="enquiry-title"
                     className="pr-10 text-[20px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[27px] 2xl:text-[32px]"
@@ -1567,7 +1149,7 @@ export default function Navbar() {
 
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
                   <form
-                    onSubmit={handleEnquirySubmit}
+                    onSubmit={handleFormOneSubmit}
                     className="px-4 py-4 sm:px-8 sm:py-6 2xl:px-8 2xl:py-7"
                   >
                     <div className="space-y-4 2xl:space-y-6">
@@ -1600,11 +1182,10 @@ export default function Navbar() {
 
                         <div className="relative w-full">
                           <div
-                            className={`flex h-10 w-full rounded-lg border bg-white/70 shadow-sm backdrop-blur-md transition-all duration-200 sm:h-[46px] 2xl:h-[54px] ${
-                              phoneError
-                                ? "border-red-400 ring-2 ring-red-500/10"
-                                : "border-[#A054A0]/20 focus-within:border-[#A054A0] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A054A0]/20"
-                            }`}
+                            className={`flex h-10 w-full rounded-lg border bg-white/70 shadow-sm backdrop-blur-md transition-all duration-200 sm:h-[46px] 2xl:h-[54px] ${phoneError
+                              ? "border-red-400 ring-2 ring-red-500/10"
+                              : "border-[#A054A0]/20 focus-within:border-[#A054A0] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A054A0]/20"
+                              }`}
                           >
                             <div className="relative shrink-0">
                               <button
@@ -1624,11 +1205,10 @@ export default function Navbar() {
                                 <ChevronDown
                                   size={14}
                                   strokeWidth={2}
-                                  className={`transition-transform duration-200 ${
-                                    countryOpen
-                                      ? "rotate-180 text-[#A054A0]"
-                                      : "text-slate-500"
-                                  }`}
+                                  className={`transition-transform duration-200 ${countryOpen
+                                    ? "rotate-180 text-[#A054A0]"
+                                    : "text-slate-500"
+                                    }`}
                                 />
                               </button>
 
@@ -1649,36 +1229,25 @@ export default function Navbar() {
                                         top: (() => {
                                           const rect =
                                             countryButtonRef.current?.getBoundingClientRect();
-
                                           if (!rect) return 0;
-
                                           const height = Math.min(
                                             330,
                                             window.innerHeight - 24,
                                           );
-
                                           const spaceBelow =
                                             window.innerHeight - rect.bottom;
-
                                           return spaceBelow < height &&
                                             rect.top > height
-                                            ? Math.max(
-                                                12,
-                                                rect.top - height - 8,
-                                              )
+                                            ? Math.max(12, rect.top - height - 8)
                                             : Math.min(
-                                                rect.bottom + 8,
-                                                window.innerHeight -
-                                                  height -
-                                                  12,
-                                              );
+                                              rect.bottom + 8,
+                                              window.innerHeight - height - 12,
+                                            );
                                         })(),
                                         left: (() => {
                                           const rect =
                                             countryButtonRef.current?.getBoundingClientRect();
-
                                           if (!rect) return 12;
-
                                           return Math.min(
                                             Math.max(12, rect.left),
                                             window.innerWidth - 310 - 12,
@@ -1697,8 +1266,7 @@ export default function Navbar() {
                                           <input
                                             ref={countrySearchRef}
                                             type="text"
-                                            value={countrySearch}
-                                            onChange={(e) =>
+                                            value={countrySearch ?? ""} onChange={(e) =>
                                               setCountrySearch(e.target.value)
                                             }
                                             placeholder="Search country..."
@@ -1724,9 +1292,9 @@ export default function Navbar() {
                                           filteredCountries.map((country) => {
                                             const isSelected =
                                               country.code ===
-                                                selectedCountry.code &&
+                                              selectedCountry.code &&
                                               country.dial ===
-                                                selectedCountry.dial;
+                                              selectedCountry.dial;
 
                                             return (
                                               <button
@@ -1735,11 +1303,10 @@ export default function Navbar() {
                                                 onClick={() =>
                                                   handleCountrySelect(country)
                                                 }
-                                                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all duration-150 ${
-                                                  isSelected
-                                                    ? "bg-[#A054A0] font-semibold text-white"
-                                                    : "text-slate-800 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
-                                                }`}
+                                                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all duration-150 ${isSelected
+                                                  ? "bg-[#A054A0] font-semibold text-white"
+                                                  : "text-slate-800 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                                                  }`}
                                               >
                                                 <span className="text-[18px] leading-none">
                                                   {country.flag}
@@ -1750,11 +1317,10 @@ export default function Navbar() {
                                                 </span>
 
                                                 <span
-                                                  className={`text-[12px] font-medium ${
-                                                    isSelected
-                                                      ? "text-white/80"
-                                                      : "text-slate-500"
-                                                  }`}
+                                                  className={`text-[12px] font-medium ${isSelected
+                                                    ? "text-white/80"
+                                                    : "text-slate-500"
+                                                    }`}
                                                 >
                                                   {country.dial}
                                                 </span>
@@ -1786,21 +1352,13 @@ export default function Navbar() {
                               name="phone"
                               type="tel"
                               inputMode="tel"
-                              value={phone}
+                              value={phone ?? ""}
                               onChange={(e) =>
                                 handlePhoneInputChange(e.target.value)
                               }
                               onInput={(e) =>
                                 handlePhoneInputChange(e.currentTarget.value)
                               }
-                              onFocus={() => {
-                                const value =
-                                  phoneInputRef.current?.value || "";
-
-                                if (value && value !== phone) {
-                                  handlePhoneInputChange(value);
-                                }
-                              }}
                               placeholder="Enter phone number"
                               required
                               autoComplete="tel"
@@ -1821,7 +1379,52 @@ export default function Navbar() {
                           </p>
                         ) : null}
                       </div>
+                    </div>
 
+                    {submitError && (
+                      <div
+                        role="alert"
+                        className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[12px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
+                      >
+                        {submitError}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      className="group relative mt-6 flex h-[48px] w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                    >
+                      <span className="relative z-10">Next</span>
+                      <ArrowUpRight
+                        size={18}
+                        strokeWidth={2}
+                        className="relative z-10 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 2xl:h-6 2xl:w-6"
+                      />
+                    </button>
+                  </form>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="relative shrink-0 border-b border-[#A054A0]/10 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
+                  <h2
+                    id="enquiry-title"
+                    className="pr-10 text-[20px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[27px] 2xl:text-[32px]"
+                  >
+                    Almost done!
+                  </h2>
+
+                  <p className="mt-1.5 max-w-[480px] text-[11px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
+                    Provide your email and company name to help us serve you better.
+                  </p>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+                  <form
+                    onSubmit={handleFormTwoSubmit}
+                    className="px-4 py-4 sm:px-8 sm:py-6 2xl:px-8 2xl:py-7"
+                  >
+                    <div className="space-y-4 2xl:space-y-6">
                       <div>
                         <label
                           htmlFor="enquiry-email"
@@ -1836,10 +1439,24 @@ export default function Navbar() {
                           type="email"
                           placeholder="Enter your email"
                           autoComplete="email"
-                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[14px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[17px] 2xl:px-5"
-                        />
-                      </div>
+                          value={email ?? ""} onChange={(event) => {
+                            setEmail(event.target.value);
 
+                            if (emailError) {
+                              setEmailError("");
+                            }
+                          }}
+                          className={`h-10 w-full rounded-lg border bg-white/70 px-4 text-[14px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:bg-white sm:h-[46px] sm:text-[15px] ${emailError
+                            ? "border-red-400 ring-2 ring-red-500/10"
+                            : "border-[#A054A0]/20 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                            }`}
+                        />
+                        {emailError && (
+                          <p className="mt-1.5 text-[11px] font-medium leading-4 text-red-600 2xl:text-[13px]">
+                            {emailError}
+                          </p>
+                        )}
+                      </div>
                       <div>
                         <label
                           htmlFor="enquiry-company"
@@ -1852,7 +1469,10 @@ export default function Navbar() {
                           id="enquiry-company"
                           name="company"
                           type="text"
-                          placeholder="Enter your Company Name"
+                          placeholder="Enter your company name"
+                          autoComplete="organization"
+                          value={company ?? ""}
+                          onChange={(event) => setCompany(event.target.value)}
                           className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[14px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[17px] 2xl:px-5"
                         />
                       </div>
@@ -1867,34 +1487,41 @@ export default function Navbar() {
                       </div>
                     )}
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="group relative mt-6 flex h-[48px] w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 disabled:cursor-not-allowed disabled:opacity-70 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2
-                            size={18}
-                            className="relative z-10 animate-spin 2xl:h-6 2xl:w-6"
-                          />
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="group relative flex h-[48px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 disabled:cursor-not-allowed disabled:opacity-70 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2
+                              size={18}
+                              className="relative z-10 animate-spin 2xl:h-6 2xl:w-6"
+                            />
+                            <span className="relative z-10">Submitting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="relative z-10">Submit Enquiry</span>
+                            <ArrowUpRight
+                              size={18}
+                              strokeWidth={2}
+                              className="relative z-10 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 2xl:h-6 2xl:w-6"
+                            />
+                          </>
+                        )}
+                      </button>
 
-                          <span className="relative z-10">
-                            Creating Lead...
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="relative z-10">Submit Enquiry</span>
-
-                          <ArrowUpRight
-                            size={18}
-                            strokeWidth={2}
-                            className="relative z-10 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 2xl:h-6 2xl:w-6"
-                          />
-                        </>
-                      )}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={handleSkipFormTwo}
+                        disabled={isSubmitting}
+                        className="flex h-[48px] items-center justify-center rounded-lg border border-[#A054A0]/30 px-6 text-[14px] font-semibold text-[#A054A0] transition-all duration-200 hover:bg-[#A054A0]/10 active:scale-98 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                      >
+                        Skip
+                      </button>
+                    </div>
                   </form>
                 </div>
               </>
@@ -1913,55 +1540,9 @@ export default function Navbar() {
           display: none;
         }
 
-        .rdp-caption_dropdowns {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-
-        .rdp-dropdown_month,
-        .rdp-dropdown_year {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-        }
-
-        .rdp-dropdown_month::after,
-        .rdp-dropdown_year::after {
-          content: "";
-          position: absolute;
-          right: 10px;
-          pointer-events: none;
-          width: 0;
-          height: 0;
-          border-left: 4px solid transparent;
-          border-right: 4px solid transparent;
-          border-top: 5px solid #64748b;
-        }
-
-        @media (min-width: 1440px) {
-          .rdp {
-            --rdp-cell-size: 42px !important;
-            font-size: 15px !important;
-          }
-        }
-
-        @media (min-width: 2560px) {
-          .rdp {
-            --rdp-cell-size: 52px !important;
-            font-size: 17px !important;
-          }
-        }
-
         @keyframes navbarFadeIn {
-          from {
-            opacity: 0;
-          }
-
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
 
         @keyframes navbarPopup {
@@ -1969,7 +1550,6 @@ export default function Navbar() {
             opacity: 0;
             transform: translateY(12px) scale(0.97);
           }
-
           to {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -1981,7 +1561,6 @@ export default function Navbar() {
             opacity: 0;
             transform: translateY(-6px) scale(0.98);
           }
-
           to {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -1993,11 +1572,9 @@ export default function Navbar() {
             opacity: 0;
             transform: scale(0.65);
           }
-
           70% {
             transform: scale(1.08);
           }
-
           100% {
             opacity: 1;
             transform: scale(1);
@@ -2005,18 +1582,9 @@ export default function Navbar() {
         }
 
         @keyframes errorShake {
-          0%,
-          100% {
-            transform: translateX(0);
-          }
-
-          25% {
-            transform: translateX(-4px);
-          }
-
-          75% {
-            transform: translateX(4px);
-          }
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
         }
       `}</style>
     </>

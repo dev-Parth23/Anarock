@@ -111,9 +111,9 @@ export default function PropertyDetailClient({ propertyId }) {
 
         const images = imageFolderPath
           ? IMAGE_FILES.map((image) => ({
-              ...image,
-              url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
-            }))
+            ...image,
+            url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
+          }))
           : [];
 
         setProperty({
@@ -308,11 +308,10 @@ export default function PropertyDetailClient({ propertyId }) {
               focus:outline-none
               focus:ring-2
               focus:ring-[#A054A0]
-              ${
-                isActive
-                  ? "border-[#A054A0] scale-95 shadow-lg"
-                  : "border-transparent opacity-70 hover:opacity-100"
-              }
+              ${isActive
+                        ? "border-[#A054A0] scale-95 shadow-lg"
+                        : "border-transparent opacity-70 hover:opacity-100"
+                      }
             `}
                   >
                     <div className="relative h-20 w-28 sm:h-24 sm:w-36">
@@ -397,10 +396,10 @@ export default function PropertyDetailClient({ propertyId }) {
               value={
                 property.achievableRent
                   ? formatPrice(
-                      property.achievableRent,
-                      currency,
-                      exchangeRates,
-                    )
+                    property.achievableRent,
+                    currency,
+                    exchangeRates,
+                  )
                   : "-"
               }
             />

@@ -1534,3 +1534,34 @@ svg {
     font-size: 16px;
   }
 }
+
+
+
+/* ================= GLASS INPUT ================= */
+
+.glass-input {
+  -webkit-appearance: none;
+  appearance: none;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 1px 2px rgba(15, 23, 42, 0.02);
+}
+
+.glass-input:hover {
+  border-color: rgba(160, 84, 160, 0.25);
+}
+
+.glass-input:focus {
+  box-shadow:
+    0 0 0 4px rgba(160, 84, 160, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.glass-input::placeholder {
+  transition: opacity 0.3s ease;
+}
+
+.glass-input:focus::placeholder {
+  opacity: 0.5;
+}

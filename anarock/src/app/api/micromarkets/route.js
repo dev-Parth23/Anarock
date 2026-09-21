@@ -17,11 +17,6 @@ let zohoTokenCache = {
   expiresAt: 0,
   apiDomain: DEFAULT_API_URL,
 };
-
-/* =========================
-   ZOHO ACCESS TOKEN
-========================= */
-
 async function generateZohoAccessToken() {
   if (!CLIENT_ID) {
     throw new Error("ZOHO_CLIENT_ID is missing from .env.local");
@@ -66,8 +61,8 @@ async function generateZohoAccessToken() {
   if (!response.ok) {
     throw new Error(
       data?.error_description ||
-        data?.error ||
-        `Unable to generate Zoho access token. HTTP ${response.status}`,
+      data?.error ||
+      `Unable to generate Zoho access token. HTTP ${response.status}`,
     );
   }
 
@@ -147,8 +142,8 @@ async function fetchMicromarkets(tokenInfo, city) {
   if (!response.ok) {
     throw new Error(
       data?.data?.[0]?.message ||
-        data?.message ||
-        `Unable to fetch micromarkets from Zoho CRM. HTTP ${response.status}`,
+      data?.message ||
+      `Unable to fetch micromarkets from Zoho CRM. HTTP ${response.status}`,
     );
   }
 
@@ -180,10 +175,6 @@ async function fetchMicromarkets(tokenInfo, city) {
     }))
     .filter((item) => item.id && item.name);
 }
-
-/* =========================
-   GET
-========================= */
 
 export async function GET(request) {
   try {

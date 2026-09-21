@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 
 export default function Breadcrumbs({ items = [] }) {
-  // items: [{label, href}]
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',

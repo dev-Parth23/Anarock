@@ -339,19 +339,18 @@ export default function PropertiesClient() {
     },
 
     filters.micromarket && {
-      label: `Micromarkets: ${
-        selectedMicromarketNames.length > 0
+      label: `Micromarkets: ${selectedMicromarketNames.length > 0
           ? selectedMicromarketNames.join(", ")
           : filters.micromarket
-      }`,
+        }`,
       key: "micromarket",
     },
 
     filters.type &&
-      filters.type !== "ai" && {
-        label: `Type: ${filters.type}`,
-        key: "type",
-      },
+    filters.type !== "ai" && {
+      label: `Type: ${filters.type}`,
+      key: "type",
+    },
 
     filters.budget && {
       label: `Budget: ${formatPrice(
@@ -370,9 +369,8 @@ export default function PropertiesClient() {
     },
 
     filters.prompt && {
-      label: `AI: ${filters.prompt.slice(0, 40)}${
-        filters.prompt.length > 40 ? "..." : ""
-      }`,
+      label: `AI: ${filters.prompt.slice(0, 40)}${filters.prompt.length > 40 ? "..." : ""
+        }`,
       key: "prompt",
     },
   ].filter(Boolean);
@@ -445,18 +443,16 @@ export default function PropertiesClient() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
           <aside
-            className={`${
-              showFilters
+            className={`${showFilters
                 ? "fixed inset-0 z-40 bg-slate-950/50 lg:relative lg:bg-transparent"
                 : "hidden lg:block"
-            }`}
+              }`}
           >
             <div
-              className={`bg-white border border-slate-200 rounded-xl p-4 lg:sticky lg:top-20 ${
-                showFilters
+              className={`bg-white border border-slate-200 rounded-xl p-4 lg:sticky lg:top-20 ${showFilters
                   ? "absolute right-0 top-0 h-full w-80 max-w-full overflow-y-auto rounded-none lg:rounded-xl lg:relative lg:w-auto lg:h-auto"
                   : ""
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-slate-900">Filters</h3>
@@ -500,11 +496,10 @@ export default function PropertiesClient() {
                     type="button"
                     disabled={!filters.city || micromarketsLoading}
                     onClick={() => setShowMicromarkets(!showMicromarkets)}
-                    className={`w-full flex items-center justify-between gap-2 border rounded-lg px-3 py-2 text-sm text-left transition-colors ${
-                      !filters.city
+                    className={`w-full flex items-center justify-between gap-2 border rounded-lg px-3 py-2 text-sm text-left transition-colors ${!filters.city
                         ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
                         : "bg-white text-slate-900 border-slate-300 hover:border-amber-500"
-                    }`}
+                      }`}
                   >
                     <span className="truncate">
                       {micromarketsLoading
@@ -515,9 +510,8 @@ export default function PropertiesClient() {
                     </span>
 
                     <ChevronDown
-                      className={`h-4 w-4 shrink-0 transition-transform ${
-                        showMicromarkets ? "rotate-180" : ""
-                      }`}
+                      className={`h-4 w-4 shrink-0 transition-transform ${showMicromarkets ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
@@ -530,11 +524,10 @@ export default function PropertiesClient() {
                         className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-slate-50 border-b border-slate-100"
                       >
                         <span
-                          className={`h-4 w-4 rounded border flex items-center justify-center ${
-                            selectedMicromarkets.length === 0
+                          className={`h-4 w-4 rounded border flex items-center justify-center ${selectedMicromarkets.length === 0
                               ? "bg-amber-500 border-amber-500"
                               : "border-slate-300"
-                          }`}
+                            }`}
                         >
                           {selectedMicromarkets.length === 0 && (
                             <Check className="h-3 w-3 text-white" />
@@ -566,11 +559,10 @@ export default function PropertiesClient() {
                                 className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-slate-50"
                               >
                                 <span
-                                  className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ${
-                                    selected
+                                  className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ${selected
                                       ? "bg-amber-500 border-amber-500"
                                       : "border-slate-300"
-                                  }`}
+                                    }`}
                                 >
                                   {selected && (
                                     <Check className="h-3 w-3 text-white" />
@@ -578,11 +570,10 @@ export default function PropertiesClient() {
                                 </span>
 
                                 <span
-                                  className={`truncate ${
-                                    selected
+                                  className={`truncate ${selected
                                       ? "font-medium text-slate-900"
                                       : "text-slate-700"
-                                  }`}
+                                    }`}
                                 >
                                   {market.name}
                                 </span>
@@ -606,7 +597,6 @@ export default function PropertiesClient() {
                   )}
                 </div>
 
-                {/* OFFICE TYPE */}
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1.5">
                     Office Type

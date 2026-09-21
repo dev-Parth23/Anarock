@@ -65,8 +65,6 @@ function notify() {
     listener();
   });
 }
-
-// Load exchange rates
 async function loadExchangeRates() {
   if (ratesLoading) return;
 
@@ -99,8 +97,6 @@ async function loadExchangeRates() {
     ratesLoading = false;
   }
 }
-
-// Initialize preferences
 function initialize() {
   if (initialized || typeof window === "undefined") {
     return;
@@ -115,22 +111,18 @@ function initialize() {
       INR: 1,
     },
   };
-
-  // Load live exchange rates
   loadExchangeRates();
-
-  // Custom preference event
   const handlePreferenceChange = (event) => {
     const nextCurrency = normalizeCurrency(
       event.detail?.currency ??
-        window.localStorage.getItem(CURRENCY_STORAGE_KEY) ??
-        state.currency,
+      window.localStorage.getItem(CURRENCY_STORAGE_KEY) ??
+      state.currency,
     );
 
     const nextUnit = normalizeUnit(
       event.detail?.unit ??
-        window.localStorage.getItem(UNIT_STORAGE_KEY) ??
-        state.unit,
+      window.localStorage.getItem(UNIT_STORAGE_KEY) ??
+      state.unit,
     );
 
     state = {
@@ -144,78 +136,48 @@ function initialize() {
   };
 
   window.addEventListener(PREFERENCE_EVENT, handlePreferenceChange);
-
-  // Cross-tab storage changes
   const handleStorageChange = (event) => {
     if (event.key !== CURRENCY_STORAGE_KEY && event.key !== UNIT_STORAGE_KEY) {
       return;
     }
-
     const storedPreferences = getStoredPreferences();
-
     state = {
       ...state,
-
       currency: storedPreferences.currency,
       unit: storedPreferences.unit,
     };
-
     notify();
   };
-
   window.addEventListener("storage", handleStorageChange);
 }
-
-// Subscribe
 function subscribe(listener) {
   initialize();
-
   listeners.add(listener);
-
   return () => {
     listeners.delete(listener);
   };
 }
-
-// Client snapshot
 function getSnapshot() {
   initialize();
-
   return state;
 }
-
-// Server snapshot
 function getServerSnapshot() {
   return SERVER_SNAPSHOT;
 }
-
-// Set preferences
 export function setPreferences({ currency, unit }) {
   if (typeof window === "undefined") {
     return;
   }
-
   initialize();
-
   const nextCurrency = normalizeCurrency(currency ?? state.currency);
-
   const nextUnit = normalizeUnit(unit ?? state.unit);
-
-  // Preserve exchange rates
   state = {
     ...state,
-
     currency: nextCurrency,
     unit: nextUnit,
   };
-
-  // Save currency
   window.localStorage.setItem(CURRENCY_STORAGE_KEY, nextCurrency);
-
-  // Save area unit
   window.localStorage.setItem(UNIT_STORAGE_KEY, nextUnit);
-
-  // Notify all components
   window.dispatchEvent(
     new CustomEvent(PREFERENCE_EVENT, {
       detail: {

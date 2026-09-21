@@ -20,7 +20,7 @@ import {
   CheckCircle2,
   ArrowLeft,
   ArrowUpRight,
-  MapPin,
+  X,
 } from "lucide-react";
 
 const phoneCountries = [
@@ -68,16 +68,37 @@ const phoneCountries = [
   { name: "Thailand", code: "TH", dial: "+66", flag: "🇹🇭", min: 9, max: 9 },
   { name: "Israel", code: "IL", dial: "+972", flag: "🇮🇱", min: 9, max: 9 },
   { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩", min: 9, max: 12 },
-  { name: "Philippines", code: "PH", dial: "+63", flag: "🇵🇭", min: 10, max: 10 },
+  {
+    name: "Philippines",
+    code: "PH",
+    dial: "+63",
+    flag: "🇵🇭",
+    min: 10,
+    max: 10,
+  },
   { name: "Vietnam", code: "VN", dial: "+84", flag: "🇻🇳", min: 9, max: 10 },
   { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦", min: 9, max: 9 },
-  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", min: 9, max: 9 },
+  {
+    name: "Saudi Arabia",
+    code: "SA",
+    dial: "+966",
+    flag: "🇸🇦",
+    min: 9,
+    max: 9,
+  },
   { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦", min: 8, max: 8 },
   { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼", min: 8, max: 8 },
   { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲", min: 8, max: 8 },
   { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭", min: 8, max: 8 },
   { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", min: 10, max: 10 },
-  { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", min: 10, max: 10 },
+  {
+    name: "Bangladesh",
+    code: "BD",
+    dial: "+880",
+    flag: "🇧🇩",
+    min: 10,
+    max: 10,
+  },
   { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", min: 10, max: 10 },
   { name: "Sri Lanka", code: "LK", dial: "+94", flag: "🇱🇰", min: 9, max: 9 },
   { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", min: 10, max: 10 },
@@ -88,41 +109,35 @@ const phoneCountries = [
 ];
 
 const popularCities = [
-  {
-    name: "Mumbai",
-    url: "https://images.unsplash.com/photo-1569758267239-d08deb78bb1a?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-  {
-    name: "Bengaluru",
-    url: "https://images.unsplash.com/photo-1720954006045-6b801f7f919e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YmFuZ2Fsb3JlJTIwY2l0eXxlbnwwfHwwfHx8MA%3D%3D",
-  },
+  { name: "Gurugram", url: "https://i.redd.it/xod5eka58r1f1.jpeg" },
   {
     name: "Pune",
-    url: "https://images.unsplash.com/photo-1608019425630-bec4810ccb60?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-  {
-    name: "Gurugram",
-    url: "https://images.unsplash.com/photo-1707549573382-de5ebcb30dae?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z3VydWdyYW18ZW58MHx8MHx8fDA%3D",
+    url: "https://images.unsplash.com/photo-1638205022792-85c33651ae2c?w=800&q=80",
   },
   {
     name: "Delhi",
-    url: "https://plus.unsplash.com/premium_photo-1697729438410-d53c666e3810?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZGVsaGl8ZW58MHx8MHx8fDA%3D",
+    url: "https://cdn.britannica.com/37/189837-050-F0AF383E/New-Delhi-India-War-Memorial-arch-Sir.jpg",
+  },
+  { name: "Bengaluru", url: "https://static.toiimg.com/photo/62507296/.jpg" },
+  {
+    name: "Mumbai",
+    url: "https://cdn.getyourguide.com/image/format=auto%2Cfit=crop%2Cgravity=auto%2Cquality=60%2Cwidth=400%2Cheight=265%2Cdpr=2/tour_img/f26d681a32ddcd849cb30d5c7334d51bbcc4763cac1d1a8c313cea88436e8d28.png",
   },
   {
     name: "Hyderabad",
-    url: "https://images.unsplash.com/photo-1657981630164-769503f3a9a8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHlkZXJhYmFkfGVufDB8fDB8fHww",
+    url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWKsgqLEdw_YIERfsuq0p1kpVUOJVCUeoLTgnvYz-gq-BXQcZg30sbqjE&s=10",
   },
   {
     name: "Chennai",
-    url: "https://images.unsplash.com/photo-1616843413587-9e3a37f7bbd8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2hlbm5haXxlbnwwfHwwfHx8MA%3D%3D",
+    url: "https://www.pelago.com/img/collections/chennai/0527-0937_chennai.jpg",
   },
   {
     name: "Noida",
-    url: "https://images.unsplash.com/photo-1661858435242-ed971767e954?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bm9pZGF8ZW58MHx8MHx8fDA%3D",
+    url: "https://static.startuptalky.com/2026/06/noida-airport-clears-final-flight-trial-Startuptalky.jpg",
   },
   {
     name: "Kolkata",
-    url: "https://images.unsplash.com/photo-1682582036641-91dfe7b66ba6?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8a29sa2F0YXxlbnwwfHwwfHx8MA%3D%3D",
+    url: "https://s7ap1.scene7.com/is/image/incredibleindia/howrah-bridge-howrah-west-bengal-city-1-hero?qlt=82&ts=1742154305591",
   },
   {
     name: "Ahmedabad",
@@ -261,10 +276,11 @@ function PhoneInput({
 
       <div className="relative">
         <div
-          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border bg-white/55 backdrop-blur-xl transition-all duration-300 ${phoneError
-            ? "border-red-400 ring-2 ring-red-500/10"
-            : "border-white/80 focus-within:border-[#A054A0]/50 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
-            }`}
+          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border bg-white/55 backdrop-blur-xl transition-all duration-300 ${
+            phoneError
+              ? "border-red-400 ring-2 ring-red-500/10"
+              : "border-white/80 focus-within:border-[#A054A0]/50 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
+          }`}
         >
           <div className="relative shrink-0">
             <button
@@ -339,8 +355,9 @@ function PhoneInput({
                           key={`${country.code}-${country.dial}`}
                           type="button"
                           onClick={() => handleCountrySelect(country)}
-                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${isSelected ? "bg-[#A054A0]/10" : "hover:bg-slate-50"
-                            }`}
+                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${
+                            isSelected ? "bg-[#A054A0]/10" : "hover:bg-slate-50"
+                          }`}
                         >
                           <span className="text-[20px] leading-none">
                             {country.flag}
@@ -432,12 +449,12 @@ function JourneyCard({ item, index }) {
           shouldReduceMotion
             ? undefined
             : {
-              y: -8,
-              transition: {
-                duration: 0.35,
-                ease: [0.22, 1, 0.36, 1],
-              },
-            }
+                y: -8,
+                transition: {
+                  duration: 0.35,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              }
         }
         className="relative flex h-full min-h-[clamp(18rem,30vw,27rem)] flex-col overflow-hidden rounded-[clamp(1.25rem,2vw,2rem)] border border-slate-200/80 bg-white/85 p-[clamp(1.25rem,2.5vw,2.25rem)] shadow-[0_8px_40px_rgba(15,23,42,0.025)] backdrop-blur-xl transition-[border-color,box-shadow] duration-500 hover:border-[#A054A0]/40 hover:shadow-[0_20px_60px_rgba(160,84,160,0.12)]"
       >
@@ -451,9 +468,9 @@ function JourneyCard({ item, index }) {
               shouldReduceMotion
                 ? undefined
                 : {
-                  rotate: 6,
-                  scale: 1.08,
-                }
+                    rotate: 6,
+                    scale: 1.08,
+                  }
             }
             transition={{
               duration: 0.3,
@@ -464,13 +481,13 @@ function JourneyCard({ item, index }) {
             <item.icon className="h-[clamp(1.1rem,1.7vw,1.5rem)] w-[clamp(1.1rem,1.7vw,1.5rem)]" />
           </motion.div>
 
-          <span className="pointer-events-none absolute -right-4 -top-8 select-none text-[clamp(7rem,10vw,10rem)] font-extrabold leading-none tracking-[-0.08em] text-slate-900/[0.04] transition-all duration-700 group-hover:scale-105 group-hover:text-[#A054A0]/[0.10]">
+          <span className="pointer-events-none absolute -right-4 -top-8 select-none text-[clamp(7rem,10vw,10rem)] font-extrabold leading-none tracking-[-0.08em] text-white/[0.055] transition-all duration-700 group-hover:scale-105 group-hover:text-[#A054A0]/[0.10]">
             0{index + 1}
           </span>
         </div>
 
         <div className="relative z-10 mt-auto pt-12 sm:pt-16">
-          <h3 className="max-w-[18rem] pb-5 text-[clamp(1.6rem,2.2vw,2rem)] font-semibold leading-[1.12] tracking-[-0.045em] text-slate-900">
+          <h3 className="max-w-[18rem] pb-5 text-[clamp(1.6rem,2.2vw,2rem)] font-medium leading-[1.12] tracking-[-0.045em] text-slate-900">
             {item.title}
           </h3>
           <p className="mt-4 max-w-[22rem] text-[clamp(0.8rem,1vw,0.95rem)] leading-[1.75] tracking-[-0.01em] text-slate-500">
@@ -520,7 +537,6 @@ export default function HomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const countrySearchRef = useRef(null);
   const [requirementCity, setRequirementCity] = useState("");
-  const [consentGranted, setConsentGranted] = useState(false);
   const [requirementType, setRequirementType] = useState("");
   const [requirementCityOptions, setRequirementCityOptions] = useState([]);
   const [locationData, setLocationData] = useState({
@@ -530,7 +546,6 @@ export default function HomePage() {
     postalCode: "",
     country: "",
   });
-
   const filteredCountries = useMemo(() => {
     const query = countrySearch.trim().toLowerCase();
     if (!query) return phoneCountries;
@@ -540,7 +555,6 @@ export default function HomePage() {
         .includes(query),
     );
   }, [countrySearch]);
-
   const validatePhone = useCallback(
     (value = phone, country = selectedCountry) => {
       const digits = String(value || "").replace(/\D/g, "");
@@ -588,9 +602,10 @@ export default function HomePage() {
       setPhoneError("");
     } else {
       setPhoneError(
-        `Please enter ${country.min === country.max
-          ? country.min
-          : `${country.min}-${country.max}`
+        `Please enter ${
+          country.min === country.max
+            ? country.min
+            : `${country.min}-${country.max}`
         } digits for ${country.name}.`,
       );
     }
@@ -631,71 +646,71 @@ export default function HomePage() {
 
       ...(finalRequirementType
         ? {
-          Requirement_Type: finalRequirementType,
-        }
+            Requirement_Type: finalRequirementType,
+          }
         : {}),
       ...(finalRequirementCity
         ? {
-          Requirement_City: finalRequirementCity,
-        }
+            Requirement_City: finalRequirementCity,
+          }
         : {}),
 
       ...(locationData.street
         ? {
-          Street: locationData.street,
-        }
+            Street: locationData.street,
+          }
         : {}),
 
       ...(locationData.city
         ? {
-          City: locationData.city,
-        }
+            City: locationData.city,
+          }
         : {}),
 
       ...(locationData.province
         ? {
-          Province: locationData.province,
-        }
+            Province: locationData.province,
+          }
         : {}),
 
       ...(locationData.postalCode
         ? {
-          Postal_Code: locationData.postalCode,
-        }
+            Postal_Code: locationData.postalCode,
+          }
         : {}),
 
       ...(locationData.country
         ? {
-          Country: locationData.country,
-        }
+            Country: locationData.country,
+          }
         : {}),
       ...(finalRequirementType === "Managed Office/Co-working"
         ? {
-          ...(data.requirementSeats
-            ? {
-              Requirement_Seats: Number(data.requirementSeats),
-            }
-            : {}),
+            ...(data.requirementSeats
+              ? {
+                  Requirement_Seats: Number(data.requirementSeats),
+                }
+              : {}),
 
-          ...(data.requirementSeatPrice
-            ? {
-              Requirement_Seat_Price: Number(data.requirementSeatPrice),
-            }
-            : {}),
-        }
+            ...(data.requirementSeatPrice
+              ? {
+                  Requirement_Seat_Price: Number(data.requirementSeatPrice),
+                }
+              : {}),
+          }
         : {
-          ...(data.requirementArea
-            ? {
-              Requirement_Area: Number(data.requirementArea),
-            }
-            : {}),
+            ...(data.requirementArea
+              ? {
+                  Requirement_Area: Number(data.requirementArea),
+                }
+              : {}),
 
-          ...(data.requirementRent
-            ? {
-              Requirement_Rent: Number(data.requirementRent),
-            }
-            : {}),
-        }),
+            ...(data.requirementRent
+              ? {
+                  Requirement_Rent: Number(data.requirementRent),
+                }
+              : {}),
+          }),
     };
 
     const payload = {
@@ -924,21 +939,18 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 font-sans text-slate-800 selection:bg-[#A054A0] selection:text-white">
+      <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 text-slate-800 selection:bg-[#A054A0] selection:text-white">
         <HeroSection />
 
         {/* MARKET AT A GLANCE */}
         <section
           id="market-glance"
-          className="relative flex w-full items-center border-t border-slate-200/80"
+          className="relative flex w-full items-center border-t border-slate-200"
         >
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-20 py-14">
             <div className="mb-12 text-left md:mb-16">
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                Market at a {"  "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  Glance
-                </span>
+              <h2 className="bg-gradient-to-r from-[#A054A0] via-[#d54ed5] to-[#dd3bdd] bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl md:text-5xl">
+                Market at a Glance
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base md:text-lg">
                 The trusted partner for India&apos;s most ambitious enterprises.
@@ -951,13 +963,10 @@ export default function HomePage() {
         {/* WHY CHOOSE ANAROCK */}
         <section className="py-16 px-4 max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-              Why Choose{" "}
-              <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                Anarock
-              </span>
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              Why Choose Anarock
             </h2>
-            <p className="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
               Your trusted partner in real estate, combining deep industry
               expertise with market data.
             </p>
@@ -969,20 +978,20 @@ export default function HomePage() {
               return (
                 <div
                   key={idx}
-                  className="group relative flex flex-col justify-between p-6 bg-white/80 rounded-2xl border border-slate-200/80 shadow-sm backdrop-blur-xl transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 hover:border-[#A054A0]/40 overflow-hidden"
+                  className="group relative flex flex-col justify-between p-6 bg-white rounded-2xl border border-gray-200/80 shadow-sm transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 hover:border-blue-500/40 overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#A054A0]/[0.05] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-12 h-12 rounded-xl bg-[#A054A0]/10 text-[#A054A0] flex items-center justify-center mb-5 transition-all duration-300 ease-out group-hover:scale-110 group-hover:bg-[#A054A0] group-hover:text-white">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white">
                       <Icon className="w-6 h-6" />
                     </div>
 
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2 group-hover:text-[#A054A0] transition-colors duration-200">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
                       {feature.title}
                     </h3>
 
-                    <p className="text-slate-600 text-sm leading-relaxed flex-grow">
+                    <p className="text-gray-600 text-sm leading-relaxed flex-grow">
                       {feature.desc}
                     </p>
                   </div>
@@ -1008,8 +1017,8 @@ export default function HomePage() {
               }}
               className="mx-auto mb-[clamp(3rem,7vw,6rem)] max-w-3xl text-center"
             >
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                The Client {"  "}
+              <h2 className="text-[clamp(2.2rem,5.2vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.055em] text-slate-900">
+                The Client{" "}
                 <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
                   Journey
                 </span>
@@ -1036,8 +1045,8 @@ export default function HomePage() {
 
         {/* POST A REQUIREMENT */}
         <section
-          id="enquiry"
-          className="relative isolate overflow-hidden py-[clamp(4rem,8vw,9rem)]"
+          id="post-requirement"
+          className="relative isolate overflow-hidden  py-[clamp(4rem,8vw,9rem)]"
         >
           <div className="pointer-events-none absolute inset-0 -z-10">
             <div className="absolute inset-0 opacity-[0.035]" />
@@ -1079,8 +1088,8 @@ export default function HomePage() {
                 }}
                 className="flex flex-col lg:sticky lg:top-28"
               >
-                <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                  Find your {"  "}
+                <h2 className="max-w-[38rem] text-[clamp(2.5rem,5.2vw,5.8rem)] font-medium leading-[0.98] tracking-[-0.065em] text-slate-900">
+                  Find Your{" "}
                   <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
                     Perfect Space
                   </span>
@@ -1091,6 +1100,19 @@ export default function HomePage() {
                   help you discover the right commercial real estate
                   opportunity.
                 </p>
+
+                <div className="mt-10 hidden lg:block">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">
+                        Your requirements.
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        Our expertise.
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="mt-12 hidden h-px w-full max-w-[22rem] bg-gradient-to-r from-[#A054A0]/30 to-transparent lg:block" />
               </motion.div>
@@ -1309,31 +1331,71 @@ export default function HomePage() {
         </section>
 
         {/* POPULAR DEVELOPERS */}
-        <section className="relative overflow-hidden py-[clamp(5rem,9vw,9rem)]">
+        {/* ================= POPULAR DEVELOPERS ================= */}
+        <section className="relative overflow-hidden bg-[#F8F7F5] py-[clamp(5rem,9vw,9rem)]">
+          {/* Subtle background grid */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.035]"
+            style={{
+              backgroundImage:
+                "linear-gradient(#A054A0 1px, transparent 1px), linear-gradient(90deg, #A054A0 1px, transparent 1px)",
+              backgroundSize: "52px 52px",
+            }}
+          />
+
+          {/* Ambient gradients */}
           <div className="pointer-events-none absolute -left-40 top-20 h-[28rem] w-[28rem] rounded-full bg-[#A054A0]/10 blur-[140px]" />
           <div className="pointer-events-none absolute -right-40 bottom-20 h-[28rem] w-[28rem] rounded-full bg-[#D8C4E4]/30 blur-[140px]" />
+
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1.25rem,4vw,5rem)]">
+            {/* ================= HEADER ================= */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_0.8fr_0.35fr] lg:items-end">
+              {/* Heading */}
               <div>
-                <h2 className="max-w-[850px] text-[clamp(2rem,6.8vw,4rem)] font-bold leading-[0.92] tracking-[-0.05em] text-slate-950">
+                <div className="mb-7 flex items-center gap-4">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 sm:text-xs">
+                    Trusted By The Industry
+                  </span>
+
+                  <span className="h-px w-16 bg-slate-400/70" />
+                </div>
+
+                <h2 className="max-w-[850px] font-serif text-[clamp(3.1rem,6.8vw,8rem)] font-medium leading-[0.88] tracking-[-0.07em] text-slate-950">
                   The Developers
                   <br />
                   Shaping{" "}
-                  <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-[#A054A0] via-[#8E4A91] to-[#C18AC5] bg-clip-text text-transparent">
                     What&apos;s Next.
                   </span>
                 </h2>
               </div>
+
+              {/* Description + CTA */}
               <div className="max-w-[24rem] lg:pb-2">
                 <p className="text-sm leading-[1.9] text-slate-500 sm:text-base">
                   Explore premium commercial spaces from India&apos;s trusted
                   developers — backed by quality, innovation, and enduring
                   value.
                 </p>
+
+                <Link
+                  href="/developers"
+                  className="group mt-7 inline-flex items-center gap-4"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#A054A0] text-white transition-all duration-500 group-hover:rotate-[-35deg] group-hover:bg-slate-950">
+                    <ArrowRight className="h-5 w-5" />
+                  </span>
+
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900">
+                    View All Developers
+                  </span>
+                </Link>
               </div>
+
+              {/* Statistics */}
               <div className="flex gap-8 border-l border-slate-300/80 pl-6 lg:block lg:space-y-8">
                 <div>
-                  <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
+                  <p className="font-serif text-4xl tracking-[-0.06em] text-slate-950 sm:text-5xl">
                     50+
                   </p>
                   <p className="mt-1 text-xs text-slate-500 sm:text-sm">
@@ -1342,7 +1404,7 @@ export default function HomePage() {
                 </div>
 
                 <div>
-                  <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
+                  <p className="font-serif text-4xl tracking-[-0.06em] text-slate-950 sm:text-5xl">
                     1000+
                   </p>
                   <p className="mt-1 text-xs text-slate-500 sm:text-sm">
@@ -1351,6 +1413,8 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+
+            {/* ================= DEVELOPER CARDS ================= */}
             <div className="mt-16 md:mt-24">
               <div className="developers-scroll flex snap-x snap-mandatory gap-3 overflow-x-auto pb-6 [scrollbar-width:thin] sm:gap-4 lg:grid lg:grid-cols-4 lg:overflow-visible">
                 {popularDevelopers.map((developer, index) => (
@@ -1361,8 +1425,12 @@ export default function HomePage() {
                     key={developer.name}
                     className="developer-card group relative min-w-[min(84vw,380px)] snap-start overflow-hidden rounded-[1.5rem] border border-white/80 bg-white shadow-[0_10px_50px_rgba(30,20,40,0.04)] transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_25px_70px_rgba(80,40,100,0.14)] sm:min-w-[340px] lg:min-w-0"
                   >
+                    {/* Architectural Visual */}
                     <div className="relative h-[clamp(15rem,24vw,23rem)] overflow-hidden bg-[#D9DCE4]">
+                      {/* Background gradient */}
                       <div className="absolute inset-0 bg-gradient-to-br from-[#D7DCE8] via-[#B3B9C8] to-[#737A8B] transition-transform duration-1000 group-hover:scale-110" />
+
+                      {/* Abstract building composition */}
                       <div className="absolute inset-x-10 bottom-0 top-10 flex items-end justify-center gap-2 opacity-90">
                         <div
                           className="h-[65%] w-[22%] border border-white/30 bg-slate-700/40 shadow-2xl"
@@ -1441,7 +1509,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* LOGO STRIP */}
+            {/* ================= LOGO STRIP ================= */}
             <div className="mt-14 border-y border-slate-300/70 py-8 md:mt-20 md:py-10">
               <div className="flex flex-col gap-7 xl:flex-row xl:items-center xl:gap-12">
                 <div className="flex shrink-0 items-center gap-4">
@@ -1486,10 +1554,10 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* BOTTOM STATS */}
+            {/* ================= BOTTOM STATS ================= */}
             <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3 md:mt-16 md:gap-10">
               <div className="border-l border-slate-300 pl-5">
-                <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
+                <p className="font-serif text-4xl tracking-[-0.06em] text-slate-950 sm:text-5xl">
                   10+
                 </p>
 
@@ -1497,7 +1565,7 @@ export default function HomePage() {
               </div>
 
               <div className="border-l border-slate-300 pl-5">
-                <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
+                <p className="font-serif text-4xl tracking-[-0.06em] text-slate-950 sm:text-5xl">
                   500+
                 </p>
 
@@ -1507,11 +1575,11 @@ export default function HomePage() {
               </div>
 
               <div className="border-l border-[#A054A0] pl-5">
-                <p className="text-xl font-medium leading-relaxed text-slate-800 sm:text-2xl">
+                <p className="font-serif text-xl italic leading-relaxed text-slate-800 sm:text-2xl">
                   “Great spaces are built by great visionaries.”
                 </p>
 
-                <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.25em] text-[#A054A0]">
+                <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">
                   — Anarock
                 </p>
               </div>
@@ -1520,168 +1588,188 @@ export default function HomePage() {
         </section>
 
         {/* POPULAR CITIES */}
-        <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
-            <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
-          </div>
-
+        <section className="relative overflow-hidden bg-[#FCFBFF] py-20 md:py-28">
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
-            {/* SECTION HEADER */}
-            <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                  Explore {"  "}
-                  <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                    Popular Cities
-                  </span>
+            <div className="mb-12 flex flex-col justify-between gap-5 md:mb-16 md:flex-row md:items-end">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#A054A0]">
+                  Explore Locations
+                </span>
+                <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
+                  Explore Popular Cities
                 </h2>
+                <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-500 sm:text-base">
+                  Discover premium commercial real estate opportunities across
+                  India&apos;s leading business destinations.
+                </p>
               </div>
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base lg:text-lg">
-                Discover premium commercial real estate opportunities across
-                India&apos;s leading business destinations.
-              </p>
+
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+                <span>Swipe to explore</span>
+                <ArrowRight className="h-4 w-4" />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {popularCities.map((city, index) => (
+            <div className="cities-scroller flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5 overscroll-x-contain [scrollbar-width:thin]">
+              {popularCities.map((city) => (
                 <Link
                   key={city.name}
-                  href={`/kyc?city=${encodeURIComponent(city.name)}`}
-                  className="group relative isolate overflow-hidden rounded-[1.5rem] border border-[#A054A0]/15 bg-white shadow-[0_10px_35px_rgba(86,42,91,0.05)] transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#A054A0]/35 hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)] sm:rounded-[1.75rem]"
+                  href={`/properties?city=${encodeURIComponent(city.name)}`}
+                  className="group relative min-w-[min(76vw,300px)] snap-start overflow-hidden rounded-3xl border border-slate-200 bg-white sm:min-w-[240px] md:min-w-[260px] lg:min-w-[280px]"
                 >
-                  <div className="relative aspect-[4/5] overflow-hidden bg-[#A054A0]/5">
+                  <div className="relative aspect-[4/5] overflow-hidden">
                     <img
                       src={city.url}
-                      alt={`${city.name} commercial real estate`}
+                      alt={city.name}
                       loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
-
-                    {/* BOTTOM CONTENT */}
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                      <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
-
-                      <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-                        {city.name}
-                      </h3>
-
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
-                          Explore properties
-                        </p>
-
-                        <ArrowRight className="h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                      <div className="flex items-center justify-between gap-4">
+                        <h3 className="text-xl font-bold text-white md:text-2xl">
+                          {city.name}
+                        </h3>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition-all group-hover:bg-white group-hover:text-[#A054A0]">
+                          <ArrowRight className="h-4 w-4" />
+                        </span>
                       </div>
+                      <p className="mt-2 text-xs text-white/70">
+                        Explore commercial properties
+                      </p>
                     </div>
                   </div>
-
-                  {/* BOTTOM CARD ACCENT */}
-                  <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
                 </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ================= ABOUT US ================= */}
+        {/* ABOUT US */}
         <section
-          id="aboutus"
-          className="relative isolate overflow-hidden py-20 sm:py-24 md:py-20 lg:py-20"
+          id="about"
+          className="relative overflow-hidden bg-white py-20 md:py-32"
         >
-          <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,4vw,5rem)]">
-            <div className="mb-14 lg:mb-20 text-center">
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                About {"  "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  Anarock
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.035]"
+            style={{
+              backgroundImage:
+                "linear-gradient(#A054A0 1px, transparent 1px), linear-gradient(90deg, #A054A0 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
+          <div className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-[#A054A0]/10 blur-[130px]" />
+          <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-purple-200/30 blur-[130px]" />
+
+          <div className="relative z-10 mx-auto grid w-full max-w-[1920px] grid-cols-1 items-center gap-12 px-[clamp(1rem,2.4vw,4rem)] lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#A054A0]/20 bg-[#A054A0]/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-[#A054A0]">
+                About Anarock
+              </span>
+
+              <h2 className="mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
+                Building Better{" "}
+                <span className="bg-gradient-to-r from-[#A054A0] via-[#b14db1] to-[#7a377a] bg-clip-text text-transparent">
+                  Business Spaces
                 </span>
               </h2>
+
+              <p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
+                We help businesses make confident real estate decisions through
+                market intelligence, strategic advisory, and technology-led
+                solutions.
+              </p>
+
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-500 md:text-base">
+                From identifying the right location to evaluating commercial
+                opportunities, our approach combines expertise, data, and
+                execution to simplify every stage of your real estate journey.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/about"
+                  className="group inline-flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#A054A0]"
+                >
+                  Discover Our Story
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-3 rounded-full border border-[#A054A0]/30 px-6 py-3.5 text-sm font-semibold text-[#A054A0] transition-all duration-300 hover:-translate-y-1 hover:bg-[#A054A0] hover:text-white"
+                >
+                  Talk to an Expert
+                </Link>
+              </div>
             </div>
 
-            {/* Main Content */}
-            <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 xl:gap-32">
-              {/* Left Content */}
-              <div className="flex flex-col justify-between">
-                <div>
-                  <p className="max-w-3xl text-xl font-medium leading-relaxed tracking-tight text-slate-800 sm:text-2xl md:text-3xl">
-                    We empower businesses to make confident real estate
-                    decisions through intelligence, expertise, and
-                    technology-led solutions.
-                  </p>
+            <div className="relative">
+              <div className="relative overflow-hidden rounded-[2rem] border border-[#A054A0]/15 bg-gradient-to-br from-[#A054A0]/10 via-white to-purple-50 p-6 shadow-[0_25px_80px_rgba(160,84,160,0.10)] sm:p-8 md:p-10">
+                <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#A054A0]/10 blur-3xl" />
 
-                  <p className="mt-7 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base sm:leading-8">
-                    From discovering the right location to evaluating commercial
-                    opportunities, ANAROCK combines market insights, strategic
-                    advisory, and execution to simplify every stage of your real
-                    estate journey.
-                  </p>
-                </div>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#A054A0]">
+                      Our Approach
+                    </span>
+                    <Sparkles className="h-5 w-5 text-[#A054A0]" />
+                  </div>
 
-                {/* Single CTA */}
-                <div className="mt-10 sm:mt-14">
+                  <div className="mt-10 space-y-6">
+                    {[
+                      {
+                        title: "Intelligence",
+                        text: "Data-backed insights for better decisions.",
+                      },
+                      {
+                        title: "Expertise",
+                        text: "Deep understanding of commercial markets.",
+                      },
+                      {
+                        title: "Execution",
+                        text: "Strategic support from search to closure.",
+                      },
+                    ].map((item, index) => (
+                      <div
+                        key={item.title}
+                        className="flex gap-4 border-b border-slate-200/80 pb-6 last:border-0 last:pb-0"
+                      >
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10 text-sm font-bold text-[#A054A0]">
+                          0{index + 1}
+                        </span>
+
+                        <div>
+                          <h3 className="text-base font-bold text-slate-900">
+                            {item.title}
+                          </h3>
+                          <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                            {item.text}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-10 rounded-2xl border border-[#A054A0]/15 bg-white/70 p-5 backdrop-blur-md">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                      Our Philosophy
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-slate-800">
+                      Intelligence. Expertise. Results.
+                    </p>
+                  </div>
+
                   <Link
                     href="https://www.anarock.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-5 rounded-full bg-[#A054A0] px-6 py-4 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(160,84,160,0.25)] transition-all duration-500 hover:-translate-y-1 hover:bg-[#873D87] hover:shadow-[0_18px_45px_rgba(160,84,160,0.35)] sm:px-7 sm:py-5"
+                    className="mt-6 inline-flex items-center justify-center gap-3 rounded-full border border-[#A054A0]/30 px-5 py-3 text-sm font-semibold text-[#A054A0] transition-all duration-300 hover:-translate-y-1 hover:bg-[#A054A0] hover:text-white"
                   >
-                    <span>Know More</span>
-
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition-transform duration-500 group-hover:rotate-[-45deg]">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </span>
+                    More About Us
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
-                </div>
-              </div>
-
-              {/* Right Visual / Philosophy Card */}
-              <div className="relative">
-                <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-[#A054A0]/15 bg-[#FCFAFF] p-6 shadow-[0_25px_100px_rgba(160,84,160,0.10)] sm:min-h-[480px] sm:p-8 md:p-10">
-                  {/* Card Glow */}
-                  <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#A054A0]/15 blur-[90px]" />
-
-                  {/* Decorative Circle */}
-                  <div className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full border border-[#A054A0]/10" />
-                  <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full border border-[#A054A0]/10" />
-
-                  <div className="relative z-10 flex h-full min-h-[368px] flex-col justify-between">
-                    {/* Card Top */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#A054A0] sm:text-xs">
-                        Our Perspective
-                      </span>
-
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#A054A0]/20 bg-white text-[#A054A0]">
-                        <Sparkles className="h-4 w-4" />
-                      </span>
-                    </div>
-
-                    {/* Large Statement */}
-                    <div className="py-12">
-                      <p className="text-3xl font-semibold leading-[1.1] tracking-[-0.04em] text-slate-900 sm:text-4xl md:text-5xl">
-                        Intelligence
-                        <span className="text-[#A054A0]">.</span>
-                        <br />
-                        Expertise
-                        <span className="text-[#A054A0]">.</span>
-                        <br />
-                        Results
-                        <span className="text-[#A054A0]">.</span>
-                      </p>
-                    </div>
-
-                    {/* Card Bottom */}
-                    <div className="flex items-end justify-between gap-5 border-t border-slate-200/80 pt-5">
-                      <p className="max-w-xs text-xs leading-relaxed text-slate-500 sm:text-sm">
-                        Helping businesses navigate complex real estate
-                        decisions with clarity and confidence.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1689,13 +1777,11 @@ export default function HomePage() {
         </section>
       </div>
 
-      <CookieConsent
-        onConsentGiven={() => {
-          setConsentGranted(true);
-          requestLocationPermission();
-        }}
-      />
-
+      <CookieConsent onClose={requestLocationPermission} />
     </>
   );
 }
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,9 +1,0 @@
-{
-	"name": "anarock_function",
-	"version": "1.0.0",
-	"main": "index.js",
-	"author": "anarockfusionhawk@gmail.com",
-	"dependencies": {
-		"zcatalyst-sdk-node": "latest"
-	}
-}

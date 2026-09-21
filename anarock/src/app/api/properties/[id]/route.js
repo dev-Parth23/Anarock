@@ -26,15 +26,6 @@ export async function GET(request, { params }) {
     }
 
     const property = mapProperty(row);
-
-    // const gallery = await getPropertyImages(request, property.imageFolderPath);
-
-    // property.gallery = gallery;
-
-    // if (gallery.length > 0) {
-    //   property.image = gallery[0].url;
-    // }
-
     return NextResponse.json(
       {
         success: true,

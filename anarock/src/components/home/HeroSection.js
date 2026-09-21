@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { usePreferences } from "@/lib/preferences";
 import { useRouter } from "next/navigation";
-import CookieConsent from "../common/CookieConsent";
 import {
   Search,
   Sparkles,
@@ -183,7 +182,7 @@ export default function HeroSection() {
                     }
                   }
                 })
-                .catch(() => {});
+                .catch(() => { });
             },
             (error) => {
               if (error.code === error.PERMISSION_DENIED) {
@@ -193,7 +192,7 @@ export default function HeroSection() {
           );
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [consentGranted]);
 
   useEffect(() => {
@@ -240,7 +239,7 @@ export default function HeroSection() {
         const searchLocationObj = {
           city: city.trim(),
           micromarket: selectedMicromarket || "",
-          state: "",
+          propertyType: officeType || "",
           searchedAt: Date.now(),
         };
 
@@ -314,7 +313,6 @@ export default function HeroSection() {
 
   return (
     <>
-      <CookieConsent onConsentGiven={() => setConsentGranted(true)} />
 
       <section
         className=" 
@@ -524,9 +522,6 @@ w-full
         </div>
       </section>
 
-      {/* =====================================================
-          SEARCH EXPERIENCE
-      ====================================================== */}
 
       <div
         className="
@@ -576,10 +571,9 @@ w-full
                   uppercase
                   transition-all
                   duration-300
-                  ${
-                    tab === "filters"
-                      ? "bg-[#A054A0] text-white shadow-[0_8px_25px_rgba(160,84,160,.35)]"
-                      : "text-white/55 hover:text-white hover:bg-white/[.07]"
+                  ${tab === "filters"
+                    ? "bg-[#A054A0] text-white shadow-[0_8px_25px_rgba(160,84,160,.35)]"
+                    : "text-white/55 hover:text-white hover:bg-white/[.07]"
                   }
                 `}
               >
@@ -605,10 +599,9 @@ w-full
                   uppercase
                   transition-all
                   duration-300
-                  ${
-                    tab === "ai"
-                      ? "bg-[#A054A0] text-white shadow-[0_8px_25px_rgba(160,84,160,.35)]"
-                      : "text-white/55 hover:text-white hover:bg-white/[.07]"
+                  ${tab === "ai"
+                    ? "bg-[#A054A0] text-white shadow-[0_8px_25px_rgba(160,84,160,.35)]"
+                    : "text-white/55 hover:text-white hover:bg-white/[.07]"
                   }
                 `}
               >
@@ -756,10 +749,9 @@ w-full
                         items-center
                         justify-between
                         text-left
-                        ${
-                          cityOpen
-                            ? "border-[#A054A0] ring-[3px] ring-[#A054A0]/10"
-                            : ""
+                        ${cityOpen
+                          ? "border-[#A054A0] ring-[3px] ring-[#A054A0]/10"
+                          : ""
                         }
                       `}
                     >
@@ -784,10 +776,9 @@ w-full
                         <span
                           className={`
                             truncate
-                            ${
-                              city
-                                ? "text-[#211A21] font-semibold"
-                                : "text-black/35"
+                            ${city
+                              ? "text-[#211A21] font-semibold"
+                              : "text-black/35"
                             }
                           `}
                         >
@@ -1105,7 +1096,7 @@ w-full
                   {/* AREA / SEATS */}
                   <div className="sm:col-span-2 lg:col-span-4">
                     {officeType.toLowerCase() ===
-                    "managed office/co-working" ? (
+                      "managed office/co-working" ? (
                       <div className="max-w-full lg:max-w-[25%]">
                         <label
                           className="

@@ -2,129 +2,184 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
-  useRef,
+  useMemo,
   useState,
-  useCallback,
 } from "react";
 
 const WishlistContext = createContext(null);
 
-function createSessionId() {
-  if (typeof window === "undefined") return null;
+const STORAGE_KEY = "anarock_wishlist_properties";
+
+function getPropertyId(property) {
+  if (!property) return "";
+
+  if (typeof property === "string" || typeof property === "number") {
+    return String(property);
+  }
+
+  return String(
+    property.id ||
+    property.rowId ||
+    property.ROWID ||
+    property.ID ||
+    property.projectId ||
+    property.Project_ID ||
+    ""
+  );
+}
+
+function readWishlist() {
+  if (typeof window === "undefined") return [];
 
   try {
-    return crypto.randomUUID();
-  } catch {
-    return `anarock-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("Wishlist read error:", error);
+    return [];
+  }
+}
+
+function saveWishlist(items) {
+  if (typeof window === "undefined") return;
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+
+    window.dispatchEvent(new Event("wishlist-updated"));
+  } catch (error) {
+    console.error("Wishlist save error:", error);
   }
 }
 
 export function WishlistProvider({ children }) {
-  const [ids, setIds] = useState([]);
   const [items, setItems] = useState([]);
-  const [sessionId, setSessionId] = useState(null);
-  const sessionInitializedRef = useRef(false);
-
+  const [isInitialized, setIsInitialized] = useState(false);
   useEffect(() => {
+    const savedItems = readWishlist();
 
-    if (sessionInitializedRef.current) return;
-
-    sessionInitializedRef.current = true;
-
-    const sid = createSessionId();
-
-    setSessionId(sid);
-
-    if (!sid) return;
-
-    fetch(`/api/wishlist?sessionId=${sid}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) {
-          setItems(d.items || []);
-          setIds((d.items || []).map((i) => i.id));
-        }
-      })
-      .catch(() => { });
+    setItems(savedItems);
+    setIsInitialized(true);
   }, []);
+  useEffect(() => {
+    function handleWishlistUpdate() {
+      setItems(readWishlist());
+    }
 
-  const add = useCallback(
-    async (propertyId) => {
-      if (!sessionId) return;
-      setIds((prev) =>
-        prev.includes(propertyId) ? prev : [...prev, propertyId],
+    function handleStorageUpdate(event) {
+      if (event.key === STORAGE_KEY) {
+        setItems(readWishlist());
+      }
+    }
+
+    window.addEventListener("wishlist-updated", handleWishlistUpdate);
+    window.addEventListener("storage", handleStorageUpdate);
+
+    return () => {
+      window.removeEventListener(
+        "wishlist-updated",
+        handleWishlistUpdate
       );
 
-      const res = await fetch("/api/wishlist/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionId,
-          propertyId,
-        }),
-      })
-        .then((r) => r.json())
-        .catch(() => null);
+      window.removeEventListener("storage", handleStorageUpdate);
+    };
+  }, []);
 
-      if (res?.success) {
-        const list = await fetch(`/api/wishlist?sessionId=${sessionId}`)
-          .then((r) => r.json())
-          .catch(() => null);
+  const ids = useMemo(() => {
+    return items
+      .map((property) => getPropertyId(property))
+      .filter(Boolean);
+  }, [items]);
 
-        if (list?.success) {
-          setItems(list.items || []);
-          setIds((list.items || []).map((i) => i.id));
-        }
+  const add = useCallback((property) => {
+    const propertyId = getPropertyId(property);
+
+    if (!propertyId) return;
+
+    setItems((previousItems) => {
+      const alreadyExists = previousItems.some(
+        (item) => getPropertyId(item) === propertyId
+      );
+
+      if (alreadyExists) {
+        return previousItems;
       }
-    },
-    [sessionId],
-  );
 
-  const remove = useCallback(
-    async (propertyId) => {
-      if (!sessionId) return;
-      setIds((prev) => prev.filter((i) => i !== propertyId));
+      const updatedItems = [
+        ...previousItems,
+        typeof property === "object"
+          ? {
+            ...property,
+            id: property.id || propertyId,
+          }
+          : {
+            id: propertyId,
+          },
+      ];
 
-      setItems((prev) => prev.filter((p) => p.id !== propertyId));
+      saveWishlist(updatedItems);
 
-      await fetch("/api/wishlist/remove", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionId,
-          propertyId,
-        }),
-      }).catch(() => { });
-    },
-    [sessionId],
-  );
+      return updatedItems;
+    });
+  }, []);
+
+  const remove = useCallback((propertyOrId) => {
+    const propertyId = getPropertyId(propertyOrId);
+
+    if (!propertyId) return;
+
+    setItems((previousItems) => {
+      const updatedItems = previousItems.filter(
+        (item) => getPropertyId(item) !== propertyId
+      );
+
+      saveWishlist(updatedItems);
+
+      return updatedItems;
+    });
+  }, []);
 
   const toggle = useCallback(
-    (propertyId) => {
-      if (ids.includes(propertyId)) {
+    (property) => {
+      const propertyId = getPropertyId(property);
+
+      if (!propertyId) return;
+
+      const exists = ids.includes(propertyId);
+
+      if (exists) {
         remove(propertyId);
       } else {
-        add(propertyId);
+        add(property);
       }
     },
-    [ids, add, remove],
+    [ids, add, remove]
   );
+
+  const clear = useCallback(() => {
+    setItems([]);
+    saveWishlist([]);
+  }, []);
 
   return (
     <WishlistContext.Provider
       value={{
-        ids,
         items,
+        ids,
+        count: items.length,
         add,
         remove,
         toggle,
-        count: ids.length,
+        clear,
+        isInitialized,
       }}
     >
       {children}
@@ -133,18 +188,20 @@ export function WishlistProvider({ children }) {
 }
 
 export function useWishlist() {
-  const ctx = useContext(WishlistContext);
+  const context = useContext(WishlistContext);
 
-  if (!ctx) {
+  if (!context) {
     return {
-      ids: [],
       items: [],
+      ids: [],
+      count: 0,
       add: () => { },
       remove: () => { },
       toggle: () => { },
-      count: 0,
+      clear: () => { },
+      isInitialized: false,
     };
   }
 
-  return ctx;
+  return context;
 }

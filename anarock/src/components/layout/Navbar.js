@@ -872,7 +872,7 @@ export default function Navbar() {
 
                 <Link
                   href="/wishlist"
-                  aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} saved properties` : ""
+                  aria-label={`Shortlist${wishlistCount > 0 ? `, ${wishlistCount} saved properties` : ""
                     }`}
                   className="group relative hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
                 >
@@ -888,8 +888,8 @@ export default function Navbar() {
                   <span>Shortlisted</span>
 
                   {wishlistCount > 0 && (
-                    <span className="flex min-w-[18px] h-[18px] items-center justify-center rounded-lg bg-[#A054A0] px-1 text-[9px] font-bold leading-none text-white shadow-sm min-[1920px]:min-w-[20px] min-[1920px]:h-[20px] min-[1920px]:text-[11px]">
-                      {wishlistCount > 99 ? "99+" : wishlistCount}
+                    <span className="ml-1">
+                      ({wishlistCount > 99 ? "99+" : wishlistCount})
                     </span>
                   )}
                 </Link>
@@ -983,7 +983,7 @@ export default function Navbar() {
                         : "text-slate-700"
                     }
                   />
-                  <span className="font-semibold">Wishlist</span>
+                  <span className="font-semibold">Shortlisted</span>
                 </div>
 
                 {wishlistCount > 0 && (

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import PropertyCard from "@/components/properties/PropertyCard";
 import { usePreferences } from "@/lib/preferences";
+const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 import {
   formatPrice,
   formatArea,
@@ -19,6 +20,7 @@ import {
   MapPin,
   ChevronDown,
   Check,
+  Heart,
 } from "lucide-react";
 
 const OFFICE_TYPES = [
@@ -31,6 +33,7 @@ const OFFICE_TYPES = [
 export default function PropertiesClient() {
   const { currency, unit, exchangeRates } = usePreferences();
   const searchParams = useSearchParams();
+  const [compareSelection, setCompareSelection] = useState([]);
   const router = useRouter();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +56,55 @@ export default function PropertiesClient() {
     [searchParams],
   );
 
+  const getPropertyId = (property) =>
+    String(property?.id || property?.rowId || property?.ROWID || "");
+
+  const handleCompareToggle = (property) => {
+    const propertyId = getPropertyId(property);
+
+    setCompareSelection((previousSelection) => {
+      const alreadySelected = previousSelection.some(
+        (item) => getPropertyId(item) === propertyId,
+      );
+
+      let updatedSelection;
+
+      if (alreadySelected) {
+        updatedSelection = previousSelection.filter(
+          (item) => getPropertyId(item) !== propertyId,
+        );
+      } else {
+        updatedSelection = [
+          ...previousSelection,
+          property,
+        ].slice(-2);
+      }
+
+      localStorage.setItem(
+        COMPARE_STORAGE_KEY,
+        JSON.stringify(updatedSelection),
+      );
+
+      return updatedSelection;
+    });
+  };
+
+  const clearCompareSelection = () => {
+    setCompareSelection([]);
+
+    localStorage.removeItem(COMPARE_STORAGE_KEY);
+  };
+
+  const openComparePage = () => {
+    if (compareSelection.length !== 2) return;
+
+    localStorage.setItem(
+      COMPARE_STORAGE_KEY,
+      JSON.stringify(compareSelection),
+    );
+
+    router.push("/compare");
+  };
   useEffect(() => {
     fetch("/api/cities")
       .then((r) => r.json())
@@ -66,6 +118,26 @@ export default function PropertiesClient() {
       });
   }, []);
 
+  useEffect(() => {
+    try {
+      const savedProperties = localStorage.getItem(
+        COMPARE_STORAGE_KEY,
+      );
+
+      if (savedProperties) {
+        const parsedProperties = JSON.parse(savedProperties);
+
+        if (Array.isArray(parsedProperties)) {
+          setCompareSelection(parsedProperties.slice(-2));
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Failed to load comparison properties:",
+        error,
+      );
+    }
+  }, []);
   useEffect(() => {
     if (!filters.city) {
       setMicromarkets([]);
@@ -340,8 +412,8 @@ export default function PropertiesClient() {
 
     filters.micromarket && {
       label: `Micromarkets: ${selectedMicromarketNames.length > 0
-          ? selectedMicromarketNames.join(", ")
-          : filters.micromarket
+        ? selectedMicromarketNames.join(", ")
+        : filters.micromarket
         }`,
       key: "micromarket",
     },
@@ -444,14 +516,14 @@ export default function PropertiesClient() {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
           <aside
             className={`${showFilters
-                ? "fixed inset-0 z-40 bg-slate-950/50 lg:relative lg:bg-transparent"
-                : "hidden lg:block"
+              ? "fixed inset-0 z-40 bg-slate-950/50 lg:relative lg:bg-transparent"
+              : "hidden lg:block"
               }`}
           >
             <div
               className={`bg-white border border-slate-200 rounded-xl p-4 lg:sticky lg:top-20 ${showFilters
-                  ? "absolute right-0 top-0 h-full w-80 max-w-full overflow-y-auto rounded-none lg:rounded-xl lg:relative lg:w-auto lg:h-auto"
-                  : ""
+                ? "absolute right-0 top-0 h-full w-80 max-w-full overflow-y-auto rounded-none lg:rounded-xl lg:relative lg:w-auto lg:h-auto"
+                : ""
                 }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -497,8 +569,8 @@ export default function PropertiesClient() {
                     disabled={!filters.city || micromarketsLoading}
                     onClick={() => setShowMicromarkets(!showMicromarkets)}
                     className={`w-full flex items-center justify-between gap-2 border rounded-lg px-3 py-2 text-sm text-left transition-colors ${!filters.city
-                        ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
-                        : "bg-white text-slate-900 border-slate-300 hover:border-amber-500"
+                      ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
+                      : "bg-white text-slate-900 border-slate-300 hover:border-amber-500"
                       }`}
                   >
                     <span className="truncate">
@@ -525,8 +597,8 @@ export default function PropertiesClient() {
                       >
                         <span
                           className={`h-4 w-4 rounded border flex items-center justify-center ${selectedMicromarkets.length === 0
-                              ? "bg-amber-500 border-amber-500"
-                              : "border-slate-300"
+                            ? "bg-amber-500 border-amber-500"
+                            : "border-slate-300"
                             }`}
                         >
                           {selectedMicromarkets.length === 0 && (
@@ -560,8 +632,8 @@ export default function PropertiesClient() {
                               >
                                 <span
                                   className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ${selected
-                                      ? "bg-amber-500 border-amber-500"
-                                      : "border-slate-300"
+                                    ? "bg-amber-500 border-amber-500"
+                                    : "border-slate-300"
                                     }`}
                                 >
                                   {selected && (
@@ -571,8 +643,8 @@ export default function PropertiesClient() {
 
                                 <span
                                   className={`truncate ${selected
-                                      ? "font-medium text-slate-900"
-                                      : "text-slate-700"
+                                    ? "font-medium text-slate-900"
+                                    : "text-slate-700"
                                     }`}
                                 >
                                   {market.name}
@@ -725,12 +797,56 @@ export default function PropertiesClient() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {properties.map((p) => (
-                  <PropertyCard key={p.id} property={p} />
+                  <PropertyCard
+                    key={p.id || p.rowId || p.ROWID}
+                    property={p}
+                    isCompared={compareSelection.some(
+                      (item) => getPropertyId(item) === getPropertyId(p),
+                    )}
+                    onCompareToggle={handleCompareToggle}
+                  />
                 ))}
               </div>
             )}
           </div>
+          {/* COMPARE BOTTOM BAR */}
         </div>
+        {compareSelection.length > 0 && (
+          <div className="fixed bottom-20 left-1/2 z-50 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur-xl sm:p-4 lg:bottom-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-900">
+                  {compareSelection.length} of 2 properties selected
+                </p>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  {compareSelection.length === 2
+                    ? "Ready to compare your selected properties."
+                    : "Select one more property to compare."}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={clearCompareSelection}
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm"
+                >
+                  Clear
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openComparePage}
+                  disabled={compareSelection.length !== 2}
+                  className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
+                >
+                  Compare Properties
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 p-3 flex gap-2 z-30">
         <button
@@ -745,9 +861,11 @@ export default function PropertiesClient() {
           onClick={() => router.push("/wishlist")}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500 text-slate-950 rounded-lg text-sm font-medium"
         >
-          <MapPin className="h-4 w-4" />
-          Wishlist
+          <Heart className="h-4 w-4" />
+          Shortlisted
         </button>
+
+
       </div>
     </div>
   );

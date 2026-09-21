@@ -323,8 +323,6 @@ export default function PropertyDetailClient({ propertyId }) {
                         sizes="144px"
                         onError={() => handleImageError(image.key)}
                       />
-
-                      {/* Active Overlay */}
                       {isActive && (
                         <div className="absolute inset-0 bg-[#A054A0]/10" />
                       )}
@@ -341,8 +339,6 @@ export default function PropertyDetailClient({ propertyId }) {
             )}
           </div>
         </section>
-
-        {/* Basic Information */}
         <section className="mt-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Info
@@ -414,8 +410,6 @@ export default function PropertyDetailClient({ propertyId }) {
             />
           </div>
         </section>
-
-        {/* Description */}
         {property.description && (
           <section className="mt-10">
             <h2 className="text-2xl font-semibold mb-4">About the Property</h2>
@@ -425,8 +419,6 @@ export default function PropertyDetailClient({ propertyId }) {
             </p>
           </section>
         )}
-
-        {/* Highlights */}
         {property.projectHighlights && (
           <section className="mt-10">
             <h2 className="text-2xl font-semibold mb-4">Project Highlights</h2>
@@ -436,8 +428,6 @@ export default function PropertyDetailClient({ propertyId }) {
             </p>
           </section>
         )}
-
-        {/* Amenities */}
         {property.amenities?.length > 0 && (
           <section className="mt-10">
             <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
@@ -454,21 +444,15 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
           </section>
         )}
-
-        {/* Contact */}
         {property.contact?.name && (
           <section className="mt-10 rounded-2xl bg-gray-50 p-6">
             <h2 className="text-xl font-semibold mb-4">Contact</h2>
-
             <p className="font-medium">{property.contact.name}</p>
-
             {property.contact.phone && (
               <p className="text-gray-600 mt-1">{property.contact.phone}</p>
             )}
           </section>
         )}
-
-        {/* Related */}
         {related.length > 0 && (
           <section className="mt-14">
             <h2 className="text-2xl font-semibold mb-6">Similar Properties</h2>

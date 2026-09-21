@@ -4,20 +4,24 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("sessionId");
+
     if (!sessionId) {
       return NextResponse.json(
         {
           success: false,
           message: "Session ID is required",
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
+
+    const items = [];
 
     return NextResponse.json({
       success: true,
       sessionId,
-      wishlist: [],
+      items,
+      count: items.length,
     });
   } catch (error) {
     console.error("Wishlist GET Error:", error);
@@ -27,7 +31,7 @@ export async function GET(request) {
         success: false,
         message: "Failed to fetch wishlist",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

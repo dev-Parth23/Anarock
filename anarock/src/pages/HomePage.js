@@ -1175,9 +1175,7 @@ export default function HomePage() {
                           htmlFor="requirementType"
                           className="text-xs font-semibold text-slate-600"
                         >
-                          Requirement Type
-                          <span className="text-[#A054A0]"> *</span>
-                        </label>
+                          Requirement Type                        </label>
 
                         <select
                           id="requirementType"
@@ -1513,6 +1511,9 @@ export default function HomePage() {
         </section> */}
 
         {/* POPULAR CITIES */}
+
+
+
         <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
@@ -1520,16 +1521,18 @@ export default function HomePage() {
           </div>
 
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
+
             {/* SECTION HEADER */}
             <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                  Explore {"  "}
+                  Explore{"  "}
                   <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
                     Popular Cities
                   </span>
                 </h2>
               </div>
+
               <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base lg:text-lg">
                 Discover premium commercial real estate opportunities across
                 India&apos;s leading business destinations.
@@ -1537,25 +1540,59 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+
               {popularCities.map((city, index) => (
                 <Link
                   key={city.name}
                   href={`/kyc?city=${encodeURIComponent(city.name)}`}
-                  className="group relative isolate overflow-hidden rounded-[1.5rem] border border-[#A054A0]/15 bg-white shadow-[0_10px_35px_rgba(86,42,91,0.05)] transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#A054A0]/35 hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)] sm:rounded-[1.75rem]"
+                  className="
+            group
+            relative
+            isolate
+            overflow-hidden
+            rounded-[1.5rem]
+            border
+            border-[#A054A0]/15
+            bg-white
+            shadow-[0_10px_35px_rgba(86,42,91,0.05)]
+            transition-all
+            duration-500
+            ease-out
+            hover:-translate-y-2
+            hover:border-[#A054A0]/35
+            hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
+            sm:rounded-[1.75rem]
+          "
                 >
-                  <div className="relative aspect-[4/5] overflow-hidden bg-[#A054A0]/5">
+
+                  {/* IMAGE */}
+
+                  <div
+                    className="
+              relative
+              aspect-square
+              overflow-hidden
+              bg-[#A054A0]/5
+
+              sm:aspect-[4/5]
+            "
+                  >
                     <img
                       src={city.url}
                       alt={`${city.name} commercial real estate`}
                       loading="lazy"
                       decoding="async"
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                      className="h-full w-full object-cover transition-transform
+                duration-700
+                ease-out
+                group-hover:scale-110
+              "
                     />
 
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
 
-                    {/* BOTTOM CONTENT */}
                     <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+
                       <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
 
                       <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
@@ -1563,19 +1600,23 @@ export default function HomePage() {
                       </h3>
 
                       <div className="mt-3 flex items-center justify-between gap-3">
+
                         <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
                           Explore properties
                         </p>
 
                         <ArrowRight className="h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
+
                       </div>
+
                     </div>
                   </div>
 
-                  {/* BOTTOM CARD ACCENT */}
                   <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
+
                 </Link>
               ))}
+
             </div>
           </div>
         </section>
@@ -1657,13 +1698,10 @@ export default function HomePage() {
                     <div className="py-12">
                       <p className="text-3xl font-semibold leading-[1.1] tracking-[-0.04em] text-slate-900 sm:text-4xl md:text-5xl">
                         Intelligence
-                        <span className="text-[#A054A0]">.</span>
                         <br />
                         Expertise
-                        <span className="text-[#A054A0]">.</span>
                         <br />
                         Results
-                        <span className="text-[#A054A0]">.</span>
                       </p>
                     </div>
 

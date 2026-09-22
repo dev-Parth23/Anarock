@@ -1,16 +1,5 @@
 {
   "name": "catalyst",
   "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "build": "npm --prefix anarock install && npm --prefix anarock run build"
-  },
-  "dependencies": {
-    "date-fns": "^4.4.0",
-    "dirham-symbol": "^4.0.4",
-    "framer-motion": "^13.4.0",
-    "lucide-react": "^1.43.0",
-    "react-day-picker": "^10.0.1",
-    "zcatalyst-sdk-node": "^3.4.0"
-  }
+  "private": true
 }

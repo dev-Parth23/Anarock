@@ -4,12 +4,5 @@
       "name": "nextjs",
       "source": "anarock"
     }
-  ],
-  "functions": {
-    "targets": [
-      "anarock_function"
-    ],
-    "ignore": [],
-    "source": "functions"
-  }
+  ]
 }

@@ -1309,7 +1309,7 @@ export default function HomePage() {
         </section>
 
         {/* POPULAR DEVELOPERS */}
-        <section className="relative overflow-hidden py-[clamp(5rem,9vw,9rem)]">
+        {/* <section className="relative overflow-hidden py-[clamp(5rem,9vw,9rem)]">
           <div className="pointer-events-none absolute -left-40 top-20 h-[28rem] w-[28rem] rounded-full bg-[#A054A0]/10 blur-[140px]" />
           <div className="pointer-events-none absolute -right-40 bottom-20 h-[28rem] w-[28rem] rounded-full bg-[#D8C4E4]/30 blur-[140px]" />
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1.25rem,4vw,5rem)]">
@@ -1389,28 +1389,24 @@ export default function HomePage() {
                         />
                       </div>
 
-                      {/* Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent" />
 
-                      {/* Card Number */}
+                    
                       <span className="absolute left-6 top-6 text-xs font-medium tracking-[0.2em] text-white/80">
                         {String(index + 1).padStart(2, "0")}
                       </span>
 
-                      {/* Developer wordmark */}
                       <div className="absolute bottom-7 left-6 right-6">
                         <p className="max-w-[90%] text-2xl font-black tracking-[-0.06em] text-white drop-shadow-lg sm:text-3xl">
                           {developer.name}
                         </p>
                       </div>
 
-                      {/* Arrow */}
                       <div className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white backdrop-blur-md transition-all duration-500 group-hover:rotate-[-35deg] group-hover:bg-white group-hover:text-slate-900">
                         <ArrowUpRight className="h-4 w-4" />
                       </div>
                     </div>
 
-                    {/* Card Content */}
                     <div className="relative flex min-h-[14rem] flex-col justify-between p-6 sm:p-7">
                       <div>
                         <h3 className="text-xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-2xl">
@@ -1440,8 +1436,6 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-
-            {/* LOGO STRIP */}
             <div className="mt-14 border-y border-slate-300/70 py-8 md:mt-20 md:py-10">
               <div className="flex flex-col gap-7 xl:flex-row xl:items-center xl:gap-12">
                 <div className="flex shrink-0 items-center gap-4">
@@ -1486,7 +1480,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* BOTTOM STATS */}
             <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3 md:mt-16 md:gap-10">
               <div className="border-l border-slate-300 pl-5">
                 <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
@@ -1517,7 +1510,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* POPULAR CITIES */}
         <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">

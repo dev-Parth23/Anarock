@@ -1,4 +1,10 @@
 {
+  "name": "catalyst",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix anarock install && npm --prefix anarock run build"
+  },
   "dependencies": {
     "date-fns": "^4.4.0",
     "dirham-symbol": "^4.0.4",

@@ -181,7 +181,7 @@ export default function PropertyCard({
                 alt={propertyName}
                 fill
                 unoptimized
-                className="object-contain transition-transform duration-700 ease-out group-hover:scale-[1.035]"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             ) : (
@@ -348,16 +348,6 @@ export default function PropertyCard({
                 <p className="text-xs font-semibold text-[#302538] sm:text-[13px]">
                   Price on Request
                 </p>
-              </div>
-
-              <div
-                aria-hidden="true"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#A054A0] text-white transition-all duration-300 group-hover:bg-[#873F87]"
-              >
-                <ArrowUpRight
-                  className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45"
-                  strokeWidth={1.8}
-                />
               </div>
             </div>
           </div>

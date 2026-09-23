@@ -125,79 +125,7 @@ export default function Footer() {
               </Link>
             </div>
           </div>
-          {/* SERVICES */}
-          <FooterColumn title="Services">
-            <FooterLink href="https://www.anarock.com/services/transaction-advisory">
-              Transaction Advisory
-            </FooterLink>
 
-            <FooterLink href="/services/leasing-investment-advisory">
-              Leasing &amp; Investment
-              <br className="hidden xl:block" />
-              Advisory
-            </FooterLink>
-
-            <FooterLink href="/services/management-services">
-              Management Services
-            </FooterLink>
-
-            <FooterLink href="/services/technology-solutions">
-              Technology Solutions
-            </FooterLink>
-          </FooterColumn>
-          {/* RESEARCH */}
-          <FooterColumn title="Research">
-            <FooterLink href="/research">
-              Research &amp; Advisory Service
-            </FooterLink>
-
-            <FooterLink href="/research/bespoke">Bespoke Research</FooterLink>
-
-            <FooterLink href="/research/anarock-perspective">
-              The Anarock Perspective
-            </FooterLink>
-          </FooterColumn>
-          {/* MEDIA */}
-          <FooterColumn title="Media">
-            <FooterLink href="/media/awards">Awards</FooterLink>
-
-            <FooterLink href="/media/podcasts-videos">
-              Podcasts &amp; Videos
-            </FooterLink>
-          </FooterColumn>
-          {/* COMPANY */}
-          <FooterColumn title="Company">
-            <FooterLink href="/about">About Us</FooterLink>
-
-            <FooterLink href="/leadership">Leadership Team</FooterLink>
-
-            <FooterLink href="/community-impact">Community Impact</FooterLink>
-
-            <FooterLink href="/careers">Careers</FooterLink>
-
-            <FooterLink href="/contact">Contact Us</FooterLink>
-          </FooterColumn>
-          {/* OFFICES */}
-          <FooterColumn title="Offices">
-            <FooterLink href="/offices/mumbai">Mumbai MMR</FooterLink>
-
-            <FooterLink href="/offices/ahmedabad">Ahmedabad</FooterLink>
-
-            <FooterLink href="/offices/bengaluru">Bengaluru</FooterLink>
-
-            <FooterLink href="/offices/chennai">Chennai</FooterLink>
-
-            <FooterLink href="/offices/dubai">Dubai</FooterLink>
-
-            <FooterLink href="/offices/hyderabad">Hyderabad</FooterLink>
-
-            <Link
-              href="/offices"
-              className="mt-3 inline-block text-[15px] text-[#cfcfcf] underline underline-offset-[5px] transition-colors duration-200 hover:text-white"
-            >
-              View All
-            </Link>
-          </FooterColumn>
         </div>
         <div className="h-px w-full bg-[#7f3f80]" />
         <div className="py-8 sm:py-10 lg:py-11">

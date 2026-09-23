@@ -215,7 +215,8 @@ function GlassField({
       <label htmlFor={name} className="text-xs font-semibold text-slate-600">
         {label} {required && <span className="text-[#A054A0]">*</span>}
       </label>
-      <input id={name}
+      <input
+        id={name}
         name={name}
         type={type}
         required={required}
@@ -940,11 +941,62 @@ export default function HomePage() {
   return (
     <>
       <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 font-sans text-slate-800 selection:bg-[#A054A0] selection:text-white">
-        {/* <HeroSection /> */}
         <HeroSection
-          // consentGranted={consentGranted}
           locationData={locationData}
         />
+
+        {/* POPULAR CITIES */}
+        <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
+            <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
+          </div>
+
+          <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
+            <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
+                  Explore{"  "}
+                  <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
+                    Popular Cities
+                  </span>
+                </h2>
+              </div>
+
+              <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base lg:text-lg">
+                Discover premium commercial real estate opportunities across
+                India&apos;s leading business destinations.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {popularCities.map((city, index) => (
+                <Link key={city.name} href={`/kyc?city=${encodeURIComponent(city.name)}`}
+                  className="group relative isolate overflow-hidden rounded-[1.5rem] border border-[#A054A0]/15 bg-white shadow-[0_10px_35px_rgba(86,42,91,0.05)] transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#A054A0]/35 hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)] sm:rounded-[1.75rem]">
+                  {/* IMAGE */}
+                  <div className="relative aspect-square overflow-hidden bg-[#A054A0]/5 sm:aspect-[4/5]">
+                    <img src={city.url} alt={`${city.name} commercial real estate`} loading="lazy" decoding="async"
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                      <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
+                      <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+                        {city.name}
+                      </h3>
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
+                          Explore properties
+                        </p>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* MARKET AT A GLANCE */}
         <section
@@ -1326,310 +1378,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* POPULAR DEVELOPERS */}
-        {/* <section className="relative overflow-hidden py-[clamp(5rem,9vw,9rem)]">
-          <div className="pointer-events-none absolute -left-40 top-20 h-[28rem] w-[28rem] rounded-full bg-[#A054A0]/10 blur-[140px]" />
-          <div className="pointer-events-none absolute -right-40 bottom-20 h-[28rem] w-[28rem] rounded-full bg-[#D8C4E4]/30 blur-[140px]" />
-          <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1.25rem,4vw,5rem)]">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_0.8fr_0.35fr] lg:items-end">
-              <div>
-                <h2 className="max-w-[850px] text-[clamp(2rem,6.8vw,4rem)] font-bold leading-[0.92] tracking-[-0.05em] text-slate-950">
-                  The Developers
-                  <br />
-                  Shaping{" "}
-                  <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                    What&apos;s Next.
-                  </span>
-                </h2>
-              </div>
-              <div className="max-w-[24rem] lg:pb-2">
-                <p className="text-sm leading-[1.9] text-slate-500 sm:text-base">
-                  Explore premium commercial spaces from India&apos;s trusted
-                  developers — backed by quality, innovation, and enduring
-                  value.
-                </p>
-              </div>
-              <div className="flex gap-8 border-l border-slate-300/80 pl-6 lg:block lg:space-y-8">
-                <div>
-                  <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
-                    50+
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                    Top Developers
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
-                    1000+
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                    Commercial Properties
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-16 md:mt-24">
-              <div className="developers-scroll flex snap-x snap-mandatory gap-3 overflow-x-auto pb-6 [scrollbar-width:thin] sm:gap-4 lg:grid lg:grid-cols-4 lg:overflow-visible">
-                {popularDevelopers.map((developer, index) => (
-                  <Link
-                    href={`/developers/${developer.name
-                      .toLowerCase()
-                      .replace(/\s+/g, "-")}`}
-                    key={developer.name}
-                    className="developer-card group relative min-w-[min(84vw,380px)] snap-start overflow-hidden rounded-[1.5rem] border border-white/80 bg-white shadow-[0_10px_50px_rgba(30,20,40,0.04)] transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_25px_70px_rgba(80,40,100,0.14)] sm:min-w-[340px] lg:min-w-0"
-                  >
-                    <div className="relative h-[clamp(15rem,24vw,23rem)] overflow-hidden bg-[#D9DCE4]">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#D7DCE8] via-[#B3B9C8] to-[#737A8B] transition-transform duration-1000 group-hover:scale-110" />
-                      <div className="absolute inset-x-10 bottom-0 top-10 flex items-end justify-center gap-2 opacity-90">
-                        <div
-                          className="h-[65%] w-[22%] border border-white/30 bg-slate-700/40 shadow-2xl"
-                          style={{
-                            backgroundImage:
-                              "repeating-linear-gradient(90deg, transparent 0, transparent 13px, rgba(255,255,255,0.2) 14px), repeating-linear-gradient(0deg, transparent 0, transparent 17px, rgba(255,255,255,0.16) 18px)",
-                          }}
-                        />
-
-                        <div
-                          className="h-[90%] w-[30%] border border-white/40 bg-slate-800/50 shadow-2xl"
-                          style={{
-                            backgroundImage:
-                              "repeating-linear-gradient(90deg, transparent 0, transparent 15px, rgba(255,255,255,0.25) 16px), repeating-linear-gradient(0deg, transparent 0, transparent 20px, rgba(255,255,255,0.18) 21px)",
-                          }}
-                        />
-
-                        <div
-                          className="h-[74%] w-[24%] border border-white/30 bg-slate-700/50 shadow-2xl"
-                          style={{
-                            backgroundImage:
-                              "repeating-linear-gradient(90deg, transparent 0, transparent 12px, rgba(255,255,255,0.2) 13px), repeating-linear-gradient(0deg, transparent 0, transparent 16px, rgba(255,255,255,0.16) 17px)",
-                          }}
-                        />
-                      </div>
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent" />
-
-                    
-                      <span className="absolute left-6 top-6 text-xs font-medium tracking-[0.2em] text-white/80">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-
-                      <div className="absolute bottom-7 left-6 right-6">
-                        <p className="max-w-[90%] text-2xl font-black tracking-[-0.06em] text-white drop-shadow-lg sm:text-3xl">
-                          {developer.name}
-                        </p>
-                      </div>
-
-                      <div className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white backdrop-blur-md transition-all duration-500 group-hover:rotate-[-35deg] group-hover:bg-white group-hover:text-slate-900">
-                        <ArrowUpRight className="h-4 w-4" />
-                      </div>
-                    </div>
-
-                    <div className="relative flex min-h-[14rem] flex-col justify-between p-6 sm:p-7">
-                      <div>
-                        <h3 className="text-xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-2xl">
-                          {developer.name}
-                        </h3>
-
-                        <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#A054A0]">
-                          {developer.category}
-                        </p>
-
-                        <p className="mt-5 max-w-[19rem] text-sm leading-[1.8] text-slate-500">
-                          {developer.description}
-                        </p>
-                      </div>
-
-                      <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-5">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                          Explore Properties
-                        </span>
-
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 transition-all duration-500 group-hover:border-[#A054A0] group-hover:bg-[#A054A0] group-hover:text-white">
-                          <ArrowUpRight className="h-4 w-4" />
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <div className="mt-14 border-y border-slate-300/70 py-8 md:mt-20 md:py-10">
-              <div className="flex flex-col gap-7 xl:flex-row xl:items-center xl:gap-12">
-                <div className="flex shrink-0 items-center gap-4">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
-                    Featured Developers
-                  </span>
-
-                  <span className="hidden h-px w-10 bg-slate-300 xl:block" />
-                </div>
-
-                <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-8 gap-y-6 sm:gap-x-12">
-                  {popularDevelopers.map((developer) => (
-                    <Link
-                      href={`/developers/${developer.name
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}`}
-                      key={`logo-${developer.name}`}
-                      className="text-xl font-black tracking-[-0.07em] text-slate-400 grayscale transition-all duration-300 hover:text-[#A054A0] hover:grayscale-0 sm:text-2xl"
-                    >
-                      {developer.name}
-                    </Link>
-                  ))}
-                </div>
-
-                <div className="hidden items-center gap-3 xl:flex">
-                  <button
-                    type="button"
-                    aria-label="Previous developers"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition-all hover:bg-slate-900 hover:text-white"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                  </button>
-
-                  <button
-                    type="button"
-                    aria-label="Next developers"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition-all hover:bg-slate-900 hover:text-white"
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3 md:mt-16 md:gap-10">
-              <div className="border-l border-slate-300 pl-5">
-                <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
-                  10+
-                </p>
-
-                <p className="mt-2 text-sm text-slate-500">Cities Covered</p>
-              </div>
-
-              <div className="border-l border-slate-300 pl-5">
-                <p className="text-4xl font-bold tracking-[-0.04em] text-slate-950 sm:text-5xl">
-                  500+
-                </p>
-
-                <p className="mt-2 text-sm text-slate-500">
-                  Grade A Properties
-                </p>
-              </div>
-
-              <div className="border-l border-[#A054A0] pl-5">
-                <p className="text-xl font-medium leading-relaxed text-slate-800 sm:text-2xl">
-                  “Great spaces are built by great visionaries.”
-                </p>
-
-                <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.25em] text-[#A054A0]">
-                  — Anarock
-                </p>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
-        {/* POPULAR CITIES */}
-
-        <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
-            <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
-          </div>
-
-          <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
-            {/* SECTION HEADER */}
-            <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                  Explore{"  "}
-                  <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                    Popular Cities
-                  </span>
-                </h2>
-              </div>
-
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base lg:text-lg">
-                Discover premium commercial real estate opportunities across
-                India&apos;s leading business destinations.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {popularCities.map((city, index) => (
-                <Link
-                  key={city.name}
-                  href={`/kyc?city=${encodeURIComponent(city.name)}`}
-                  className="
-            group
-            relative
-            isolate
-            overflow-hidden
-            rounded-[1.5rem]
-            border
-            border-[#A054A0]/15
-            bg-white
-            shadow-[0_10px_35px_rgba(86,42,91,0.05)]
-            transition-all
-            duration-500
-            ease-out
-            hover:-translate-y-2
-            hover:border-[#A054A0]/35
-            hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
-            sm:rounded-[1.75rem]
-          "
-                >
-                  {/* IMAGE */}
-
-                  <div
-                    className="
-              relative
-              aspect-square
-              overflow-hidden
-              bg-[#A054A0]/5
-
-              sm:aspect-[4/5]
-            "
-                  >
-                    <img
-                      src={city.url}
-                      alt={`${city.name} commercial real estate`}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover transition-transform
-                duration-700
-                ease-out
-                group-hover:scale-110
-              "
-                    />
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
-
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                      <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
-
-                      <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-                        {city.name}
-                      </h3>
-
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
-                          Explore properties
-                        </p>
-
-                        <ArrowRight className="h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ================= ABOUT US ================= */}
         <section
           id="aboutus"
@@ -1727,12 +1475,11 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      </div>
+      </div >
 
       <CookieConsent
         onConsentGiven={() => {
           setConsentGranted(true);
-
           requestLocationPermission();
         }}
       />

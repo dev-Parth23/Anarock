@@ -98,12 +98,22 @@ async function getZohoAccessToken(forceRefresh = false) {
   return await generateZohoAccessToken();
 }
 
+function normalizeCityName(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function isValidCityName(value) {
+  if (!value) return false;
+  return /^[\p{L}\p{N} .'-]{1,100}$/u.test(value);
+}
+
+
 async function findCityId(tokenInfo, cityName) {
-  if (!cityName) {
-    return null;
-  }
-  const cleanCity = String(cityName).trim();
-  if (!cleanCity) {
+  const cleanCity = normalizeCityName(cityName);
+
+  if (!cleanCity || !isValidCityName(cleanCity)) {
     return null;
   }
 
@@ -116,18 +126,17 @@ async function findCityId(tokenInfo, cityName) {
 
   const response = await fetch(url, {
     method: "GET",
-
     headers: {
       Authorization: `Zoho-oauthtoken ${tokenInfo.accessToken}`,
-
       "Content-Type": "application/json",
     },
-
     cache: "no-store",
   });
 
   if (response.status === 401) {
-    const error = new Error("Zoho access token expired while searching City.");
+    const error = new Error(
+      "Zoho access token expired while searching City.",
+    );
 
     error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
 
@@ -141,14 +150,18 @@ async function findCityId(tokenInfo, cityName) {
   try {
     data = responseText ? JSON.parse(responseText) : {};
   } catch {
-    throw new Error(`Invalid response from Zoho City search: ${responseText}`);
+    throw new Error(
+      `Invalid response from Zoho City search: ${responseText}`,
+    );
   }
 
   if (response.status === 204 || !response.ok) {
     return null;
   }
 
-  const records = Array.isArray(data?.data) ? data.data : [];
+  const records = Array.isArray(data?.data)
+    ? data.data
+    : [];
 
   const exactCity = records.find(
     (record) =>
@@ -159,7 +172,6 @@ async function findCityId(tokenInfo, cityName) {
 
   return exactCity?.id || null;
 }
-
 
 function mapLocationToLeadOwnerTeam(city, state) {
   const cityLower = String(city || "")

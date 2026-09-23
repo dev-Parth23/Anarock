@@ -101,10 +101,6 @@ async function generateZohoAccessToken() {
         );
       }
 
-      /* =====================================================
-           HANDLE ZOHO RATE LIMIT
-        ===================================================== */
-
       if (
         response.status === 429 ||
         String(data?.error || data?.error_description || "")
@@ -180,17 +176,27 @@ async function getZohoAccessToken(forceRefresh = false) {
 
   return await generateZohoAccessToken();
 }
-async function findCityId(tokenInfo, cityName) {
-  if (!cityName) {
-    return null;
-  }
 
-  const cleanCity = String(cityName).trim();
-  if (!cleanCity) {
+function normalizeCityName(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function isValidCityName(value) {
+  if (!value) return false;
+  return /^[\p{L}\p{N} .'-]{1,100}$/u.test(value);
+}
+
+async function findCityId(tokenInfo, cityName) {
+  const cleanCity = normalizeCityName(cityName);
+
+  if (!cleanCity || !isValidCityName(cleanCity)) {
     return null;
   }
 
   const criteria = `(Name:equals:${cleanCity})`;
+
   const url =
     `${tokenInfo.apiDomain}/crm/v8/City/search` +
     `?criteria=${encodeURIComponent(criteria)}` +
@@ -207,11 +213,14 @@ async function findCityId(tokenInfo, cityName) {
 
   if (response.status === 401) {
     const error = new Error("Zoho access token expired while searching City.");
+
     error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
+
     throw error;
   }
 
   const responseText = await response.text();
+
   let data;
 
   try {
@@ -225,6 +234,7 @@ async function findCityId(tokenInfo, cityName) {
   }
 
   const records = Array.isArray(data?.data) ? data.data : [];
+
   const exactCity = records.find(
     (record) =>
       String(record?.Name || "")
@@ -654,12 +664,9 @@ export async function POST(request) {
     const requirementCity =
       rawRequirementCity === "__NONE__" ? "" : rawRequirementCity;
 
-
     const requirementType = String(
       body?.requirementType || body?.Requirement_Type || "",
     ).trim();
-
-
 
     if (!firstName && !lastName) {
       return NextResponse.json(
@@ -685,9 +692,7 @@ export async function POST(request) {
       );
     }
 
-
     let tokenInfo = await getZohoAccessToken();
-
 
     const processLead = async (currentToken) => {
       let requirementCityId = null;
@@ -731,7 +736,10 @@ export async function POST(request) {
         }
       });
 
-      console.log("Posting record to Zoho CRM:", JSON.stringify(recordData, null, 2));
+      console.log(
+        "Posting record to Zoho CRM:",
+        JSON.stringify(recordData, null, 2),
+      );
       const result = await createLeadInCRM(currentToken, recordData);
       return {
         ...result,

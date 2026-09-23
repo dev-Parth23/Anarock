@@ -42,10 +42,31 @@ const currencies = [
 
 const phoneCountries = [
   { name: "India", code: "IN", dial: "+91", flag: "🇮🇳", min: 10, max: 10 },
-  { name: "United States", code: "US", dial: "+1", flag: "🇺🇸", min: 10, max: 10 },
+  {
+    name: "United States",
+    code: "US",
+    dial: "+1",
+    flag: "🇺🇸",
+    min: 10,
+    max: 10,
+  },
   { name: "Canada", code: "CA", dial: "+1", flag: "🇨🇦", min: 10, max: 10 },
-  { name: "United Kingdom", code: "GB", dial: "+44", flag: "🇬🇧", min: 10, max: 10 },
-  { name: "United Arab Emirates", code: "AE", dial: "+971", flag: "🇦🇪", min: 9, max: 9 },
+  {
+    name: "United Kingdom",
+    code: "GB",
+    dial: "+44",
+    flag: "🇬🇧",
+    min: 10,
+    max: 10,
+  },
+  {
+    name: "United Arab Emirates",
+    code: "AE",
+    dial: "+971",
+    flag: "🇦🇪",
+    min: 9,
+    max: 9,
+  },
   { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺", min: 9, max: 9 },
   { name: "Singapore", code: "SG", dial: "+65", flag: "🇸🇬", min: 8, max: 8 },
   { name: "Germany", code: "DE", dial: "+49", flag: "🇩🇪", min: 10, max: 11 },
@@ -64,16 +85,37 @@ const phoneCountries = [
   { name: "Thailand", code: "TH", dial: "+66", flag: "🇹🇭", min: 9, max: 9 },
   { name: "Israel", code: "IL", dial: "+972", flag: "🇮🇱", min: 9, max: 9 },
   { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩", min: 9, max: 12 },
-  { name: "Philippines", code: "PH", dial: "+63", flag: "🇵🇭", min: 10, max: 10 },
+  {
+    name: "Philippines",
+    code: "PH",
+    dial: "+63",
+    flag: "🇵🇭",
+    min: 10,
+    max: 10,
+  },
   { name: "Vietnam", code: "VN", dial: "+84", flag: "🇻🇳", min: 9, max: 10 },
   { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦", min: 9, max: 9 },
-  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", min: 9, max: 9 },
+  {
+    name: "Saudi Arabia",
+    code: "SA",
+    dial: "+966",
+    flag: "🇸🇦",
+    min: 9,
+    max: 9,
+  },
   { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦", min: 8, max: 8 },
   { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼", min: 8, max: 8 },
   { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲", min: 8, max: 8 },
   { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭", min: 8, max: 8 },
   { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", min: 10, max: 10 },
-  { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", min: 10, max: 10 },
+  {
+    name: "Bangladesh",
+    code: "BD",
+    dial: "+880",
+    flag: "🇧🇩",
+    min: 10,
+    max: 10,
+  },
   { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", min: 10, max: 10 },
   { name: "Sri Lanka", code: "LK", dial: "+94", flag: "🇱🇰", min: 9, max: 9 },
   { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", min: 10, max: 10 },
@@ -93,7 +135,7 @@ const navigation = [
 
 export default function Navbar() {
   const { count: wishlistCount } = useWishlist();
-
+  const [isPriorityLead, setIsPriorityLead] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const { currency: currencyCode, unit } = usePreferences();
@@ -108,7 +150,8 @@ export default function Navbar() {
   const [submitError, setSubmitError] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
-  const [emailError, setEmailError] = useState(""); const [selectedCountry, setSelectedCountry] = useState(phoneCountries[0]);
+  const [emailError, setEmailError] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState(phoneCountries[0]);
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
@@ -180,9 +223,9 @@ export default function Navbar() {
     setEnquiryStep(1);
     setPendingLeadPayload(null);
     setEnquiryStatus("form");
+    setIsPriorityLead(false);
     setEnquiryOpen(true);
   };
-
   const closeEnquiry = () => {
     if (thankYouTimerRef.current) {
       clearTimeout(thankYouTimerRef.current);
@@ -190,6 +233,7 @@ export default function Navbar() {
     }
 
     setEmail("");
+    setIsPriorityLead(false);
     setEmailError("");
     setEnquiryOpen(false);
     setEnquiryStatus("form");
@@ -252,7 +296,6 @@ export default function Navbar() {
     };
   }, [mobileOpen, enquiryOpen]);
 
-  // Handle ESC Key & Backdrop Close
   const handleModalClose = async () => {
     if (
       enquiryStep === 2 &&
@@ -260,8 +303,6 @@ export default function Navbar() {
       enquiryStatus !== "success" &&
       !isSubmitting
     ) {
-      // User closed Form 2 without submitting: send Form 1 data to CRM
-      await submitLeadToCRM("", "");
       return;
     }
     closeEnquiry();
@@ -282,7 +323,13 @@ export default function Navbar() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [enquiryOpen, enquiryStep, pendingLeadPayload, enquiryStatus, isSubmitting]);
+  }, [
+    enquiryOpen,
+    enquiryStep,
+    pendingLeadPayload,
+    enquiryStatus,
+    isSubmitting,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -447,10 +494,15 @@ export default function Navbar() {
   };
 
   const mapLocationToLeadOwnerTeam = (city, state) => {
-    const cityLower = String(city || "").trim().toLowerCase();
-    const stateLower = String(state || "").trim().toLowerCase();
+    const cityLower = String(city || "")
+      .trim()
+      .toLowerCase();
+    const stateLower = String(state || "")
+      .trim()
+      .toLowerCase();
 
-    if (cityLower.includes("bengaluru") || cityLower.includes("bangalore")) return "Bengaluru";
+    if (cityLower.includes("bengaluru") || cityLower.includes("bangalore"))
+      return "Bengaluru";
     if (cityLower.includes("chennai")) return "Chennai";
     if (cityLower.includes("hyderabad")) return "Hyderabad";
     if (cityLower.includes("kolkata")) return "Kolkata";
@@ -485,13 +537,13 @@ export default function Navbar() {
     return "Platform";
   };
 
-  // Submits the combined payload to Zoho CRM
   const submitLeadToCRM = async (email = "", company = "") => {
     if (!pendingLeadPayload || isSubmitting) return;
 
     setIsSubmitting(true);
     setSubmitError("");
     setEmailError("");
+    setIsPriorityLead(false);
 
     const finalPayload = {
       ...pendingLeadPayload,
@@ -499,54 +551,35 @@ export default function Navbar() {
       company: company.trim(),
     };
 
+    console.log("[NAVBAR] Final Lead Payload:", finalPayload);
+
     try {
       const response = await fetch("/api/leads", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(finalPayload),
       });
 
       const result = await response.json();
 
+      console.log("[NAVBAR] Lead API Response:", result);
+
       if (!response.ok || !result?.success) {
-        throw new Error(result?.message || "Unable to create lead in CRM.");
+        throw new Error(
+          result?.message || "Unable to create/update lead in CRM.",
+        );
       }
+      setIsPriorityLead(Boolean(result?.priority));
 
       setEnquiryStatus("success");
+
       thankYouTimerRef.current = setTimeout(() => {
         closeEnquiry();
       }, 5000);
     } catch (error) {
       console.error("CRM Lead creation error:", error);
-
-      // Fallback: If sending Form 2 data fails, attempt creating lead using Form 1 data only
-      if (email.trim() || company.trim()) {
-        try {
-          const fallbackPayload = {
-            ...pendingLeadPayload,
-            email: "",
-            company: "",
-          };
-
-          const fallbackResponse = await fetch("/api/lead", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(fallbackPayload),
-          });
-
-          const fallbackResult = await fallbackResponse.json();
-
-          if (fallbackResponse.ok && fallbackResult?.success) {
-            setEnquiryStatus("success");
-            thankYouTimerRef.current = setTimeout(() => {
-              closeEnquiry();
-            }, 5000);
-            return;
-          }
-        } catch (fallbackError) {
-          console.error("Fallback lead creation error:", fallbackError);
-        }
-      }
 
       setSubmitError(
         error?.message || "Something went wrong while creating the lead.",
@@ -555,8 +588,6 @@ export default function Navbar() {
       setIsSubmitting(false);
     }
   };
-
-  // Form 1 Submission: Validates name & phone, stores data, moves to Form 2
   const handleFormOneSubmit = async (event) => {
     event.preventDefault();
 
@@ -564,6 +595,7 @@ export default function Navbar() {
 
     const form = event.currentTarget;
     const cleanPhone = phone.replace(/\D/g, "");
+
     const isPhoneValid = validatePhone(cleanPhone, selectedCountry);
 
     if (!form.checkValidity() || !isPhoneValid) {
@@ -574,112 +606,102 @@ export default function Navbar() {
     setSubmitError("");
 
     const formData = new FormData(form);
-
-    let city = "";
-    let micromarket = "";
-    let state = "";
-    let country = "";
-    let area = "";
-    let pincode = "";
-
-    let searchCity = "";
-    let searchMicromarket = "";
-    let hasActiveSearch = false;
-
-    try {
-      const searchParams = new URLSearchParams(window.location.search);
-      const urlCity = String(searchParams.get("city") || "").trim();
-      const urlMicromarket = String(searchParams.get("micromarket") || "").trim();
-
-      if (urlCity) {
-        searchCity = urlCity;
-        hasActiveSearch = true;
-      }
-      if (urlMicromarket) searchMicromarket = urlMicromarket;
-    } catch (error) {
-      console.error("Unable to read search parameters:", error);
-    }
-
-    if (!searchCity) {
-      try {
-        const lastSearched = localStorage.getItem("anarock_last_searched_location");
-        if (lastSearched) {
-          const parsedSearch = JSON.parse(lastSearched);
-          const storedCity = String(parsedSearch?.city || "").trim();
-          if (storedCity) {
-            searchCity = storedCity;
-            hasActiveSearch = true;
-            if (!searchMicromarket) {
-              searchMicromarket = String(parsedSearch?.micromarket || "").trim();
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Unable to read last searched location:", error);
-      }
-    }
+    let physicalStreet = "";
+    let physicalCity = "";
+    let physicalState = "";
+    let physicalCountry = "";
+    let physicalPincode = "";
 
     try {
       const savedLocation = sessionStorage.getItem("anarock_user_location");
+
       if (savedLocation) {
-        const parsed = JSON.parse(savedLocation);
-        city = String(parsed?.city || "").trim();
-        state = String(parsed?.state || "").trim();
-        country = String(parsed?.country || "").trim();
-        area = String(parsed?.area || "").trim();
-        pincode = String(parsed?.pincode || "").trim();
+        const parsedLocation = JSON.parse(savedLocation);
+
+        physicalStreet = String(parsedLocation?.area || "").trim();
+        physicalCity = String(parsedLocation?.city || "").trim();
+        physicalState = String(parsedLocation?.state || "").trim();
+        physicalCountry = String(parsedLocation?.country || "").trim();
+        physicalPincode = String(parsedLocation?.pincode || "").trim();
       }
     } catch (error) {
-      console.error("Unable to read saved user location:", error);
+      console.error("Unable to read physical user location:", error);
     }
 
-    if (hasActiveSearch && searchCity) {
-      city = searchCity;
-      micromarket = searchMicromarket || "";
-      area = micromarket;
-      state = "";
-      country = "India";
-      pincode = "";
-    } else if (!city) {
-      city = String(manualCity || "").trim();
+    let requirementCity = "";
+    let requirementType = "";
+
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+
+      const urlCity = String(searchParams.get("city") || "").trim();
+
+      const urlType = String(searchParams.get("type") || "").trim();
+
+      if (urlCity) {
+        requirementCity = urlCity;
+      }
+
+      if (urlType && urlType.toLowerCase() !== "ai") {
+        requirementType = urlType;
+      }
+    } catch (error) {
+      console.error("Unable to read URL search filters:", error);
+    }
+    if (!requirementCity || !requirementType) {
+      try {
+        const lastSearched = localStorage.getItem(
+          "anarock_last_searched_location",
+        );
+
+        if (lastSearched) {
+          const parsedSearch = JSON.parse(lastSearched);
+
+          if (!requirementCity) {
+            requirementCity = String(parsedSearch?.city || "").trim();
+          }
+
+          if (!requirementType) {
+            requirementType = String(parsedSearch?.propertyType || "").trim();
+          }
+        }
+      } catch (error) {
+        console.error("Unable to read last Hero search:", error);
+      }
     }
 
     const name = String(formData.get("name") || "").trim();
-    const fullPhone = `${selectedCountry.dial}${cleanPhone}`;
-
     const nameParts = name.split(/\s+/).filter(Boolean);
     let firstName = "";
     let lastName = "";
 
     if (nameParts.length === 1) {
-      lastName = nameParts[0];
+      firstName = nameParts[0];
+      lastName = "";
     } else {
       firstName = nameParts.slice(0, -1).join(" ");
+
       lastName = nameParts[nameParts.length - 1];
     }
 
-    if (hasActiveSearch && searchCity) {
-      const resolvedSearchLocation = await resolveCityState(searchCity);
-      city = resolvedSearchLocation.city || searchCity;
-      state = resolvedSearchLocation.state || "";
-      country = resolvedSearchLocation.country || "India";
-      micromarket = searchMicromarket || "";
-      area = micromarket;
-    }
+    const fullPhone = `${selectedCountry.dial}${cleanPhone}`;
 
-    const finalCity = city || "";
-    const finalState = state || "";
-    const finalLeadOwnerTeam = mapLocationToLeadOwnerTeam(finalCity, finalState);
+    const finalLeadOwnerTeam = mapLocationToLeadOwnerTeam(
+      physicalCity,
+      physicalState,
+    );
 
     const payload = {
       firstName,
       lastName,
       phone: fullPhone,
-      street: area || micromarket || "",
-      city: finalCity,
-      state: finalState,
-      country: country || "India",
-      pincode: pincode || "",
+      street: physicalStreet,
+      city: physicalCity,
+      state: physicalState,
+      country: physicalCountry,
+      pincode: physicalPincode,
+      requirementCity: requirementCity || "",
+      requirementType: requirementType || "",
       leadSource: "Listing Platform",
       leadStatus: "Not Contacted",
       subLeadSource: "Request a Callback",
@@ -689,6 +711,8 @@ export default function Navbar() {
       countryCode: selectedCountry.code,
       countryDialCode: selectedCountry.dial,
     };
+
+    console.log("[NAVBAR] Final Lead Payload:", payload);
 
     setPendingLeadPayload(payload);
     setEnquiryStep(2);
@@ -715,7 +739,6 @@ export default function Navbar() {
     await submitLeadToCRM(email, company);
   };
 
-  // Skip Form 2 and submit using Form 1 data
   const handleSkipFormTwo = async () => {
     await submitLeadToCRM("", "");
   };
@@ -872,7 +895,9 @@ export default function Navbar() {
 
                 <Link
                   href="/wishlist"
-                  aria-label={`Shortlist${wishlistCount > 0 ? `, ${wishlistCount} saved properties` : ""
+                  aria-label={`Shortlist${wishlistCount > 0
+                    ? `, ${wishlistCount} saved properties`
+                    : ""
                     }`}
                   className="group relative hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
                 >
@@ -927,7 +952,9 @@ export default function Navbar() {
                         type="button"
                         onClick={() => handleScrollNavigation(item.href)}
                         style={{
-                          transitionDelay: mobileOpen ? `${index * 30}ms` : "0ms",
+                          transitionDelay: mobileOpen
+                            ? `${index * 30}ms`
+                            : "0ms",
                         }}
                         className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
                           ? "translate-x-0 opacity-100"
@@ -1120,11 +1147,15 @@ export default function Navbar() {
                 </p>
 
                 <h2 className="max-w-[440px] text-[23px] font-bold tracking-[-0.02em] text-slate-900 sm:text-[27px] lg:text-[29px] 2xl:text-[34px]">
-                  Your enquiry has been received
+                  {isPriorityLead
+                    ? "Your enquiry has been received and put on priority"
+                    : "Your enquiry has been received"}
                 </h2>
 
                 <p className="mt-3 text-[14px] leading-6 text-slate-600 sm:text-[15px] 2xl:text-[17px]">
-                  Our team will get back to you shortly.
+                  {isPriorityLead
+                    ? "We have updated your information and placed your enquiry on priority. Our team will get back to you shortly."
+                    : "Our team will get back to you shortly."}
                 </p>
 
                 <p className="mt-7 rounded-lg border border-[#A054A0]/20 bg-white/80 px-4 py-2 text-[11px] font-medium text-slate-500 shadow-sm backdrop-blur-md sm:text-[12px] 2xl:text-[14px]">
@@ -1132,7 +1163,6 @@ export default function Navbar() {
                 </p>
               </div>
             ) : enquiryStep === 1 ? (
-              /* FORM 1: Name and Phone */
               <>
                 <div className="relative shrink-0 border-b border-[#A054A0]/10 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
                   <h2
@@ -1238,10 +1268,15 @@ export default function Navbar() {
                                             window.innerHeight - rect.bottom;
                                           return spaceBelow < height &&
                                             rect.top > height
-                                            ? Math.max(12, rect.top - height - 8)
+                                            ? Math.max(
+                                              12,
+                                              rect.top - height - 8,
+                                            )
                                             : Math.min(
                                               rect.bottom + 8,
-                                              window.innerHeight - height - 12,
+                                              window.innerHeight -
+                                              height -
+                                              12,
                                             );
                                         })(),
                                         left: (() => {
@@ -1266,7 +1301,8 @@ export default function Navbar() {
                                           <input
                                             ref={countrySearchRef}
                                             type="text"
-                                            value={countrySearch ?? ""} onChange={(e) =>
+                                            value={countrySearch ?? ""}
+                                            onChange={(e) =>
                                               setCountrySearch(e.target.value)
                                             }
                                             placeholder="Search country..."
@@ -1415,7 +1451,8 @@ export default function Navbar() {
                   </h2>
 
                   <p className="mt-1.5 max-w-[480px] text-[11px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
-                    Provide your email and company name to help us serve you better.
+                    Provide your email and company name to help us serve you
+                    better.
                   </p>
                 </div>
 
@@ -1439,7 +1476,8 @@ export default function Navbar() {
                           type="email"
                           placeholder="Enter your email"
                           autoComplete="email"
-                          value={email ?? ""} onChange={(event) => {
+                          value={email ?? ""}
+                          onChange={(event) => {
                             setEmail(event.target.value);
 
                             if (emailError) {
@@ -1503,7 +1541,9 @@ export default function Navbar() {
                           </>
                         ) : (
                           <>
-                            <span className="relative z-10">Submit Enquiry</span>
+                            <span className="relative z-10">
+                              Submit Enquiry
+                            </span>
                             <ArrowUpRight
                               size={18}
                               strokeWidth={2}
@@ -1541,8 +1581,12 @@ export default function Navbar() {
         }
 
         @keyframes navbarFadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         @keyframes navbarPopup {
@@ -1582,9 +1626,16 @@ export default function Navbar() {
         }
 
         @keyframes errorShake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-4px); }
-          75% { transform: translateX(4px); }
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          25% {
+            transform: translateX(-4px);
+          }
+          75% {
+            transform: translateX(4px);
+          }
         }
       `}</style>
     </>

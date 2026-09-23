@@ -3,15 +3,11 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const ACCOUNTS_URL =
-  process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
-
+const ACCOUNTS_URL = process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
 const DEFAULT_API_URL = process.env.ZOHO_API_URL || "https://www.zohoapis.in";
-
 const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
-
 let zohoTokenCache = {
   accessToken: null,
   expiresAt: 0,
@@ -31,14 +27,11 @@ async function generateZohoAccessToken() {
   }
 
   const tokenUrl = `${ACCOUNTS_URL}/oauth/v2/token`;
-
   const params = new URLSearchParams();
-
   params.set("refresh_token", REFRESH_TOKEN.trim());
   params.set("client_id", CLIENT_ID.trim());
   params.set("client_secret", CLIENT_SECRET.trim());
   params.set("grant_type", "refresh_token");
-
   const response = await fetch(tokenUrl, {
     method: "POST",
     headers: {
@@ -47,11 +40,8 @@ async function generateZohoAccessToken() {
     body: params.toString(),
     cache: "no-store",
   });
-
   const responseText = await response.text();
-
   let data;
-
   try {
     data = responseText ? JSON.parse(responseText) : {};
   } catch {

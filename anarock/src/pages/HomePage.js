@@ -22,7 +22,6 @@ import {
   ArrowUpRight,
   MapPin,
 } from "lucide-react";
-
 const phoneCountries = [
   { name: "India", code: "IN", dial: "+91", flag: "🇮🇳", min: 10, max: 10 },
   {
@@ -68,16 +67,37 @@ const phoneCountries = [
   { name: "Thailand", code: "TH", dial: "+66", flag: "🇹🇭", min: 9, max: 9 },
   { name: "Israel", code: "IL", dial: "+972", flag: "🇮🇱", min: 9, max: 9 },
   { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩", min: 9, max: 12 },
-  { name: "Philippines", code: "PH", dial: "+63", flag: "🇵🇭", min: 10, max: 10 },
+  {
+    name: "Philippines",
+    code: "PH",
+    dial: "+63",
+    flag: "🇵🇭",
+    min: 10,
+    max: 10,
+  },
   { name: "Vietnam", code: "VN", dial: "+84", flag: "🇻🇳", min: 9, max: 10 },
   { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦", min: 9, max: 9 },
-  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", min: 9, max: 9 },
+  {
+    name: "Saudi Arabia",
+    code: "SA",
+    dial: "+966",
+    flag: "🇸🇦",
+    min: 9,
+    max: 9,
+  },
   { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦", min: 8, max: 8 },
   { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼", min: 8, max: 8 },
   { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲", min: 8, max: 8 },
   { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭", min: 8, max: 8 },
   { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", min: 10, max: 10 },
-  { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", min: 10, max: 10 },
+  {
+    name: "Bangladesh",
+    code: "BD",
+    dial: "+880",
+    flag: "🇧🇩",
+    min: 10,
+    max: 10,
+  },
   { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", min: 10, max: 10 },
   { name: "Sri Lanka", code: "LK", dial: "+94", flag: "🇱🇰", min: 9, max: 9 },
   { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", min: 10, max: 10 },
@@ -86,7 +106,6 @@ const phoneCountries = [
   { name: "Argentina", code: "AR", dial: "+54", flag: "🇦🇷", min: 10, max: 11 },
   { name: "Turkey", code: "TR", dial: "+90", flag: "🇹🇷", min: 10, max: 10 },
 ];
-
 const popularCities = [
   {
     name: "Mumbai",
@@ -129,34 +148,6 @@ const popularCities = [
     url: "https://www.kiomoi.com/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fkmadmin%2Fimage%2Fupload%2Fc_scale%2Cw_1248%2Ff_auto%2Fv1560260650%2Fkiomoi%2FAhmedabad%2Fkankaria%20Lake%20%20(1).webp&w=3840&q=75",
   },
 ];
-
-const popularDevelopers = [
-  {
-    name: "DLF",
-    description:
-      "A leading real estate developer with a strong commercial and residential portfolio.",
-    category: "Commercial & Residential",
-  },
-  {
-    name: "Embassy Group",
-    description:
-      "Known for premium office spaces, business parks, and integrated developments.",
-    category: "Office & Business Parks",
-  },
-  {
-    name: "RMZ",
-    description:
-      "Developing modern workspaces designed for global enterprises and growing businesses.",
-    category: "Premium Workspaces",
-  },
-  {
-    name: "Prestige Group",
-    description:
-      "A diversified developer with projects across commercial, retail, and residential sectors.",
-    category: "Integrated Developments",
-  },
-];
-
 const features = [
   {
     icon: Users,
@@ -189,7 +180,6 @@ const features = [
     desc: "Real-time insights across 850M+ sq.ft of commercial stock.",
   },
 ];
-
 const journey = [
   {
     icon: Compass,
@@ -225,8 +215,7 @@ function GlassField({
       <label htmlFor={name} className="text-xs font-semibold text-slate-600">
         {label} {required && <span className="text-[#A054A0]">*</span>}
       </label>
-      <input
-        id={name}
+      <input id={name}
         name={name}
         type={type}
         required={required}
@@ -747,17 +736,41 @@ export default function HomePage() {
     }
   };
 
+  const locationRequestStartedRef = useRef(false);
+
   const requestLocationPermission = useCallback(() => {
+    if (locationRequestStartedRef.current) {
+      return;
+    }
+
+    locationRequestStartedRef.current = true;
+
+    try {
+      const savedLocation = sessionStorage.getItem("anarock_user_location");
+
+      if (savedLocation) {
+        const location = JSON.parse(savedLocation);
+
+        setLocationData({
+          street: location.area || "",
+          city: location.city || "",
+          province: location.state || "",
+          postalCode: location.pincode || "",
+          country: location.country || "",
+        });
+
+        window.dispatchEvent(new Event("anarock-location-updated"));
+
+        return;
+      }
+    } catch (error) {
+      console.warn("Failed to read saved location:", error);
+
+      sessionStorage.removeItem("anarock_user_location");
+    }
+
     if (!navigator.geolocation) {
       console.warn("Geolocation is not supported by this browser.");
-
-      setLocationData({
-        street: "",
-        city: "",
-        province: "",
-        postalCode: "",
-        country: "",
-      });
 
       return;
     }
@@ -769,11 +782,9 @@ export default function HomePage() {
 
           const response = await fetch("/api/location", {
             method: "POST",
-
             headers: {
               "Content-Type": "application/json",
             },
-
             body: JSON.stringify({
               latitude,
               longitude,
@@ -782,57 +793,61 @@ export default function HomePage() {
 
           const data = await response.json();
 
-          if (!response.ok || !data.success) {
-            throw new Error(data?.message || "Unable to determine location.");
+          if (!response.ok || !data?.success || !data?.location) {
+            console.warn("[LOCATION] Location unavailable:", data?.message);
+
+            // IMPORTANT:
+            // Do NOT clear city dropdown.
+            // Do NOT set requirement city.
+            // Do NOT set requirement type.
+            return;
           }
 
           const location = {
             latitude,
             longitude,
 
-            city: data.location?.city || "",
-            area: data.location?.area || "",
-            pincode: data.location?.pincode || "",
-            state: data.location?.state || "",
-            country: data.location?.country || "",
+            city: data.location.city || "",
 
-            displayName: data.location?.displayName || "",
+            area: data.location.area || "",
+
+            pincode: data.location.pincode || "",
+
+            state: data.location.state || "",
+
+            country: data.location.country || "",
+
+            displayName: data.location.displayName || "",
           };
+
           sessionStorage.setItem(
             "anarock_user_location",
             JSON.stringify(location),
           );
+
           setLocationData({
             street: location.area || "",
+
             city: location.city || "",
+
             province: location.state || "",
+
             postalCode: location.pincode || "",
+
             country: location.country || "",
           });
 
           window.dispatchEvent(new Event("anarock-location-updated"));
         } catch (error) {
-          console.error("Location capture failed:", error);
-          setLocationData({
-            street: "",
-            city: "",
-            province: "",
-            postalCode: "",
-            country: "",
-          });
+          console.warn(
+            "Location capture unavailable:",
+            error?.message || error,
+          );
         }
       },
 
       (error) => {
-        console.warn("Location permission denied or unavailable:", error);
-        setLocationData({
-          street: "",
-          city: "",
-          province: "",
-          postalCode: "",
-          country: "",
-        });
-        sessionStorage.removeItem("anarock_user_location");
+        console.warn("Browser location unavailable:", error?.message || error);
       },
 
       {
@@ -925,7 +940,11 @@ export default function HomePage() {
   return (
     <>
       <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 font-sans text-slate-800 selection:bg-[#A054A0] selection:text-white">
-        <HeroSection />
+        {/* <HeroSection /> */}
+        <HeroSection
+          // consentGranted={consentGranted}
+          locationData={locationData}
+        />
 
         {/* MARKET AT A GLANCE */}
         <section
@@ -1175,7 +1194,8 @@ export default function HomePage() {
                           htmlFor="requirementType"
                           className="text-xs font-semibold text-slate-600"
                         >
-                          Requirement Type                        </label>
+                          Requirement Type{" "}
+                        </label>
 
                         <select
                           id="requirementType"
@@ -1512,8 +1532,6 @@ export default function HomePage() {
 
         {/* POPULAR CITIES */}
 
-
-
         <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
@@ -1521,7 +1539,6 @@ export default function HomePage() {
           </div>
 
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
-
             {/* SECTION HEADER */}
             <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
@@ -1540,7 +1557,6 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-
               {popularCities.map((city, index) => (
                 <Link
                   key={city.name}
@@ -1564,7 +1580,6 @@ export default function HomePage() {
             sm:rounded-[1.75rem]
           "
                 >
-
                   {/* IMAGE */}
 
                   <div
@@ -1592,7 +1607,6 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
 
                     <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-
                       <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
 
                       <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
@@ -1600,23 +1614,18 @@ export default function HomePage() {
                       </h3>
 
                       <div className="mt-3 flex items-center justify-between gap-3">
-
                         <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
                           Explore properties
                         </p>
 
                         <ArrowRight className="h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
-
                       </div>
-
                     </div>
                   </div>
 
                   <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
-
                 </Link>
               ))}
-
             </div>
           </div>
         </section>
@@ -1723,10 +1732,10 @@ export default function HomePage() {
       <CookieConsent
         onConsentGiven={() => {
           setConsentGranted(true);
+
           requestLocationPermission();
         }}
       />
-
     </>
   );
 }

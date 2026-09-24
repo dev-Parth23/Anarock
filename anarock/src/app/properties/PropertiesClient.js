@@ -84,8 +84,10 @@ export default function PropertiesClient() {
   const [micromarketsLoading, setMicromarketsLoading] =
     useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [showMicromarkets, setShowMicromarkets] =
-    useState(false);
+  const [showMicromarkets, setShowMicromarkets] = useState(false);
+  const ITEMS_PER_PAGE = 30;
+  const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1
+  );
   /* =========================================================
     FILTERS FROM URL
  ========================================================= */
@@ -164,7 +166,7 @@ export default function PropertiesClient() {
           updatedSelection = [
             ...previousSelection,
             property,
-          ].slice(-2);
+          ].slice(-3);
         }
 
         localStorage.setItem(
@@ -188,7 +190,7 @@ export default function PropertiesClient() {
   };
 
   const openComparePage = () => {
-    if (compareSelection.length !== 2) {
+    if (compareSelection.length !== 3) {
       return;
     }
 
@@ -504,10 +506,7 @@ export default function PropertiesClient() {
           );
         }
 
-        /* -----------------------------------------------------
-           CONVENTIONAL / CONSULTING / OTHERS
-           → AREA
-        ----------------------------------------------------- */
+
 
         if (
           !isCoworking &&
@@ -543,10 +542,7 @@ export default function PropertiesClient() {
           params.delete("area");
         }
 
-        /* -----------------------------------------------------
-           MANAGED OFFICE / CO-WORKING
-           → SEATS
-        ----------------------------------------------------- */
+
 
         if (
           isCoworking &&
@@ -748,24 +744,105 @@ export default function PropertiesClient() {
     selectedMicromarketNames,
   ]);
 
-  /* =========================================================
-     UPDATE FILTER
-  ========================================================= */
+  // /* =========================================================
+  //    UPDATE FILTER
+  // ========================================================= */
 
-  const updateFilter = (
-    key,
-    value
-  ) => {
-    const params =
-      new URLSearchParams(
-        searchParams.toString()
-      );
+  // const updateFilter = (
+  //   key,
+  //   value
+  // ) => {
+  //   const params =
+  //     new URLSearchParams(
+  //       searchParams.toString()
+  //     );
 
-    /* -------------------------------------------------------
-       OFFICE TYPE
-       Keep budget values.
-       Only remove the incompatible dynamic field.
-    ------------------------------------------------------- */
+  //   /* -------------------------------------------------------
+  //      OFFICE TYPE
+  //      Keep budget values.
+  //      Only remove the incompatible dynamic field.
+  //   ------------------------------------------------------- */
+
+  //   if (key === "type") {
+  //     if (!value) {
+  //       params.delete("type");
+  //       params.delete("area");
+  //       params.delete("seats");
+  //     } else {
+  //       params.set(
+  //         "type",
+  //         toUrlValue(value)
+  //       );
+
+  //       const nextIsCoworking =
+  //         normalizeValue(
+  //           value
+  //         ) ===
+  //         "managed office/co-working";
+
+  //       if (nextIsCoworking) {
+  //         params.delete("area");
+  //       } else {
+  //         params.delete("seats");
+  //       }
+  //     }
+
+  //     router.push(
+  //       `/properties${params.toString()
+  //         ? `?${params.toString()}`
+  //         : ""
+  //       }`
+  //     );
+
+  //     return;
+  //   }
+
+  //   /* -------------------------------------------------------
+  //      NORMAL FILTER
+  //   ------------------------------------------------------- */
+
+  //   if (value !== "") {
+  //     params.set(
+  //       key,
+  //       value
+  //     );
+  //   } else {
+  //     params.delete(key);
+  //   }
+
+  //   /* -------------------------------------------------------
+  //      DYNAMIC FIELD SAFETY
+  //   ------------------------------------------------------- */
+
+  //   if (
+  //     key === "area" &&
+  //     isCoworking
+  //   ) {
+  //     params.delete("area");
+  //   }
+
+  //   if (
+  //     key === "seats" &&
+  //     !isCoworking
+  //   ) {
+  //     params.delete("seats");
+  //   }
+
+  //   router.push(
+  //     `/properties${params.toString()
+  //       ? `?${params.toString()}`
+  //       : ""
+  //     }`
+  //   );
+  // };
+
+  // /* =========================================================
+  //    CITY CHANGE
+  // ========================================================= */
+  const updateFilter = (key, value) => {
+    const params = new URLSearchParams(
+      searchParams.toString()
+    );
 
     if (key === "type") {
       if (!value) {
@@ -779,9 +856,7 @@ export default function PropertiesClient() {
         );
 
         const nextIsCoworking =
-          normalizeValue(
-            value
-          ) ===
+          normalizeValue(value) ===
           "managed office/co-working";
 
         if (nextIsCoworking) {
@@ -790,6 +865,9 @@ export default function PropertiesClient() {
           params.delete("seats");
         }
       }
+
+      // Any filter change starts from page 1
+      params.delete("page");
 
       router.push(
         `/properties${params.toString()
@@ -801,22 +879,11 @@ export default function PropertiesClient() {
       return;
     }
 
-    /* -------------------------------------------------------
-       NORMAL FILTER
-    ------------------------------------------------------- */
-
     if (value !== "") {
-      params.set(
-        key,
-        value
-      );
+      params.set(key, value);
     } else {
       params.delete(key);
     }
-
-    /* -------------------------------------------------------
-       DYNAMIC FIELD SAFETY
-    ------------------------------------------------------- */
 
     if (
       key === "area" &&
@@ -832,6 +899,9 @@ export default function PropertiesClient() {
       params.delete("seats");
     }
 
+    // Reset pagination whenever a filter changes
+    params.delete("page");
+
     router.push(
       `/properties${params.toString()
         ? `?${params.toString()}`
@@ -839,10 +909,6 @@ export default function PropertiesClient() {
       }`
     );
   };
-
-  /* =========================================================
-     CITY CHANGE
-  ========================================================= */
 
   const handleCityChange = (
     selectedCity
@@ -981,15 +1047,15 @@ export default function PropertiesClient() {
      CLEAR FILTER
   ========================================================= */
 
-  const clearFilter = (
-    key
-  ) => {
-    const params =
-      new URLSearchParams(
-        searchParams.toString()
-      );
+  const clearFilter = (key) => {
+    const params = new URLSearchParams(
+      searchParams.toString()
+    );
 
     params.delete(key);
+
+    // Reset pagination
+    params.delete("page");
 
     router.push(
       `/properties${params.toString()
@@ -999,23 +1065,12 @@ export default function PropertiesClient() {
     );
   };
 
-  /* =========================================================
-     CLEAR ALL
-  ========================================================= */
-
   const clearAll = () => {
-    router.push(
-      "/properties"
-    );
+    router.push("/properties");
 
-    setShowMicromarkets(
-      false
-    );
+    setShowMicromarkets(false);
+    setShowFilters(false);
   };
-
-  /* =========================================================
-     CURRENCY ICON
-  ========================================================= */
 
   const renderCurrencyIcon =
     () => {
@@ -1050,23 +1105,112 @@ export default function PropertiesClient() {
       }
     };
 
-  /* =========================================================
-     ACTIVE CHIPS
-  ========================================================= */
+  const getCurrencySymbol = (value) => {
+    switch (
+    String(value || "")
+      .trim()
+      .toUpperCase()
+    ) {
+      case "USD":
+        return "$";
+
+      case "EUR":
+        return "€";
+
+      case "GBP":
+        return "£";
+
+      case "AED":
+        return "د.إ";
+
+      case "SGD":
+        return "S$";
+
+      case "AUD":
+        return "A$";
+
+      case "CAD":
+        return "C$";
+
+      case "INR":
+      default:
+        return "₹";
+    }
+  };
+
+  const formatRawNumber = (value) => {
+    if (
+      value === "" ||
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+      return String(value);
+    }
+
+    return number.toLocaleString("en-IN", {
+      maximumFractionDigits: 2,
+    });
+  };
+
+  const getAreaUnitLabel = (value) => {
+    switch (
+    String(value || "")
+      .trim()
+      .toLowerCase()
+    ) {
+      case "sqm":
+      case "sq.m":
+      case "square meter":
+      case "square meters":
+        return "sq.m";
+
+      case "sqyd":
+      case "sq.yd":
+      case "square yard":
+      case "square yards":
+        return "sq.yd";
+
+      case "acre":
+      case "acres":
+        return "acre";
+
+      case "hectare":
+      case "hectares":
+        return "hectare";
+
+      case "sqft":
+      case "sq.ft":
+      case "square feet":
+      case "square foot":
+      default:
+        return "sq.ft";
+    }
+  };
+
+  const currencySymbol = getCurrencySymbol(
+    filters.currency
+  );
+
+  const areaUnitLabel = getAreaUnitLabel(
+    filters.areaUnit
+  );
 
   const activeChips = [
     filters.city && {
-      label: `City: ${resolvedCity ||
-        filters.city
+      label: `City: ${resolvedCity || filters.city
         }`,
       key: "city",
     },
 
     filters.micromarket && {
       label: `Micromarkets: ${selectedMicromarketNames.length
-        ? selectedMicromarketNames.join(
-          ", "
-        )
+        ? selectedMicromarketNames.join(", ")
         : filters.micromarket
         }`,
       key: "micromarket",
@@ -1078,65 +1222,170 @@ export default function PropertiesClient() {
       key: "type",
     },
 
-    filters.minBudget && {
+
+    filters.minBudget !== "" && {
       label: `Min ${isCoworking
         ? "Seat Price"
         : "Rent"
-        }: ${formatPrice(
-          Number(
-            filters.minBudget
-          ),
-          filters.currency,
-          exchangeRates
+        }: ${currencySymbol}${formatRawNumber(
+          filters.minBudget
         )}`,
+
       key: "minBudget",
     },
 
-    filters.maxBudget && {
+
+    filters.maxBudget !== "" && {
       label: `Max ${isCoworking
         ? "Seat Price"
         : "Rent"
-        }: ${formatPrice(
-          Number(
-            filters.maxBudget
-          ),
-          filters.currency,
-          exchangeRates
+        }: ${currencySymbol}${formatRawNumber(
+          filters.maxBudget
         )}`,
+
       key: "maxBudget",
     },
 
     !isCoworking &&
-    filters.area && {
-      label: `Min Area: ${formatArea(
-        Number(filters.area),
-        filters.areaUnit
-      )}`,
+    filters.area !== "" && {
+      label: `Min Area: ${formatRawNumber(
+        filters.area
+      )} ${areaUnitLabel}`,
+
       key: "area",
     },
 
+
     isCoworking &&
-    filters.seats && {
-      label: `Seats: ${Number(
+    filters.seats !== "" && {
+      label: `Seats: ${formatRawNumber(
         filters.seats
-      ).toLocaleString(
-        "en-IN"
       )}`,
+
       key: "seats",
     },
+
 
     filters.prompt && {
       label: `AI: ${filters.prompt.slice(
         0,
         40
-      )}${filters.prompt.length >
-        40
+      )}${filters.prompt.length > 40
         ? "..."
         : ""
         }`,
+
       key: "prompt",
     },
   ].filter(Boolean);
+
+
+
+
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      properties.length / ITEMS_PER_PAGE
+    )
+  );
+
+  const safeCurrentPage = Math.min(
+    currentPage,
+    totalPages
+  );
+
+  const paginatedProperties =
+    properties.slice(
+      (safeCurrentPage - 1) *
+      ITEMS_PER_PAGE,
+      safeCurrentPage *
+      ITEMS_PER_PAGE
+    );
+
+  const goToPage = (page) => {
+    const nextPage = Math.min(
+      Math.max(1, page),
+      totalPages
+    );
+
+    const params =
+      new URLSearchParams(
+        searchParams.toString()
+      );
+
+    if (nextPage <= 1) {
+      params.delete("page");
+    } else {
+      params.set(
+        "page",
+        String(nextPage)
+      );
+    }
+
+    router.push(
+      `/properties${params.toString()
+        ? `?${params.toString()}`
+        : ""
+      }`
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const getPaginationPages = () => {
+    const pages = [];
+
+    if (totalPages <= 7) {
+      for (
+        let page = 1;
+        page <= totalPages;
+        page++
+      ) {
+        pages.push(page);
+      }
+
+      return pages;
+    }
+
+    pages.push(1);
+
+    if (safeCurrentPage > 4) {
+      pages.push("ellipsis-start");
+    }
+
+    const start = Math.max(
+      2,
+      safeCurrentPage - 1
+    );
+
+    const end = Math.min(
+      totalPages - 1,
+      safeCurrentPage + 1
+    );
+
+    for (
+      let page = start;
+      page <= end;
+      page++
+    ) {
+      pages.push(page);
+    }
+
+    if (
+      safeCurrentPage <
+      totalPages - 3
+    ) {
+      pages.push("ellipsis-end");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+  };
 
   /* =========================================================
      BREADCRUMBS
@@ -1192,7 +1441,10 @@ export default function PropertiesClient() {
             <p className="mt-1 text-sm text-slate-600">
               {loading
                 ? "Searching..."
-                : `${properties.length} properties found`}
+                : `${properties.length} properties found${properties.length > ITEMS_PER_PAGE
+                  ? ` • Page ${safeCurrentPage} of ${totalPages}`
+                  : ""
+                }`}
             </p>
           </div>
 
@@ -1858,13 +2110,13 @@ export default function PropertiesClient() {
                     {
                       compareSelection.length
                     }{" "}
-                    of 2 properties
+                    of 3 properties
                     selected
                   </p>
 
                   <p className="mt-1 text-xs text-slate-500">
                     {compareSelection.length ===
-                      2
+                      3
                       ? "Ready to compare your selected properties."
                       : "Select one more property to compare."}
                   </p>
@@ -1888,7 +2140,7 @@ export default function PropertiesClient() {
                     }
                     disabled={
                       compareSelection.length !==
-                      2
+                      3
                     }
                     className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
                   >

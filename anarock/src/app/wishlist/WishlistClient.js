@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
+const MAX_COMPARE_PROPERTIES = 3;
+const MIN_COMPARE_PROPERTIES = 2;
 
 export default function WishlistClient() {
   const router = useRouter();
@@ -47,7 +49,9 @@ export default function WishlistClient() {
         const parsedProperties = JSON.parse(savedProperties);
 
         if (Array.isArray(parsedProperties)) {
-          setCompareSelection(parsedProperties.slice(-2));
+          setCompareSelection(
+            parsedProperties.slice(-MAX_COMPARE_PROPERTIES)
+          );
         }
       }
     } catch (error) {
@@ -72,14 +76,16 @@ export default function WishlistClient() {
       let updatedSelection;
 
       if (alreadySelected) {
+        // Remove property
         updatedSelection = previousSelection.filter(
           (item) => getPropertyId(item) !== propertyId
         );
       } else {
+        // Add property, maximum 3
         updatedSelection = [
           ...previousSelection,
           property,
-        ].slice(-2);
+        ].slice(-MAX_COMPARE_PROPERTIES);
       }
 
       localStorage.setItem(
@@ -99,8 +105,14 @@ export default function WishlistClient() {
   };
 
   // Open comparison page
+  // Allows exactly 2 OR 3 properties
   const openComparePage = () => {
-    if (compareSelection.length !== 2) return;
+    if (
+      compareSelection.length < MIN_COMPARE_PROPERTIES ||
+      compareSelection.length > MAX_COMPARE_PROPERTIES
+    ) {
+      return;
+    }
 
     localStorage.setItem(
       COMPARE_STORAGE_KEY,
@@ -110,14 +122,28 @@ export default function WishlistClient() {
     router.push("/compare");
   };
 
+  const canCompare =
+    compareSelection.length >= MIN_COMPARE_PROPERTIES &&
+    compareSelection.length <= MAX_COMPARE_PROPERTIES;
+
+  const remainingToCompare = Math.max(
+    0,
+    MIN_COMPARE_PROPERTIES - compareSelection.length
+  );
+
   return (
     <main className="min-h-screen bg-[#fafafa] px-4 py-6 pb-32 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-[1600px]">
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
-            { label: "Properties", href: "/properties" },
-            { label: "Shortlisted Properties" },
+            {
+              label: "Properties",
+              href: "/properties",
+            },
+            {
+              label: "Shortlisted Properties",
+            },
           ]}
         />
 
@@ -137,7 +163,8 @@ export default function WishlistClient() {
             </h1>
 
             <p className="mt-2 text-sm text-slate-500 sm:text-base">
-              {count} saved propert{count === 1 ? "y" : "ies"}
+              {count} saved propert
+              {count === 1 ? "y" : "ies"}
             </p>
           </div>
 
@@ -164,9 +191,6 @@ export default function WishlistClient() {
                 )}
                 onCompareToggle={handleCompareToggle}
               />
-
-
-
             ))}
           </section>
         ) : (
@@ -180,7 +204,8 @@ export default function WishlistClient() {
             </h2>
 
             <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Click the heart icon on any property to save it here for later.
+              Click the heart icon on any property to save it here
+              for later.
             </p>
 
             <Link
@@ -197,22 +222,28 @@ export default function WishlistClient() {
         {compareSelection.length > 0 && (
           <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur-xl sm:p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              {/* Selection Info */}
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <GitCompare className="h-4 w-4 text-[#A054A0]" />
 
                   <p className="text-sm font-semibold text-slate-900">
-                    {compareSelection.length} of 2 properties selected
+                    {compareSelection.length} of 3 properties
+                    selected
                   </p>
                 </div>
 
                 <p className="mt-1 text-xs text-slate-500">
-                  {compareSelection.length === 2
+                  {canCompare
                     ? "Ready to compare your selected properties."
-                    : "Select one more property to compare."}
+                    : `Select ${remainingToCompare === 1
+                      ? "one more property"
+                      : "at least two properties"
+                    } to compare.`}
                 </p>
               </div>
 
+              {/* Actions */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -226,7 +257,7 @@ export default function WishlistClient() {
                 <button
                   type="button"
                   onClick={openComparePage}
-                  disabled={compareSelection.length !== 2}
+                  disabled={!canCompare}
                   className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
                 >
                   Compare Properties

@@ -941,16 +941,19 @@ export default function HomePage() {
 
         {/* POPULAR CITIES */}
         <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
+          {/* Background Decorations */}
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
             <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
           </div>
 
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
+
+            {/* SECTION HEADER */}
             <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                  Explore{"  "}
+                  Explore{" "}
                   <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
                     Popular Cities
                   </span>
@@ -963,14 +966,61 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {popularCities.map((city, index) => (
-                <Link key={city.name} href={`/kyc?city=${encodeURIComponent(city.name)}`}
-                  className="group relative isolate overflow-hidden rounded-[1.5rem] border border-[#A054A0]/15 bg-white shadow-[0_10px_35px_rgba(86,42,91,0.05)] transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#A054A0]/35 hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)] sm:rounded-[1.75rem]">
+            {/* CITIES */}
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
+              {popularCities.map((city) => (
+                <Link
+                  key={city.name}
+                  href={`/kyc?city=${encodeURIComponent(city.name)}`}
+                  className="
+            group relative isolate overflow-hidden
+
+            /* Mobile */
+            w-full
+
+            /* Small screens */
+            sm:w-[calc(50%-0.625rem)]
+
+            /* Tablet */
+            md:w-[calc(33.333%-0.9rem)]
+
+            /* Desktop - 5 per row */
+            lg:w-[calc(20%-1rem)]
+
+            rounded-[1.5rem]
+            border border-[#A054A0]/15
+            bg-white
+            shadow-[0_10px_35px_rgba(86,42,91,0.05)]
+
+            transition-all
+            duration-500
+            ease-out
+
+            hover:-translate-y-2
+            hover:border-[#A054A0]/35
+            hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
+
+            sm:rounded-[1.75rem]
+          "
+                >
                   {/* IMAGE */}
-                  <div className="relative aspect-square overflow-hidden bg-[#A054A0]/5 sm:aspect-[4/5]">
-                    <img src={city.url} alt={`${city.name} commercial real estate`} loading="lazy" decoding="async"
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110" />
+                  <div className="relative aspect-square overflow-hidden bg-[#A054A0]/5">
+                    <img
+                      src={city.url}
+                      alt={`${city.name} commercial real estate`}
+                      decoding="async"
+                      className="
+                h-full
+                w-full
+                object-cover
+                object-top
+                transition-transform
+                duration-700
+                ease-out
+                group-hover:scale-110
+              "
+                    />
+
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                       <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
@@ -981,16 +1031,31 @@ export default function HomePage() {
                         <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
                           Explore properties
                         </p>
-                        <ArrowRight className="h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
+
+                        <ArrowRight
+                          className="
+                    h-4
+                    w-4
+                    shrink-0
+                    text-white/70
+                    transition-all
+                    duration-300
+                    group-hover:translate-x-1
+                    group-hover:text-white
+                  "
+                        />
                       </div>
                     </div>
                   </div>
+
+                  {/* BOTTOM ACCENT */}
                   <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
                 </Link>
               ))}
             </div>
           </div>
         </section>
+
 
         {/* MARKET AT A GLANCE */}
         <section

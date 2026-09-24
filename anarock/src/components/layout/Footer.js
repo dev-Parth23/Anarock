@@ -125,7 +125,6 @@ export default function Footer() {
               </Link>
             </div>
           </div>
-
         </div>
         <div className="h-px w-full bg-[#7f3f80]" />
         <div className="py-8 sm:py-10 lg:py-11">

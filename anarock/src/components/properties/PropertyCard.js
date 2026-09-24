@@ -287,56 +287,28 @@ export default function PropertyCard({
           <div className="grid grid-cols-2 gap-3">
             {isCoworking ? (
               <>
-
                 {/* OPERATOR */}
                 <div className="min-w-0 border-l border-[#EEE9E4] pl-3 sm:pl-4">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
-                    Operator
-                  </p>
-                  <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]" title={String(operator)}>
-                    {operator}
-                  </p>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">Operator</p>
+                  <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]" title={String(operator)}>{operator}</p>
                 </div>
                 {/* SEATS OFFERED */}
                 <div className="min-w-0">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
-                    Seats Offered
-                  </p>
-
-                  <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">
-                    {seatsOffered}
-                  </p>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">Seats Offered</p>
+                  <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">{seatsOffered}</p>
                 </div>
               </>
             ) : (
               <>
                 {/* DEVELOPER */}
-
                 <div className="min-w-0">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
-                    Developer
-                  </p>
-
-                  <p
-                    className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]"
-                    title={String(developer)}
-                  >
-                    {developer}
-                  </p>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">Developer</p>
+                  <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]" title={String(developer)}>{developer}</p>
                 </div>
-
                 {/* AREA */}
-
                 <div className="min-w-0 border-l border-[#EEE9E4] pl-3 sm:pl-4">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
-                    Area
-                  </p>
-
-                  <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">
-                    {hasArea
-                      ? formatArea(areaValue, unit)
-                      : "-"}
-                  </p>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">Area</p>
+                  <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">{hasArea ? formatArea(areaValue, unit) : "-"}</p>
                 </div>
               </>
             )}
@@ -345,20 +317,15 @@ export default function PropertyCard({
           <div className="mt-4 rounded-xl border border-[#EDE5F0] bg-[#FBF8FC] p-3">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-[#302538] sm:text-[13px]">
-                  Price on Request
-                </p>
+                <p className="text-xs font-semibold text-[#302538] sm:text-[13px]">Price on Request</p>
               </div>
             </div>
           </div>
-
           <div className="mt-3 flex items-center justify-center gap-2">
             <span className="h-px w-4 bg-[#DCCBE2]" />
-
             <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#9A88A5] transition-colors duration-300 group-hover:text-[#A054A0]">
               View Property Details
             </p>
-
             <span className="h-px w-4 bg-[#DCCBE2]" />
           </div>
         </div>

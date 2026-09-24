@@ -830,8 +830,8 @@ export default function Navbar() {
                       size={13}
                       strokeWidth={2}
                       className={`transition-transform duration-300 ${currencyOpen
-                        ? "rotate-180 text-[#A054A0]"
-                        : "text-slate-500"
+                          ? "rotate-180 text-[#A054A0]"
+                          : "text-slate-500"
                         }`}
                     />
                   </button>
@@ -844,8 +844,8 @@ export default function Navbar() {
                           type="button"
                           onClick={() => handleCurrencySelect(code)}
                           className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 min-[1920px]:py-2.5 min-[1920px]:text-[14px] ${currencyCode === code
-                            ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                            : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                              ? "bg-[#A054A0] font-bold text-white shadow-sm"
+                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                             }`}
                         >
                           {label}
@@ -860,8 +860,8 @@ export default function Navbar() {
                     type="button"
                     onClick={() => handleUnitSelect("sq.ft")}
                     className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqft"
-                      ? "bg-[#A054A0] text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
                       }`}
                   >
                     sq.ft
@@ -871,8 +871,8 @@ export default function Navbar() {
                     type="button"
                     onClick={() => handleUnitSelect("sq.m")}
                     className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqm"
-                      ? "bg-[#A054A0] text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
                       }`}
                   >
                     sq.m
@@ -896,8 +896,8 @@ export default function Navbar() {
                 <Link
                   href="/wishlist"
                   aria-label={`Shortlist${wishlistCount > 0
-                    ? `, ${wishlistCount} saved properties`
-                    : ""
+                      ? `, ${wishlistCount} saved properties`
+                      : ""
                     }`}
                   className="group relative hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
                 >
@@ -905,8 +905,8 @@ export default function Navbar() {
                     size={16}
                     strokeWidth={1.8}
                     className={`transition-all duration-200 min-[1920px]:h-5 min-[1920px]:w-5 ${wishlistCount > 0
-                      ? "fill-[#A054A0] text-[#A054A0]"
-                      : "text-slate-500 group-hover:text-[#A054A0]"
+                        ? "fill-[#A054A0] text-[#A054A0]"
+                        : "text-slate-500 group-hover:text-[#A054A0]"
                       }`}
                   />
 
@@ -938,8 +938,8 @@ export default function Navbar() {
 
           <div
             className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${mobileOpen
-              ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
-              : "pointer-events-none max-h-0 opacity-0"
+                ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
+                : "pointer-events-none max-h-0 opacity-0"
               }`}
           >
             <div className="flex max-h-[calc(100dvh-100px)] flex-col justify-between overflow-y-auto px-3 pb-5 pt-3 sm:px-5 sm:pb-7 sm:pt-4">
@@ -957,8 +957,8 @@ export default function Navbar() {
                             : "0ms",
                         }}
                         className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
-                          ? "translate-x-0 opacity-100"
-                          : "-translate-x-4 opacity-0"
+                            ? "translate-x-0 opacity-100"
+                            : "-translate-x-4 opacity-0"
                           }`}
                       >
                         <span>{item.label}</span>
@@ -980,8 +980,8 @@ export default function Navbar() {
                         transitionDelay: mobileOpen ? `${index * 30}ms` : "0ms",
                       }}
                       className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
-                        ? "translate-x-0 opacity-100"
-                        : "-translate-x-4 opacity-0"
+                          ? "translate-x-0 opacity-100"
+                          : "-translate-x-4 opacity-0"
                         }`}
                     >
                       <span>{item.label}</span>
@@ -1027,8 +1027,8 @@ export default function Navbar() {
                       type="button"
                       onClick={() => handleUnitSelect("sq.ft")}
                       className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqft"
-                        ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80"
+                          ? "bg-[#A054A0] text-white shadow-sm"
+                          : "text-slate-600 hover:bg-white/80"
                         }`}
                     >
                       sq.ft
@@ -1038,8 +1038,8 @@ export default function Navbar() {
                       type="button"
                       onClick={() => handleUnitSelect("sq.m")}
                       className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqm"
-                        ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80"
+                          ? "bg-[#A054A0] text-white shadow-sm"
+                          : "text-slate-600 hover:bg-white/80"
                         }`}
                     >
                       sq.m
@@ -1068,8 +1068,8 @@ export default function Navbar() {
                             type="button"
                             onClick={() => handleCurrencySelect(code)}
                             className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${currencyCode === code
-                              ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                                ? "bg-[#A054A0] font-bold text-white shadow-sm"
+                                : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                               }`}
                           >
                             <span>{label}</span>
@@ -1213,8 +1213,8 @@ export default function Navbar() {
                         <div className="relative w-full">
                           <div
                             className={`flex h-10 w-full rounded-lg border bg-white/70 shadow-sm backdrop-blur-md transition-all duration-200 sm:h-[46px] 2xl:h-[54px] ${phoneError
-                              ? "border-red-400 ring-2 ring-red-500/10"
-                              : "border-[#A054A0]/20 focus-within:border-[#A054A0] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A054A0]/20"
+                                ? "border-red-400 ring-2 ring-red-500/10"
+                                : "border-[#A054A0]/20 focus-within:border-[#A054A0] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A054A0]/20"
                               }`}
                           >
                             <div className="relative shrink-0">
@@ -1236,8 +1236,8 @@ export default function Navbar() {
                                   size={14}
                                   strokeWidth={2}
                                   className={`transition-transform duration-200 ${countryOpen
-                                    ? "rotate-180 text-[#A054A0]"
-                                    : "text-slate-500"
+                                      ? "rotate-180 text-[#A054A0]"
+                                      : "text-slate-500"
                                     }`}
                                 />
                               </button>
@@ -1340,8 +1340,8 @@ export default function Navbar() {
                                                   handleCountrySelect(country)
                                                 }
                                                 className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all duration-150 ${isSelected
-                                                  ? "bg-[#A054A0] font-semibold text-white"
-                                                  : "text-slate-800 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                                                    ? "bg-[#A054A0] font-semibold text-white"
+                                                    : "text-slate-800 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                                                   }`}
                                               >
                                                 <span className="text-[18px] leading-none">
@@ -1354,8 +1354,8 @@ export default function Navbar() {
 
                                                 <span
                                                   className={`text-[12px] font-medium ${isSelected
-                                                    ? "text-white/80"
-                                                    : "text-slate-500"
+                                                      ? "text-white/80"
+                                                      : "text-slate-500"
                                                     }`}
                                                 >
                                                   {country.dial}
@@ -1479,14 +1479,13 @@ export default function Navbar() {
                           value={email ?? ""}
                           onChange={(event) => {
                             setEmail(event.target.value);
-
                             if (emailError) {
                               setEmailError("");
                             }
                           }}
                           className={`h-10 w-full rounded-lg border bg-white/70 px-4 text-[14px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:bg-white sm:h-[46px] sm:text-[15px] ${emailError
-                            ? "border-red-400 ring-2 ring-red-500/10"
-                            : "border-[#A054A0]/20 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                              ? "border-red-400 ring-2 ring-red-500/10"
+                              : "border-[#A054A0]/20 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
                             }`}
                         />
                         {emailError && (
@@ -1502,7 +1501,6 @@ export default function Navbar() {
                         >
                           Company Name
                         </label>
-
                         <input
                           id="enquiry-company"
                           name="company"
@@ -1521,15 +1519,16 @@ export default function Navbar() {
                         role="alert"
                         className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[12px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
                       >
+                        {" "}
                         {submitError}
                       </div>
                     )}
 
-                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                    <div className="mt-6  gap-3 sm:flex-row">
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="group relative flex h-[48px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 disabled:cursor-not-allowed disabled:opacity-70 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                        className="group relative w-full flex h-[48px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 disabled:cursor-not-allowed disabled:opacity-70 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
                       >
                         {isSubmitting ? (
                           <>
@@ -1557,9 +1556,9 @@ export default function Navbar() {
                         type="button"
                         onClick={handleSkipFormTwo}
                         disabled={isSubmitting}
-                        className="flex h-[48px] items-center justify-center rounded-lg border border-[#A054A0]/30 px-6 text-[14px] font-semibold text-[#A054A0] transition-all duration-200 hover:bg-[#A054A0]/10 active:scale-98 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                        className="flex h-[48px] w-full items-center justify-center rounded-lg border px-6 text-[10px] font-semibold text-[#000] transition-all duration-200 hover:text-[#A054A0] active:scale-98 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
                       >
-                        Skip
+                        - Skip -
                       </button>
                     </div>
                   </form>

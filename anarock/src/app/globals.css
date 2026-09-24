@@ -20,11 +20,10 @@
   --radius: 16px;
   --container: 1240px;
 }
-
 * {
   box-sizing: border-box;
+  font-family: "Century Gothic";
 }
-
 ::-webkit-scrollbar {
   display: none;
 }

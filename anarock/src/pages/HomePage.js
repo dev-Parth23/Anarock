@@ -143,10 +143,6 @@ const popularCities = [
     name: "Kolkata",
     url: "https://images.unsplash.com/photo-1682582036641-91dfe7b66ba6?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8a29sa2F0YXxlbnwwfHwwfHx8MA%3D%3D",
   },
-  {
-    name: "Ahmedabad",
-    url: "https://www.kiomoi.com/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fkmadmin%2Fimage%2Fupload%2Fc_scale%2Cw_1248%2Ff_auto%2Fv1560260650%2Fkiomoi%2FAhmedabad%2Fkankaria%20Lake%20%20(1).webp&w=3840&q=75",
-  },
 ];
 const features = [
   {
@@ -226,7 +222,6 @@ function GlassField({
     </div>
   );
 }
-
 function PhoneInput({
   phone,
   selectedCountry,
@@ -383,7 +378,6 @@ function PhoneInput({
     </div>
   );
 }
-
 function JourneyCard({ item, index }) {
   const shouldReduceMotion = useReducedMotion();
 

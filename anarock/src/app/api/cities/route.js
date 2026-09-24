@@ -6,7 +6,8 @@ export const runtime = "nodejs";
 const ACCOUNTS_URL =
   process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
 
-const DEFAULT_API_URL = process.env.ZOHO_API_URL || "https://www.zohoapis.in";
+const DEFAULT_API_URL =
+  process.env.ZOHO_API_URL || "https://www.zohoapis.in";
 
 const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
@@ -18,6 +19,7 @@ let zohoTokenCache = {
   apiDomain: DEFAULT_API_URL,
 };
 
+let tokenGenerationPromise = null;
 async function generateZohoAccessToken() {
   if (!CLIENT_ID) {
     throw new Error("ZOHO_CLIENT_ID is missing from .env.local");
@@ -51,19 +53,21 @@ async function generateZohoAccessToken() {
 
   const responseText = await response.text();
 
-  let data;
+  let data = {};
 
   try {
     data = responseText ? JSON.parse(responseText) : {};
   } catch {
-    throw new Error(`Zoho OAuth returned invalid response: ${responseText}`);
+    throw new Error(
+      `Zoho OAuth returned invalid response: ${responseText}`,
+    );
   }
 
   if (!response.ok) {
     throw new Error(
       data?.error_description ||
-        data?.error ||
-        `Unable to generate Zoho access token. HTTP ${response.status}`,
+      data?.error ||
+      `Unable to generate Zoho access token. HTTP ${response.status}`,
     );
   }
 
@@ -72,16 +76,14 @@ async function generateZohoAccessToken() {
   }
 
   const expiresInSeconds = Number(data.expires_in) || 3600;
-
   const refreshAfterMilliseconds = Math.min(
     59 * 60 * 1000,
     Math.max(60, expiresInSeconds - 60) * 1000,
   );
 
-  const apiDomain = String(data.api_domain || DEFAULT_API_URL).replace(
-    /\/$/,
-    "",
-  );
+  const apiDomain = String(
+    data.api_domain || DEFAULT_API_URL,
+  ).replace(/\/$/, "");
 
   zohoTokenCache = {
     accessToken: data.access_token,
@@ -92,7 +94,9 @@ async function generateZohoAccessToken() {
   return zohoTokenCache;
 }
 
+
 async function getZohoAccessToken(forceRefresh = false) {
+
   if (
     !forceRefresh &&
     zohoTokenCache.accessToken &&
@@ -101,30 +105,46 @@ async function getZohoAccessToken(forceRefresh = false) {
     return zohoTokenCache;
   }
 
-  return await generateZohoAccessToken();
+
+  if (tokenGenerationPromise) {
+    return tokenGenerationPromise;
+  }
+
+  tokenGenerationPromise = generateZohoAccessToken();
+
+  try {
+    return await tokenGenerationPromise;
+  } finally {
+    tokenGenerationPromise = null;
+  }
 }
 
 async function fetchCities(tokenInfo) {
-  const url = `${tokenInfo.apiDomain}/crm/v8/City` + `?fields=id,Name`;
+  const url =
+    `${tokenInfo.apiDomain}/crm/v8/City` +
+    "?fields=id,Name";
 
   const response = await fetch(url, {
     method: "GET",
     headers: {
       Authorization: `Zoho-oauthtoken ${tokenInfo.accessToken}`,
-      "Content-Type": "application/json",
+      Accept: "application/json",
     },
     cache: "no-store",
   });
 
   const responseText = await response.text();
 
-  let data;
+  let data = {};
 
   try {
     data = responseText ? JSON.parse(responseText) : {};
   } catch {
-    throw new Error(`Invalid response from Zoho City module: ${responseText}`);
+    throw new Error(
+      `Invalid response from Zoho City module: ${responseText}`,
+    );
   }
+
 
   if (response.status === 401) {
     const error = new Error("Zoho access token expired.");
@@ -133,15 +153,21 @@ async function fetchCities(tokenInfo) {
   }
 
   if (!response.ok) {
-    throw new Error(
+    const error = new Error(
       data?.data?.[0]?.message ||
-        data?.message ||
-        `Unable to fetch cities from Zoho CRM. HTTP ${response.status}`,
+      data?.message ||
+      `Unable to fetch cities from Zoho CRM. HTTP ${response.status}`,
     );
+
+    error.status = response.status;
+
+    throw error;
   }
 
   const cities = Array.isArray(data?.data)
-    ? data.data.map((record) => record?.Name).filter(Boolean)
+    ? data.data
+      .map((record) => record?.Name)
+      .filter(Boolean)
     : [];
 
   return cities;
@@ -154,34 +180,62 @@ export async function GET() {
     try {
       const cities = await fetchCities(tokenInfo);
 
-      return NextResponse.json({
-        success: true,
-        cities,
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          cities,
+        },
+        {
+          status: 200,
+          headers: {
+            "Cache-Control": "no-store",
+          },
+        },
+      );
     } catch (error) {
-      if (error?.code !== "ZOHO_ACCESS_TOKEN_EXPIRED") {
-        throw error;
+      /*
+       * If the access token has expired, refresh it once and retry.
+       */
+      if (error?.code === "ZOHO_ACCESS_TOKEN_EXPIRED") {
+        tokenInfo = await getZohoAccessToken(true);
+
+        const cities = await fetchCities(tokenInfo);
+
+        return NextResponse.json(
+          {
+            success: true,
+            cities,
+          },
+          {
+            status: 200,
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          },
+        );
       }
 
-      tokenInfo = await getZohoAccessToken(true);
-
-      const cities = await fetchCities(tokenInfo);
-
-      return NextResponse.json({
-        success: true,
-        cities,
-      });
+      throw error;
     }
   } catch (error) {
-    console.error("Cities API error:", error);
+    console.error("Cities API error:", {
+      message: error?.message,
+      status: error?.status,
+      stack: error?.stack,
+    });
 
     return NextResponse.json(
       {
         success: false,
-        message: error?.message || "Unable to fetch cities.",
+        message:
+          error?.message ||
+          "Unable to fetch cities.",
       },
       {
         status: 500,
+        headers: {
+          "Cache-Control": "no-store",
+        },
       },
     );
   }

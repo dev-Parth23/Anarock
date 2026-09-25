@@ -24,13 +24,7 @@ export function mapProperty(row) {
   if (!row || typeof row !== "object") {
     return null;
   }
-  console.log("RowData: PropertyMapper.js", row);
   const folder = folderPath(row.ImageFolderPath);
-  const primaryImage = folder
-    ? `/api/property-images/${encodeURIComponent(
-      folder
-    )}Project_Picture_1.jpg`
-    : "";
   return {
     ...row,
     id: String(row.ROWID || ""),
@@ -111,22 +105,20 @@ export function mapProperty(row) {
     projectHighlights: clean(row.ProjectHighlights),
     centerHighlights: clean(row.CenterHighlights),
     aiAttributes: clean(row.AIAttributes),
-    // spocName: clean(row.SPOCName),
-    // spocNumber: clean(row.SPOCNumber),
     crmID: clean(row.crmID),
     creatorID: clean(row.CREATORID),
     createdTime: clean(row.CREATEDTIME),
     modifiedTime: clean(row.MODIFIEDTIME),
-    image: primaryImage,
-    gallery: primaryImage
-      ? [
-        {
-          name: "Project_Picture_1.jpg",
-          key: `${folder}Project_Picture_1.jpg`,
-          url: primaryImage,
-        },
-      ]
-      : [],
+    // image: primaryImage,
+    // gallery: primaryImage
+    //   ? [
+    //     {
+    //       name: "Project_Picture_1.jpg",
+    //       key: `${folder}Project_Picture_1.jpg`,
+    //       url: primaryImage,
+    //     },
+    //   ]
+    //   : [],
     imageFolderPath: folder,
   };
 }

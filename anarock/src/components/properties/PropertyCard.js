@@ -180,6 +180,7 @@ export default function PropertyCard({
                 src={imageUrl}
                 alt={propertyName}
                 fill
+                priority
                 unoptimized
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

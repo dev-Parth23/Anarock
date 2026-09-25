@@ -1,22 +1,48 @@
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 
+function sanitizeLabel(value) {
+  return String(value ?? "")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .trim()
+    .slice(0, 200);
+}
+
+function safeHref(value) {
+  if (!value) return undefined;
+  const href = String(value).trim();
+  if (!href.startsWith("/") || href.startsWith("//")) {
+    return undefined;
+  }
+
+  return href;
+}
 export default function Breadcrumbs({ items = [] }) {
+  const normalizedItems = Array.isArray(items)
+    ? items
+      .filter(Boolean)
+      .map((item) => ({
+        label: sanitizeLabel(item?.label),
+        href: safeHref(item?.href),
+      }))
+      .filter((item) => item.label)
+    : [];
+
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: [
       {
-        '@type': 'ListItem',
+        "@type": "ListItem",
         position: 1,
-        name: 'Home',
-        item: '/',
+        name: "Home",
+        item: "/",
       },
-      ...items.map((it, idx) => ({
-        '@type': 'ListItem',
+      ...normalizedItems.map((item, idx) => ({
+        "@type": "ListItem",
         position: idx + 2,
-        name: it.label,
-        item: it.href || undefined,
+        name: item.label,
+        ...(item.href ? { item: item.href } : {}),
       })),
     ],
   };
@@ -44,11 +70,13 @@ export default function Breadcrumbs({ items = [] }) {
           </Link>
         </li>
 
-        {items.map((item, i) => (
-          <li key={i} className="flex items-center gap-1">
-            <ChevronRight className="h-3.5 w-3.5" />
+        {normalizedItems.map((item, i) => (
+          <li
+            key={`${item.href || "current"}-${item.label}-${i}`}
+            className="flex items-center gap-1"
+          >          <ChevronRight className="h-3.5 w-3.5" />
 
-            {item.href && i < items.length - 1 ? (
+            {item.href && i < normalizedItems.length - 1 ? (
               <Link
                 href={item.href}
                 className="hover:text-amber-600"

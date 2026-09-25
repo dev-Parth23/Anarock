@@ -67,10 +67,6 @@ const getOfficeTypeFromUrl = (value) => {
   return match || value;
 };
 
-/* =========================================================
-   PROPERTY HELPERS
-========================================================= */
-
 const getPropertyId = (property) =>
   String(
     property?.id ||
@@ -99,132 +95,129 @@ const getNumber = (value) => {
     : null;
 };
 
-// const getFirstNumber = (property, fields = []) => {
-//   for (const field of fields) {
-//     const value = getNumber(property?.[field]);
+const getFirstNumber = (property, fields = []) => {
+  for (const field of fields) {
+    const value = getNumber(property?.[field]);
 
-//     if (value !== null) {
-//       return value;
-//     }
-//   }
+    if (value !== null) {
+      return value;
+    }
+  }
 
-//   return null;
-// };
+  return null;
+};
 
-// const getPropertyType = (property) => {
-//   return normalizeValue(
-//     property?.propertyType ||
-//     property?.PropertyType ||
-//     property?.type ||
-//     property?.Type ||
-//     property?.officeType ||
-//     property?.OfficeType ||
-//     "",
-//   );
-// };
+const getAvailableSeats = (property) => {
+  return getFirstNumber(property, [
+    "seatsOffered",
+    "SeatsOffered",
+    "seatsAvailable",
+    "SeatsAvailable",
+    "availableSeats",
+    "AvailableSeats",
+    "seatCapacity",
+    "SeatCapacity",
+    "totalSeats",
+    "TotalSeats",
+  ]);
+};
 
-// const getPropertyCity = (property) => {
-//   return normalizeValue(
-//     property?.city ||
-//     property?.City ||
-//     property?.cityName ||
-//     property?.CityName ||
-//     "",
-//   );
-// };
+const getPropertyType = (property) => {
+  return normalizeValue(
+    property?.propertyType ||
+    property?.PropertyType ||
+    property?.type ||
+    property?.Type ||
+    property?.officeType ||
+    property?.OfficeType ||
+    "",
+  );
+};
 
-// const getPropertyMicromarket = (property) => {
-//   return normalizeValue(
-//     property?.micromarket ||
-//     property?.Micromarket ||
-//     property?.micromarketName ||
-//     property?.MicromarketName ||
-//     "",
-//   );
-// };
+const getPropertyCity = (property) => {
+  return normalizeValue(
+    property?.city ||
+    property?.City ||
+    property?.cityName ||
+    property?.CityName ||
+    "",
+  );
+};
 
-// const getAvailableSeats = (property) => {
-//   return getFirstNumber(property, [
-//     "seatsOffered",
-//     "SeatsOffered",
-//     "seatsAvailable",
-//     "SeatsAvailable",
-//     "availableSeats",
-//     "AvailableSeats",
-//     "seatCapacity",
-//     "SeatCapacity",
-//     "totalSeats",
-//     "TotalSeats",
-//   ]);
-// };
+const getPropertyMicromarket = (property) => {
+  return normalizeValue(
+    property?.micromarket ||
+    property?.Micromarket ||
+    property?.micromarketName ||
+    property?.MicromarketName ||
+    "",
+  );
+};
 
-// const getAreaSqft = (property) => {
-//   return getFirstNumber(property, [
-//     "areaSqft",
-//     "AreaSqft",
-//     "area",
-//     "Area",
-//     "superBuiltUpArea",
-//     "SuperBuiltUpArea",
-//     "carpetArea",
-//     "CarpetArea",
-//     "floorPlate",
-//     "FloorPlate",
-//   ]);
-// };
+const getAreaSqft = (property) => {
+  return getFirstNumber(property, [
+    "areaSqft",
+    "AreaSqft",
+    "area",
+    "Area",
+    "superBuiltUpArea",
+    "SuperBuiltUpArea",
+    "carpetArea",
+    "CarpetArea",
+    "floorPlate",
+    "FloorPlate",
+  ]);
+};
 
-// const getSeatPrice = (property) => {
-//   return getFirstNumber(property, [
-//     "monthlyCostPerSeat",
-//     "MonthlyCostPerSeat",
-//     "monthlyCostPerSeatInr",
-//     "MonthlyCostPerSeatInr",
-//     "pricePerSeat",
-//     "PricePerSeat",
-//     "costPerSeat",
-//     "CostPerSeat",
-//     "rentPerSeat",
-//     "RentPerSeat",
-//   ]);
-// };
+const getSeatPrice = (property) => {
+  return getFirstNumber(property, [
+    "monthlyCostPerSeat",
+    "MonthlyCostPerSeat",
+    "monthlyCostPerSeatInr",
+    "MonthlyCostPerSeatInr",
+    "pricePerSeat",
+    "PricePerSeat",
+    "costPerSeat",
+    "CostPerSeat",
+    "rentPerSeat",
+    "RentPerSeat",
+  ]);
+};
 
-// const getSqftPrice = (property) => {
-//   const directPrice = getFirstNumber(property, [
-//     "rentPerSqft",
-//     "RentPerSqft",
-//     "pricePerSqft",
-//     "PricePerSqft",
-//     "ratePerSqft",
-//     "RatePerSqft",
-//     "costPerSqft",
-//     "CostPerSqft",
-//   ]);
+const getSqftPrice = (property) => {
+  const directPrice = getFirstNumber(property, [
+    "rentPerSqft",
+    "RentPerSqft",
+    "pricePerSqft",
+    "PricePerSqft",
+    "ratePerSqft",
+    "RatePerSqft",
+    "costPerSqft",
+    "CostPerSqft",
+  ]);
 
-//   if (directPrice !== null) {
-//     return directPrice;
-//   }
+  if (directPrice !== null) {
+    return directPrice;
+  }
 
-//   const rent = getFirstNumber(property, [
-//     "quotedRent",
-//     "QuotedRent",
-//     "monthlyRent",
-//     "MonthlyRent",
-//     "rent",
-//     "Rent",
-//   ]);
+  const rent = getFirstNumber(property, [
+    "quotedRent",
+    "QuotedRent",
+    "monthlyRent",
+    "MonthlyRent",
+    "rent",
+    "Rent",
+  ]);
 
-//   const area = getAreaSqft(property);
+  const area = getAreaSqft(property);
 
-//   if (
-//     rent !== null &&
-//     area !== null &&
-//     area > 0
-//   ) {
-//     return rent / area;
-//   }
+  if (rent !== null && area !== null && area > 0) {
+    return rent / area;
+  }
 
-//   return null;
-// };
+  return null;
+};
+
 
 export default function PropertiesClient() {
   const { currency, unit, exchangeRates } = usePreferences();
@@ -270,6 +263,27 @@ export default function PropertiesClient() {
       isAi: rawType === "ai" || searchParams.has("prompt"),
     };
   }, [searchParams, currency, unit]);
+
+  useEffect(() => {
+    const page = Number(searchParams.get("page") || "1");
+
+    if (page <= 1) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+
+    router.replace(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
+  }, [
+    filters.city,
+    filters.micromarket,
+    filters.type,
+    filters.minBudget,
+    filters.maxBudget,
+    filters.area,
+    filters.seats,
+  ]);
 
   const normalizedOfficeType = normalizeValue(filters.type);
   const isCoworking = normalizedOfficeType === "managed office/co-working";
@@ -411,10 +425,6 @@ export default function PropertiesClient() {
       });
   }, []);
 
-  /* =========================================================
-     RESTORE COMPARE
-  ========================================================= */
-
   useEffect(() => {
     try {
       const savedProperties = localStorage.getItem(COMPARE_STORAGE_KEY);
@@ -436,11 +446,6 @@ export default function PropertiesClient() {
       console.error("Failed to load comparison properties:", error);
     }
   }, []);
-
-  /* =========================================================
-     RESOLVE CITY
-  ========================================================= */
-
   const resolvedCity = useMemo(() => {
     if (!filters.city) {
       return "";
@@ -452,10 +457,6 @@ export default function PropertiesClient() {
 
     return match || filters.city;
   }, [filters.city, cities]);
-
-  /* =========================================================
-     FETCH MICROMARKETS
-  ========================================================= */
 
   useEffect(() => {
     if (!resolvedCity) {
@@ -496,10 +497,6 @@ export default function PropertiesClient() {
       cancelled = true;
     };
   }, [resolvedCity]);
-
-  /* =========================================================
-     SELECTED MICROMARKETS
-  ========================================================= */
 
   const selectedMicromarkets = useMemo(() => {
     if (!filters.micromarket || micromarkets.length === 0) {
@@ -820,10 +817,6 @@ export default function PropertiesClient() {
     setShowMicromarkets(false);
   };
 
-  /* =========================================================
-     CLEAR FILTER
-  ========================================================= */
-
   const clearFilter = (key) => {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -1084,144 +1077,12 @@ export default function PropertiesClient() {
       : []),
   ];
 
-
-
-  const getFirstNumber = (property, fields = []) => {
-    for (const field of fields) {
-      const value = getNumber(property?.[field]);
-
-      if (value !== null) {
-        return value;
-      }
-    }
-
-    return null;
-  };
-
-  const getPropertyType = (property) => {
-    return normalizeValue(
-      property?.propertyType ||
-      property?.PropertyType ||
-      property?.type ||
-      property?.Type ||
-      property?.officeType ||
-      property?.OfficeType ||
-      "",
-    );
-  };
-
-  const getPropertyCity = (property) => {
-    return normalizeValue(
-      property?.city ||
-      property?.City ||
-      property?.cityName ||
-      property?.CityName ||
-      "",
-    );
-  };
-
-  const getPropertyMicromarket = (property) => {
-    return normalizeValue(
-      property?.micromarket ||
-      property?.Micromarket ||
-      property?.micromarketName ||
-      property?.MicromarketName ||
-      "",
-    );
-  };
-
-  const getAvailableSeats = (property) => {
-    return getFirstNumber(property, [
-      "seatsOffered",
-      "SeatsOffered",
-      "seatsAvailable",
-      "SeatsAvailable",
-      "availableSeats",
-      "AvailableSeats",
-      "seatCapacity",
-      "SeatCapacity",
-      "totalSeats",
-      "TotalSeats",
-    ]);
-  };
-
-  const getAreaSqft = (property) => {
-    return getFirstNumber(property, [
-      "areaSqft",
-      "AreaSqft",
-      "area",
-      "Area",
-      "superBuiltUpArea",
-      "SuperBuiltUpArea",
-      "carpetArea",
-      "CarpetArea",
-      "floorPlate",
-      "FloorPlate",
-    ]);
-  };
-
-  const getSeatPrice = (property) => {
-    return getFirstNumber(property, [
-      "monthlyCostPerSeat",
-      "MonthlyCostPerSeat",
-      "monthlyCostPerSeatInr",
-      "MonthlyCostPerSeatInr",
-      "pricePerSeat",
-      "PricePerSeat",
-      "costPerSeat",
-      "CostPerSeat",
-      "rentPerSeat",
-      "RentPerSeat",
-    ]);
-  };
-
-  // const getSqftPrice = (property) => {
-  //   const directPrice = getFirstNumber(property, [
-  //     "rentPerSqft",
-  //     "RentPerSqft",
-  //     "pricePerSqft",
-  //     "PricePerSqft",
-  //     "ratePerSqft",
-  //     "RatePerSqft",
-  //     "costPerSqft",
-  //     "CostPerSqft",
-  //   ]);
-
-  //   if (directPrice !== null) {
-  //     return directPrice;
-  //   }
-
-  //   const rent = getFirstNumber(property, [
-  //     "quotedRent",
-  //     "QuotedRent",
-  //     "monthlyRent",
-  //     "MonthlyRent",
-  //     "rent",
-  //     "Rent",
-  //   ]);
-
-  //   const area = getAreaSqft(property);
-
-  //   if (rent !== null && area !== null && area > 0) {
-  //     return rent / area;
-  //   }
-
-  //   return null;
-  // };
-
-  /* =========================================================
-     USER REQUESTED CAPACITY
-  ========================================================= */
-
   const requestedCapacity = isCoworking
     ? getNumber(filters.seats)
     : filters.area !== ""
       ? convertArea(getNumber(filters.area) || 0, filters.areaUnit, "sqft")
       : null;
 
-  /* =========================================================
-     USER REQUESTED PRICE
-  ========================================================= */
 
   const requestedPrice = useMemo(() => {
     const min = getNumber(filters.minBudget);
@@ -1928,9 +1789,6 @@ export default function PropertiesClient() {
               </>
             ) : (
               <>
-                {/* =====================================================
-                    PROPERTY RESULTS
-                ===================================================== */}
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {paginatedProperties.map((property) => (

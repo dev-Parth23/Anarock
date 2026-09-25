@@ -498,6 +498,10 @@ function JourneyCard({ item, index }) {
 export default function HomePage() {
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
+
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitMessageType, setSubmitMessageType] = useState("success");
+
   const [selectedCountry, setSelectedCountry] = useState(phoneCountries[0]);
   const [countryOpen, setCountryOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
@@ -691,19 +695,19 @@ export default function HomePage() {
     try {
       const response = await fetch("/api/lead2", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify(payload),
       });
 
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert("Thank you! Our team will get in touch with you shortly.");
+        setSubmitMessage("Thank you Our team will get in touch with you shortly.",
+        );
 
+        setSubmitMessageType("success");
         e.target.reset();
 
         setPhone("");
@@ -718,14 +722,23 @@ export default function HomePage() {
           country: "",
         });
       } else {
-        alert(
-          result.message || "Failed to submit requirement. Please try again.",
+        setSubmitMessage(
+          result.errorCode === "DUPLICATE_DATA"
+            ? "We already have your details on file. Our team will be in touch shortly."
+            : result.message ||
+            "We couldn't submit your requirement right now. Please try again.",
         );
+
+        setSubmitMessageType("error");
       }
     } catch (error) {
       console.error("Form submission error:", error);
 
-      alert("An unexpected error occurred. Please try again later.");
+      setSubmitMessage(
+        "We couldn't submit your requirement right now. Please try again.",
+      );
+
+      setSubmitMessageType("error");
     } finally {
       setIsSubmitting(false);
     }
@@ -1129,11 +1142,11 @@ export default function HomePage() {
         >
           <div className="relative mx-auto w-full max-w-[1800px] px-[clamp(1rem,3vw,4rem)]">
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              initial={{ y: 40 }}
+              whileInView={{ y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{
-                duration: 1.2,
+                duration: 0.8,
                 ease: [0.22, 1, 0.36, 1],
               }}
               className="mx-auto mb-[clamp(3rem,7vw,6rem)] max-w-3xl text-center"

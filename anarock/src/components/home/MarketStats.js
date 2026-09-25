@@ -58,12 +58,26 @@ function AnimatedNumber({ value, unit, startAnimation, delay = 0 }) {
   const timeoutRef = useRef(null);
 
   useEffect(() => {
-    if (!startAnimation) return;
-    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    if (
+      value === null ||
+      value === undefined ||
+      Number.isNaN(Number(value))
+    ) {
       return;
     }
+
     const target = Number(value);
-    if (!Number.isFinite(target)) return;
+
+    if (!Number.isFinite(target)) {
+      return;
+    }
+
+    // Always show the real value even if the
+    // intersection observer has not started the animation yet.
+    if (!startAnimation) {
+      setAnimatedValue(target);
+      return;
+    }
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -74,17 +88,27 @@ function AnimatedNumber({ value, unit, startAnimation, delay = 0 }) {
       return;
     }
 
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
 
     setAnimatedValue(0);
+
     const duration = 1800;
     let startTime = null;
 
     const animate = (currentTime) => {
-      if (!startTime) startTime = currentTime;
+      if (!startTime) {
+        startTime = currentTime;
+      }
+
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
+
       const easedProgress = 1 - Math.pow(1 - progress, 4);
       const currentValue = target * easedProgress;
 
@@ -102,8 +126,13 @@ function AnimatedNumber({ value, unit, startAnimation, delay = 0 }) {
     }, delay);
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
   }, [value, startAnimation, delay]);
 
@@ -150,8 +179,26 @@ export default function MarketStats() {
         if (!res.ok) {
           throw new Error(`Request failed with status ${res.status}`);
         }
-        const data = await res.json();
-        if (isActive) setStats(data);
+        useEffect(() => {
+          const page = Number(searchParams.get("page") || "1");
+
+          if (page <= 1) return;
+
+          const params = new URLSearchParams(searchParams.toString());
+          params.delete("page");
+
+          router.replace(
+            `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+          );
+        }, [
+          filters.city,
+          filters.micromarket,
+          filters.type,
+          filters.minBudget,
+          filters.maxBudget,
+          filters.area,
+          filters.seats,
+        ]);
       } catch (err) {
         if (isActive) setError(err.message || "Failed to load market stats");
       } finally {

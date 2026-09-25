@@ -292,7 +292,7 @@ async function createLeadInCRM(tokenInfo, recordData) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    console.log("[LEAD2] Incoming Payload:", JSON.stringify(body, null, 2));
+    console.log("[LEAD2] Lead Submission Received");
     let firstName = String(body?.firstName || "").trim();
     let lastName = String(body?.lastName || "").trim();
     if (!firstName && !lastName && body?.name) {
@@ -440,10 +440,7 @@ export async function POST(request) {
         }
       });
 
-      console.log(
-        "[LEAD2] Posting record to Zoho CRM:",
-        JSON.stringify(recordData, null, 2),
-      );
+      console.log("[LEAD2] Posting record to Zoho CRM");
 
       const result = await createLeadInCRM(currentToken, recordData);
 
@@ -462,10 +459,10 @@ export async function POST(request) {
         {
           success: true,
           message: "Lead created successfully.",
-          leadId: result.leadId,
-          cityFound: Boolean(result.requirementCityId),
-          cityId: result.requirementCityId || null,
-          leadOwnerTeam: result.leadOwnerTeam,
+          // leadId: result.leadId,
+          // cityFound: Boolean(result.requirementCityId),
+          // cityId: result.requirementCityId || null,
+          // leadOwnerTeam: result.leadOwnerTeam,
         },
         {
           status: 200,
@@ -474,15 +471,11 @@ export async function POST(request) {
     } catch (error) {
       if (error?.code === "ZOHO_ACCESS_TOKEN_EXPIRED") {
         tokenInfo = await getZohoAccessToken(true);
-        const retryResult = await processLead(tokenInfo);
+        await processLead(tokenInfo);
         return NextResponse.json(
           {
             success: true,
             message: "Lead created successfully.",
-            leadId: retryResult.leadId,
-            cityFound: Boolean(retryResult.requirementCityId),
-            cityId: retryResult.requirementCityId || null,
-            leadOwnerTeam: retryResult.leadOwnerTeam,
           },
           {
             status: 200,
@@ -492,22 +485,40 @@ export async function POST(request) {
       throw error;
     }
   } catch (error) {
-    console.error("[LEAD2] LEAD CREATION ERROR:", error?.message);
+    console.error(
+      "[LEAD2] Lead creation failed:",
+      error?.code || "UNKNOWN_ERROR",
+    );
+
+    const isDuplicate =
+      error?.code === "DUPLICATE_DATA" ||
+      error?.zohoResponse?.data?.some(
+        (item) => item?.code === "DUPLICATE_DATA",
+      );
+
+    if (isDuplicate) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "We already have your details on file. Our team will be in touch shortly.",
+          errorCode: "DUPLICATE_DATA",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
         message:
-          error?.message || "Something went wrong while creating the lead.",
-        errorCode: error?.code || null,
-        zohoResponse: error?.zohoResponse || null,
+          "We couldn't submit your requirement right now. Please try again.",
+        errorCode: "LEAD_SUBMISSION_FAILED",
       },
       {
-        status:
-          error?.httpStatus &&
-            Number(error.httpStatus) >= 400 &&
-            Number(error.httpStatus) < 600
-            ? Number(error.httpStatus)
-            : 500,
+        status: 500,
       },
     );
   }

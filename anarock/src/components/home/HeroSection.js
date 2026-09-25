@@ -447,7 +447,7 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <div className="relative" ref={dropdownRef}>
-                          <label className="mb-2 ml-1 block text-[9px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[10px]">
+                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
                             City
                           </label>
 
@@ -533,7 +533,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         </div>
 
                         <div>
-                          <label className="mb-2 ml-1 block text-[9px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[10px]">
+                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
                             Micromarket
                           </label>
 
@@ -573,7 +573,7 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <div>
-                          <label className="mb-2 ml-1 block text-[9px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[10px]">
+                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
                             Property Type
                           </label>
 
@@ -599,7 +599,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         <div>
                           {isCoworking ? (
                             <>
-                              <label className="mb-2 ml-1 block text-[9px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[10px]">
+                              <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
                                 Required Seats
                               </label>
 
@@ -620,7 +620,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                             </>
                           ) : (
                             <>
-                              <label className="mb-2 ml-1 block text-[9px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[10px]">
+                              <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
                                 Min Area ({areaUnit})
                               </label>
 
@@ -645,7 +645,7 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                       {isRentBased && (
                         <div>
-                          <label className="mb-2 ml-1 block text-[9px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[10px]">
+                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
                             Rent/month
                           </label>
 
@@ -686,7 +686,7 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                       {isCoworking && (
                         <div>
-                          <label className="mb-2 ml-1 block text-[9px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[10px]">
+                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
                             Seat Price/month
                           </label>
 

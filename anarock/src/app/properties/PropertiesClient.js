@@ -1,43 +1,21 @@
-
 "use client";
-
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import PropertyCard from "@/components/properties/PropertyCard";
 import { usePreferences } from "@/lib/preferences";
-
+import { useWishlist } from "@/lib/wishlist";
+import { formatPrice, formatArea, convertCurrency, convertArea, } from "@/lib/format";
 import {
-  formatPrice,
-  formatArea,
-  convertCurrency,
-  convertArea,
-} from "@/lib/format";
-
-import {
-  Sparkles,
-  SlidersHorizontal,
-  X,
-  Search,
-  ChevronDown,
-  Check,
-  Heart,
-  Users,
-  Maximize2,
-  IndianRupee,
-  DollarSign,
-  Euro,
+  Sparkles, SlidersHorizontal, X, Search, ChevronDown, Check, Heart, Users,
+  Maximize2, IndianRupee, DollarSign, Euro,
 } from "lucide-react";
 
+const MAX_COMPARE_PROPERTIES = 3;
+const MIN_COMPARE_PROPERTIES = 2;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
-
-const OFFICE_TYPES = [
-  "Conventional",
-  "Managed Office/Co-working",
-  "Consulting",
-  "Others",
-];
-
+const SHORTLIST_STORAGE_KEY = "anarock_shortlist_properties";
+const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working", "Consulting", "Others",];
 const toUrlValue = (value) => {
   return String(value || "")
     .trim()
@@ -57,70 +35,57 @@ const normalizeValue = (value) => {
 
 const getOfficeTypeFromUrl = (value) => {
   if (!value) return "";
-
   const normalized = normalizeValue(value);
-
   const match = OFFICE_TYPES.find(
     (type) =>
       normalizeValue(type) === normalized ||
       toUrlValue(type) === String(value).toLowerCase()
   );
-
   return match || value;
 };
 
 export default function PropertiesClient() {
   const { currency, unit, exchangeRates } = usePreferences();
-
+  const { ids: wishlistIds, toggle: toggleWishlist, } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const [compareSelection, setCompareSelection] = useState([]);
+  const [allProperties, setAllProperties] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(true);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cities, setCities] = useState([]);
   const [micromarkets, setMicromarkets] = useState([]);
-  const [micromarketsLoading, setMicromarketsLoading] =
-    useState(false);
+  const [micromarketsLoading, setMicromarketsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showMicromarkets, setShowMicromarkets] = useState(false);
+  useEffect(() => {
+    if (!showFilters) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showFilters]);
   const ITEMS_PER_PAGE = 30;
   const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1
   );
-  /* =========================================================
-    FILTERS FROM URL
- ========================================================= */
+
   const filters = useMemo(() => {
     const rawType = searchParams.get("type") || "";
-    const type =
-      rawType === "ai"
-        ? "ai"
-        : getOfficeTypeFromUrl(rawType);
+    const type = rawType === "ai" ? "ai" : getOfficeTypeFromUrl(rawType);
     return {
       city: searchParams.get("city") || "",
-      micromarket:
-        searchParams.get("micromarket") || "",
-      type,
-      minBudget:
-        searchParams.get("minBudget") || "",
-      maxBudget:
-        searchParams.get("maxBudget") || "",
-      area:
-        searchParams.get("area") || "",
-      seats:
-        searchParams.get("seats") || "",
-      currency:
-        searchParams.get("currency") ||
-        currency,
-      areaUnit:
-        searchParams.get("areaUnit") ||
-        unit,
-      prompt:
-        searchParams.get("prompt") || "",
-      isAi:
-        rawType === "ai" ||
-        searchParams.has("prompt"),
+      micromarket: searchParams.get("micromarket") || "",
+      type, minBudget: searchParams.get("minBudget") || "",
+      maxBudget: searchParams.get("maxBudget") || "",
+      area: searchParams.get("area") || "",
+      seats: searchParams.get("seats") || "",
+      currency: searchParams.get("currency") || currency,
+      areaUnit: searchParams.get("areaUnit") || unit,
+      prompt: searchParams.get("prompt") || "",
+      isAi: rawType === "ai" || searchParams.has("prompt"),
     };
   }, [
     searchParams,
@@ -140,74 +105,171 @@ export default function PropertiesClient() {
       ""
     );
 
-  const handleCompareToggle = (property) => {
-    const propertyId =
-      getPropertyId(property);
+  const handleShortlistToggle = (property) => {
+    const propertyId = getPropertyId(property);
 
-    setCompareSelection(
-      (previousSelection) => {
-        const alreadySelected =
-          previousSelection.some(
-            (item) =>
-              getPropertyId(item) ===
-              propertyId
-          );
+    if (!propertyId) {
+      console.warn(
+        "Cannot shortlist property without an ID:",
+        property
+      );
+      return;
+    }
 
-        let updatedSelection;
+    toggleWishlist(propertyId);
+  };
 
-        if (alreadySelected) {
-          updatedSelection =
-            previousSelection.filter(
-              (item) =>
-                getPropertyId(item) !==
-                propertyId
-            );
-        } else {
-          updatedSelection = [
-            ...previousSelection,
-            property,
-          ].slice(-3);
-        }
+  useEffect(() => {
+    let cancelled = false;
 
-        localStorage.setItem(
-          COMPARE_STORAGE_KEY,
-          JSON.stringify(
-            updatedSelection
-          )
+    async function fetchAllProperties() {
+      setSuggestionsLoading(true);
+
+      try {
+        const response = await fetch(
+          "/api/properties",
+          {
+            cache: "no-store",
+          }
         );
 
-        return updatedSelection;
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.error ||
+            "Failed to fetch suggested properties"
+          );
+        }
+
+        if (!cancelled) {
+          setAllProperties(
+            Array.isArray(data.data)
+              ? data.data
+              : []
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Suggested properties error:",
+          error
+        );
+
+        if (!cancelled) {
+          setAllProperties([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setSuggestionsLoading(false);
+        }
       }
-    );
+    }
+
+    fetchAllProperties();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const handleCompareToggle = (property) => {
+    const propertyId = getPropertyId(property);
+
+    if (!propertyId) {
+      console.warn(
+        "Cannot compare property without an ID:",
+        property
+      );
+      return;
+    }
+
+    setCompareSelection((previousSelection) => {
+      const alreadySelected = previousSelection.some(
+        (item) =>
+          getPropertyId(item) === propertyId
+      );
+
+      let updatedSelection;
+
+      // Remove property if already selected
+      if (alreadySelected) {
+        updatedSelection = previousSelection.filter(
+          (item) =>
+            getPropertyId(item) !== propertyId
+        );
+      }
+
+      // Add property
+      else {
+        // Maximum 3 properties
+        if (
+          previousSelection.length >=
+          MAX_COMPARE_PROPERTIES
+        ) {
+          return previousSelection;
+        }
+
+        updatedSelection = [
+          ...previousSelection,
+          property,
+        ];
+      }
+
+      try {
+        localStorage.setItem(
+          COMPARE_STORAGE_KEY,
+          JSON.stringify(updatedSelection)
+        );
+      } catch (error) {
+        console.error(
+          "Failed to save comparison properties:",
+          error
+        );
+      }
+
+      return updatedSelection;
+    });
   };
 
   const clearCompareSelection = () => {
     setCompareSelection([]);
 
-    localStorage.removeItem(
-      COMPARE_STORAGE_KEY
-    );
+    try {
+      localStorage.removeItem(
+        COMPARE_STORAGE_KEY
+      );
+    } catch (error) {
+      console.error(
+        "Failed to clear comparison properties:",
+        error
+      );
+    }
   };
 
   const openComparePage = () => {
-    if (compareSelection.length !== 3) {
+    if (
+      compareSelection.length <
+      MIN_COMPARE_PROPERTIES ||
+      compareSelection.length >
+      MAX_COMPARE_PROPERTIES
+    ) {
       return;
     }
 
-    localStorage.setItem(
-      COMPARE_STORAGE_KEY,
-      JSON.stringify(
-        compareSelection
-      )
-    );
+    try {
+      localStorage.setItem(
+        COMPARE_STORAGE_KEY,
+        JSON.stringify(compareSelection)
+      );
+    } catch (error) {
+      console.error(
+        "Failed to save comparison properties:",
+        error
+      );
+      return;
+    }
 
     router.push("/compare");
   };
-
-  /* =========================================================
-     FETCH CITIES
-  ========================================================= */
-
   useEffect(() => {
     fetch("/api/cities")
       .then((response) =>
@@ -250,9 +312,14 @@ export default function PropertiesClient() {
           parsedProperties
         )
       ) {
-        setCompareSelection(
-          parsedProperties.slice(-2)
-        );
+        const validProperties = parsedProperties
+          .filter(
+            (property) =>
+              getPropertyId(property)
+          )
+          .slice(0, MAX_COMPARE_PROPERTIES);
+
+        setCompareSelection(validProperties);
       }
     } catch (error) {
       console.error(
@@ -363,19 +430,11 @@ export default function PropertiesClient() {
 
       return micromarkets
         .filter((market) => {
-          const marketSlug =
-            toUrlValue(
-              market.name
-            );
-
+          const marketSlug = toUrlValue(market.name);
           return selectedNames.some(
-            (selected) =>
-              selected ===
-              String(
-                market.name
-              )
-                .trim()
-                .toLowerCase() ||
+            (selected) => selected === String(market.name)
+              .trim()
+              .toLowerCase() ||
               selected === marketSlug
           );
         })
@@ -387,36 +446,26 @@ export default function PropertiesClient() {
       micromarkets,
     ]);
 
-  const selectedMicromarketNames =
-    useMemo(() => {
-      if (
-        selectedMicromarkets.length === 0
-      ) {
-        return [];
-      }
+  const selectedMicromarketNames = useMemo(() => {
+    if (selectedMicromarkets.length === 0) {
+      return [];
+    }
 
-      return selectedMicromarkets
-        .map((id) => {
-          const market =
-            micromarkets.find(
-              (item) =>
-                String(item.id) ===
-                String(id)
-            );
+    return selectedMicromarkets
+      .map((id) => {
+        const market = micromarkets.find(
+          (item) => String(item.id) === String(id)
+        );
 
-          return (
-            market?.name || ""
-          );
-        })
-        .filter(Boolean);
-    }, [
-      selectedMicromarkets,
-      micromarkets,
-    ]);
-
-  /* =========================================================
-     FETCH PROPERTIES
-  ========================================================= */
+        return (
+          market?.name || ""
+        );
+      })
+      .filter(Boolean);
+  }, [
+    selectedMicromarkets,
+    micromarkets,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -426,70 +475,23 @@ export default function PropertiesClient() {
       setError("");
 
       try {
-        const params =
-          new URLSearchParams(
-            searchParams.toString()
-          );
-
-        /* -----------------------------------------------------
-           CITY
-        ----------------------------------------------------- */
-
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("page");
         if (resolvedCity) {
-          params.set(
-            "city",
-            resolvedCity
-          );
+          params.set("city", resolvedCity);
         }
-
-        /* -----------------------------------------------------
-           PROPERTY TYPE
-        ----------------------------------------------------- */
-
-        if (
-          filters.type &&
-          filters.type !== "ai"
-        ) {
-          params.set(
-            "type",
-            filters.type.toLowerCase()
-          );
+        if (filters.type && filters.type !== "ai") {
+          params.set("type", filters.type.toLowerCase());
         }
-
-        /* -----------------------------------------------------
-           MIN BUDGET
-        ----------------------------------------------------- */
-
-        if (
-          filters.minBudget !== ""
-        ) {
-          const value =
-            Number(
-              filters.minBudget
-            );
-
-          if (
-            Number.isFinite(value)
-          ) {
-            const converted =
-              convertCurrency(
-                value,
-                filters.currency,
-                "INR",
-                exchangeRates
-              );
-
-            params.set(
-              "minBudget",
-              String(
-                Math.round(converted)
-              )
+        if (filters.minBudget !== "") {
+          const value = Number(filters.minBudget);
+          if (Number.isFinite(value)) {
+            const converted = convertCurrency(value, filters.currency, "INR", exchangeRates);
+            params.set("minBudget", String(Math.round(converted))
             );
           }
         } else {
-          params.delete(
-            "minBudget"
-          );
+          params.delete("minBudget");
         }
 
         if (filters.maxBudget !== "") {
@@ -571,10 +573,6 @@ export default function PropertiesClient() {
           params.delete("seats");
         }
 
-        /* -----------------------------------------------------
-           MICROMARKETS
-        ----------------------------------------------------- */
-
         if (
           selectedMicromarketNames.length
         ) {
@@ -589,71 +587,34 @@ export default function PropertiesClient() {
             "micromarket"
           );
         }
-
-        /* -----------------------------------------------------
-           CURRENCY / UNIT
-        ----------------------------------------------------- */
-
         if (filters.currency) {
-          params.set(
-            "currency",
-            filters.currency
-          );
+          params.set("currency", filters.currency);
         }
-
         if (filters.areaUnit) {
-          params.set(
-            "areaUnit",
-            filters.areaUnit
-          );
+          params.set("areaUnit", filters.areaUnit);
         }
-
-        /* -----------------------------------------------------
-           AI
-        ----------------------------------------------------- */
-
         if (filters.isAi) {
-          params.set(
-            "type",
-            "ai"
-          );
+          params.set("type", "ai");
         }
 
-        /* -----------------------------------------------------
-           FETCH
-        ----------------------------------------------------- */
 
-        const query =
-          params.toString();
+        const query = params.toString();
+        const response = await fetch(
+          `/api/properties${query
+            ? `?${query}`
+            : ""
+          }`,
+          {
+            cache: "no-store",
+          }
+        );
 
-        const response =
-          await fetch(
-            `/api/properties${query
-              ? `?${query}`
-              : ""
-            }`,
-            {
-              cache: "no-store",
-            }
-          );
-
-        const data =
-          await response.json();
-
-        if (
-          !response.ok ||
-          !data.success
-        ) {
-          throw new Error(
-            data.error ||
-            "Failed to fetch properties"
-          );
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Failed to fetch properties");
         }
-
         if (!cancelled) {
-          setProperties(
-            data.data || []
-          );
+          setProperties(data.data || []);
         }
       } catch (err) {
         if (!cancelled) {
@@ -692,9 +653,6 @@ export default function PropertiesClient() {
     isCoworking,
   ]);
 
-  /* =========================================================
-     SAVE LAST SEARCH
-  ========================================================= */
 
   useEffect(() => {
     if (
@@ -744,101 +702,6 @@ export default function PropertiesClient() {
     selectedMicromarketNames,
   ]);
 
-  // /* =========================================================
-  //    UPDATE FILTER
-  // ========================================================= */
-
-  // const updateFilter = (
-  //   key,
-  //   value
-  // ) => {
-  //   const params =
-  //     new URLSearchParams(
-  //       searchParams.toString()
-  //     );
-
-  //   /* -------------------------------------------------------
-  //      OFFICE TYPE
-  //      Keep budget values.
-  //      Only remove the incompatible dynamic field.
-  //   ------------------------------------------------------- */
-
-  //   if (key === "type") {
-  //     if (!value) {
-  //       params.delete("type");
-  //       params.delete("area");
-  //       params.delete("seats");
-  //     } else {
-  //       params.set(
-  //         "type",
-  //         toUrlValue(value)
-  //       );
-
-  //       const nextIsCoworking =
-  //         normalizeValue(
-  //           value
-  //         ) ===
-  //         "managed office/co-working";
-
-  //       if (nextIsCoworking) {
-  //         params.delete("area");
-  //       } else {
-  //         params.delete("seats");
-  //       }
-  //     }
-
-  //     router.push(
-  //       `/properties${params.toString()
-  //         ? `?${params.toString()}`
-  //         : ""
-  //       }`
-  //     );
-
-  //     return;
-  //   }
-
-  //   /* -------------------------------------------------------
-  //      NORMAL FILTER
-  //   ------------------------------------------------------- */
-
-  //   if (value !== "") {
-  //     params.set(
-  //       key,
-  //       value
-  //     );
-  //   } else {
-  //     params.delete(key);
-  //   }
-
-  //   /* -------------------------------------------------------
-  //      DYNAMIC FIELD SAFETY
-  //   ------------------------------------------------------- */
-
-  //   if (
-  //     key === "area" &&
-  //     isCoworking
-  //   ) {
-  //     params.delete("area");
-  //   }
-
-  //   if (
-  //     key === "seats" &&
-  //     !isCoworking
-  //   ) {
-  //     params.delete("seats");
-  //   }
-
-  //   router.push(
-  //     `/properties${params.toString()
-  //       ? `?${params.toString()}`
-  //       : ""
-  //     }`
-  //   );
-  // };
-
-  // /* =========================================================
-  //    CITY CHANGE
-  // ========================================================= */
   const updateFilter = (key, value) => {
     const params = new URLSearchParams(
       searchParams.toString()
@@ -898,10 +761,7 @@ export default function PropertiesClient() {
     ) {
       params.delete("seats");
     }
-
-    // Reset pagination whenever a filter changes
     params.delete("page");
-
     router.push(
       `/properties${params.toString()
         ? `?${params.toString()}`
@@ -910,61 +770,27 @@ export default function PropertiesClient() {
     );
   };
 
-  const handleCityChange = (
-    selectedCity
-  ) => {
-    const params =
-      new URLSearchParams(
-        searchParams.toString()
-      );
-
+  const handleCityChange = (selectedCity) => {
+    const params = new URLSearchParams(searchParams.toString());
     if (selectedCity) {
-      params.set(
-        "city",
-        toUrlValue(
-          selectedCity
-        )
-      );
+      params.set("city", toUrlValue(selectedCity));
     } else {
       params.delete("city");
     }
-
-    params.delete(
-      "micromarket"
+    params.delete("micromarket");
+    params.delete("page");
+    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
-
-    router.push(
-      `/properties${params.toString()
-        ? `?${params.toString()}`
-        : ""
-      }`
-    );
-
     setShowMicromarkets(false);
   };
 
-  /* =========================================================
-     MICROMARKET TOGGLE
-  ========================================================= */
-
-  const toggleMicromarket = (
-    micromarketId
-  ) => {
-    const id =
-      String(micromarketId);
-
+  const toggleMicromarket = (micromarketId) => {
+    const id = String(micromarketId);
     let nextSelected;
-
-    if (
-      selectedMicromarkets.includes(
-        id
-      )
-    ) {
-      nextSelected =
-        selectedMicromarkets.filter(
-          (selectedId) =>
-            selectedId !== id
-        );
+    if (selectedMicromarkets.includes(id)) {
+      nextSelected = selectedMicromarkets.filter((selectedId) =>
+        selectedId !== id
+      );
     } else {
       nextSelected = [
         ...selectedMicromarkets,
@@ -1387,9 +1213,7 @@ export default function PropertiesClient() {
     return pages;
   };
 
-  /* =========================================================
-     BREADCRUMBS
-  ========================================================= */
+  
 
   const breadcrumbs = [
     {
@@ -1407,9 +1231,486 @@ export default function PropertiesClient() {
       : []),
   ];
 
+  
+
+  const getNumber = (value) => {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
+      return null;
+    }
+
+    const number = Number(
+      String(value)
+        .replace(/,/g, "")
+        .replace(/[^\d.-]/g, "")
+    );
+
+    return Number.isFinite(number)
+      ? number
+      : null;
+  };
+
+  const getFirstNumber = (
+    property,
+    fields = []
+  ) => {
+    for (const field of fields) {
+      const value = getNumber(property?.[field]);
+
+      if (value !== null) {
+        return value;
+      }
+    }
+
+    return null;
+  };
+
+  const getPropertyType = (property) => {
+    return normalizeValue(
+      property?.propertyType ||
+      property?.PropertyType ||
+      property?.type ||
+      property?.Type ||
+      property?.officeType ||
+      property?.OfficeType ||
+      ""
+    );
+  };
+
+  const getPropertyCity = (property) => {
+    return normalizeValue(
+      property?.city ||
+      property?.City ||
+      property?.cityName ||
+      property?.CityName ||
+      ""
+    );
+  };
+
+  const getPropertyMicromarket = (property) => {
+    return normalizeValue(
+      property?.micromarket ||
+      property?.Micromarket ||
+      property?.micromarketName ||
+      property?.MicromarketName ||
+      ""
+    );
+  };
+
+  const getAvailableSeats = (property) => {
+    return getFirstNumber(property, [
+      "seatsOffered",
+      "SeatsOffered",
+      "seatsAvailable",
+      "SeatsAvailable",
+      "availableSeats",
+      "AvailableSeats",
+      "seatCapacity",
+      "SeatCapacity",
+      "totalSeats",
+      "TotalSeats",
+    ]);
+  };
+
+  const getAreaSqft = (property) => {
+    return getFirstNumber(property, [
+      "areaSqft",
+      "AreaSqft",
+      "area",
+      "Area",
+      "superBuiltUpArea",
+      "SuperBuiltUpArea",
+      "carpetArea",
+      "CarpetArea",
+      "floorPlate",
+      "FloorPlate",
+    ]);
+  };
+
+  const getSeatPrice = (property) => {
+    return getFirstNumber(property, [
+      "monthlyCostPerSeat",
+      "MonthlyCostPerSeat",
+      "monthlyCostPerSeatInr",
+      "MonthlyCostPerSeatInr",
+      "pricePerSeat",
+      "PricePerSeat",
+      "costPerSeat",
+      "CostPerSeat",
+      "rentPerSeat",
+      "RentPerSeat",
+    ]);
+  };
+
+  const getSqftPrice = (property) => {
+    const directPrice = getFirstNumber(property, [
+      "rentPerSqft",
+      "RentPerSqft",
+      "pricePerSqft",
+      "PricePerSqft",
+      "ratePerSqft",
+      "RatePerSqft",
+      "costPerSqft",
+      "CostPerSqft",
+    ]);
+
+    if (directPrice !== null) {
+      return directPrice;
+    }
+
+    const rent = getFirstNumber(property, [
+      "quotedRent",
+      "QuotedRent",
+      "monthlyRent",
+      "MonthlyRent",
+      "rent",
+      "Rent",
+    ]);
+
+    const area = getAreaSqft(property);
+
+    if (
+      rent !== null &&
+      area !== null &&
+      area > 0
+    ) {
+      return rent / area;
+    }
+
+    return null;
+  };
+
+
   /* =========================================================
-     UI
+     USER REQUESTED CAPACITY
   ========================================================= */
+
+  const requestedCapacity = isCoworking
+    ? getNumber(filters.seats)
+    : filters.area !== ""
+      ? convertArea(
+        getNumber(filters.area) || 0,
+        filters.areaUnit,
+        "sqft"
+      )
+      : null;
+
+
+  /* =========================================================
+     USER REQUESTED PRICE
+  ========================================================= */
+
+  const requestedPrice = useMemo(() => {
+    const min = getNumber(
+      filters.minBudget
+    );
+
+    const max = getNumber(
+      filters.maxBudget
+    );
+
+    if (
+      min !== null &&
+      max !== null
+    ) {
+      return (min + max) / 2;
+    }
+
+    if (max !== null) {
+      return max;
+    }
+
+    if (min !== null) {
+      return min;
+    }
+
+    return null;
+  }, [
+    filters.minBudget,
+    filters.maxBudget,
+  ]);
+
+
+
+  const suggestedProperties = useMemo(() => {
+    if (
+      !Array.isArray(allProperties) ||
+      allProperties.length === 0
+    ) {
+      return [];
+    }
+
+    const filteredIds = new Set(
+      properties
+        .map((property) =>
+          getPropertyId(property)
+        )
+        .filter(Boolean)
+    );
+
+    const requestedCity = normalizeValue(
+      resolvedCity ||
+      filters.city
+    );
+
+    const requestedType =
+      filters.type &&
+        filters.type !== "ai"
+        ? normalizeValue(filters.type)
+        : "";
+
+    const requestedMicromarkets =
+      selectedMicromarketNames
+        .map(normalizeValue)
+        .filter(Boolean);
+
+    const hasCity =
+      Boolean(requestedCity);
+
+    const hasType =
+      Boolean(requestedType);
+
+    const hasMicromarket =
+      requestedMicromarkets.length > 0;
+
+    const scored = allProperties
+      .filter((property) => {
+        const id =
+          getPropertyId(property);
+
+        return (
+          id &&
+          !filteredIds.has(id)
+        );
+      })
+      .map((property) => {
+        const city =
+          getPropertyCity(property);
+
+        const type =
+          getPropertyType(property);
+
+        const micromarket =
+          getPropertyMicromarket(property);
+
+        const cityMatch =
+          hasCity &&
+          city === requestedCity;
+
+        const typeMatch =
+          hasType &&
+          type === requestedType;
+
+        const micromarketMatch =
+          hasMicromarket &&
+          requestedMicromarkets.includes(
+            micromarket
+          );
+
+        let tier = 4;
+
+        if (
+          cityMatch &&
+          typeMatch &&
+          micromarketMatch
+        ) {
+          tier = 0;
+        } else if (
+          cityMatch &&
+          typeMatch
+        ) {
+          tier = 1;
+        } else if (
+          cityMatch
+        ) {
+          tier = 2;
+        } else if (
+          typeMatch
+        ) {
+          tier = 3;
+        }
+
+        const available =
+          isCoworking
+            ? getAvailableSeats(
+              property
+            )
+            : getAreaSqft(
+              property
+            );
+
+        let capacityRank = 2;
+
+        let capacityDistance =
+          Number.POSITIVE_INFINITY;
+
+        if (
+          requestedCapacity !== null &&
+          requestedCapacity > 0 &&
+          available !== null &&
+          available > 0
+        ) {
+          capacityRank =
+            available >=
+              requestedCapacity
+              ? 0
+              : 1;
+
+          capacityDistance =
+            Math.abs(
+              available -
+              requestedCapacity
+            );
+        } else if (
+          requestedCapacity === null &&
+          available !== null
+        ) {
+          capacityRank = 0;
+          capacityDistance = 0;
+        }
+
+        const price =
+          isCoworking
+            ? getSeatPrice(property)
+            : getSqftPrice(property);
+
+        let priceRank = 2;
+
+        let priceDistance =
+          Number.POSITIVE_INFINITY;
+
+        if (
+          price !== null &&
+          price >= 0
+        ) {
+          if (
+            requestedPrice !== null &&
+            requestedPrice >= 0
+          ) {
+            const minBudget =
+              getNumber(
+                filters.minBudget
+              );
+
+            const maxBudget =
+              getNumber(
+                filters.maxBudget
+              );
+
+            const withinBudget =
+              (
+                minBudget === null ||
+                price >= minBudget
+              ) &&
+              (
+                maxBudget === null ||
+                price <= maxBudget
+              );
+
+            priceRank =
+              withinBudget
+                ? 0
+                : 1;
+
+            priceDistance =
+              Math.abs(
+                price -
+                requestedPrice
+              );
+          } else {
+            priceRank = 0;
+            priceDistance = price;
+          }
+        }
+
+        return {
+          property,
+          tier,
+          capacityRank,
+          capacityDistance,
+          priceRank,
+          priceDistance,
+        };
+      });
+
+    scored.sort((a, b) => {
+      if (
+        a.tier !== b.tier
+      ) {
+        return (
+          a.tier -
+          b.tier
+        );
+      }
+
+      if (
+        a.capacityRank !==
+        b.capacityRank
+      ) {
+        return (
+          a.capacityRank -
+          b.capacityRank
+        );
+      }
+
+      if (
+        a.capacityDistance !==
+        b.capacityDistance
+      ) {
+        return (
+          a.capacityDistance -
+          b.capacityDistance
+        );
+      }
+
+      if (
+        a.priceRank !==
+        b.priceRank
+      ) {
+        return (
+          a.priceRank -
+          b.priceRank
+        );
+      }
+
+      if (
+        a.priceDistance !==
+        b.priceDistance
+      ) {
+        return (
+          a.priceDistance -
+          b.priceDistance
+        );
+      }
+
+      return 0;
+    });
+
+    return scored
+      .slice(0, 9)
+      .map(
+        (item) =>
+          item.property
+      );
+  }, [
+    allProperties,
+    properties,
+    resolvedCity,
+    filters.city,
+    filters.type,
+    filters.minBudget,
+    filters.maxBudget,
+    filters.seats,
+    filters.area,
+    filters.areaUnit,
+    selectedMicromarketNames,
+    isCoworking,
+    requestedCapacity,
+    requestedPrice,
+  ]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -1419,9 +1720,7 @@ export default function PropertiesClient() {
           items={breadcrumbs}
         />
 
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
+
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -1460,11 +1759,6 @@ export default function PropertiesClient() {
             Filters
           </button>
         </div>
-
-        {/* =====================================================
-            ACTIVE FILTER CHIPS
-        ===================================================== */}
-
         {activeChips.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
             {activeChips.map(
@@ -1494,50 +1788,22 @@ export default function PropertiesClient() {
         )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-
-          {/* ===================================================
-              FILTER SIDEBAR
-          =================================================== */}
-
-          <aside
-            className={
-              showFilters
-                ? "fixed inset-0 z-[100] bg-slate-950/50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent"
-                : "hidden lg:block"
-            }
-          >
+          <aside className={showFilters ? "fixed inset-0 z-[200] bg-slate-950/50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent" : "hidden lg:block"}>
             <div
-              className={`border border-slate-200 bg-white p-4 lg:sticky lg:top-24 ${showFilters
-                ? "absolute right-0 top-[72px] h-[calc(100%-72px)] w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-t-2xl rounded-b-none shadow-2xl lg:relative lg:top-auto lg:right-auto lg:w-auto lg:h-auto lg:shadow-none"
-                : "rounded-xl"
+              className={`border border-slate-200 bg-white p-4 ${showFilters
+                ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
+                : "rounded-xl lg:sticky lg:top-24"
                 }`}
             >
-
-              {/* FILTER HEADER */}
-
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900">
-                  Filters
-                </h3>
-
-                <button
-                  onClick={() =>
-                    setShowFilters(
-                      false
-                    )
-                  }
-                  className="lg:hidden"
-                >
+                <h3 className="font-semibold text-slate-900">     Filters</h3>
+                <button onClick={() => setShowFilters(false)}
+                  className="lg:hidden">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="space-y-4">
-
-                {/* =================================================
-                    CITY
-                ================================================= */}
-
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
                     City
@@ -2013,25 +2279,22 @@ export default function PropertiesClient() {
             </div>
           </aside>
 
-
           <div>
             {loading ? (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {[...Array(6)].map(
-                  (_, index) => (
-                    <div
-                      key={index}
-                      className="animate-pulse overflow-hidden rounded-xl bg-white"
-                    >
-                      <div className="aspect-[4/3] bg-slate-200" />
+                {[...Array(6)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="animate-pulse overflow-hidden rounded-xl bg-white"
+                  >
+                    <div className="aspect-[4/3] bg-slate-200" />
 
-                      <div className="space-y-2 p-4">
-                        <div className="h-4 w-3/4 rounded bg-slate-200" />
-                        <div className="h-3 w-1/2 rounded bg-slate-200" />
-                      </div>
+                    <div className="space-y-2 p-4">
+                      <div className="h-4 w-3/4 rounded bg-slate-200" />
+                      <div className="h-3 w-1/2 rounded bg-slate-200" />
                     </div>
-                  )
-                )}
+                  </div>
+                ))}
               </div>
             ) : error ? (
               <div className="rounded-xl border border-red-200 bg-white py-16 text-center">
@@ -2046,134 +2309,347 @@ export default function PropertiesClient() {
                 </p>
               </div>
             ) : properties.length === 0 ? (
-              <div className="rounded-xl border border-slate-200 bg-white py-16 text-center">
-                <Search className="mx-auto mb-3 h-12 w-12 text-slate-300" />
+              <>
+                {/* =====================================================
+                    NO SEARCH RESULTS
+                ===================================================== */}
 
-                <h3 className="text-lg font-semibold text-slate-900">
-                  No properties found
-                </h3>
+                <div className="mb-8">
+                  <h2 className="text-lg font-semibold text-[#241B2B] sm:text-xl">
+                    No search results found for your search.
+                  </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
-                  Try adjusting your
-                  filters or clear
-                  them to see all
-                  listings.
-                </p>
+                  <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#7D7482]">
+                    We couldn't find a property matching your selected
+                    requirements. Please explore other properties near
+                    your search.
+                  </p>
+                </div>
 
-                <button
-                  onClick={clearAll}
-                  className="mt-4 rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-slate-950"
-                >
-                  Clear Filters
-                </button>
-              </div>
+                {/* =====================================================
+                    SUGGESTED PROPERTIES
+                ===================================================== */}
+
+                {suggestionsLoading ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {[...Array(3)].map((_, index) => (
+                      <div
+                        key={index}
+                        className="overflow-hidden rounded-xl bg-white"
+                      >
+                        <div className="aspect-[4/3] animate-pulse bg-slate-200" />
+
+                        <div className="space-y-3 p-4">
+                          <div className="h-4 w-3/4 animate-pulse rounded bg-slate-200" />
+                          <div className="h-3 w-1/2 animate-pulse rounded bg-slate-200" />
+                          <div className="h-3 w-2/3 animate-pulse rounded bg-slate-200" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : suggestedProperties.length > 0 ? (
+                  <>
+                    <div className="mb-5 flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-[#A054A0]" />
+
+                      <h3 className="text-lg font-semibold text-slate-900">
+                        Other properties you may consider
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      {suggestedProperties.map((property) => (
+                        <div
+                          key={getPropertyId(property)}
+                          className="relative"
+                        >
+
+
+                          <PropertyCard
+                            property={property}
+
+                            isCompared={compareSelection.some(
+                              (item) =>
+                                getPropertyId(item) ===
+                                getPropertyId(property)
+                            )}
+
+                            onCompareToggle={handleCompareToggle}
+
+                            isShortlisted={wishlistIds.some(
+                              (id) =>
+                                String(id) ===
+                                getPropertyId(property)
+                            )}
+
+                            onShortlistToggle={
+                              handleShortlistToggle
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
+                    We couldn't find any nearby alternative properties at
+                    the moment.
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {properties.map(
-                  (property) => (
+              <>
+                {/* =====================================================
+                    PROPERTY RESULTS
+                ===================================================== */}
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {paginatedProperties.map((property) => (
                     <PropertyCard
                       key={
                         property.id ||
                         property.rowId ||
                         property.ROWID
                       }
-                      property={
-                        property
-                      }
+                      property={property}
                       isCompared={compareSelection.some(
                         (item) =>
-                          getPropertyId(
-                            item
-                          ) ===
-                          getPropertyId(
-                            property
-                          )
+                          getPropertyId(item) ===
+                          getPropertyId(property)
                       )}
-                      onCompareToggle={
-                        handleCompareToggle
-                      }
+                      onCompareToggle={handleCompareToggle}
+                      isShortlisted={wishlistIds.some(
+                        (item) =>
+                          getPropertyId(item) ===
+                          getPropertyId(property)
+                      )}
+                      onShortlistToggle={handleShortlistToggle}
                     />
-                  )
+                  ))}
+                </div>
+
+                {/* =====================================================
+                    PAGINATION
+                ===================================================== */}
+
+                {totalPages > 1 && (
+                  <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pb-8">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        goToPage(safeCurrentPage - 1)
+                      }
+                      disabled={safeCurrentPage === 1}
+                      className="
+                        rounded-lg
+                        border
+                        border-slate-200
+                        bg-white
+                        px-3
+                        py-2
+                        text-sm
+                        font-medium
+                        text-slate-700
+                        transition
+                        hover:border-[#A054A0]
+                        hover:text-[#A054A0]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-40
+                      "
+                    >
+                      Previous
+                    </button>
+
+                    {getPaginationPages().map(
+                      (page, index) =>
+                        typeof page === "string" ? (
+                          <span
+                            key={`${page}-${index}`}
+                            className="px-1 text-sm text-slate-400"
+                          >
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={page}
+                            type="button"
+                            onClick={() =>
+                              goToPage(page)
+                            }
+                            aria-current={
+                              page === safeCurrentPage
+                                ? "page"
+                                : undefined
+                            }
+                            className={`
+                              min-w-10
+                              rounded-lg
+                              px-3
+                              py-2
+                              text-sm
+                              font-medium
+                              transition
+                              ${page === safeCurrentPage
+                                ? "bg-[#A054A0] text-white shadow-sm"
+                                : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
+                              }
+                            `}
+                          >
+                            {page}
+                          </button>
+                        )
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        goToPage(safeCurrentPage + 1)
+                      }
+                      disabled={
+                        safeCurrentPage === totalPages
+                      }
+                      className="
+                        rounded-lg
+                        border
+                        border-slate-200
+                        bg-white
+                        px-3
+                        py-2
+                        text-sm
+                        font-medium
+                        text-slate-700
+                        transition
+                        hover:border-[#A054A0]
+                        hover:text-[#A054A0]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-40
+                      "
+                    >
+                      Next
+                    </button>
+                  </div>
                 )}
-              </div>
+
+                {/* =====================================================
+                    SUGGESTED PROPERTIES
+                ===================================================== */}
+
+                {!suggestionsLoading &&
+                  suggestedProperties.length > 0 && (
+                    <section className="mt-10 border-t border-slate-200 pt-9">
+                      <div className="mb-5">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-5 w-5 text-[#A054A0]" />
+
+                          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+                            More properties you may consider
+                          </h2>
+                        </div>
+
+                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                          Explore additional properties that are similar
+                          to your search.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {suggestedProperties.map((property) => (
+                          <div
+                            key={getPropertyId(property)}
+                            className="relative"
+                          >
+                            <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-full border border-white/70 bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#A054A0] shadow-sm backdrop-blur">
+                              Suggested
+                            </div>
+
+                            <PropertyCard
+                              property={property}
+                              isCompared={compareSelection.some(
+                                (item) =>
+                                  getPropertyId(item) ===
+                                  getPropertyId(property)
+                              )}
+                              onCompareToggle={handleCompareToggle}
+                              isShortlisted={wishlistIds.some(
+                                (id) =>
+                                  String(id) ===
+                                  getPropertyId(property)
+                              )}
+                              onShortlistToggle={
+                                handleShortlistToggle
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+              </>
             )}
           </div>
+
         </div>
 
-        {compareSelection.length >
-          0 && (
-            <div className="fixed bottom-20 left-1/2 z-50 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur-xl sm:p-4 lg:bottom-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {/* =====================================================
+    COMPARE TRAY
+===================================================== */}
 
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-900">
-                    {
-                      compareSelection.length
-                    }{" "}
-                    of 3 properties
-                    selected
-                  </p>
+        {compareSelection.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 z-[150] border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:px-4">
 
-                  <p className="mt-1 text-xs text-slate-500">
-                    {compareSelection.length ===
-                      3
-                      ? "Ready to compare your selected properties."
-                      : "Select one more property to compare."}
-                  </p>
-                </div>
+            <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={
-                      clearCompareSelection
-                    }
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm"
-                  >
-                    Clear
-                  </button>
+              {/* Selection info */}
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-900">
+                  {compareSelection.length} of{" "}
+                  {MAX_COMPARE_PROPERTIES} properties selected
+                </p>
 
-                  <button
-                    type="button"
-                    onClick={
-                      openComparePage
-                    }
-                    disabled={
-                      compareSelection.length !==
-                      3
-                    }
-                    className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
-                  >
-                    Compare Properties
-                  </button>
-                </div>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {compareSelection.length >=
+                    MIN_COMPARE_PROPERTIES
+                    ? "Ready to compare your selected properties."
+                    : `Select ${MIN_COMPARE_PROPERTIES -
+                    compareSelection.length
+                    } more property${MIN_COMPARE_PROPERTIES -
+                      compareSelection.length ===
+                      1
+                      ? ""
+                      : "ies"
+                    } to compare.`}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+
+                <button
+                  type="button"
+                  onClick={clearCompareSelection}
+                  className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none"
+                >
+                  Clear
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openComparePage}
+                  disabled={
+                    compareSelection.length <
+                    MIN_COMPARE_PROPERTIES ||
+                    compareSelection.length >
+                    MAX_COMPARE_PROPERTIES
+                  }
+                  className="flex-1 rounded-lg bg-[#A054A0] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#8F478F] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none sm:flex-none"
+                >
+                  Compare Properties
+                </button>
+
               </div>
             </div>
-          )}
-      </div>
-
-      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-slate-200 bg-white p-3 lg:hidden">
-        <button
-          onClick={() =>
-            setShowFilters(true)
-          }
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white"
-        >
-          <SlidersHorizontal className="h-4 w-4" />
-          Filter
-        </button>
-
-        <button
-          onClick={() =>
-            router.push(
-              "/wishlist"
-            )
-          }
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-amber-500 py-2.5 text-sm font-medium text-slate-950"
-        >
-          <Heart className="h-4 w-4" />
-          Shortlisted
-        </button>
+          </div>
+        )}
       </div>
     </div>
   );

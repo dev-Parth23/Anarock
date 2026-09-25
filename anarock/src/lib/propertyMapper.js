@@ -1,3 +1,5 @@
+import { CloudCog } from "lucide-react";
+
 const clean = (value) => {
   if (value === null || value === undefined) return "";
   return value;
@@ -24,6 +26,8 @@ export function mapProperty(row) {
   if (!row || typeof row !== "object") {
     return null;
   }
+
+  console.log("row of property", row);
   const folder = folderPath(row.ImageFolderPath);
   return {
     ...row,
@@ -32,6 +36,7 @@ export function mapProperty(row) {
     slug: clean(row.PropertyName),
 
     availabilityType: clean(row.AvailabilityType),
+    type: clean(row.OfficeType),
     officeType: clean(row.OfficeType),
     name: clean(row.PropertyName),
     city: clean(row.City),

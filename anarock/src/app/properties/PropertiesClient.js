@@ -5,17 +5,37 @@ import Breadcrumbs from "@/components/common/Breadcrumbs";
 import PropertyCard from "@/components/properties/PropertyCard";
 import { usePreferences } from "@/lib/preferences";
 import { useWishlist } from "@/lib/wishlist";
-import { formatPrice, formatArea, convertCurrency, convertArea, } from "@/lib/format";
 import {
-  Sparkles, SlidersHorizontal, X, Search, ChevronDown, Check, Heart, Users,
-  Maximize2, IndianRupee, DollarSign, Euro,
+  formatPrice,
+  formatArea,
+  convertCurrency,
+  convertArea,
+} from "@/lib/format";
+import {
+  Sparkles,
+  SlidersHorizontal,
+  X,
+  Search,
+  ChevronDown,
+  Check,
+  Heart,
+  Users,
+  Maximize2,
+  IndianRupee,
+  DollarSign,
+  Euro,
 } from "lucide-react";
 
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const SHORTLIST_STORAGE_KEY = "anarock_shortlist_properties";
-const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working", "Consulting", "Others",];
+const OFFICE_TYPES = [
+  "Conventional",
+  "Managed Office/Co-working",
+  "Consulting",
+  "Others",
+];
 const toUrlValue = (value) => {
   return String(value || "")
     .trim()
@@ -35,18 +55,180 @@ const normalizeValue = (value) => {
 
 const getOfficeTypeFromUrl = (value) => {
   if (!value) return "";
+
   const normalized = normalizeValue(value);
+
   const match = OFFICE_TYPES.find(
     (type) =>
       normalizeValue(type) === normalized ||
-      toUrlValue(type) === String(value).toLowerCase()
+      toUrlValue(type) === String(value).toLowerCase(),
   );
+
   return match || value;
 };
 
+/* =========================================================
+   PROPERTY HELPERS
+========================================================= */
+
+const getPropertyId = (property) =>
+  String(
+    property?.id ||
+    property?.rowId ||
+    property?.ROWID ||
+    "",
+  );
+
+const getNumber = (value) => {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return null;
+  }
+
+  const number = Number(
+    String(value)
+      .replace(/,/g, "")
+      .replace(/[^\d.-]/g, ""),
+  );
+
+  return Number.isFinite(number)
+    ? number
+    : null;
+};
+
+// const getFirstNumber = (property, fields = []) => {
+//   for (const field of fields) {
+//     const value = getNumber(property?.[field]);
+
+//     if (value !== null) {
+//       return value;
+//     }
+//   }
+
+//   return null;
+// };
+
+// const getPropertyType = (property) => {
+//   return normalizeValue(
+//     property?.propertyType ||
+//     property?.PropertyType ||
+//     property?.type ||
+//     property?.Type ||
+//     property?.officeType ||
+//     property?.OfficeType ||
+//     "",
+//   );
+// };
+
+// const getPropertyCity = (property) => {
+//   return normalizeValue(
+//     property?.city ||
+//     property?.City ||
+//     property?.cityName ||
+//     property?.CityName ||
+//     "",
+//   );
+// };
+
+// const getPropertyMicromarket = (property) => {
+//   return normalizeValue(
+//     property?.micromarket ||
+//     property?.Micromarket ||
+//     property?.micromarketName ||
+//     property?.MicromarketName ||
+//     "",
+//   );
+// };
+
+// const getAvailableSeats = (property) => {
+//   return getFirstNumber(property, [
+//     "seatsOffered",
+//     "SeatsOffered",
+//     "seatsAvailable",
+//     "SeatsAvailable",
+//     "availableSeats",
+//     "AvailableSeats",
+//     "seatCapacity",
+//     "SeatCapacity",
+//     "totalSeats",
+//     "TotalSeats",
+//   ]);
+// };
+
+// const getAreaSqft = (property) => {
+//   return getFirstNumber(property, [
+//     "areaSqft",
+//     "AreaSqft",
+//     "area",
+//     "Area",
+//     "superBuiltUpArea",
+//     "SuperBuiltUpArea",
+//     "carpetArea",
+//     "CarpetArea",
+//     "floorPlate",
+//     "FloorPlate",
+//   ]);
+// };
+
+// const getSeatPrice = (property) => {
+//   return getFirstNumber(property, [
+//     "monthlyCostPerSeat",
+//     "MonthlyCostPerSeat",
+//     "monthlyCostPerSeatInr",
+//     "MonthlyCostPerSeatInr",
+//     "pricePerSeat",
+//     "PricePerSeat",
+//     "costPerSeat",
+//     "CostPerSeat",
+//     "rentPerSeat",
+//     "RentPerSeat",
+//   ]);
+// };
+
+// const getSqftPrice = (property) => {
+//   const directPrice = getFirstNumber(property, [
+//     "rentPerSqft",
+//     "RentPerSqft",
+//     "pricePerSqft",
+//     "PricePerSqft",
+//     "ratePerSqft",
+//     "RatePerSqft",
+//     "costPerSqft",
+//     "CostPerSqft",
+//   ]);
+
+//   if (directPrice !== null) {
+//     return directPrice;
+//   }
+
+//   const rent = getFirstNumber(property, [
+//     "quotedRent",
+//     "QuotedRent",
+//     "monthlyRent",
+//     "MonthlyRent",
+//     "rent",
+//     "Rent",
+//   ]);
+
+//   const area = getAreaSqft(property);
+
+//   if (
+//     rent !== null &&
+//     area !== null &&
+//     area > 0
+//   ) {
+//     return rent / area;
+//   }
+
+//   return null;
+// };
+
 export default function PropertiesClient() {
   const { currency, unit, exchangeRates } = usePreferences();
-  const { ids: wishlistIds, toggle: toggleWishlist, } = useWishlist();
+  const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [compareSelection, setCompareSelection] = useState([]);
@@ -69,8 +251,7 @@ export default function PropertiesClient() {
     };
   }, [showFilters]);
   const ITEMS_PER_PAGE = 30;
-  const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1
-  );
+  const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1);
 
   const filters = useMemo(() => {
     const rawType = searchParams.get("type") || "";
@@ -78,7 +259,8 @@ export default function PropertiesClient() {
     return {
       city: searchParams.get("city") || "",
       micromarket: searchParams.get("micromarket") || "",
-      type, minBudget: searchParams.get("minBudget") || "",
+      type,
+      minBudget: searchParams.get("minBudget") || "",
       maxBudget: searchParams.get("maxBudget") || "",
       area: searchParams.get("area") || "",
       seats: searchParams.get("seats") || "",
@@ -87,32 +269,15 @@ export default function PropertiesClient() {
       prompt: searchParams.get("prompt") || "",
       isAi: rawType === "ai" || searchParams.has("prompt"),
     };
-  }, [
-    searchParams,
-    currency,
-    unit,
-  ]);
+  }, [searchParams, currency, unit]);
 
   const normalizedOfficeType = normalizeValue(filters.type);
-  const isCoworking = normalizedOfficeType ===
-    "managed office/co-working";
-
-  const getPropertyId = (property) =>
-    String(
-      property?.id ||
-      property?.rowId ||
-      property?.ROWID ||
-      ""
-    );
-
+  const isCoworking = normalizedOfficeType === "managed office/co-working";
   const handleShortlistToggle = (property) => {
     const propertyId = getPropertyId(property);
 
     if (!propertyId) {
-      console.warn(
-        "Cannot shortlist property without an ID:",
-        property
-      );
+      console.warn("Cannot shortlist property without an ID:", property);
       return;
     }
 
@@ -126,34 +291,21 @@ export default function PropertiesClient() {
       setSuggestionsLoading(true);
 
       try {
-        const response = await fetch(
-          "/api/properties",
-          {
-            cache: "no-store",
-          }
-        );
+        const response = await fetch("/api/properties", {
+          cache: "no-store",
+        });
 
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(
-            data.error ||
-            "Failed to fetch suggested properties"
-          );
+          throw new Error(data.error || "Failed to fetch suggested properties");
         }
 
         if (!cancelled) {
-          setAllProperties(
-            Array.isArray(data.data)
-              ? data.data
-              : []
-          );
+          setAllProperties(Array.isArray(data.data) ? data.data : []);
         }
       } catch (error) {
-        console.error(
-          "Suggested properties error:",
-          error
-        );
+        console.error("Suggested properties error:", error);
 
         if (!cancelled) {
           setAllProperties([]);
@@ -175,17 +327,13 @@ export default function PropertiesClient() {
     const propertyId = getPropertyId(property);
 
     if (!propertyId) {
-      console.warn(
-        "Cannot compare property without an ID:",
-        property
-      );
+      console.warn("Cannot compare property without an ID:", property);
       return;
     }
 
     setCompareSelection((previousSelection) => {
       const alreadySelected = previousSelection.some(
-        (item) =>
-          getPropertyId(item) === propertyId
+        (item) => getPropertyId(item) === propertyId,
       );
 
       let updatedSelection;
@@ -193,37 +341,27 @@ export default function PropertiesClient() {
       // Remove property if already selected
       if (alreadySelected) {
         updatedSelection = previousSelection.filter(
-          (item) =>
-            getPropertyId(item) !== propertyId
+          (item) => getPropertyId(item) !== propertyId,
         );
       }
 
       // Add property
       else {
         // Maximum 3 properties
-        if (
-          previousSelection.length >=
-          MAX_COMPARE_PROPERTIES
-        ) {
+        if (previousSelection.length >= MAX_COMPARE_PROPERTIES) {
           return previousSelection;
         }
 
-        updatedSelection = [
-          ...previousSelection,
-          property,
-        ];
+        updatedSelection = [...previousSelection, property];
       }
 
       try {
         localStorage.setItem(
           COMPARE_STORAGE_KEY,
-          JSON.stringify(updatedSelection)
+          JSON.stringify(updatedSelection),
         );
       } catch (error) {
-        console.error(
-          "Failed to save comparison properties:",
-          error
-        );
+        console.error("Failed to save comparison properties:", error);
       }
 
       return updatedSelection;
@@ -234,23 +372,16 @@ export default function PropertiesClient() {
     setCompareSelection([]);
 
     try {
-      localStorage.removeItem(
-        COMPARE_STORAGE_KEY
-      );
+      localStorage.removeItem(COMPARE_STORAGE_KEY);
     } catch (error) {
-      console.error(
-        "Failed to clear comparison properties:",
-        error
-      );
+      console.error("Failed to clear comparison properties:", error);
     }
   };
 
   const openComparePage = () => {
     if (
-      compareSelection.length <
-      MIN_COMPARE_PROPERTIES ||
-      compareSelection.length >
-      MAX_COMPARE_PROPERTIES
+      compareSelection.length < MIN_COMPARE_PROPERTIES ||
+      compareSelection.length > MAX_COMPARE_PROPERTIES
     ) {
       return;
     }
@@ -258,13 +389,10 @@ export default function PropertiesClient() {
     try {
       localStorage.setItem(
         COMPARE_STORAGE_KEY,
-        JSON.stringify(compareSelection)
+        JSON.stringify(compareSelection),
       );
     } catch (error) {
-      console.error(
-        "Failed to save comparison properties:",
-        error
-      );
+      console.error("Failed to save comparison properties:", error);
       return;
     }
 
@@ -272,14 +400,10 @@ export default function PropertiesClient() {
   };
   useEffect(() => {
     fetch("/api/cities")
-      .then((response) =>
-        response.json()
-      )
+      .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          setCities(
-            data.cities || []
-          );
+          setCities(data.cities || []);
         }
       })
       .catch(() => {
@@ -293,39 +417,23 @@ export default function PropertiesClient() {
 
   useEffect(() => {
     try {
-      const savedProperties =
-        localStorage.getItem(
-          COMPARE_STORAGE_KEY
-        );
+      const savedProperties = localStorage.getItem(COMPARE_STORAGE_KEY);
 
       if (!savedProperties) {
         return;
       }
 
-      const parsedProperties =
-        JSON.parse(
-          savedProperties
-        );
+      const parsedProperties = JSON.parse(savedProperties);
 
-      if (
-        Array.isArray(
-          parsedProperties
-        )
-      ) {
+      if (Array.isArray(parsedProperties)) {
         const validProperties = parsedProperties
-          .filter(
-            (property) =>
-              getPropertyId(property)
-          )
+          .filter((property) => getPropertyId(property))
           .slice(0, MAX_COMPARE_PROPERTIES);
 
         setCompareSelection(validProperties);
       }
     } catch (error) {
-      console.error(
-        "Failed to load comparison properties:",
-        error
-      );
+      console.error("Failed to load comparison properties:", error);
     }
   }, []);
 
@@ -339,16 +447,11 @@ export default function PropertiesClient() {
     }
 
     const match = cities.find(
-      (city) =>
-        toUrlValue(city) ===
-        filters.city.toLowerCase()
+      (city) => toUrlValue(city) === filters.city.toLowerCase(),
     );
 
     return match || filters.city;
-  }, [
-    filters.city,
-    cities,
-  ]);
+  }, [filters.city, cities]);
 
   /* =========================================================
      FETCH MICROMARKETS
@@ -365,28 +468,15 @@ export default function PropertiesClient() {
 
     setMicromarketsLoading(true);
 
-    fetch(
-      `/api/micromarkets?city=${encodeURIComponent(
-        resolvedCity
-      )}`
-    )
-      .then((response) =>
-        response.json()
-      )
+    fetch(`/api/micromarkets?city=${encodeURIComponent(resolvedCity)}`)
+      .then((response) => response.json())
       .then((data) => {
         if (cancelled) {
           return;
         }
 
-        if (
-          data.success &&
-          Array.isArray(
-            data.micromarkets
-          )
-        ) {
-          setMicromarkets(
-            data.micromarkets
-          );
+        if (data.success && Array.isArray(data.micromarkets)) {
+          setMicromarkets(data.micromarkets);
         } else {
           setMicromarkets([]);
         }
@@ -411,40 +501,27 @@ export default function PropertiesClient() {
      SELECTED MICROMARKETS
   ========================================================= */
 
-  const selectedMicromarkets =
-    useMemo(() => {
-      if (
-        !filters.micromarket ||
-        micromarkets.length === 0
-      ) {
-        return [];
-      }
+  const selectedMicromarkets = useMemo(() => {
+    if (!filters.micromarket || micromarkets.length === 0) {
+      return [];
+    }
 
-      const selectedNames =
-        filters.micromarket
-          .split(",")
-          .map((name) =>
-            name.trim().toLowerCase()
-          )
-          .filter(Boolean);
+    const selectedNames = filters.micromarket
+      .split(",")
+      .map((name) => name.trim().toLowerCase())
+      .filter(Boolean);
 
-      return micromarkets
-        .filter((market) => {
-          const marketSlug = toUrlValue(market.name);
-          return selectedNames.some(
-            (selected) => selected === String(market.name)
-              .trim()
-              .toLowerCase() ||
-              selected === marketSlug
-          );
-        })
-        .map((market) =>
-          String(market.id)
+    return micromarkets
+      .filter((market) => {
+        const marketSlug = toUrlValue(market.name);
+        return selectedNames.some(
+          (selected) =>
+            selected === String(market.name).trim().toLowerCase() ||
+            selected === marketSlug,
         );
-    }, [
-      filters.micromarket,
-      micromarkets,
-    ]);
+      })
+      .map((market) => String(market.id));
+  }, [filters.micromarket, micromarkets]);
 
   const selectedMicromarketNames = useMemo(() => {
     if (selectedMicromarkets.length === 0) {
@@ -454,18 +531,13 @@ export default function PropertiesClient() {
     return selectedMicromarkets
       .map((id) => {
         const market = micromarkets.find(
-          (item) => String(item.id) === String(id)
+          (item) => String(item.id) === String(id),
         );
 
-        return (
-          market?.name || ""
-        );
+        return market?.name || "";
       })
       .filter(Boolean);
-  }, [
-    selectedMicromarkets,
-    micromarkets,
-  ]);
+  }, [selectedMicromarkets, micromarkets]);
 
   useEffect(() => {
     let cancelled = false;
@@ -486,9 +558,13 @@ export default function PropertiesClient() {
         if (filters.minBudget !== "") {
           const value = Number(filters.minBudget);
           if (Number.isFinite(value)) {
-            const converted = convertCurrency(value, filters.currency, "INR", exchangeRates);
-            params.set("minBudget", String(Math.round(converted))
+            const converted = convertCurrency(
+              value,
+              filters.currency,
+              "INR",
+              exchangeRates,
             );
+            params.set("minBudget", String(Math.round(converted)));
           }
         } else {
           params.delete("minBudget");
@@ -498,94 +574,48 @@ export default function PropertiesClient() {
           const value = Number(filters.maxBudget);
 
           if (Number.isFinite(value)) {
-            const converted = convertCurrency(value, filters.currency, "INR", exchangeRates);
-            params.set("maxBudget",
-              String(Math.round(converted)));
+            const converted = convertCurrency(
+              value,
+              filters.currency,
+              "INR",
+              exchangeRates,
+            );
+            params.set("maxBudget", String(Math.round(converted)));
           }
         } else {
-          params.delete(
-            "maxBudget"
-          );
+          params.delete("maxBudget");
         }
 
+        if (!isCoworking && filters.area !== "") {
+          const enteredArea = Number(filters.area);
 
-
-        if (
-          !isCoworking &&
-          filters.area !== ""
-        ) {
-          const enteredArea =
-            Number(
-              filters.area
+          if (Number.isFinite(enteredArea)) {
+            const areaInSqft = convertArea(
+              enteredArea,
+              filters.areaUnit,
+              "sqft",
             );
 
-          if (
-            Number.isFinite(
-              enteredArea
-            )
-          ) {
-            const areaInSqft =
-              convertArea(
-                enteredArea,
-                filters.areaUnit,
-                "sqft"
-              );
-
-            params.set(
-              "area",
-              String(
-                Math.round(
-                  areaInSqft
-                )
-              )
-            );
+            params.set("area", String(Math.round(areaInSqft)));
           }
         } else {
           params.delete("area");
         }
 
+        if (isCoworking && filters.seats !== "") {
+          const enteredSeats = Number(filters.seats);
 
-
-        if (
-          isCoworking &&
-          filters.seats !== ""
-        ) {
-          const enteredSeats =
-            Number(
-              filters.seats
-            );
-
-          if (
-            Number.isFinite(
-              enteredSeats
-            )
-          ) {
-            params.set(
-              "seats",
-              String(
-                Math.round(
-                  enteredSeats
-                )
-              )
-            );
+          if (Number.isFinite(enteredSeats)) {
+            params.set("seats", String(Math.round(enteredSeats)));
           }
         } else {
           params.delete("seats");
         }
 
-        if (
-          selectedMicromarketNames.length
-        ) {
-          params.set(
-            "micromarket",
-            selectedMicromarketNames.join(
-              ","
-            )
-          );
+        if (selectedMicromarketNames.length) {
+          params.set("micromarket", selectedMicromarketNames.join(","));
         } else {
-          params.delete(
-            "micromarket"
-          );
+          params.delete("micromarket");
         }
         if (filters.currency) {
           params.set("currency", filters.currency);
@@ -597,16 +627,12 @@ export default function PropertiesClient() {
           params.set("type", "ai");
         }
 
-
         const query = params.toString();
         const response = await fetch(
-          `/api/properties${query
-            ? `?${query}`
-            : ""
-          }`,
+          `/api/properties${query ? `?${query}` : ""}`,
           {
             cache: "no-store",
-          }
+          },
         );
 
         const data = await response.json();
@@ -618,10 +644,7 @@ export default function PropertiesClient() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err?.message ||
-            "Failed to fetch properties"
-          );
+          setError(err?.message || "Failed to fetch properties");
 
           setProperties([]);
         }
@@ -653,46 +676,30 @@ export default function PropertiesClient() {
     isCoworking,
   ]);
 
-
   useEffect(() => {
-    if (
-      !filters.city &&
-      !filters.micromarket
-    ) {
+    if (!filters.city && !filters.micromarket) {
       return;
     }
 
     try {
       const searchLocationObj = {
-        city:
-          resolvedCity ||
-          filters.city ||
-          "",
+        city: resolvedCity || filters.city || "",
 
-        micromarket:
-          selectedMicromarketNames.length
-            ? selectedMicromarketNames.join(
-              ", "
-            )
-            : filters.micromarket || "",
+        micromarket: selectedMicromarketNames.length
+          ? selectedMicromarketNames.join(", ")
+          : filters.micromarket || "",
 
-        propertyType:
-          filters.type || "",
+        propertyType: filters.type || "",
 
         state: "",
       };
 
       localStorage.setItem(
         "anarock_last_searched_location",
-        JSON.stringify(
-          searchLocationObj
-        )
+        JSON.stringify(searchLocationObj),
       );
     } catch (error) {
-      console.error(
-        "Unable to save last searched location:",
-        error
-      );
+      console.error("Unable to save last searched location:", error);
     }
   }, [
     filters.city,
@@ -703,9 +710,7 @@ export default function PropertiesClient() {
   ]);
 
   const updateFilter = (key, value) => {
-    const params = new URLSearchParams(
-      searchParams.toString()
-    );
+    const params = new URLSearchParams(searchParams.toString());
 
     if (key === "type") {
       if (!value) {
@@ -713,14 +718,10 @@ export default function PropertiesClient() {
         params.delete("area");
         params.delete("seats");
       } else {
-        params.set(
-          "type",
-          toUrlValue(value)
-        );
+        params.set("type", toUrlValue(value));
 
         const nextIsCoworking =
-          normalizeValue(value) ===
-          "managed office/co-working";
+          normalizeValue(value) === "managed office/co-working";
 
         if (nextIsCoworking) {
           params.delete("area");
@@ -733,10 +734,7 @@ export default function PropertiesClient() {
       params.delete("page");
 
       router.push(
-        `/properties${params.toString()
-          ? `?${params.toString()}`
-          : ""
-        }`
+        `/properties${params.toString() ? `?${params.toString()}` : ""}`,
       );
 
       return;
@@ -748,25 +746,16 @@ export default function PropertiesClient() {
       params.delete(key);
     }
 
-    if (
-      key === "area" &&
-      isCoworking
-    ) {
+    if (key === "area" && isCoworking) {
       params.delete("area");
     }
 
-    if (
-      key === "seats" &&
-      !isCoworking
-    ) {
+    if (key === "seats" && !isCoworking) {
       params.delete("seats");
     }
     params.delete("page");
     router.push(
-      `/properties${params.toString()
-        ? `?${params.toString()}`
-        : ""
-      }`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
   };
 
@@ -779,7 +768,8 @@ export default function PropertiesClient() {
     }
     params.delete("micromarket");
     params.delete("page");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
     setShowMicromarkets(false);
   };
@@ -788,95 +778,54 @@ export default function PropertiesClient() {
     const id = String(micromarketId);
     let nextSelected;
     if (selectedMicromarkets.includes(id)) {
-      nextSelected = selectedMicromarkets.filter((selectedId) =>
-        selectedId !== id
+      nextSelected = selectedMicromarkets.filter(
+        (selectedId) => selectedId !== id,
       );
     } else {
-      nextSelected = [
-        ...selectedMicromarkets,
-        id,
-      ];
+      nextSelected = [...selectedMicromarkets, id];
     }
 
-    const selectedNames =
-      nextSelected
-        .map((selectedId) => {
-          const market =
-            micromarkets.find(
-              (item) =>
-                String(
-                  item.id
-                ) ===
-                String(
-                  selectedId
-                )
-            );
+    const selectedNames = nextSelected
+      .map((selectedId) => {
+        const market = micromarkets.find(
+          (item) => String(item.id) === String(selectedId),
+        );
 
-          return (
-            market?.name || ""
-          );
-        })
-        .filter(Boolean);
+        return market?.name || "";
+      })
+      .filter(Boolean);
 
-    const params =
-      new URLSearchParams(
-        searchParams.toString()
-      );
+    const params = new URLSearchParams(searchParams.toString());
 
-    if (
-      selectedNames.length
-    ) {
-      params.set(
-        "micromarket",
-        selectedNames
-          .map(toUrlValue)
-          .join(",")
-      );
+    if (selectedNames.length) {
+      params.set("micromarket", selectedNames.map(toUrlValue).join(","));
     } else {
-      params.delete(
-        "micromarket"
-      );
+      params.delete("micromarket");
     }
 
     router.push(
-      `/properties${params.toString()
-        ? `?${params.toString()}`
-        : ""
-      }`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
   };
 
-  const selectAllMicromarkets =
-    () => {
-      const params =
-        new URLSearchParams(
-          searchParams.toString()
-        );
+  const selectAllMicromarkets = () => {
+    const params = new URLSearchParams(searchParams.toString());
 
-      params.delete(
-        "micromarket"
-      );
+    params.delete("micromarket");
 
-      router.push(
-        `/properties${params.toString()
-          ? `?${params.toString()}`
-          : ""
-        }`
-      );
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
 
-      setShowMicromarkets(
-        false
-      );
-    };
+    setShowMicromarkets(false);
+  };
 
   /* =========================================================
      CLEAR FILTER
   ========================================================= */
 
   const clearFilter = (key) => {
-    const params = new URLSearchParams(
-      searchParams.toString()
-    );
+    const params = new URLSearchParams(searchParams.toString());
 
     params.delete(key);
 
@@ -884,10 +833,7 @@ export default function PropertiesClient() {
     params.delete("page");
 
     router.push(
-      `/properties${params.toString()
-        ? `?${params.toString()}`
-        : ""
-      }`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
   };
 
@@ -898,38 +844,22 @@ export default function PropertiesClient() {
     setShowFilters(false);
   };
 
-  const renderCurrencyIcon =
-    () => {
-      switch (
-      String(
-        filters.currency ||
-        currency
-      ).toUpperCase()
-      ) {
-        case "USD":
-        case "SGD":
-          return (
-            <DollarSign className="h-4 w-4 text-[#A054A0]" />
-          );
+  const renderCurrencyIcon = () => {
+    switch (String(filters.currency || currency).toUpperCase()) {
+      case "USD":
+      case "SGD":
+        return <DollarSign className="h-4 w-4 text-[#A054A0]" />;
 
-        case "EUR":
-          return (
-            <Euro className="h-4 w-4 text-[#A054A0]" />
-          );
+      case "EUR":
+        return <Euro className="h-4 w-4 text-[#A054A0]" />;
 
-        case "AED":
-          return (
-            <span className="text-xs font-bold text-[#A054A0]">
-              د.إ
-            </span>
-          );
+      case "AED":
+        return <span className="text-xs font-bold text-[#A054A0]">د.إ</span>;
 
-        default:
-          return (
-            <IndianRupee className="h-4 w-4 text-[#A054A0]" />
-          );
-      }
-    };
+      default:
+        return <IndianRupee className="h-4 w-4 text-[#A054A0]" />;
+    }
+  };
 
   const getCurrencySymbol = (value) => {
     switch (
@@ -965,11 +895,7 @@ export default function PropertiesClient() {
   };
 
   const formatRawNumber = (value) => {
-    if (
-      value === "" ||
-      value === null ||
-      value === undefined
-    ) {
+    if (value === "" || value === null || value === undefined) {
       return "";
     }
 
@@ -1019,18 +945,13 @@ export default function PropertiesClient() {
     }
   };
 
-  const currencySymbol = getCurrencySymbol(
-    filters.currency
-  );
+  const currencySymbol = getCurrencySymbol(filters.currency);
 
-  const areaUnitLabel = getAreaUnitLabel(
-    filters.areaUnit
-  );
+  const areaUnitLabel = getAreaUnitLabel(filters.areaUnit);
 
   const activeChips = [
     filters.city && {
-      label: `City: ${resolvedCity || filters.city
-        }`,
+      label: `City: ${resolvedCity || filters.city}`,
       key: "city",
     },
 
@@ -1048,112 +969,64 @@ export default function PropertiesClient() {
       key: "type",
     },
 
-
     filters.minBudget !== "" && {
-      label: `Min ${isCoworking
-        ? "Seat Price"
-        : "Rent"
-        }: ${currencySymbol}${formatRawNumber(
-          filters.minBudget
-        )}`,
+      label: `Min ${isCoworking ? "Seat Price" : "Rent"
+        }: ${currencySymbol}${formatRawNumber(filters.minBudget)}`,
 
       key: "minBudget",
     },
 
-
     filters.maxBudget !== "" && {
-      label: `Max ${isCoworking
-        ? "Seat Price"
-        : "Rent"
-        }: ${currencySymbol}${formatRawNumber(
-          filters.maxBudget
-        )}`,
+      label: `Max ${isCoworking ? "Seat Price" : "Rent"
+        }: ${currencySymbol}${formatRawNumber(filters.maxBudget)}`,
 
       key: "maxBudget",
     },
 
     !isCoworking &&
     filters.area !== "" && {
-      label: `Min Area: ${formatRawNumber(
-        filters.area
-      )} ${areaUnitLabel}`,
+      label: `Min Area: ${formatRawNumber(filters.area)} ${areaUnitLabel}`,
 
       key: "area",
     },
 
-
     isCoworking &&
     filters.seats !== "" && {
-      label: `Seats: ${formatRawNumber(
-        filters.seats
-      )}`,
+      label: `Seats: ${formatRawNumber(filters.seats)}`,
 
       key: "seats",
     },
 
-
     filters.prompt && {
-      label: `AI: ${filters.prompt.slice(
-        0,
-        40
-      )}${filters.prompt.length > 40
-        ? "..."
-        : ""
+      label: `AI: ${filters.prompt.slice(0, 40)}${filters.prompt.length > 40 ? "..." : ""
         }`,
 
       key: "prompt",
     },
   ].filter(Boolean);
 
+  const totalPages = Math.max(1, Math.ceil(properties.length / ITEMS_PER_PAGE));
 
+  const safeCurrentPage = Math.min(currentPage, totalPages);
 
-
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(
-      properties.length / ITEMS_PER_PAGE
-    )
+  const paginatedProperties = properties.slice(
+    (safeCurrentPage - 1) * ITEMS_PER_PAGE,
+    safeCurrentPage * ITEMS_PER_PAGE,
   );
-
-  const safeCurrentPage = Math.min(
-    currentPage,
-    totalPages
-  );
-
-  const paginatedProperties =
-    properties.slice(
-      (safeCurrentPage - 1) *
-      ITEMS_PER_PAGE,
-      safeCurrentPage *
-      ITEMS_PER_PAGE
-    );
 
   const goToPage = (page) => {
-    const nextPage = Math.min(
-      Math.max(1, page),
-      totalPages
-    );
+    const nextPage = Math.min(Math.max(1, page), totalPages);
 
-    const params =
-      new URLSearchParams(
-        searchParams.toString()
-      );
+    const params = new URLSearchParams(searchParams.toString());
 
     if (nextPage <= 1) {
       params.delete("page");
     } else {
-      params.set(
-        "page",
-        String(nextPage)
-      );
+      params.set("page", String(nextPage));
     }
 
     router.push(
-      `/properties${params.toString()
-        ? `?${params.toString()}`
-        : ""
-      }`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
 
     window.scrollTo({
@@ -1166,11 +1039,7 @@ export default function PropertiesClient() {
     const pages = [];
 
     if (totalPages <= 7) {
-      for (
-        let page = 1;
-        page <= totalPages;
-        page++
-      ) {
+      for (let page = 1; page <= totalPages; page++) {
         pages.push(page);
       }
 
@@ -1183,28 +1052,15 @@ export default function PropertiesClient() {
       pages.push("ellipsis-start");
     }
 
-    const start = Math.max(
-      2,
-      safeCurrentPage - 1
-    );
+    const start = Math.max(2, safeCurrentPage - 1);
 
-    const end = Math.min(
-      totalPages - 1,
-      safeCurrentPage + 1
-    );
+    const end = Math.min(totalPages - 1, safeCurrentPage + 1);
 
-    for (
-      let page = start;
-      page <= end;
-      page++
-    ) {
+    for (let page = start; page <= end; page++) {
       pages.push(page);
     }
 
-    if (
-      safeCurrentPage <
-      totalPages - 3
-    ) {
+    if (safeCurrentPage < totalPages - 3) {
       pages.push("ellipsis-end");
     }
 
@@ -1212,8 +1068,6 @@ export default function PropertiesClient() {
 
     return pages;
   };
-
-  
 
   const breadcrumbs = [
     {
@@ -1224,39 +1078,15 @@ export default function PropertiesClient() {
     ...(resolvedCity
       ? [
         {
-          label:
-            resolvedCity,
+          label: resolvedCity,
         },
       ]
       : []),
   ];
 
-  
 
-  const getNumber = (value) => {
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
-      return null;
-    }
 
-    const number = Number(
-      String(value)
-        .replace(/,/g, "")
-        .replace(/[^\d.-]/g, "")
-    );
-
-    return Number.isFinite(number)
-      ? number
-      : null;
-  };
-
-  const getFirstNumber = (
-    property,
-    fields = []
-  ) => {
+  const getFirstNumber = (property, fields = []) => {
     for (const field of fields) {
       const value = getNumber(property?.[field]);
 
@@ -1276,7 +1106,7 @@ export default function PropertiesClient() {
       property?.Type ||
       property?.officeType ||
       property?.OfficeType ||
-      ""
+      "",
     );
   };
 
@@ -1286,7 +1116,7 @@ export default function PropertiesClient() {
       property?.City ||
       property?.cityName ||
       property?.CityName ||
-      ""
+      "",
     );
   };
 
@@ -1296,7 +1126,7 @@ export default function PropertiesClient() {
       property?.Micromarket ||
       property?.micromarketName ||
       property?.MicromarketName ||
-      ""
+      "",
     );
   };
 
@@ -1345,44 +1175,39 @@ export default function PropertiesClient() {
     ]);
   };
 
-  const getSqftPrice = (property) => {
-    const directPrice = getFirstNumber(property, [
-      "rentPerSqft",
-      "RentPerSqft",
-      "pricePerSqft",
-      "PricePerSqft",
-      "ratePerSqft",
-      "RatePerSqft",
-      "costPerSqft",
-      "CostPerSqft",
-    ]);
+  // const getSqftPrice = (property) => {
+  //   const directPrice = getFirstNumber(property, [
+  //     "rentPerSqft",
+  //     "RentPerSqft",
+  //     "pricePerSqft",
+  //     "PricePerSqft",
+  //     "ratePerSqft",
+  //     "RatePerSqft",
+  //     "costPerSqft",
+  //     "CostPerSqft",
+  //   ]);
 
-    if (directPrice !== null) {
-      return directPrice;
-    }
+  //   if (directPrice !== null) {
+  //     return directPrice;
+  //   }
 
-    const rent = getFirstNumber(property, [
-      "quotedRent",
-      "QuotedRent",
-      "monthlyRent",
-      "MonthlyRent",
-      "rent",
-      "Rent",
-    ]);
+  //   const rent = getFirstNumber(property, [
+  //     "quotedRent",
+  //     "QuotedRent",
+  //     "monthlyRent",
+  //     "MonthlyRent",
+  //     "rent",
+  //     "Rent",
+  //   ]);
 
-    const area = getAreaSqft(property);
+  //   const area = getAreaSqft(property);
 
-    if (
-      rent !== null &&
-      area !== null &&
-      area > 0
-    ) {
-      return rent / area;
-    }
+  //   if (rent !== null && area !== null && area > 0) {
+  //     return rent / area;
+  //   }
 
-    return null;
-  };
-
+  //   return null;
+  // };
 
   /* =========================================================
      USER REQUESTED CAPACITY
@@ -1391,31 +1216,19 @@ export default function PropertiesClient() {
   const requestedCapacity = isCoworking
     ? getNumber(filters.seats)
     : filters.area !== ""
-      ? convertArea(
-        getNumber(filters.area) || 0,
-        filters.areaUnit,
-        "sqft"
-      )
+      ? convertArea(getNumber(filters.area) || 0, filters.areaUnit, "sqft")
       : null;
-
 
   /* =========================================================
      USER REQUESTED PRICE
   ========================================================= */
 
   const requestedPrice = useMemo(() => {
-    const min = getNumber(
-      filters.minBudget
-    );
+    const min = getNumber(filters.minBudget);
 
-    const max = getNumber(
-      filters.maxBudget
-    );
+    const max = getNumber(filters.maxBudget);
 
-    if (
-      min !== null &&
-      max !== null
-    ) {
+    if (min !== null && max !== null) {
       return (min + max) / 2;
     }
 
@@ -1428,124 +1241,71 @@ export default function PropertiesClient() {
     }
 
     return null;
-  }, [
-    filters.minBudget,
-    filters.maxBudget,
-  ]);
-
-
+  }, [filters.minBudget, filters.maxBudget]);
 
   const suggestedProperties = useMemo(() => {
-    if (
-      !Array.isArray(allProperties) ||
-      allProperties.length === 0
-    ) {
+    if (!Array.isArray(allProperties) || allProperties.length === 0) {
       return [];
     }
 
     const filteredIds = new Set(
-      properties
-        .map((property) =>
-          getPropertyId(property)
-        )
-        .filter(Boolean)
+      properties.map((property) => getPropertyId(property)).filter(Boolean),
     );
 
-    const requestedCity = normalizeValue(
-      resolvedCity ||
-      filters.city
-    );
+    const requestedCity = normalizeValue(resolvedCity || filters.city);
 
     const requestedType =
-      filters.type &&
-        filters.type !== "ai"
-        ? normalizeValue(filters.type)
-        : "";
+      filters.type && filters.type !== "ai" ? normalizeValue(filters.type) : "";
 
-    const requestedMicromarkets =
-      selectedMicromarketNames
-        .map(normalizeValue)
-        .filter(Boolean);
+    const requestedMicromarkets = selectedMicromarketNames
+      .map(normalizeValue)
+      .filter(Boolean);
 
-    const hasCity =
-      Boolean(requestedCity);
+    const hasCity = Boolean(requestedCity);
 
-    const hasType =
-      Boolean(requestedType);
+    const hasType = Boolean(requestedType);
 
-    const hasMicromarket =
-      requestedMicromarkets.length > 0;
+    const hasMicromarket = requestedMicromarkets.length > 0;
 
     const scored = allProperties
       .filter((property) => {
-        const id =
-          getPropertyId(property);
+        const id = getPropertyId(property);
 
-        return (
-          id &&
-          !filteredIds.has(id)
-        );
+        return id && !filteredIds.has(id);
       })
       .map((property) => {
-        const city =
-          getPropertyCity(property);
+        const city = getPropertyCity(property);
 
-        const type =
-          getPropertyType(property);
+        const type = getPropertyType(property);
 
-        const micromarket =
-          getPropertyMicromarket(property);
+        const micromarket = getPropertyMicromarket(property);
 
-        const cityMatch =
-          hasCity &&
-          city === requestedCity;
+        const cityMatch = hasCity && city === requestedCity;
 
-        const typeMatch =
-          hasType &&
-          type === requestedType;
+        const typeMatch = hasType && type === requestedType;
 
         const micromarketMatch =
-          hasMicromarket &&
-          requestedMicromarkets.includes(
-            micromarket
-          );
+          hasMicromarket && requestedMicromarkets.includes(micromarket);
 
         let tier = 4;
 
-        if (
-          cityMatch &&
-          typeMatch &&
-          micromarketMatch
-        ) {
+        if (cityMatch && typeMatch && micromarketMatch) {
           tier = 0;
-        } else if (
-          cityMatch &&
-          typeMatch
-        ) {
+        } else if (cityMatch && typeMatch) {
           tier = 1;
-        } else if (
-          cityMatch
-        ) {
+        } else if (cityMatch) {
           tier = 2;
-        } else if (
-          typeMatch
-        ) {
+        } else if (typeMatch) {
           tier = 3;
         }
 
-        const available =
-          isCoworking
-            ? getAvailableSeats(
-              property
-            )
-            : getAreaSqft(
-              property
-            );
+        const available = isCoworking
+          ? getAvailableSeats(property)
+          : getAreaSqft(property);
 
         let capacityRank = 2;
 
-        let capacityDistance =
-          Number.POSITIVE_INFINITY;
+        let capacityDistance = Number.POSITIVE_INFINITY;
 
         if (
           requestedCapacity !== null &&
@@ -1553,73 +1313,35 @@ export default function PropertiesClient() {
           available !== null &&
           available > 0
         ) {
-          capacityRank =
-            available >=
-              requestedCapacity
-              ? 0
-              : 1;
+          capacityRank = available >= requestedCapacity ? 0 : 1;
 
-          capacityDistance =
-            Math.abs(
-              available -
-              requestedCapacity
-            );
-        } else if (
-          requestedCapacity === null &&
-          available !== null
-        ) {
+          capacityDistance = Math.abs(available - requestedCapacity);
+        } else if (requestedCapacity === null && available !== null) {
           capacityRank = 0;
           capacityDistance = 0;
         }
 
-        const price =
-          isCoworking
-            ? getSeatPrice(property)
-            : getSqftPrice(property);
+        const price = isCoworking
+          ? getSeatPrice(property)
+          : getSqftPrice(property);
 
         let priceRank = 2;
 
-        let priceDistance =
-          Number.POSITIVE_INFINITY;
+        let priceDistance = Number.POSITIVE_INFINITY;
 
-        if (
-          price !== null &&
-          price >= 0
-        ) {
-          if (
-            requestedPrice !== null &&
-            requestedPrice >= 0
-          ) {
-            const minBudget =
-              getNumber(
-                filters.minBudget
-              );
+        if (price !== null && price >= 0) {
+          if (requestedPrice !== null && requestedPrice >= 0) {
+            const minBudget = getNumber(filters.minBudget);
 
-            const maxBudget =
-              getNumber(
-                filters.maxBudget
-              );
+            const maxBudget = getNumber(filters.maxBudget);
 
             const withinBudget =
-              (
-                minBudget === null ||
-                price >= minBudget
-              ) &&
-              (
-                maxBudget === null ||
-                price <= maxBudget
-              );
+              (minBudget === null || price >= minBudget) &&
+              (maxBudget === null || price <= maxBudget);
 
-            priceRank =
-              withinBudget
-                ? 0
-                : 1;
+            priceRank = withinBudget ? 0 : 1;
 
-            priceDistance =
-              Math.abs(
-                price -
-                requestedPrice
-              );
+            priceDistance = Math.abs(price - requestedPrice);
           } else {
             priceRank = 0;
             priceDistance = price;
@@ -1637,64 +1359,30 @@ export default function PropertiesClient() {
       });
 
     scored.sort((a, b) => {
-      if (
-        a.tier !== b.tier
-      ) {
-        return (
-          a.tier -
-          b.tier
-        );
+      if (a.tier !== b.tier) {
+        return a.tier - b.tier;
       }
 
-      if (
-        a.capacityRank !==
-        b.capacityRank
-      ) {
-        return (
-          a.capacityRank -
-          b.capacityRank
-        );
+      if (a.capacityRank !== b.capacityRank) {
+        return a.capacityRank - b.capacityRank;
       }
 
-      if (
-        a.capacityDistance !==
-        b.capacityDistance
-      ) {
-        return (
-          a.capacityDistance -
-          b.capacityDistance
-        );
+      if (a.capacityDistance !== b.capacityDistance) {
+        return a.capacityDistance - b.capacityDistance;
       }
 
-      if (
-        a.priceRank !==
-        b.priceRank
-      ) {
-        return (
-          a.priceRank -
-          b.priceRank
-        );
+      if (a.priceRank !== b.priceRank) {
+        return a.priceRank - b.priceRank;
       }
 
-      if (
-        a.priceDistance !==
-        b.priceDistance
-      ) {
-        return (
-          a.priceDistance -
-          b.priceDistance
-        );
+      if (a.priceDistance !== b.priceDistance) {
+        return a.priceDistance - b.priceDistance;
       }
 
       return 0;
     });
 
-    return scored
-      .slice(0, 9)
-      .map(
-        (item) =>
-          item.property
-      );
+    return scored.slice(0, 9).map((item) => item.property);
   }, [
     allProperties,
     properties,
@@ -1715,12 +1403,7 @@ export default function PropertiesClient() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="px-4 py-4">
-
-        <Breadcrumbs
-          items={breadcrumbs}
-        />
-
-
+        <Breadcrumbs items={breadcrumbs} />
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -1748,11 +1431,7 @@ export default function PropertiesClient() {
           </div>
 
           <button
-            onClick={() =>
-              setShowFilters(
-                !showFilters
-              )
-            }
+            onClick={() => setShowFilters(!showFilters)}
             className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm text-white lg:hidden"
           >
             <SlidersHorizontal className="h-4 w-4" />
@@ -1761,22 +1440,16 @@ export default function PropertiesClient() {
         </div>
         {activeChips.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
-            {activeChips.map(
-              (chip) => (
-                <button
-                  key={`${chip.key}-${chip.label}`}
-                  onClick={() =>
-                    clearFilter(
-                      chip.key
-                    )
-                  }
-                  className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 hover:bg-amber-200"
-                >
-                  {chip.label}
-                  <X className="h-3 w-3" />
-                </button>
-              )
-            )}
+            {activeChips.map((chip) => (
+              <button
+                key={`${chip.key}-${chip.label}`}
+                onClick={() => clearFilter(chip.key)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 hover:bg-amber-200"
+              >
+                {chip.label}
+                <X className="h-3 w-3" />
+              </button>
+            ))}
 
             <button
               onClick={clearAll}
@@ -1788,7 +1461,13 @@ export default function PropertiesClient() {
         )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className={showFilters ? "fixed inset-0 z-[200] bg-slate-950/50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent" : "hidden lg:block"}>
+          <aside
+            className={
+              showFilters
+                ? "fixed inset-0 z-[200] bg-slate-950/50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent"
+                : "hidden lg:block"
+            }
+          >
             <div
               className={`border border-slate-200 bg-white p-4 ${showFilters
                 ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
@@ -1796,9 +1475,11 @@ export default function PropertiesClient() {
                 }`}
             >
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900">     Filters</h3>
-                <button onClick={() => setShowFilters(false)}
-                  className="lg:hidden">
+                <h3 className="font-semibold text-slate-900"> Filters</h3>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="lg:hidden"
+                >
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -1810,38 +1491,17 @@ export default function PropertiesClient() {
                   </label>
 
                   <select
-                    value={
-                      resolvedCity
-                    }
-                    onChange={(e) =>
-                      handleCityChange(
-                        e.target.value
-                      )
-                    }
+                    value={resolvedCity}
+                    onChange={(e) => handleCityChange(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
                   >
-                    <option value="">
-                      All Cities
-                    </option>
+                    <option value="">All Cities</option>
 
-                    {cities.map(
-                      (
-                        cityOption
-                      ) => (
-                        <option
-                          key={
-                            cityOption
-                          }
-                          value={
-                            cityOption
-                          }
-                        >
-                          {
-                            cityOption
-                          }
-                        </option>
-                      )
-                    )}
+                    {cities.map((cityOption) => (
+                      <option key={cityOption} value={cityOption}>
+                        {cityOption}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1856,15 +1516,8 @@ export default function PropertiesClient() {
 
                   <button
                     type="button"
-                    disabled={
-                      !resolvedCity ||
-                      micromarketsLoading
-                    }
-                    onClick={() =>
-                      setShowMicromarkets(
-                        !showMicromarkets
-                      )
-                    }
+                    disabled={!resolvedCity || micromarketsLoading}
+                    onClick={() => setShowMicromarkets(!showMicromarkets)}
                     className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${!resolvedCity
                       ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
                       : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
@@ -1873,124 +1526,94 @@ export default function PropertiesClient() {
                     <span className="truncate">
                       {micromarketsLoading
                         ? "Loading micromarkets..."
-                        : selectedMicromarkets.length ===
-                          0
+                        : selectedMicromarkets.length === 0
                           ? "All Micromarkets"
                           : `${selectedMicromarkets.length} selected`}
                     </span>
 
                     <ChevronDown
-                      className={`h-4 w-4 shrink-0 transition-transform ${showMicromarkets
-                        ? "rotate-180"
-                        : ""
+                      className={`h-4 w-4 shrink-0 transition-transform ${showMicromarkets ? "rotate-180" : ""
                         }`}
                     />
                   </button>
 
-                  {showMicromarkets &&
-                    resolvedCity &&
-                    !micromarketsLoading && (
-                      <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+                  {showMicromarkets && resolvedCity && !micromarketsLoading && (
+                    <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+                      <button
+                        type="button"
+                        onClick={selectAllMicromarkets}
+                        className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
+                      >
+                        <span
+                          className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
+                            ? "border-[#A054A0] bg-[#A054A0]"
+                            : "border-slate-300"
+                            }`}
+                        >
+                          {selectedMicromarkets.length === 0 && (
+                            <Check className="h-3 w-3 text-white" />
+                          )}
+                        </span>
 
+                        <span className="font-medium text-slate-800">
+                          All Micromarkets
+                        </span>
+                      </button>
+
+                      <div className="max-h-64 overflow-y-auto">
+                        {micromarkets.length === 0 ? (
+                          <div className="px-3 py-3 text-sm text-slate-500">
+                            No micromarkets found
+                          </div>
+                        ) : (
+                          micromarkets.map((market) => {
+                            const id = String(market.id);
+
+                            const selected = selectedMicromarkets.includes(id);
+
+                            return (
+                              <button
+                                key={id}
+                                type="button"
+                                onClick={() => toggleMicromarket(id)}
+                                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
+                              >
+                                <span
+                                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
+                                    ? "border-[#A054A0] bg-[#A054A0]"
+                                    : "border-slate-300"
+                                    }`}
+                                >
+                                  {selected && (
+                                    <Check className="h-3 w-3 text-white" />
+                                  )}
+                                </span>
+
+                                <span
+                                  className={`truncate ${selected
+                                    ? "font-medium text-slate-900"
+                                    : "text-slate-700"
+                                    }`}
+                                >
+                                  {market.name}
+                                </span>
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+
+                      <div className="border-t border-slate-100 p-2">
                         <button
                           type="button"
-                          onClick={
-                            selectAllMicromarkets
-                          }
-                          className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
+                          onClick={() => setShowMicromarkets(false)}
+                          className="w-full rounded-md bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-800"
                         >
-                          <span
-                            className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length ===
-                              0
-                              ? "border-[#A054A0] bg-[#A054A0]"
-                              : "border-slate-300"
-                              }`}
-                          >
-                            {selectedMicromarkets.length ===
-                              0 && (
-                                <Check className="h-3 w-3 text-white" />
-                              )}
-                          </span>
-
-                          <span className="font-medium text-slate-800">
-                            All Micromarkets
-                          </span>
+                          Done
                         </button>
-
-                        <div className="max-h-64 overflow-y-auto">
-                          {micromarkets.length ===
-                            0 ? (
-                            <div className="px-3 py-3 text-sm text-slate-500">
-                              No micromarkets
-                              found
-                            </div>
-                          ) : (
-                            micromarkets.map(
-                              (market) => {
-                                const id =
-                                  String(
-                                    market.id
-                                  );
-
-                                const selected =
-                                  selectedMicromarkets.includes(
-                                    id
-                                  );
-
-                                return (
-                                  <button
-                                    key={id}
-                                    type="button"
-                                    onClick={() =>
-                                      toggleMicromarket(
-                                        id
-                                      )
-                                    }
-                                    className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
-                                  >
-                                    <span
-                                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
-                                        ? "border-[#A054A0] bg-[#A054A0]"
-                                        : "border-slate-300"
-                                        }`}
-                                    >
-                                      {selected && (
-                                        <Check className="h-3 w-3 text-white" />
-                                      )}
-                                    </span>
-
-                                    <span
-                                      className={`truncate ${selected
-                                        ? "font-medium text-slate-900"
-                                        : "text-slate-700"
-                                        }`}
-                                    >
-                                      {
-                                        market.name
-                                      }
-                                    </span>
-                                  </button>
-                                );
-                              }
-                            )
-                          )}
-                        </div>
-
-                        <div className="border-t border-slate-100 p-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setShowMicromarkets(
-                                false
-                              )
-                            }
-                            className="w-full rounded-md bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-800"
-                          >
-                            Done
-                          </button>
-                        </div>
                       </div>
-                    )}
+                    </div>
+                  )}
                 </div>
 
                 {/* =================================================
@@ -2003,34 +1626,17 @@ export default function PropertiesClient() {
                   </label>
 
                   <select
-                    value={
-                      filters.type ===
-                        "ai"
-                        ? ""
-                        : filters.type
-                    }
-                    onChange={(e) =>
-                      updateFilter(
-                        "type",
-                        e.target.value
-                      )
-                    }
+                    value={filters.type === "ai" ? "" : filters.type}
+                    onChange={(e) => updateFilter("type", e.target.value)}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
                   >
-                    <option value="">
-                      All Types
-                    </option>
+                    <option value="">All Types</option>
 
-                    {OFFICE_TYPES.map(
-                      (type) => (
-                        <option
-                          key={type}
-                          value={type}
-                        >
-                          {type}
-                        </option>
-                      )
-                    )}
+                    {OFFICE_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -2053,15 +1659,9 @@ export default function PropertiesClient() {
                         <input
                           type="number"
                           min="0"
-                          value={
-                            filters.seats
-                          }
+                          value={filters.seats}
                           onChange={(e) =>
-                            updateFilter(
-                              "seats",
-                              e.target
-                                .value
-                            )
+                            updateFilter("seats", e.target.value)
                           }
                           placeholder="e.g. 50"
                           className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
@@ -2073,9 +1673,7 @@ export default function PropertiesClient() {
 
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Min Seat Price / month (
-                        {filters.currency}
-                        )
+                        Min Seat Price / month ({filters.currency})
                       </label>
 
                       <div className="relative">
@@ -2086,15 +1684,9 @@ export default function PropertiesClient() {
                         <input
                           type="number"
                           min="0"
-                          value={
-                            filters.minBudget
-                          }
+                          value={filters.minBudget}
                           onChange={(e) =>
-                            updateFilter(
-                              "minBudget",
-                              e.target
-                                .value
-                            )
+                            updateFilter("minBudget", e.target.value)
                           }
                           placeholder="Min seat price"
                           className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
@@ -2106,9 +1698,7 @@ export default function PropertiesClient() {
 
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Max Seat Price / month (
-                        {filters.currency}
-                        )
+                        Max Seat Price / month ({filters.currency})
                       </label>
 
                       <div className="relative">
@@ -2119,15 +1709,9 @@ export default function PropertiesClient() {
                         <input
                           type="number"
                           min="0"
-                          value={
-                            filters.maxBudget
-                          }
+                          value={filters.maxBudget}
                           onChange={(e) =>
-                            updateFilter(
-                              "maxBudget",
-                              e.target
-                                .value
-                            )
+                            updateFilter("maxBudget", e.target.value)
                           }
                           placeholder="Max seat price"
                           className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
@@ -2141,9 +1725,7 @@ export default function PropertiesClient() {
 
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Min Rent / month (
-                        {filters.currency}
-                        )
+                        Min Rent / month ({filters.currency})
                       </label>
 
                       <div className="relative">
@@ -2154,15 +1736,9 @@ export default function PropertiesClient() {
                         <input
                           type="number"
                           min="0"
-                          value={
-                            filters.minBudget
-                          }
+                          value={filters.minBudget}
                           onChange={(e) =>
-                            updateFilter(
-                              "minBudget",
-                              e.target
-                                .value
-                            )
+                            updateFilter("minBudget", e.target.value)
                           }
                           placeholder="Min rent"
                           className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
@@ -2174,9 +1750,7 @@ export default function PropertiesClient() {
 
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Max Rent / month (
-                        {filters.currency}
-                        )
+                        Max Rent / month ({filters.currency})
                       </label>
 
                       <div className="relative">
@@ -2187,15 +1761,9 @@ export default function PropertiesClient() {
                         <input
                           type="number"
                           min="0"
-                          value={
-                            filters.maxBudget
-                          }
+                          value={filters.maxBudget}
                           onChange={(e) =>
-                            updateFilter(
-                              "maxBudget",
-                              e.target
-                                .value
-                            )
+                            updateFilter("maxBudget", e.target.value)
                           }
                           placeholder="Max rent"
                           className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
@@ -2208,11 +1776,7 @@ export default function PropertiesClient() {
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
                         Min Area (
-                        {filters.areaUnit ===
-                          "sqm"
-                          ? "sq.m"
-                          : "sq.ft"}
-                        )
+                        {filters.areaUnit === "sqm" ? "sq.m" : "sq.ft"})
                       </label>
 
                       <div className="relative">
@@ -2221,19 +1785,10 @@ export default function PropertiesClient() {
                         <input
                           type="number"
                           min="0"
-                          value={
-                            filters.area
-                          }
-                          onChange={(e) =>
-                            updateFilter(
-                              "area",
-                              e.target
-                                .value
-                            )
-                          }
+                          value={filters.area}
+                          onChange={(e) => updateFilter("area", e.target.value)}
                           placeholder={
-                            filters.areaUnit ===
-                              "sqm"
+                            filters.areaUnit === "sqm"
                               ? "Enter area"
                               : "e.g. 2000"
                           }
@@ -2244,8 +1799,6 @@ export default function PropertiesClient() {
                   </>
                 )}
 
-
-
                 {filters.isAi && (
                   <div>
                     <label className="mb-1.5 block text-xs font-medium text-slate-700">
@@ -2253,16 +1806,8 @@ export default function PropertiesClient() {
                     </label>
 
                     <textarea
-                      value={
-                        filters.prompt
-                      }
-                      onChange={(e) =>
-                        updateFilter(
-                          "prompt",
-                          e.target
-                            .value
-                        )
-                      }
+                      value={filters.prompt}
+                      onChange={(e) => updateFilter("prompt", e.target.value)}
                       rows={3}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#A054A0] focus:outline-none"
                     />
@@ -2320,11 +1865,9 @@ export default function PropertiesClient() {
                   </h2>
 
                   <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#7D7482]">
-                    We couldn't find a property matching your selected
-                    requirements. Please explore other properties near
-                    your search.
-                  </p>
-                </div>
+                    We couldn&apos;t find a property matching your selected
+                    requirements. Please explore other properties near you.
+                  </p> </div>
 
                 {/* =====================================================
                     SUGGESTED PROPERTIES
@@ -2359,32 +1902,18 @@ export default function PropertiesClient() {
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {suggestedProperties.map((property) => (
-                        <div
-                          key={getPropertyId(property)}
-                          className="relative"
-                        >
-
-
+                        <div key={getPropertyId(property)} className="relative">
                           <PropertyCard
                             property={property}
-
                             isCompared={compareSelection.some(
                               (item) =>
-                                getPropertyId(item) ===
-                                getPropertyId(property)
+                                getPropertyId(item) === getPropertyId(property),
                             )}
-
                             onCompareToggle={handleCompareToggle}
-
                             isShortlisted={wishlistIds.some(
-                              (id) =>
-                                String(id) ===
-                                getPropertyId(property)
+                              (id) => String(id) === getPropertyId(property),
                             )}
-
-                            onShortlistToggle={
-                              handleShortlistToggle
-                            }
+                            onShortlistToggle={handleShortlistToggle}
                           />
                         </div>
                       ))}
@@ -2392,8 +1921,8 @@ export default function PropertiesClient() {
                   </>
                 ) : (
                   <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
-                    We couldn't find any nearby alternative properties at
-                    the moment.
+                    We couldn&apos;t find any nearby alternative properties at the
+                    moment.
                   </div>
                 )}
               </>
@@ -2406,22 +1935,16 @@ export default function PropertiesClient() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {paginatedProperties.map((property) => (
                     <PropertyCard
-                      key={
-                        property.id ||
-                        property.rowId ||
-                        property.ROWID
-                      }
+                      key={property.id || property.rowId || property.ROWID}
                       property={property}
                       isCompared={compareSelection.some(
                         (item) =>
-                          getPropertyId(item) ===
-                          getPropertyId(property)
+                          getPropertyId(item) === getPropertyId(property),
                       )}
                       onCompareToggle={handleCompareToggle}
                       isShortlisted={wishlistIds.some(
                         (item) =>
-                          getPropertyId(item) ===
-                          getPropertyId(property)
+                          getPropertyId(item) === getPropertyId(property),
                       )}
                       onShortlistToggle={handleShortlistToggle}
                     />
@@ -2436,9 +1959,7 @@ export default function PropertiesClient() {
                   <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pb-8">
                     <button
                       type="button"
-                      onClick={() =>
-                        goToPage(safeCurrentPage - 1)
-                      }
+                      onClick={() => goToPage(safeCurrentPage - 1)}
                       disabled={safeCurrentPage === 1}
                       className="
                         rounded-lg
@@ -2460,28 +1981,23 @@ export default function PropertiesClient() {
                       Previous
                     </button>
 
-                    {getPaginationPages().map(
-                      (page, index) =>
-                        typeof page === "string" ? (
-                          <span
-                            key={`${page}-${index}`}
-                            className="px-1 text-sm text-slate-400"
-                          >
-                            ...
-                          </span>
-                        ) : (
-                          <button
-                            key={page}
-                            type="button"
-                            onClick={() =>
-                              goToPage(page)
-                            }
-                            aria-current={
-                              page === safeCurrentPage
-                                ? "page"
-                                : undefined
-                            }
-                            className={`
+                    {getPaginationPages().map((page, index) =>
+                      typeof page === "string" ? (
+                        <span
+                          key={`${page}-${index}`}
+                          className="px-1 text-sm text-slate-400"
+                        >
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          type="button"
+                          onClick={() => goToPage(page)}
+                          aria-current={
+                            page === safeCurrentPage ? "page" : undefined
+                          }
+                          className={`
                               min-w-10
                               rounded-lg
                               px-3
@@ -2490,24 +2006,20 @@ export default function PropertiesClient() {
                               font-medium
                               transition
                               ${page === safeCurrentPage
-                                ? "bg-[#A054A0] text-white shadow-sm"
-                                : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
-                              }
+                              ? "bg-[#A054A0] text-white shadow-sm"
+                              : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
+                            }
                             `}
-                          >
-                            {page}
-                          </button>
-                        )
+                        >
+                          {page}
+                        </button>
+                      ),
                     )}
 
                     <button
                       type="button"
-                      onClick={() =>
-                        goToPage(safeCurrentPage + 1)
-                      }
-                      disabled={
-                        safeCurrentPage === totalPages
-                      }
+                      onClick={() => goToPage(safeCurrentPage + 1)}
+                      disabled={safeCurrentPage === totalPages}
                       className="
                         rounded-lg
                         border
@@ -2534,60 +2046,50 @@ export default function PropertiesClient() {
                     SUGGESTED PROPERTIES
                 ===================================================== */}
 
-                {!suggestionsLoading &&
-                  suggestedProperties.length > 0 && (
-                    <section className="mt-10 border-t border-slate-200 pt-9">
-                      <div className="mb-5">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="h-5 w-5 text-[#A054A0]" />
+                {!suggestionsLoading && suggestedProperties.length > 0 && (
+                  <section className="mt-10 border-t border-slate-200 pt-9">
+                    <div className="mb-5">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-[#A054A0]" />
 
-                          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
-                            More properties you may consider
-                          </h2>
-                        </div>
-
-                        <p className="mt-1 text-sm leading-6 text-slate-600">
-                          Explore additional properties that are similar
-                          to your search.
-                        </p>
+                        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+                          More properties you may consider
+                        </h2>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        {suggestedProperties.map((property) => (
-                          <div
-                            key={getPropertyId(property)}
-                            className="relative"
-                          >
-                            <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-full border border-white/70 bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#A054A0] shadow-sm backdrop-blur">
-                              Suggested
-                            </div>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">
+                        Explore additional properties that are similar to your
+                        search.
+                      </p>
+                    </div>
 
-                            <PropertyCard
-                              property={property}
-                              isCompared={compareSelection.some(
-                                (item) =>
-                                  getPropertyId(item) ===
-                                  getPropertyId(property)
-                              )}
-                              onCompareToggle={handleCompareToggle}
-                              isShortlisted={wishlistIds.some(
-                                (id) =>
-                                  String(id) ===
-                                  getPropertyId(property)
-                              )}
-                              onShortlistToggle={
-                                handleShortlistToggle
-                              }
-                            />
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      {suggestedProperties.map((property) => (
+                        <div key={getPropertyId(property)} className="relative">
+                          <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-full border border-white/70 bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#A054A0] shadow-sm backdrop-blur">
+                            Suggested
                           </div>
-                        ))}
-                      </div>
-                    </section>
-                  )}
+
+                          <PropertyCard
+                            property={property}
+                            isCompared={compareSelection.some(
+                              (item) =>
+                                getPropertyId(item) === getPropertyId(property),
+                            )}
+                            onCompareToggle={handleCompareToggle}
+                            isShortlisted={wishlistIds.some(
+                              (id) => String(id) === getPropertyId(property),
+                            )}
+                            onShortlistToggle={handleShortlistToggle}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
               </>
             )}
           </div>
-
         </div>
 
         {/* =====================================================
@@ -2596,25 +2098,19 @@ export default function PropertiesClient() {
 
         {compareSelection.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 z-[150] border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:px-4">
-
             <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
               {/* Selection info */}
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-900">
-                  {compareSelection.length} of{" "}
-                  {MAX_COMPARE_PROPERTIES} properties selected
+                  {compareSelection.length} of {MAX_COMPARE_PROPERTIES}{" "}
+                  properties selected
                 </p>
 
                 <p className="mt-0.5 text-xs text-slate-500">
-                  {compareSelection.length >=
-                    MIN_COMPARE_PROPERTIES
+                  {compareSelection.length >= MIN_COMPARE_PROPERTIES
                     ? "Ready to compare your selected properties."
-                    : `Select ${MIN_COMPARE_PROPERTIES -
-                    compareSelection.length
-                    } more property${MIN_COMPARE_PROPERTIES -
-                      compareSelection.length ===
-                      1
+                    : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length
+                    } more property${MIN_COMPARE_PROPERTIES - compareSelection.length === 1
                       ? ""
                       : "ies"
                     } to compare.`}
@@ -2623,7 +2119,6 @@ export default function PropertiesClient() {
 
               {/* Actions */}
               <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-
                 <button
                   type="button"
                   onClick={clearCompareSelection}
@@ -2636,16 +2131,13 @@ export default function PropertiesClient() {
                   type="button"
                   onClick={openComparePage}
                   disabled={
-                    compareSelection.length <
-                    MIN_COMPARE_PROPERTIES ||
-                    compareSelection.length >
-                    MAX_COMPARE_PROPERTIES
+                    compareSelection.length < MIN_COMPARE_PROPERTIES ||
+                    compareSelection.length > MAX_COMPARE_PROPERTIES
                   }
                   className="flex-1 rounded-lg bg-[#A054A0] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#8F478F] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none sm:flex-none"
                 >
                   Compare Properties
                 </button>
-
               </div>
             </div>
           </div>

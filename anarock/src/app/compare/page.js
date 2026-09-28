@@ -2,21 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-    ArrowLeft,
-    MapPin,
-    Trash2,
-} from "lucide-react";
+import { ArrowLeft, MapPin, Trash2 } from "lucide-react";
 
-import {
-    formatPrice,
-    formatArea,
-} from "@/lib/format";
+import { formatPrice, formatArea } from "@/lib/format";
 
 import { usePreferences } from "@/lib/preferences";
 
-const COMPARE_STORAGE_KEY =
-    "anarock_compare_properties";
+const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 
 const MAX_COMPARE_PROPERTIES = 3;
 
@@ -35,71 +27,167 @@ const createSlug = (value) => {
 };
 
 export default function ComparePage() {
-    const {
-        currency,
-        unit,
-        exchangeRates,
-    } = usePreferences();
+    const { currency, unit, exchangeRates } = usePreferences();
 
-    const [properties, setProperties] =
-        useState([]);
+    const [properties, setProperties] = useState([]);
 
     /* =========================================================
-       LOAD COMPARE PROPERTIES
-    ========================================================= */
-
-    useEffect(() => {
-        try {
-            const stored =
-                localStorage.getItem(
-                    COMPARE_STORAGE_KEY
-                );
-
-            if (!stored) {
-                setProperties([]);
-                return;
-            }
-
-            const parsed =
-                JSON.parse(stored);
-
-            if (!Array.isArray(parsed)) {
-                setProperties([]);
-                return;
-            }
-
-            setProperties(
-                parsed.slice(
-                    -MAX_COMPARE_PROPERTIES
-                )
-            );
-        } catch (error) {
-            console.error(
-                "Unable to load comparison properties:",
-                error
-            );
-
-            setProperties([]);
-        }
-    }, []);
-
-    /* =========================================================
-       PROPERTY ID
-    ========================================================= */
+            PROPERTY ID
+         ========================================================= */
 
     const getId = (property) => {
         return String(
-            property?.id ||
-            property?.rowId ||
-            property?.ROWID ||
-            property?.ID ||
-            ""
+            property?.id || property?.rowId || property?.ROWID || property?.ID || "",
         );
     };
 
     /* =========================================================
-       PROPERTY NAME
-    ========================================================= */
+         LOAD COMPARE PROPERTIES
+      ========================================================= */
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadCompareProperties() {
+            try {
+                const stored =
+                    localStorage.getItem(
+                        COMPARE_STORAGE_KEY
+                    );
+
+                if (!stored) {
+                    setProperties([]);
+                    return;
+                }
+
+                const parsed =
+                    JSON.parse(stored);
+
+                if (!Array.isArray(parsed)) {
+                    setProperties([]);
+                    return;
+                }
+
+                const selectedProperties =
+                    parsed
+                        .filter(
+                            (property) =>
+                                getId(property)
+                        )
+                        .slice(
+                            -MAX_COMPARE_PROPERTIES
+                        );
+
+                if (
+                    selectedProperties.length === 0
+                ) {
+                    setProperties([]);
+                    return;
+                }
+
+                /*
+                 * Determine whether the stored objects
+                 * already contain actual property data.
+                 */
+                const incomplete =
+                    selectedProperties.some(
+                        (property) =>
+                            !(
+                                property?.name ||
+                                property?.Property_Name ||
+                                property?.propertyName
+                            )
+                    );
+
+                /*
+                 * If everything is already complete,
+                 * don't make an API request.
+                 */
+                if (!incomplete) {
+                    setProperties(
+                        selectedProperties
+                    );
+                    return;
+                }
+                const response = await fetch("/api/properties",
+                    { cache: "no-store", }
+                );
+
+                const data = await response.json();
+
+                if (
+                    !response.ok ||
+                    !data?.success ||
+                    !Array.isArray(data.data)
+                ) {
+                    throw new Error(
+                        data?.error ||
+                        "Failed to load comparison properties"
+                    );
+                }
+
+                if (cancelled) {
+                    return;
+                }
+
+                const propertyMap = new Map();
+
+                data.data.forEach((property) => {
+                    const id = getId(property);
+
+                    if (id) {
+                        propertyMap.set(
+                            id,
+                            property
+                        );
+                    }
+                });
+
+                const hydratedProperties = selectedProperties
+                    .map((storedProperty) => {
+                        const id = getId(storedProperty);
+                        return (propertyMap.get(id) || storedProperty);
+                    })
+                    .filter(Boolean);
+
+                setProperties(hydratedProperties);
+                localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(hydratedProperties));
+            } catch (error) {
+                console.error("Unable to load comparison properties:", error);
+                setProperties([]);
+            }
+        }
+        loadCompareProperties();
+        return () => { cancelled = true; };
+    }, []);
+
+
+    //   useEffect(() => {
+    //     try {
+    //       const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
+
+    //       if (!stored) {
+    //         setProperties([]);
+    //         return;
+    //       }
+
+    //       const parsed = JSON.parse(stored);
+
+    //       if (!Array.isArray(parsed)) {
+    //         setProperties([]);
+    //         return;
+    //       }
+
+    //       setProperties(parsed.slice(-MAX_COMPARE_PROPERTIES));
+    //     } catch (error) {
+    //       console.error("Unable to load comparison properties:", error);
+
+    //       setProperties([]);
+    //     }
+    //   }, []);
+
+    /* =========================================================
+         PROPERTY NAME
+      ========================================================= */
 
     const getName = (property) => {
         return (
@@ -112,8 +200,8 @@ export default function ComparePage() {
     };
 
     /* =========================================================
-       PROPERTY SLUG
-    ========================================================= */
+         PROPERTY SLUG
+      ========================================================= */
 
     const getPropertySlug = (property) => {
         const existingSlug =
@@ -126,9 +214,7 @@ export default function ComparePage() {
             return String(existingSlug);
         }
 
-        return createSlug(
-            getName(property)
-        );
+        return createSlug(getName(property));
     };
 
     const getPropertyUrl = (property) => {
@@ -143,9 +229,7 @@ export default function ComparePage() {
     };
     const getImage = (property) => {
         const folder = String(
-            property?.imageFolderPath ||
-            property?.ImageFolderPath ||
-            ""
+            property?.imageFolderPath || property?.ImageFolderPath || "",
         )
             .trim()
             .replace(/^\/+|\/+$/g, "");
@@ -158,45 +242,31 @@ export default function ComparePage() {
     };
 
     const removeProperty = (id) => {
-        const updatedProperties =
-            properties.filter(
-                (property) =>
-                    getId(property) !==
-                    String(id)
-            );
-
-        setProperties(
-            updatedProperties
+        const updatedProperties = properties.filter(
+            (property) => getId(property) !== String(id),
         );
 
-        if (
-            updatedProperties.length === 0
-        ) {
-            localStorage.removeItem(
-                COMPARE_STORAGE_KEY
-            );
+        setProperties(updatedProperties);
+
+        if (updatedProperties.length === 0) {
+            localStorage.removeItem(COMPARE_STORAGE_KEY);
             return;
         }
 
         localStorage.setItem(
             COMPARE_STORAGE_KEY,
-            JSON.stringify(
-                updatedProperties
-            )
+            JSON.stringify(updatedProperties),
         );
     };
 
     /* =========================================================
-       COMPARISON ROWS
-    ========================================================= */
+         COMPARISON ROWS
+      ========================================================= */
 
     const rows = [
         {
             label: "City",
-            value: (property) =>
-                property?.city ||
-                property?.City ||
-                "-",
+            value: (property) => property?.city || property?.City || "-",
         },
 
         {
@@ -211,43 +281,25 @@ export default function ComparePage() {
         {
             label: "Area",
             value: (property) => {
-                const area =
-                    property?.areaSqft ??
-                    property?.area ??
-                    null;
+                const area = property?.areaSqft ?? property?.area ?? null;
 
-                if (
-                    area === null ||
-                    area === "" ||
-                    area === undefined
-                ) {
+                if (area === null || area === "" || area === undefined) {
                     return "-";
                 }
 
-                const numericArea =
-                    Number(area);
+                const numericArea = Number(area);
 
-                if (
-                    !Number.isFinite(
-                        numericArea
-                    )
-                ) {
+                if (!Number.isFinite(numericArea)) {
                     return "-";
                 }
 
-                return formatArea(
-                    numericArea,
-                    unit
-                );
+                return formatArea(numericArea, unit);
             },
         },
 
         {
             label: "Seats",
-            value: (property) =>
-                property?.seats ??
-                property?.Seats ??
-                "-",
+            value: (property) => property?.seats ?? property?.Seats ?? "-",
         },
 
         {
@@ -262,35 +314,19 @@ export default function ComparePage() {
         {
             label: "Price",
             value: (property) => {
-                const price =
-                    property?.price ??
-                    property?.Price ??
-                    null;
+                const price = property?.price ?? property?.Price ?? null;
 
-                if (
-                    price === null ||
-                    price === "" ||
-                    price === undefined
-                ) {
+                if (price === null || price === "" || price === undefined) {
                     return "-";
                 }
 
-                const numericPrice =
-                    Number(price);
+                const numericPrice = Number(price);
 
-                if (
-                    !Number.isFinite(
-                        numericPrice
-                    )
-                ) {
+                if (!Number.isFinite(numericPrice)) {
                     return "-";
                 }
 
-                return formatPrice(
-                    numericPrice,
-                    currency,
-                    exchangeRates
-                );
+                return formatPrice(numericPrice, currency, exchangeRates);
             },
         },
     ];
@@ -298,7 +334,6 @@ export default function ComparePage() {
     return (
         <main className="min-h-screen bg-slate-50 px-4 py-6 pb-20 sm:px-6 sm:py-8 lg:px-10">
             <div className="mx-auto max-w-7xl">
-
                 {/* =====================================================
             BACK
         ===================================================== */}
@@ -317,7 +352,6 @@ export default function ComparePage() {
           "
                 >
                     <ArrowLeft className="h-4 w-4" />
-
                     Back to Properties
                 </Link>
 
@@ -335,8 +369,7 @@ export default function ComparePage() {
                     </h1>
 
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
-                        Review the key details of your
-                        selected properties side by side.
+                        Review the key details of your selected properties side by side.
                     </p>
                 </div>
 
@@ -351,8 +384,7 @@ export default function ComparePage() {
                         </h2>
 
                         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                            Return to the property list and
-                            select up to three properties to
+                            Return to the property list and select up to three properties to
                             compare.
                         </p>
 
@@ -378,7 +410,6 @@ export default function ComparePage() {
                     </div>
                 ) : (
                     <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:mt-10 sm:rounded-3xl">
-
                         {/* =================================================
                 PROPERTY CARDS
 
@@ -394,39 +425,24 @@ export default function ComparePage() {
                   grid-cols-1
                   gap-4
 
-                  ${properties.length >= 2
-                                        ? "sm:grid-cols-2"
-                                        : ""
-                                    }
+                  ${properties.length >= 2 ? "sm:grid-cols-2" : ""}
 
-                  ${properties.length >= 3
-                                        ? "lg:grid-cols-3"
-                                        : ""
-                                    }
+                  ${properties.length >= 3 ? "lg:grid-cols-3" : ""}
                 `}
                             >
-                                {properties.map(
-                                    (property) => {
-                                        const propertyId =
-                                            getId(property);
+                                {properties.map((property) => {
+                                    const propertyId = getId(property);
 
-                                        const propertyName =
-                                            getName(property);
+                                    const propertyName = getName(property);
 
-                                        const imageUrl =
-                                            getImage(property);
+                                    const imageUrl = getImage(property);
 
-                                        const propertyUrl =
-                                            getPropertyUrl(
-                                                property
-                                            );
+                                    const propertyUrl = getPropertyUrl(property);
 
-                                        return (
-                                            <article
-                                                key={
-                                                    propertyId
-                                                }
-                                                className="
+                                    return (
+                                        <article
+                                            key={propertyId}
+                                            className="
                           group
                           relative
                           overflow-hidden
@@ -440,17 +456,14 @@ export default function ComparePage() {
                           hover:border-[#A054A0]/30
                           hover:shadow-lg
                         "
-                                            >
-
-                                                {/* =====================================
+                                        >
+                                            {/* =====================================
                             CLICKABLE IMAGE
                         ===================================== */}
 
-                                                <Link
-                                                    href={
-                                                        propertyUrl
-                                                    }
-                                                    className="
+                                            <Link
+                                                href={propertyUrl}
+                                                className="
                             relative
                             block
                             overflow-hidden
@@ -460,16 +473,14 @@ export default function ComparePage() {
                             focus-visible:ring-[#A054A0]
                             focus-visible:ring-offset-2
                           "
-                                                    aria-label={`View ${propertyName}`}
-                                                >
-                                                    {imageUrl ? (
-                                                        <img
-                                                            src={imageUrl}
-                                                            alt={
-                                                                propertyName
-                                                            }
-                                                            loading="lazy"
-                                                            className="
+                                                aria-label={`View ${propertyName}`}
+                                            >
+                                                {imageUrl ? (
+                                                    <img
+                                                        src={imageUrl}
+                                                        alt={propertyName}
+                                                        loading="lazy"
+                                                        className="
                                 h-48
                                 w-full
                                 object-cover
@@ -479,34 +490,27 @@ export default function ComparePage() {
                                 sm:h-52
                                 lg:h-56
                               "
-                                                            onError={(
-                                                                event
-                                                            ) => {
-                                                                event.currentTarget.style.display =
-                                                                    "none";
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <div className="flex h-48 items-center justify-center text-sm text-slate-400 sm:h-52 lg:h-56">
-                                                            Image unavailable
-                                                        </div>
-                                                    )}
+                                                        onError={(event) => {
+                                                            event.currentTarget.style.display = "none";
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-48 items-center justify-center text-sm text-slate-400 sm:h-52 lg:h-56">
+                                                        Image unavailable
+                                                    </div>
+                                                )}
 
-                                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                                </Link>
+                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                            </Link>
 
-                                                {/* =====================================
+                                            {/* =====================================
                             REMOVE
                         ===================================== */}
 
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        removeProperty(
-                                                            propertyId
-                                                        )
-                                                    }
-                                                    className="
+                                            <button
+                                                type="button"
+                                                onClick={() => removeProperty(propertyId)}
+                                                className="
                             absolute
                             right-3
                             top-3
@@ -521,44 +525,33 @@ export default function ComparePage() {
                             hover:bg-white
                             hover:text-red-600
                           "
-                                                    aria-label={`Remove ${propertyName}`}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
+                                                aria-label={`Remove ${propertyName}`}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
 
-                                                {/* =====================================
+                                            {/* =====================================
                             PROPERTY DETAILS
                         ===================================== */}
 
-                                                <div className="p-4">
-                                                    <Link
-                                                        href={
-                                                            propertyUrl
-                                                        }
-                                                        className="block"
-                                                    >
-                                                        <h2 className="truncate text-lg font-bold text-slate-950 transition group-hover:text-[#A054A0]">
-                                                            {
-                                                                propertyName
-                                                            }
-                                                        </h2>
-                                                    </Link>
+                                            <div className="p-4">
+                                                <Link href={propertyUrl} className="block">
+                                                    <h2 className="truncate text-lg font-bold text-slate-950 transition group-hover:text-[#A054A0]">
+                                                        {propertyName}
+                                                    </h2>
+                                                </Link>
 
-                                                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
-                                                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                                                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <MapPin className="h-3.5 w-3.5 shrink-0" />
 
-                                                        <span className="truncate">
-                                                            {property?.city ||
-                                                                property?.City ||
-                                                                "-"}
-                                                        </span>
-                                                    </p>
+                                                    <span className="truncate">
+                                                        {property?.city || property?.City || "-"}
+                                                    </span>
+                                                </p>
 
-                                                    <Link
-                                                        href={
-                                                            propertyUrl
-                                                        }
-                                                        className="
+                                                <Link
+                                                    href={propertyUrl}
+                                                    className="
                               mt-3
                               inline-flex
                               text-xs
@@ -567,17 +560,14 @@ export default function ComparePage() {
                               transition
                               hover:text-[#864286]
                             "
-                                                    >
-                                                        View Property
-                                                        <span className="ml-1">
-                                                            →
-                                                        </span>
-                                                    </Link>
-                                                </div>
-                                            </article>
-                                        );
-                                    }
-                                )}
+                                                >
+                                                    View Property
+                                                    <span className="ml-1">→</span>
+                                                </Link>
+                                            </div>
+                                        </article>
+                                    );
+                                })}
                             </div>
                         </section>
 
@@ -586,19 +576,16 @@ export default function ComparePage() {
             ================================================= */}
 
                         <section className="border-t border-slate-200">
-
                             {/* Mobile hint */}
 
                             {properties.length > 1 && (
                                 <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5 sm:hidden">
                                     <span className="text-[11px] font-medium text-slate-500">
-                                        Swipe horizontally to
-                                        compare
+                                        Swipe horizontally to compare
                                     </span>
 
                                     <span className="text-[11px] text-slate-400">
-                                        {properties.length}{" "}
-                                        properties
+                                        {properties.length} properties
                                     </span>
                                 </div>
                             )}
@@ -610,23 +597,13 @@ export default function ComparePage() {
                                     className={`
                     min-w-[720px]
 
-                    ${properties.length === 1
-                                            ? "sm:min-w-0"
-                                            : ""
-                                        }
+                    ${properties.length === 1 ? "sm:min-w-0" : ""}
 
-                    ${properties.length === 2
-                                            ? "lg:min-w-0"
-                                            : ""
-                                        }
+                    ${properties.length === 2 ? "lg:min-w-0" : ""}
 
-                    ${properties.length === 3
-                                            ? "lg:min-w-0"
-                                            : ""
-                                        }
+                    ${properties.length === 3 ? "lg:min-w-0" : ""}
                   `}
                                 >
-
                                     {/* =========================================
                       TABLE HEADER
                   ========================================= */}
@@ -638,20 +615,16 @@ export default function ComparePage() {
                       border-slate-200
                       bg-white
 
-                      ${properties.length ===
-                                                1
+                      ${properties.length === 1
                                                 ? "grid-cols-[140px_minmax(260px,1fr)]"
-                                                : properties.length ===
-                                                    2
+                                                : properties.length === 2
                                                     ? "grid-cols-[140px_repeat(2,minmax(260px,1fr))]"
                                                     : "grid-cols-[140px_repeat(3,minmax(260px,1fr))]"
                                             }
 
-                      sm:${properties.length ===
-                                                1
+                      sm:${properties.length === 1
                                                 ? "grid-cols-[180px_minmax(0,1fr)]"
-                                                : properties.length ===
-                                                    2
+                                                : properties.length === 2
                                                     ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
                                                     : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
                                             }
@@ -661,16 +634,11 @@ export default function ComparePage() {
                                             Details
                                         </div>
 
-                                        {properties.map(
-                                            (property) => (
-                                                <Link
-                                                    key={`header-${getId(
-                                                        property
-                                                    )}`}
-                                                    href={getPropertyUrl(
-                                                        property
-                                                    )}
-                                                    className="
+                                        {properties.map((property) => (
+                                            <Link
+                                                key={`header-${getId(property)}`}
+                                                href={getPropertyUrl(property)}
+                                                className="
                             border-l
                             border-slate-100
                             px-4
@@ -682,15 +650,12 @@ export default function ComparePage() {
                             hover:text-[#A054A0]
                             sm:px-6
                           "
-                                                >
-                                                    <span className="block truncate">
-                                                        {getName(
-                                                            property
-                                                        )}
-                                                    </span>
-                                                </Link>
-                                            )
-                                        )}
+                                            >
+                                                <span className="block truncate">
+                                                    {getName(property)}
+                                                </span>
+                                            </Link>
+                                        ))}
                                     </div>
 
                                     {/* =========================================
@@ -706,20 +671,16 @@ export default function ComparePage() {
                         border-slate-100
                         last:border-b-0
 
-                        ${properties.length ===
-                                                    1
+                        ${properties.length === 1
                                                     ? "grid-cols-[140px_minmax(260px,1fr)]"
-                                                    : properties.length ===
-                                                        2
+                                                    : properties.length === 2
                                                         ? "grid-cols-[140px_repeat(2,minmax(260px,1fr))]"
                                                         : "grid-cols-[140px_repeat(3,minmax(260px,1fr))]"
                                                 }
 
-                        sm:${properties.length ===
-                                                    1
+                        sm:${properties.length === 1
                                                     ? "grid-cols-[180px_minmax(0,1fr)]"
-                                                    : properties.length ===
-                                                        2
+                                                    : properties.length === 2
                                                         ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
                                                         : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
                                                 }
@@ -747,20 +708,15 @@ export default function ComparePage() {
                           sm:text-xs
                         "
                                             >
-                                                {
-                                                    row.label
-                                                }
+                                                {row.label}
                                             </div>
 
                                             {/* VALUES */}
 
-                                            {properties.map(
-                                                (property) => (
-                                                    <div
-                                                        key={`${row.label}-${getId(
-                                                            property
-                                                        )}`}
-                                                        className="
+                                            {properties.map((property) => (
+                                                <div
+                                                    key={`${row.label}-${getId(property)}`}
+                                                    className="
                               flex
                               min-h-[58px]
                               items-center
@@ -773,13 +729,10 @@ export default function ComparePage() {
                               text-slate-800
                               sm:px-6
                             "
-                                                    >
-                                                        {row.value(
-                                                            property
-                                                        )}
-                                                    </div>
-                                                )
-                                            )}
+                                                >
+                                                    {row.value(property)}
+                                                </div>
+                                            ))}
                                         </div>
                                     ))}
                                 </div>
@@ -794,8 +747,7 @@ export default function ComparePage() {
 
                 {properties.length > 1 && (
                     <p className="mt-3 text-center text-[11px] text-slate-400 sm:hidden">
-                        ← Swipe left or right to compare
-                        property details →
+                        ← Swipe left or right to compare property details →
                     </p>
                 )}
             </div>

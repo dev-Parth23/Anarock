@@ -175,7 +175,7 @@ export default function PropertyCard({
       return;
     }
 
-    toggle(propertyId);
+    toggle(property);
   };
 
   return (

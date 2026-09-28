@@ -287,6 +287,7 @@ export default function PropertiesClient() {
 
   const normalizedOfficeType = normalizeValue(filters.type);
   const isCoworking = normalizedOfficeType === "managed office/co-working";
+
   const handleShortlistToggle = (property) => {
     const propertyId = getPropertyId(property);
 
@@ -295,7 +296,7 @@ export default function PropertiesClient() {
       return;
     }
 
-    toggleWishlist(propertyId);
+    toggleWishlist(property);
   };
 
   useEffect(() => {
@@ -351,17 +352,14 @@ export default function PropertiesClient() {
       );
 
       let updatedSelection;
-
-      // Remove property if already selected
       if (alreadySelected) {
         updatedSelection = previousSelection.filter(
           (item) => getPropertyId(item) !== propertyId,
         );
       }
 
-      // Add property
+
       else {
-        // Maximum 3 properties
         if (previousSelection.length >= MAX_COMPARE_PROPERTIES) {
           return previousSelection;
         }

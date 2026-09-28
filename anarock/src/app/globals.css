@@ -22,7 +22,7 @@
 }
 * {
   box-sizing: border-box;
-  font-family: "Century Gothic";
+  /* font-family: "Century Gothic"; */
 }
 ::-webkit-scrollbar {
   display: none;

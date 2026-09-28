@@ -430,24 +430,13 @@ export default function HeroSection({ consentGranted, locationData }) {
               </div>
 
               <div className="p-4 sm:p-6 lg:p-7 xl:p-8">
-                <div className="mb-5 flex flex-col gap-1.5 sm:mb-6">
-                  <h2 className="text-lg font-bold tracking-[-0.025em] text-[#191519] sm:text-xl lg:text-2xl">
-                    Find your perfect place
-                  </h2>
-
-                  <p className="text-xs leading-5 text-[#8B838B] sm:text-sm">
-                    Refine the essentials or describe your workspace in natural
-                    language.
-                  </p>
-                </div>
-
                 <form onSubmit={handleSearch}>
                   {tab === "filters" ? (
                     <div className="space-y-4">
 
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <div className="relative" ref={dropdownRef}>
-                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                             City
                           </label>
 
@@ -460,7 +449,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                               }`}
                           >
                             <span className="flex min-w-0 items-center gap-2.5">
-                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-[#E9E1E9] bg-white shadow-sm">
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center">
                                 <MapPin className="h-4 w-4 text-[#A054A0]" />
                               </span>
 
@@ -533,7 +522,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         </div>
 
                         <div>
-                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                             Micromarket
                           </label>
 
@@ -573,11 +562,14 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <div>
-                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                             Property Type
                           </label>
 
                           <div className="relative">
+                            <span className="h-8 w-8 shrink-0 items-center justify-center">
+                              <Building2 className="text-[#A054A0] pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                            </span>
                             <select
                               value={officeType}
                               onChange={handleOfficeTypeChange}
@@ -592,19 +584,18 @@ export default function HeroSection({ consentGranted, locationData }) {
                               ))}
                             </select>
 
-                            <Building2 className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/35" />
                           </div>
                         </div>
 
                         <div>
                           {isCoworking ? (
                             <>
-                              <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
+                              <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                                 Required Seats
                               </label>
 
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg border border-[#E9E1E9] bg-white">
+                                <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center">
                                   <Users className="h-4 w-4 text-[#A054A0]" />
                                 </span>
 
@@ -620,12 +611,12 @@ export default function HeroSection({ consentGranted, locationData }) {
                             </>
                           ) : (
                             <>
-                              <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
+                              <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                                 Min Area ({areaUnit})
                               </label>
 
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg border border-[#E9E1E9] bg-white">
+                                <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center">
                                   <Maximize2 className="h-4 w-4 text-[#A054A0]" />
                                 </span>
 
@@ -645,14 +636,14 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                       {isRentBased && (
                         <div>
-                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                             Rent/month
                           </label>
 
                           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
 
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg border border-[#E9E1E9] bg-white">
+                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
                                 {renderCurrencyIcon()}
                               </span>
 
@@ -667,7 +658,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                             </div>
 
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg border border-[#E9E1E9] bg-white">
+                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
                                 {renderCurrencyIcon()}
                               </span>
 
@@ -686,13 +677,13 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                       {isCoworking && (
                         <div>
-                          <label className="mb-2 ml-1 block text-[14px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[12px]">
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                             Seat Price/month
                           </label>
 
                           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg border border-[#E9E1E9] bg-white">
+                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
                                 {renderCurrencyIcon()}
                               </span>
 
@@ -707,7 +698,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                             </div>
 
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg border border-[#E9E1E9] bg-white">
+                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
                                 {renderCurrencyIcon()}
                               </span>
 
@@ -727,7 +718,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                   ) : (
                     <div className="space-y-4">
                       <div className="relative">
-                        <div className="pointer-events-none absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-xl border border-[#A054A0]/10 bg-[#A054A0]/10">
+                        <div className="pointer-events-none absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-xl">
                           <Sparkles className="h-4 w-4 text-[#A054A0]" />
                         </div>
 
@@ -764,12 +755,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                   )}
                   <div className="mt-5 flex flex-col gap-3 border-t border-[#EEE7EE] pt-4 sm:mt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-5">
                     <div className="hidden items-center gap-2 sm:flex">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#A054A0]/10">
-                        <Check className="h-3.5 w-3.5 text-[#A054A0]" />
-                      </span>
-                      <span className="text-[11px] text-black/40">
-                        Tailored to your requirements
-                      </span>
+
                     </div>
                     <button
                       type="submit"

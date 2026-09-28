@@ -1,77 +1,403 @@
+// import { createRequire } from "module";
+// const require = createRequire(import.meta.url);
+// export const PROPERTIES_TABLE_ID =
+//   process.env.CATALYST_PROPERTIES_TABLE_ID || "53125000000038011";
+// export const PROPERTY_IMAGES_BUCKET = "property-images";
+// const CATALYST_APP_NAME = "anarock-next-server";
+// const globalForCatalyst = globalThis;
+// if (!globalForCatalyst.__anarockCatalystState) {
+//   globalForCatalyst.__anarockCatalystState = {
+//     catalystSDK: null,
+//     localCatalystApp: null,
+//     localCatalystConfig: undefined,
+//     cachedAccessToken: null,
+//     accessTokenExpiresAt: 0,
+//     accessTokenPromise: null,
+//   };
+// }
+
+// const catalystState = globalForCatalyst.__anarockCatalystState;
+// const ACCESS_TOKEN_TTL = 59 * 60 * 1000;
+// export async function debugStratus(request) {
+//   try {
+//     const app = getCatalystApp(request);
+//     const stratus = app.stratus();
+//     console.log("====================================");
+//     console.log("STRATUS DEBUG");
+//     console.log("Bucket name:", PROPERTY_IMAGES_BUCKET);
+//     console.log("====================================");
+
+//     const buckets = await stratus.listBuckets();
+
+//     console.log("AVAILABLE BUCKETS:", JSON.stringify(buckets, null, 2));
+
+//     return buckets;
+//   } catch (error) {
+//     console.error("STRATUS DEBUG ERROR:", error);
+//     throw error;
+//   }
+// }
+
+// function getCatalystSDK() {
+//   if (!catalystState.catalystSDK) {
+//     process.env.X_ZOHO_CATALYST_ACCOUNTS_URL ||=
+//       process.env.CATALYST_ACCOUNTS_URL ||
+//       process.env.ZOHO_ACCOUNTS_URL ||
+//       "https://accounts.zoho.in";
+
+//     process.env.X_ZOHO_CATALYST_CONSOLE_URL ||=
+//       process.env.CATALYST_PROJECT_DOMAIN?.startsWith("http")
+//         ? process.env.CATALYST_PROJECT_DOMAIN
+//         : "https://api.catalyst.zoho.in";
+
+//     catalystState.catalystSDK = require("zcatalyst-sdk-node");
+//   }
+
+//   return catalystState.catalystSDK;
+// }
+
+// function isPlaceholder(value) {
+//   return !value || value === "your_zaid" || value === "your_project_key";
+// }
+
+// function getRequiredEnv(name) {
+//   const value = process.env[name];
+
+//   if (!value) {
+//     throw new Error(`${name} is missing from .env.local`);
+//   }
+
+//   return value;
+// }
+
+// function readLocalCatalystConfig() {
+//   if (catalystState.localCatalystConfig !== undefined) {
+//     return catalystState.localCatalystConfig;
+//   }
+
+//   const fs = require("fs");
+//   const path = require("path");
+
+//   const candidates = [
+//     path.join(process.cwd(), ".catalystrc"),
+//     path.join(process.cwd(), "..", ".catalystrc"),
+//   ];
+
+//   for (const filePath of candidates) {
+//     try {
+//       const contents = fs.readFileSync(filePath, "utf8");
+
+//       const catalystRc = JSON.parse(contents);
+
+//       const activeProjectIndex =
+//         catalystRc?.actives?.project || catalystRc?.defaults?.project;
+
+//       const project =
+//         catalystRc?.projects?.find(
+//           (item) => Number(item.idx) === Number(activeProjectIndex),
+//         ) || catalystRc?.projects?.[0];
+
+//       if (!project) {
+//         continue;
+//       }
+
+//       const activeEnvIndex =
+//         catalystRc?.actives?.env || catalystRc?.defaults?.env;
+
+//       const env =
+//         project?.env?.find(
+//           (item) => Number(item.idx) === Number(activeEnvIndex),
+//         ) || project?.env?.[0];
+
+//       catalystState.localCatalystConfig = {
+//         projectId: project.id,
+//         projectKey: project.domain?.id,
+//         projectDomain: project.domain?.name,
+//         environment: env?.name,
+//       };
+
+//       return catalystState.localCatalystConfig;
+//     } catch { }
+//   }
+
+//   catalystState.localCatalystConfig = null;
+
+//   return catalystState.localCatalystConfig;
+// }
+
+// export async function getZohoAccessToken() {
+//   const now = Date.now();
+
+//   if (
+//     catalystState.cachedAccessToken &&
+//     catalystState.accessTokenExpiresAt &&
+//     now < catalystState.accessTokenExpiresAt
+//   ) {
+//     console.log("Using cached Zoho access token.");
+
+//     return catalystState.cachedAccessToken;
+//   }
+
+//   if (catalystState.accessTokenPromise) {
+//     console.log(
+//       "Access token generation already in progress. Waiting for existing request...",
+//     );
+
+//     return catalystState.accessTokenPromise;
+//   }
+
+//   catalystState.accessTokenPromise = (async () => {
+//     try {
+//       console.log("Generating new Zoho access token...");
+
+//       const clientId = getRequiredEnv("CATALYST_CLIENT_ID");
+
+//       const clientSecret = getRequiredEnv("CATALYST_CLIENT_SECRET");
+
+//       const refreshToken = getRequiredEnv("CATALYST_REFRESH_TOKEN");
+
+//       const accountsUrl =
+//         process.env.CATALYST_ACCOUNTS_URL ||
+//         process.env.ZOHO_ACCOUNTS_URL ||
+//         "https://accounts.zoho.in";
+
+//       const tokenUrl = `${accountsUrl}/oauth/v2/token`;
+
+//       const body = new URLSearchParams({
+//         refresh_token: refreshToken,
+//         client_id: clientId,
+//         client_secret: clientSecret,
+//         grant_type: "refresh_token",
+//       });
+
+//       const response = await fetch(tokenUrl, {
+//         method: "POST",
+
+//         headers: {
+//           "Content-Type": "application/x-www-form-urlencoded",
+//         },
+
+//         body,
+
+//         cache: "no-store",
+//       });
+
+//       const data = await response.json();
+
+//       if (!response.ok || !data?.access_token) {
+//         throw new Error(
+//           `Failed to generate Zoho access token: ${data?.error || JSON.stringify(data)
+//           }`,
+//         );
+//       }
+
+//       catalystState.cachedAccessToken = data.access_token;
+
+//       catalystState.accessTokenExpiresAt = Date.now() + ACCESS_TOKEN_TTL;
+
+//       console.log("New Zoho access token generated.");
+
+//       console.log("Zoho access token cached for 59 minutes.");
+
+//       return catalystState.cachedAccessToken;
+//     } finally {
+//       catalystState.accessTokenPromise = null;
+//     }
+//   })();
+
+//   return catalystState.accessTokenPromise;
+// }
+
+// function getLocalCatalystApp() {
+//   if (catalystState.localCatalystApp) {
+//     console.log("Using cached Catalyst app instance.");
+
+//     return catalystState.localCatalystApp;
+//   }
+
+//   const sdk = getCatalystSDK();
+
+//   const credential = sdk.credential.refreshToken({
+//     client_id: getRequiredEnv("CATALYST_CLIENT_ID"),
+
+//     client_secret: getRequiredEnv("CATALYST_CLIENT_SECRET"),
+
+//     refresh_token: getRequiredEnv("CATALYST_REFRESH_TOKEN"),
+//   });
+
+//   const localConfig = readLocalCatalystConfig();
+
+//   const usingLocalProjectKey = isPlaceholder(process.env.CATALYST_PROJECT_KEY);
+
+//   const projectId = process.env.CATALYST_PROJECT_ID || localConfig?.projectId;
+
+//   const projectKey = usingLocalProjectKey
+//     ? localConfig?.projectKey
+//     : process.env.CATALYST_PROJECT_KEY;
+
+//   const environment =
+//     (usingLocalProjectKey
+//       ? localConfig?.environment
+//       : process.env.CATALYST_ENVIRONMENT) ||
+//     process.env.CATALYST_ENVIRONMENT ||
+//     "Development";
+
+//   if (!projectId) {
+//     throw new Error(
+//       "CATALYST_PROJECT_ID is missing from .env.local and could not be inferred from .catalystrc",
+//     );
+//   }
+
+//   if (!projectKey) {
+//     throw new Error(
+//       "CATALYST_PROJECT_KEY is missing from .env.local and could not be inferred from .catalystrc",
+//     );
+//   }
+
+//   console.log("Creating Catalyst app instance...");
+
+//   catalystState.localCatalystApp = sdk.initializeApp(
+//     {
+//       project_id: projectId,
+
+//       project_key: projectKey,
+
+//       project_domain:
+//         process.env.CATALYST_PROJECT_DOMAIN ||
+//         localConfig?.projectDomain ||
+//         "api.catalyst.zoho.in",
+
+//       environment,
+
+//       credential,
+//     },
+
+//     CATALYST_APP_NAME,
+//   );
+
+//   console.log("Catalyst app initialized successfully.");
+
+//   return catalystState.localCatalystApp;
+// }
+
+// export function getCatalystApp(request) {
+//   void request;
+
+//   console.log("Initializing Catalyst SDK...");
+
+//   return getLocalCatalystApp();
+// }
+
+// export function getPropertiesTable(request) {
+//   console.log("Getting Data Store table:", PROPERTIES_TABLE_ID);
+
+//   const app = getCatalystApp(request);
+
+//   return app.datastore().table(PROPERTIES_TABLE_ID);
+// }
+
+// export function getPropertyImagesBucket(request) {
+//   console.log("Getting Stratus bucket:", PROPERTY_IMAGES_BUCKET);
+
+//   const app = getCatalystApp(request);
+
+//   return app.stratus().bucket(PROPERTY_IMAGES_BUCKET);
+// }
 import { createRequire } from "module";
+
 const require = createRequire(import.meta.url);
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
 export const PROPERTIES_TABLE_ID =
-  process.env.CATALYST_PROPERTIES_TABLE_ID || "53125000000038011";
-export const PROPERTY_IMAGES_BUCKET = "property-images";
-const CATALYST_APP_NAME = "anarock-next-server";
+  process.env.CATALYST_PROPERTIES_TABLE_ID ||
+  "53125000000038011";
+
+export const PROPERTY_IMAGES_BUCKET =
+  "property-images";
+
+const CATALYST_APP_NAME =
+  "anarock-next-server";
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
 const globalForCatalyst = globalThis;
+
 if (!globalForCatalyst.__anarockCatalystState) {
   globalForCatalyst.__anarockCatalystState = {
     catalystSDK: null,
     localCatalystApp: null,
     localCatalystConfig: undefined,
-    cachedAccessToken: null,
-    accessTokenExpiresAt: 0,
-    accessTokenPromise: null,
   };
 }
 
-const catalystState = globalForCatalyst.__anarockCatalystState;
-const ACCESS_TOKEN_TTL = 59 * 60 * 1000;
-export async function debugStratus(request) {
-  try {
-    const app = getCatalystApp(request);
-    const stratus = app.stratus();
-    console.log("====================================");
-    console.log("STRATUS DEBUG");
-    console.log("Bucket name:", PROPERTY_IMAGES_BUCKET);
-    console.log("====================================");
+const catalystState =
+  globalForCatalyst.__anarockCatalystState;
 
-    const buckets = await stratus.listBuckets();
-
-    console.log("AVAILABLE BUCKETS:", JSON.stringify(buckets, null, 2));
-
-    return buckets;
-  } catch (error) {
-    console.error("STRATUS DEBUG ERROR:", error);
-    throw error;
-  }
-}
-
-function getCatalystSDK() {
-  if (!catalystState.catalystSDK) {
-    process.env.X_ZOHO_CATALYST_ACCOUNTS_URL ||=
-      process.env.CATALYST_ACCOUNTS_URL ||
-      process.env.ZOHO_ACCOUNTS_URL ||
-      "https://accounts.zoho.in";
-
-    process.env.X_ZOHO_CATALYST_CONSOLE_URL ||=
-      process.env.CATALYST_PROJECT_DOMAIN?.startsWith("http")
-        ? process.env.CATALYST_PROJECT_DOMAIN
-        : "https://api.catalyst.zoho.in";
-
-    catalystState.catalystSDK = require("zcatalyst-sdk-node");
-  }
-
-  return catalystState.catalystSDK;
-}
+/* =========================================================
+   HELPERS
+========================================================= */
 
 function isPlaceholder(value) {
-  return !value || value === "your_zaid" || value === "your_project_key";
+  return (
+    !value ||
+    value === "your_zaid" ||
+    value === "your_project_key"
+  );
 }
 
 function getRequiredEnv(name) {
   const value = process.env[name];
 
   if (!value) {
-    throw new Error(`${name} is missing from .env.local`);
+    throw new Error(
+      `${name} is missing from .env.local`
+    );
   }
 
   return value;
 }
 
+/* =========================================================
+   CATALYST SDK
+========================================================= */
+
+function getCatalystSDK() {
+  if (!catalystState.catalystSDK) {
+    /*
+     * Zoho India region.
+     */
+    process.env.X_ZOHO_CATALYST_ACCOUNTS_URL ||=
+      process.env.CATALYST_ACCOUNTS_URL ||
+      process.env.ZOHO_ACCOUNTS_URL ||
+      "https://accounts.zoho.in";
+
+    process.env.X_ZOHO_CATALYST_CONSOLE_URL ||=
+      process.env.CATALYST_PROJECT_DOMAIN?.startsWith(
+        "http"
+      )
+        ? process.env.CATALYST_PROJECT_DOMAIN
+        : "https://api.catalyst.zoho.in";
+
+    catalystState.catalystSDK =
+      require("zcatalyst-sdk-node");
+  }
+
+  return catalystState.catalystSDK;
+}
+
+/* =========================================================
+   READ .CATALYSTRC
+========================================================= */
+
 function readLocalCatalystConfig() {
-  if (catalystState.localCatalystConfig !== undefined) {
+  if (
+    catalystState.localCatalystConfig !== undefined
+  ) {
     return catalystState.localCatalystConfig;
   }
 
@@ -79,227 +405,300 @@ function readLocalCatalystConfig() {
   const path = require("path");
 
   const candidates = [
-    path.join(process.cwd(), ".catalystrc"),
-    path.join(process.cwd(), "..", ".catalystrc"),
+    path.join(
+      process.cwd(),
+      ".catalystrc"
+    ),
+    path.join(
+      process.cwd(),
+      "..",
+      ".catalystrc"
+    ),
   ];
 
   for (const filePath of candidates) {
     try {
-      const contents = fs.readFileSync(filePath, "utf8");
+      const contents =
+        fs.readFileSync(
+          filePath,
+          "utf8"
+        );
 
-      const catalystRc = JSON.parse(contents);
+      const catalystRc =
+        JSON.parse(contents);
 
       const activeProjectIndex =
-        catalystRc?.actives?.project || catalystRc?.defaults?.project;
+        catalystRc?.actives?.project ??
+        catalystRc?.defaults?.project;
 
       const project =
         catalystRc?.projects?.find(
-          (item) => Number(item.idx) === Number(activeProjectIndex),
-        ) || catalystRc?.projects?.[0];
+          (item) =>
+            Number(item.idx) ===
+            Number(activeProjectIndex)
+        ) ||
+        catalystRc?.projects?.[0];
 
       if (!project) {
         continue;
       }
 
       const activeEnvIndex =
-        catalystRc?.actives?.env || catalystRc?.defaults?.env;
+        catalystRc?.actives?.env ??
+        catalystRc?.defaults?.env;
 
       const env =
         project?.env?.find(
-          (item) => Number(item.idx) === Number(activeEnvIndex),
-        ) || project?.env?.[0];
+          (item) =>
+            Number(item.idx) ===
+            Number(activeEnvIndex)
+        ) ||
+        project?.env?.[0];
 
       catalystState.localCatalystConfig = {
         projectId: project.id,
         projectKey: project.domain?.id,
-        projectDomain: project.domain?.name,
+        projectDomain:
+          project.domain?.name,
         environment: env?.name,
       };
 
       return catalystState.localCatalystConfig;
-    } catch { }
-  }
-
-  catalystState.localCatalystConfig = null;
-
-  return catalystState.localCatalystConfig;
-}
-
-export async function getZohoAccessToken() {
-  const now = Date.now();
-
-  if (
-    catalystState.cachedAccessToken &&
-    catalystState.accessTokenExpiresAt &&
-    now < catalystState.accessTokenExpiresAt
-  ) {
-    console.log("Using cached Zoho access token.");
-
-    return catalystState.cachedAccessToken;
-  }
-
-  if (catalystState.accessTokenPromise) {
-    console.log(
-      "Access token generation already in progress. Waiting for existing request...",
-    );
-
-    return catalystState.accessTokenPromise;
-  }
-
-  catalystState.accessTokenPromise = (async () => {
-    try {
-      console.log("Generating new Zoho access token...");
-
-      const clientId = getRequiredEnv("CATALYST_CLIENT_ID");
-
-      const clientSecret = getRequiredEnv("CATALYST_CLIENT_SECRET");
-
-      const refreshToken = getRequiredEnv("CATALYST_REFRESH_TOKEN");
-
-      const accountsUrl =
-        process.env.CATALYST_ACCOUNTS_URL ||
-        process.env.ZOHO_ACCOUNTS_URL ||
-        "https://accounts.zoho.in";
-
-      const tokenUrl = `${accountsUrl}/oauth/v2/token`;
-
-      const body = new URLSearchParams({
-        refresh_token: refreshToken,
-        client_id: clientId,
-        client_secret: clientSecret,
-        grant_type: "refresh_token",
-      });
-
-      const response = await fetch(tokenUrl, {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-
-        body,
-
-        cache: "no-store",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data?.access_token) {
-        throw new Error(
-          `Failed to generate Zoho access token: ${data?.error || JSON.stringify(data)
-          }`,
-        );
-      }
-
-      catalystState.cachedAccessToken = data.access_token;
-
-      catalystState.accessTokenExpiresAt = Date.now() + ACCESS_TOKEN_TTL;
-
-      console.log("New Zoho access token generated.");
-
-      console.log("Zoho access token cached for 59 minutes.");
-
-      return catalystState.cachedAccessToken;
-    } finally {
-      catalystState.accessTokenPromise = null;
+    } catch {
+      // Continue to next possible config file.
     }
-  })();
-
-  return catalystState.accessTokenPromise;
-}
-
-function getLocalCatalystApp() {
-  if (catalystState.localCatalystApp) {
-    console.log("Using cached Catalyst app instance.");
-
-    return catalystState.localCatalystApp;
   }
 
+  catalystState.localCatalystConfig =
+    null;
+
+  return null;
+}
+
+/* =========================================================
+   CREATE CATALYST APP
+========================================================= */
+
+function createCatalystApp() {
   const sdk = getCatalystSDK();
 
-  const credential = sdk.credential.refreshToken({
-    client_id: getRequiredEnv("CATALYST_CLIENT_ID"),
+  const clientId =
+    getRequiredEnv(
+      "CATALYST_CLIENT_ID"
+    );
 
-    client_secret: getRequiredEnv("CATALYST_CLIENT_SECRET"),
+  const clientSecret =
+    getRequiredEnv(
+      "CATALYST_CLIENT_SECRET"
+    );
 
-    refresh_token: getRequiredEnv("CATALYST_REFRESH_TOKEN"),
-  });
+  const refreshToken =
+    getRequiredEnv(
+      "CATALYST_REFRESH_TOKEN"
+    );
 
-  const localConfig = readLocalCatalystConfig();
+  /*
+   * Catalyst SDK manages the access-token
+   * lifecycle using the refresh token.
+   */
+  const credential =
+    sdk.credential.refreshToken({
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+    });
 
-  const usingLocalProjectKey = isPlaceholder(process.env.CATALYST_PROJECT_KEY);
+  const localConfig =
+    readLocalCatalystConfig();
 
-  const projectId = process.env.CATALYST_PROJECT_ID || localConfig?.projectId;
+  const usingLocalProjectKey =
+    isPlaceholder(
+      process.env.CATALYST_PROJECT_KEY
+    );
 
-  const projectKey = usingLocalProjectKey
-    ? localConfig?.projectKey
-    : process.env.CATALYST_PROJECT_KEY;
+  const projectId =
+    process.env.CATALYST_PROJECT_ID ||
+    localConfig?.projectId;
+
+  const projectKey =
+    usingLocalProjectKey
+      ? localConfig?.projectKey
+      : process.env.CATALYST_PROJECT_KEY;
 
   const environment =
-    (usingLocalProjectKey
-      ? localConfig?.environment
-      : process.env.CATALYST_ENVIRONMENT) ||
+    (
+      usingLocalProjectKey
+        ? localConfig?.environment
+        : process.env.CATALYST_ENVIRONMENT
+    ) ||
     process.env.CATALYST_ENVIRONMENT ||
     "Development";
 
+  const projectDomain =
+    process.env.CATALYST_PROJECT_DOMAIN ||
+    localConfig?.projectDomain ||
+    "api.catalyst.zoho.in";
+
   if (!projectId) {
     throw new Error(
-      "CATALYST_PROJECT_ID is missing from .env.local and could not be inferred from .catalystrc",
+      "CATALYST_PROJECT_ID is missing from .env.local and could not be inferred from .catalystrc"
     );
   }
 
   if (!projectKey) {
     throw new Error(
-      "CATALYST_PROJECT_KEY is missing from .env.local and could not be inferred from .catalystrc",
+      "CATALYST_PROJECT_KEY is missing from .env.local and could not be inferred from .catalystrc"
     );
   }
 
-  console.log("Creating Catalyst app instance...");
+  console.log(
+    "=========================================="
+  );
 
-  catalystState.localCatalystApp = sdk.initializeApp(
+  console.log(
+    "INITIALIZING ZOHO CATALYST"
+  );
+
+  console.log(
+    "Project ID:",
+    projectId
+  );
+
+  console.log(
+    "Project Key:",
+    `${String(projectKey).slice(
+      0,
+      6
+    )}...`
+  );
+
+  console.log(
+    "Project Domain:",
+    projectDomain
+  );
+
+  console.log(
+    "Environment:",
+    environment
+  );
+
+  console.log(
+    "Accounts URL:",
+    process.env
+      .X_ZOHO_CATALYST_ACCOUNTS_URL ||
+    process.env
+      .CATALYST_ACCOUNTS_URL ||
+    "https://accounts.zoho.in"
+  );
+
+  console.log(
+    "Refresh Token:",
+    refreshToken
+      ? "CONFIGURED"
+      : "MISSING"
+  );
+
+  console.log(
+    "=========================================="
+  );
+
+  return sdk.initializeApp(
     {
       project_id: projectId,
 
       project_key: projectKey,
 
-      project_domain:
-        process.env.CATALYST_PROJECT_DOMAIN ||
-        localConfig?.projectDomain ||
-        "api.catalyst.zoho.in",
+      project_domain: projectDomain,
 
       environment,
 
       credential,
     },
 
-    CATALYST_APP_NAME,
+    CATALYST_APP_NAME
   );
-
-  console.log("Catalyst app initialized successfully.");
-
-  return catalystState.localCatalystApp;
 }
+
+/* =========================================================
+   GET CATALYST APP
+========================================================= */
 
 export function getCatalystApp(request) {
   void request;
 
-  console.log("Initializing Catalyst SDK...");
+  if (
+    catalystState.localCatalystApp
+  ) {
+    console.log(
+      "Using cached Catalyst app instance."
+    );
 
-  return getLocalCatalystApp();
+    return catalystState.localCatalystApp;
+  }
+
+  console.log(
+    "Creating Catalyst app instance..."
+  );
+
+  catalystState.localCatalystApp =
+    createCatalystApp();
+
+  console.log(
+    "Catalyst app initialized successfully."
+  );
+
+  return catalystState.localCatalystApp;
 }
 
-export function getPropertiesTable(request) {
-  console.log("Getting Data Store table:", PROPERTIES_TABLE_ID);
+/* =========================================================
+   RESET APP
+========================================================= */
 
-  const app = getCatalystApp(request);
+export function resetCatalystApp() {
+  console.warn(
+    "Resetting Catalyst app instance."
+  );
 
-  return app.datastore().table(PROPERTIES_TABLE_ID);
+  catalystState.localCatalystApp =
+    null;
+}
+
+/* =========================================================
+   DATA STORE
+========================================================= */
+
+export function getPropertiesTable(
+  request
+) {
+  console.log(
+    "Getting Data Store table:",
+    PROPERTIES_TABLE_ID
+  );
+
+  const app =
+    getCatalystApp(request);
+
+  return app
+    .datastore()
+    .table(PROPERTIES_TABLE_ID);
 }
 
 export function getPropertyImagesBucket(request) {
   console.log("Getting Stratus bucket:", PROPERTY_IMAGES_BUCKET);
-
   const app = getCatalystApp(request);
-
-  return app.stratus().bucket(PROPERTY_IMAGES_BUCKET);
+  return app
+    .stratus()
+    .bucket(PROPERTY_IMAGES_BUCKET);
+}
+export async function debugStratus(request) {
+  try {
+    const app = getCatalystApp(request);
+    const stratus = app.stratus();
+    const buckets = await stratus.listBuckets();
+    console.log("AVAILABLE BUCKETS:", JSON.stringify(buckets, null, 2));
+    return buckets;
+  } catch (error) {
+    console.error("STRATUS DEBUG ERROR:", error);
+    throw error;
+  }
 }

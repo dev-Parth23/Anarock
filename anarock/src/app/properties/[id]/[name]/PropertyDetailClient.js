@@ -95,11 +95,7 @@ const getValue = (property, keys, fallback = "-") => {
   for (const key of keys) {
     const value = property?.[key];
 
-    if (
-      value !== null &&
-      value !== undefined &&
-      String(value).trim() !== ""
-    ) {
+    if (value !== null && value !== undefined && String(value).trim() !== "") {
       return value;
     }
   }
@@ -120,7 +116,7 @@ const isCoworkingProperty = (property) => {
     property?.office_type ||
     property?.propertyType ||
     property?.property_type ||
-    property?.type
+    property?.type,
   );
 
   return (
@@ -131,23 +127,15 @@ const isCoworkingProperty = (property) => {
 };
 
 const formatDisplayValue = (value) => {
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
+  if (value === null || value === undefined || value === "") {
     return "-";
   }
 
   if (Array.isArray(value)) {
-    return value.length
-      ? value.join(", ")
-      : "-";
+    return value.length ? value.join(", ") : "-";
   }
 
-  if (
-    typeof value === "object"
-  ) {
+  if (typeof value === "object") {
     return Object.values(value).join(", ") || "-";
   }
 
@@ -158,17 +146,11 @@ const formatDisplayValue = (value) => {
    FIELD COMPONENT
 ========================================================= */
 
-function DetailField({
-  label,
-  value,
-  icon: Icon,
-}) {
+function DetailField({ label, value, icon: Icon }) {
   return (
     <div className="min-w-0">
       <div className="flex items-center gap-2">
-        {Icon && (
-          <Icon className="h-4 w-4 shrink-0 text-[#A054A0]" />
-        )}
+        {Icon && <Icon className="h-4 w-4 shrink-0 text-[#A054A0]" />}
 
         <p className="text-sm font-semibold leading-5 text-slate-900">
           {label}
@@ -186,10 +168,7 @@ function DetailField({
    SECTION COMPONENT
 ========================================================= */
 
-function DetailSection({
-  title,
-  children,
-}) {
+function DetailSection({ title, children }) {
   return (
     <section className="border-t border-slate-200 pt-6 first:border-t-0 first:pt-0">
       <h3 className="mb-5 text-base font-bold text-slate-900 sm:text-lg">
@@ -205,15 +184,10 @@ function DetailSection({
    INFO COMPONENT
 ========================================================= */
 
-function Info({
-  label,
-  value,
-}) {
+function Info({ label, value }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <p className="text-sm text-slate-500">
-        {label}
-      </p>
+      <p className="text-sm text-slate-500">{label}</p>
 
       <p className="mt-1 break-words font-semibold text-slate-900">
         {formatDisplayValue(value)}
@@ -226,42 +200,126 @@ function Info({
    MAIN COMPONENT
 ========================================================= */
 
-export default function PropertyDetailClient({
-  propertyId,
-}) {
+export default function PropertyDetailClient({ propertyId }) {
   const [property, setProperty] = useState(null);
   const [gallery, setGallery] = useState([]);
-  const [activeImg, setActiveImg] =
-    useState("project");
+  const [activeImg, setActiveImg] = useState("project");
 
   const [related, setRelated] = useState([]);
 
-  const {
-    currency,
-    unit,
-    exchangeRates,
-  } = usePreferences();
+  const { currency, unit, exchangeRates } = usePreferences();
 
-  const [
-    failedImages,
-    setFailedImages,
-  ] = useState(new Set());
+  const [failedImages, setFailedImages] = useState(new Set());
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
-  const thumbnailContainerRef =
-    useRef(null);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
-  const thumbnailRefs =
-    useRef({});
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    contactNumber: "",
+  });
 
-  const autoScrollTimeoutRef =
-    useRef(null);
+  const getPropertyId = (item) => {
+    return String(
+      item?.id ||
+      item?.ID ||
+      item?.rowId ||
+      item?.ROWID ||
+      item?.RowID ||
+      item?.propertyId ||
+      item?.Property_ID ||
+      item?.projectId ||
+      item?.Project_ID ||
+      "",
+    );
+  };
 
+  const thumbnailContainerRef = useRef(null);
+
+  const thumbnailRefs = useRef({});
+
+  const autoScrollTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (!property) return;
+
+    const syncWishlist = () => {
+      try {
+        const wishlist = JSON.parse(
+          localStorage.getItem("anarock_wishlist_properties") || "[]",
+        );
+
+        const currentId = getPropertyId(property);
+
+        const exists = wishlist.some(
+          (item) => getPropertyId(item) === currentId,
+        );
+
+        setIsWishlisted(exists);
+      } catch (error) {
+        console.error("Wishlist sync failed:", error);
+
+        setIsWishlisted(false);
+      }
+    };
+
+    syncWishlist();
+
+    window.addEventListener("wishlist-updated", syncWishlist);
+
+    window.addEventListener("storage", syncWishlist);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", syncWishlist);
+
+      window.removeEventListener("storage", syncWishlist);
+    };
+  }, [property]);
+
+  const handleWishlist = (item) => {
+    if (!item) return;
+
+    try {
+      const storageKey = "anarock_wishlist_properties";
+
+      const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+      const currentId = getPropertyId(item);
+
+      if (!currentId) {
+        console.error("Property ID missing:", item);
+        return;
+      }
+
+      const exists = existing.some(
+        (wishlistItem) => getPropertyId(wishlistItem) === currentId,
+      );
+
+      let updated;
+
+      if (exists) {
+        updated = existing.filter(
+          (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
+        );
+
+        setIsWishlisted(false);
+      } else {
+        updated = [...existing, item];
+
+        setIsWishlisted(true);
+      }
+
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (error) {
+      console.error("Wishlist update failed:", error);
+    }
+  };
   /* =========================================================
      LOAD PROPERTY
   ========================================================= */
@@ -275,65 +333,41 @@ export default function PropertyDetailClient({
         setError("");
 
         const response = await fetch(
-          `/api/properties/${encodeURIComponent(
-            propertyId
-          )}`,
+          `/api/properties/${encodeURIComponent(propertyId)}`,
           {
             cache: "no-store",
-          }
+          },
         );
 
-        const data =
-          await response.json();
+        const data = await response.json();
 
-        if (
-          !response.ok ||
-          !data.success
-        ) {
-          throw new Error(
-            data.error ||
-            "Failed to load property"
-          );
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "Failed to load property");
         }
 
-        const propertyData =
-          data.data;
+        const propertyData = data.data;
 
-        const imageFolderPath =
-          String(
-            propertyData.imageFolderPath ||
-            ""
-          ).replace(
-            /^\/+|\/+$/g,
-            ""
-          );
+        const imageFolderPath = String(
+          propertyData.imageFolderPath || "",
+        ).replace(/^\/+|\/+$/g, "");
 
-        const images =
-          imageFolderPath
-            ? IMAGE_FILES.map(
-              (image) => ({
-                ...image,
-                url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
-              })
-            )
-            : [];
+        const images = imageFolderPath
+          ? IMAGE_FILES.map((image) => ({
+            ...image,
+            url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
+          }))
+          : [];
 
         setProperty({
           ...propertyData,
-          image:
-            images.find(
-              (image) =>
-                image.key === "project"
-            )?.url || "",
+          image: images.find((image) => image.key === "project")?.url || "",
         });
 
         setGallery(images);
 
         setActiveImg("project");
 
-        setFailedImages(
-          new Set()
-        );
+        setFailedImages(new Set());
 
         /* ===============================================
            RELATED PROPERTIES
@@ -341,56 +375,30 @@ export default function PropertyDetailClient({
 
         if (propertyData.city) {
           try {
-            const relatedResponse =
-              await fetch(
-                `/api/properties?city=${encodeURIComponent(
-                  propertyData.city
-                )}`,
-                {
-                  cache: "no-store",
-                }
-              );
-
-            const relatedData =
-              await relatedResponse.json();
-
-            if (
-              relatedData.success
-            ) {
-              const relatedProperties =
-                (
-                  relatedData.data ||
-                  []
-                )
-                  .filter(
-                    (item) =>
-                      String(item.id) !==
-                      String(
-                        propertyData.id
-                      )
-                  )
-                  .slice(0, 3);
-
-              setRelated(
-                relatedProperties
-              );
-            }
-          } catch (
-          relatedError
-          ) {
-            console.error(
-              "Related properties error:",
-              relatedError
+            const relatedResponse = await fetch(
+              `/api/properties?city=${encodeURIComponent(propertyData.city)}`,
+              {
+                cache: "no-store",
+              },
             );
+
+            const relatedData = await relatedResponse.json();
+
+            if (relatedData.success) {
+              const relatedProperties = (relatedData.data || [])
+                .filter((item) => String(item.id) !== String(propertyData.id))
+                .slice(0, 3);
+
+              setRelated(relatedProperties);
+            }
+          } catch (relatedError) {
+            console.error("Related properties error:", relatedError);
           }
         }
       } catch (err) {
         console.error(err);
 
-        setError(
-          err?.message ||
-          "Unable to load property"
-        );
+        setError(err?.message || "Unable to load property");
       } finally {
         setLoading(false);
       }
@@ -403,78 +411,48 @@ export default function PropertyDetailClient({
      AVAILABLE GALLERY
   ========================================================= */
 
-  const availableGallery =
-    useMemo(() => {
-      return gallery.filter(
-        (image) =>
-          !failedImages.has(
-            image.key
-          )
-      );
-    }, [
-      gallery,
-      failedImages,
-    ]);
+  const availableGallery = useMemo(() => {
+    return gallery.filter((image) => !failedImages.has(image.key));
+  }, [gallery, failedImages]);
 
   /* =========================================================
      ACTIVE IMAGE
   ========================================================= */
 
   const activeImage =
-    availableGallery.find(
-      (image) =>
-        image.key === activeImg
-    )?.url ||
+    availableGallery.find((image) => image.key === activeImg)?.url ||
     property?.image ||
     "";
 
   const activeIndex = Math.max(
     0,
-    availableGallery.findIndex(
-      (image) =>
-        image.key === activeImg
-    )
+    availableGallery.findIndex((image) => image.key === activeImg),
   );
 
   /* =========================================================
      IMAGE ERROR
   ========================================================= */
 
-  const handleImageError = (
-    imageKey
-  ) => {
-    setFailedImages(
-      (previous) => {
-        const updated =
-          new Set(previous);
+  const handleImageError = (imageKey) => {
+    setFailedImages((previous) => {
+      const updated = new Set(previous);
 
-        updated.add(imageKey);
+      updated.add(imageKey);
 
-        return updated;
-      }
-    );
+      return updated;
+    });
 
-    if (
-      activeImg === imageKey
-    ) {
-      const currentIndex =
-        availableGallery.findIndex(
-          (image) =>
-            image.key === imageKey
-        );
+    if (activeImg === imageKey) {
+      const currentIndex = availableGallery.findIndex(
+        (image) => image.key === imageKey,
+      );
 
       const nextImage =
-        availableGallery[
-        currentIndex + 1
-        ] ||
-        availableGallery[
-        currentIndex - 1
-        ];
+        availableGallery[currentIndex + 1] ||
+        availableGallery[currentIndex - 1];
 
       if (nextImage) {
-        setActiveImg(
-          nextImage.key
-        );
+        setActiveImg(nextImage.key);
       }
     }
   };
@@ -483,34 +461,21 @@ export default function PropertyDetailClient({
      SCROLL SELECTED THUMBNAIL
   ========================================================= */
 
-  const scrollThumbnailToTop = (
-    imageKey
-  ) => {
-    const container =
-      thumbnailContainerRef.current;
+  const scrollThumbnailToTop = (imageKey) => {
+    const container = thumbnailContainerRef.current;
 
-    const thumbnail =
-      thumbnailRefs.current[
-      imageKey
-      ];
+    const thumbnail = thumbnailRefs.current[imageKey];
 
     if (!container || !thumbnail) {
       return;
     }
 
     /* Desktop: vertical thumbnail list */
-    if (
-      window.innerWidth >= 768
-    ) {
-      const targetTop =
-        thumbnail.offsetTop -
-        container.offsetTop;
+    if (window.innerWidth >= 768) {
+      const targetTop = thumbnail.offsetTop - container.offsetTop;
 
       container.scrollTo({
-        top: Math.max(
-          0,
-          targetTop
-        ),
+        top: Math.max(0, targetTop),
         behavior: "smooth",
       });
 
@@ -529,15 +494,11 @@ export default function PropertyDetailClient({
      SELECT IMAGE
   ========================================================= */
 
-  const selectImage = (
-    imageKey
-  ) => {
+  const selectImage = (imageKey) => {
     setActiveImg(imageKey);
 
     requestAnimationFrame(() => {
-      scrollThumbnailToTop(
-        imageKey
-      );
+      scrollThumbnailToTop(imageKey);
     });
   };
 
@@ -546,25 +507,17 @@ export default function PropertyDetailClient({
   ========================================================= */
 
   const goToNextImage = () => {
-    if (
-      availableGallery.length === 0
-    ) {
+    if (availableGallery.length === 0) {
       return;
     }
 
     const nextIndex =
-      activeIndex + 1 >=
-        availableGallery.length
-        ? 0
-        : activeIndex + 1;
+      activeIndex + 1 >= availableGallery.length ? 0 : activeIndex + 1;
 
-    const nextImage =
-      availableGallery[nextIndex];
+    const nextImage = availableGallery[nextIndex];
 
     if (nextImage) {
-      selectImage(
-        nextImage.key
-      );
+      selectImage(nextImage.key);
     }
   };
 
@@ -573,27 +526,17 @@ export default function PropertyDetailClient({
   ========================================================= */
 
   const goToPreviousImage = () => {
-    if (
-      availableGallery.length === 0
-    ) {
+    if (availableGallery.length === 0) {
       return;
     }
 
     const previousIndex =
-      activeIndex - 1 < 0
-        ? availableGallery.length -
-        1
-        : activeIndex - 1;
+      activeIndex - 1 < 0 ? availableGallery.length - 1 : activeIndex - 1;
 
-    const previousImage =
-      availableGallery[
-      previousIndex
-      ];
+    const previousImage = availableGallery[previousIndex];
 
     if (previousImage) {
-      selectImage(
-        previousImage.key
-      );
+      selectImage(previousImage.key);
     }
   };
 
@@ -602,42 +545,28 @@ export default function PropertyDetailClient({
   ========================================================= */
 
   useEffect(() => {
-    if (
-      availableGallery.length <= 1
-    ) {
+    if (availableGallery.length <= 1) {
       return;
     }
 
     const startAutoScroll = () => {
-      if (
-        autoScrollTimeoutRef.current
-      ) {
-        clearTimeout(
-          autoScrollTimeoutRef.current
-        );
+      if (autoScrollTimeoutRef.current) {
+        clearTimeout(autoScrollTimeoutRef.current);
       }
 
-      autoScrollTimeoutRef.current =
-        setTimeout(() => {
-          goToNextImage();
-        }, AUTO_SCROLL_INTERVAL);
+      autoScrollTimeoutRef.current = setTimeout(() => {
+        goToNextImage();
+      }, AUTO_SCROLL_INTERVAL);
     };
 
     startAutoScroll();
 
     return () => {
-      if (
-        autoScrollTimeoutRef.current
-      ) {
-        clearTimeout(
-          autoScrollTimeoutRef.current
-        );
+      if (autoScrollTimeoutRef.current) {
+        clearTimeout(autoScrollTimeoutRef.current);
       }
     };
-  }, [
-    activeImg,
-    availableGallery.length,
-  ]);
+  }, [activeImg, availableGallery.length]);
 
   /* =========================================================
      KEYBOARD NAVIGATION
@@ -645,286 +574,187 @@ export default function PropertyDetailClient({
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (
-        event.key === "ArrowRight"
-      ) {
+      if (event.key === "ArrowRight") {
         goToNextImage();
       }
 
-      if (
-        event.key === "ArrowLeft"
-      ) {
+      if (event.key === "ArrowLeft") {
         goToPreviousImage();
       }
     };
 
-    window.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [
-    activeIndex,
-    availableGallery.length,
-  ]);
+  }, [activeIndex, availableGallery.length]);
 
   /* =========================================================
      PROPERTY TYPE
   ========================================================= */
 
-  const isCoworking =
-    isCoworkingProperty(
-      property
-    );
+  const isCoworking = isCoworkingProperty(property);
 
-  const propertyType =
-    getValue(
-      property,
-      [
-        "officeType",
-        "office_type",
-        "propertyType",
-        "property_type",
-        "type",
-      ],
-      "Conventional"
-    );
+  const propertyType = getValue(
+    property,
+    ["officeType", "office_type", "propertyType", "property_type", "type"],
+    "Conventional",
+  );
 
   /* =========================================================
      PROPERTY FIELDS
   ========================================================= */
 
-  const managedBy =
-    getValue(
-      property,
-      [
-        "operatorName",
-        "OperatorName",
-        "operator",
-        "Operator",
-        "managedBy",
-        "ManagedBy",
-        "managed_by",
-      ]
-    );
+  const managedBy = getValue(property, [
+    "operatorName",
+    "OperatorName",
+    "operator",
+    "Operator",
+    "managedBy",
+    "ManagedBy",
+    "managed_by",
+  ]);
 
-  const offeredSeats =
-    getValue(
-      property,
-      [
-        "seatsOffered",
-        "SeatsOffered",
-        "offeredSeats",
-        "OfferedSeats",
-        "seats",
-        "Seats",
-      ]
-    );
+  const offeredSeats = getValue(property, [
+    "seatsOffered",
+    "SeatsOffered",
+    "offeredSeats",
+    "OfferedSeats",
+    "seats",
+    "Seats",
+  ]);
 
-  const towerFloor =
-    getValue(
-      property,
-      [
-        "floor",
-        "Floor",
-        "proposedFloor",
-        "ProposedFloor",
-        "towerFloor",
-        "TowerFloor",
-        "towerFloorOffered",
-        "TowerFloorOffered",
-      ]
-    );
+  const towerFloor = getValue(property, [
+    "floor",
+    "Floor",
+    "proposedFloor",
+    "ProposedFloor",
+    "towerFloor",
+    "TowerFloor",
+    "towerFloorOffered",
+    "TowerFloorOffered",
+  ]);
 
-  const areaOffered =
-    getValue(
-      property,
-      [
-        "areaSqft",
-        "AreaSqft",
-        "area",
-        "Area",
-        "floorPlate",
-        "FloorPlate",
-      ]
-    );
+  const areaOffered = getValue(property, [
+    "areaSqft",
+    "AreaSqft",
+    "area",
+    "Area",
+    "floorPlate",
+    "FloorPlate",
+  ]);
 
-  const availability =
-    getValue(
-      property,
-      [
-        "availability",
-        "Availability",
-        "availabilityTimeline",
-        "AvailabilityTimeline",
-        "availabilityDate",
-        "AvailabilityDate",
-      ]
-    );
+  const availability = getValue(property, [
+    "availability",
+    "Availability",
+    "availabilityTimeline",
+    "AvailabilityTimeline",
+    "availabilityDate",
+    "AvailabilityDate",
+  ]);
 
-  const buildingCertification =
-    getValue(
-      property,
-      [
-        "buildingCertification",
-        "BuildingCertification",
-        "certificateName",
-        "CertificateName",
-        "certification",
-        "Certification",
-      ]
-    );
+  const buildingCertification = getValue(property, [
+    "buildingCertification",
+    "BuildingCertification",
+    "certificateName",
+    "CertificateName",
+    "certification",
+    "Certification",
+  ]);
 
-  const numberOfElevators =
-    getValue(
-      property,
-      [
-        "numberOfElevators",
-        "NumberOfElevators",
-        "noOfElevators",
-        "NoOfElevators",
-        "elevators",
-        "Elevators",
-      ]
-    );
+  const numberOfElevators = getValue(property, [
+    "numberOfElevators",
+    "NumberOfElevators",
+    "noOfElevators",
+    "NoOfElevators",
+    "elevators",
+    "Elevators",
+  ]);
 
-  const yearOfCompletion =
-    getValue(
-      property,
-      [
-        "yearBuilt",
-        "YearBuilt",
-        "yearOfCompletion",
-        "YearOfCompletion",
-        "completionYear",
-        "CompletionYear",
-      ]
-    );
+  const yearOfCompletion = getValue(property, [
+    "yearBuilt",
+    "YearBuilt",
+    "yearOfCompletion",
+    "YearOfCompletion",
+    "completionYear",
+    "CompletionYear",
+  ]);
 
-  const nearbyMetro =
-    getValue(
-      property,
-      [
-        "nearbyMetro",
-        "NearbyMetro",
-        "metro",
-        "Metro",
-        "metroStation",
-        "MetroStation",
-      ]
-    );
+  const nearbyMetro = getValue(property, [
+    "nearbyMetro",
+    "NearbyMetro",
+    "metro",
+    "Metro",
+    "metroStation",
+    "MetroStation",
+  ]);
 
-  const busStation =
-    getValue(
-      property,
-      [
-        "busStation",
-        "BusStation",
-        "bussStation",
-        "BussStation",
-        "nearbyBus",
-        "NearbyBus",
-      ]
-    );
+  const busStation = getValue(property, [
+    "busStation",
+    "BusStation",
+    "bussStation",
+    "BussStation",
+    "nearbyBus",
+    "NearbyBus",
+  ]);
 
-  const airport =
-    getValue(
-      property,
-      [
-        "airport",
-        "Airport",
-        "nearbyAirport",
-        "NearbyAirport",
-      ]
-    );
+  const airport = getValue(property, [
+    "airport",
+    "Airport",
+    "nearbyAirport",
+    "NearbyAirport",
+  ]);
 
-  const parking =
-    getValue(
-      property,
-      [
-        "parkingRatio",
-        "ParkingRatio",
-        "parking",
-        "Parking",
-      ]
-    );
+  const parking = getValue(property, [
+    "parkingRatio",
+    "ParkingRatio",
+    "parking",
+    "Parking",
+  ]);
 
-  const buildingType =
-    getValue(
-      property,
-      [
-        "buildingType",
-        "BuildingType",
-      ]
-    );
-
-  /* =========================================================
-     AMENITIES
-  ========================================================= */
-
-  const amenities = Array.isArray(
-    property?.amenities
-  )
+  const buildingType = getValue(property, ["buildingType", "BuildingType"]);
+  const amenities = Array.isArray(property?.amenities)
     ? property.amenities
-    : typeof property?.amenities ===
-      "string"
+    : typeof property?.amenities === "string"
       ? property.amenities
         .split(",")
-        .map((item) =>
-          item.trim()
-        )
+        .map((item) => item.trim())
         .filter(Boolean)
       : [];
-
-  /* =========================================================
-     LOADING
-  ========================================================= */
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="text-lg text-slate-600">
-          Loading property...
-        </div>
+        <div className="text-lg text-slate-600">Loading property...</div>
       </div>
     );
   }
 
-  /* =========================================================
-     ERROR
-  ========================================================= */
-
   if (error || !property) {
+    const isAuthError =
+      error?.toLowerCase().includes("oauth") ||
+      error?.toLowerCase().includes("token");
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="text-center">
+        <div className="max-w-md text-center">
           <h1 className="mb-2 text-2xl font-semibold text-slate-900">
-            Property not found
+            {isAuthError ? "Unable to load property" : "Property not found"}
           </h1>
 
           <p className="text-slate-500">
-            {error ||
-              "Unable to load property details."}
+            {isAuthError
+              ? "There was a temporary problem connecting to the property database. Please try again."
+              : error || "Unable to load property details."}
           </p>
         </div>
       </div>
     );
   }
-
-  /* =========================================================
-     RENDER
-  ========================================================= */
-
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-
         {/* ===================================================
             PROPERTY HEADER
         =================================================== */}
@@ -933,9 +763,7 @@ export default function PropertyDetailClient({
           <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-slate-500">
             {property.city && (
               <>
-                <span>
-                  {property.city}
-                </span>
+                <span>{property.city}</span>
               </>
             )}
 
@@ -943,9 +771,7 @@ export default function PropertyDetailClient({
               <>
                 <span>•</span>
 
-                <span>
-                  {property.micromarket}
-                </span>
+                <span>{property.micromarket}</span>
               </>
             )}
 
@@ -953,9 +779,7 @@ export default function PropertyDetailClient({
               <>
                 <span>•</span>
 
-                <span>
-                  {propertyType}
-                </span>
+                <span>{propertyType}</span>
               </>
             )}
           </div>
@@ -968,9 +792,7 @@ export default function PropertyDetailClient({
             <div className="mt-2 flex items-start gap-2 text-sm text-slate-500 sm:text-base">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#A054A0]" />
 
-              <p>
-                {property.address}
-              </p>
+              <p>{property.address}</p>
             </div>
           )}
         </div>
@@ -980,7 +802,6 @@ export default function PropertyDetailClient({
         =================================================== */}
 
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:rounded-3xl">
-
           {/* GALLERY HEADER */}
 
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6">
@@ -991,22 +812,15 @@ export default function PropertyDetailClient({
             </div>
 
             <div className="text-xs font-medium text-slate-500 sm:text-sm">
-              {availableGallery.length}{" "}
-              image
-              {availableGallery.length ===
-                1
-                ? ""
-                : "s"}{" "}
-              found
+              {availableGallery.length} image
+              {availableGallery.length === 1 ? "" : "s"} found
             </div>
           </div>
 
           {/* GALLERY */}
 
           <div className="p-3 sm:p-5">
-
             <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px]">
-
               {/* =========================================
                   MAIN IMAGE
               ========================================= */}
@@ -1014,48 +828,29 @@ export default function PropertyDetailClient({
               <div
                 className="group relative overflow-hidden rounded-2xl bg-slate-100"
                 onMouseEnter={() => {
-                  if (
-                    autoScrollTimeoutRef.current
-                  ) {
-                    clearTimeout(
-                      autoScrollTimeoutRef.current
-                    );
+                  if (autoScrollTimeoutRef.current) {
+                    clearTimeout(autoScrollTimeoutRef.current);
                   }
                 }}
                 onMouseLeave={() => {
-                  if (
-                    availableGallery.length >
-                    1
-                  ) {
-                    autoScrollTimeoutRef.current =
-                      setTimeout(
-                        () => {
-                          goToNextImage();
-                        },
-                        AUTO_SCROLL_INTERVAL
-                      );
+                  if (availableGallery.length > 1) {
+                    autoScrollTimeoutRef.current = setTimeout(() => {
+                      goToNextImage();
+                    }, AUTO_SCROLL_INTERVAL);
                   }
                 }}
               >
                 <div className="relative aspect-[4/3] min-h-[280px] w-full sm:aspect-[16/10] md:aspect-[4/3] lg:aspect-[16/10]">
-
                   {activeImage ? (
                     <Image
                       key={activeImg}
                       src={activeImage}
-                      alt={
-                        property.name ||
-                        "Property image"
-                      }
+                      alt={property.name || "Property image"}
                       fill
                       priority
                       className="object-cover transition-opacity duration-500"
                       sizes="(max-width: 767px) 100vw, 70vw"
-                      onError={() =>
-                        handleImageError(
-                          activeImg
-                        )
-                      }
+                      onError={() => handleImageError(activeImg)}
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-sm text-slate-400">
@@ -1070,439 +865,216 @@ export default function PropertyDetailClient({
                   {/* IMAGE NAME */}
 
                   <div className="absolute bottom-4 left-4 max-w-[70%] text-sm font-semibold text-white drop-shadow-md sm:text-base">
-                    {availableGallery.find(
-                      (image) =>
-                        image.key ===
-                        activeImg
-                    )?.name ||
-                      "Property Photo"}
+                    {availableGallery.find((image) => image.key === activeImg)
+                      ?.name || "Property Photo"}
                   </div>
 
                   {/* COUNTER */}
 
                   <div className="absolute right-4 top-4 rounded-full bg-black/65 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
-                    {activeIndex + 1} /{" "}
-                    {availableGallery.length}
+                    {activeIndex + 1} / {availableGallery.length}
                   </div>
 
-                  {/* PREVIOUS */}
+                  {availableGallery.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={goToPreviousImage}
+                      aria-label="Previous image"
+                      className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white opacity-100 shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                  )}
 
-                  {availableGallery.length >
-                    1 && (
-                      <button
-                        type="button"
-                        onClick={
-                          goToPreviousImage
-                        }
-                        aria-label="Previous image"
-                        className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white opacity-100 shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </button>
-                    )}
-
-                  {/* NEXT */}
-
-                  {availableGallery.length >
-                    1 && (
-                      <button
-                        type="button"
-                        onClick={
-                          goToNextImage
-                        }
-                        aria-label="Next image"
-                        className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white opacity-100 shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </button>
-                    )}
+                  {availableGallery.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={goToNextImage}
+                      aria-label="Next image"
+                      className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white opacity-100 shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* =========================================
-                  THUMBNAILS
-              ========================================= */}
-
               <div className="min-w-0">
-
-                {/* DESKTOP THUMBNAILS */}
-
                 <div
-                  ref={
-                    thumbnailContainerRef
-                  }
+                  ref={thumbnailContainerRef}
                   className="hidden h-full max-h-[620px] flex-col gap-3 overflow-y-auto pr-1 md:flex"
                 >
-                  {availableGallery.map(
-                    (image) => {
-                      const isActive =
-                        activeImg ===
-                        image.key;
+                  {availableGallery.map((image) => {
+                    const isActive = activeImg === image.key;
+                    return (
+                      <button
+                        key={image.key}
+                        ref={(element) => {
+                          thumbnailRefs.current[image.key] = element;
+                        }}
+                        type="button"
+                        onClick={() => selectImage(image.key)}
+                        aria-label={`View ${image.name}`}
+                        aria-current={isActive ? "true" : undefined}
+                        className={`group relative w-full shrink-0 overflow-hidden rounded-xl border-2 text-left transition-all duration-300 ${isActive
+                          ? "border-[#A054A0] shadow-md"
+                          : "border-transparent bg-slate-50 hover:border-slate-300"
+                          }`}
+                      >
+                        <div className="relative aspect-[16/9] w-full">
+                          <Image
+                            src={image.url}
+                            alt={image.name}
+                            fill
+                            className="object-cover"
+                            sizes="380px"
+                            onError={() => handleImageError(image.key)}
+                          />
+                          <div
+                            className={`absolute inset-0 transition ${isActive
+                              ? "bg-[#A054A0]/10"
+                              : "bg-black/0 group-hover:bg-black/10"
+                              }`}
+                          />
+                        </div>
 
-                      return (
-                        <button
-                          key={
-                            image.key
-                          }
-                          ref={(element) => {
-                            thumbnailRefs.current[
-                              image.key
-                            ] = element;
-                          }}
-                          type="button"
-                          onClick={() =>
-                            selectImage(
-                              image.key
-                            )
-                          }
-                          aria-label={`View ${image.name}`}
-                          aria-current={
-                            isActive
-                              ? "true"
-                              : undefined
-                          }
-                          className={`group relative w-full shrink-0 overflow-hidden rounded-xl border-2 text-left transition-all duration-300 ${isActive
-                            ? "border-[#A054A0] shadow-md"
-                            : "border-transparent bg-slate-50 hover:border-slate-300"
-                            }`}
-                        >
-                          <div className="relative aspect-[16/9] w-full">
-                            <Image
-                              src={
-                                image.url
-                              }
-                              alt={
-                                image.name
-                              }
-                              fill
-                              className="object-cover"
-                              sizes="380px"
-                              onError={() =>
-                                handleImageError(
-                                  image.key
-                                )
-                              }
-                            />
-
-                            <div
-                              className={`absolute inset-0 transition ${isActive
-                                ? "bg-[#A054A0]/10"
-                                : "bg-black/0 group-hover:bg-black/10"
-                                }`}
-                            />
-                          </div>
-
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-8">
-                            <p className="truncate text-xs font-medium text-white">
-                              {image.name}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    }
-                  )}
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-8">
+                          <p className="truncate text-xs font-medium text-white">
+                            {image.name}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-
-                {/* MOBILE THUMBNAILS */}
 
                 <div className="md:hidden">
                   <div
-                    ref={
-                      thumbnailContainerRef
-                    }
+                    ref={thumbnailContainerRef}
                     className="flex gap-2 overflow-x-auto pb-1"
                   >
-                    {availableGallery.map(
-                      (image) => {
-                        const isActive =
-                          activeImg ===
-                          image.key;
-
-                        return (
-                          <button
-                            key={
-                              image.key
-                            }
-                            ref={(element) => {
-                              thumbnailRefs.current[
-                                image.key
-                              ] = element;
-                            }}
-                            type="button"
-                            onClick={() =>
-                              selectImage(
-                                image.key
-                              )
-                            }
-                            aria-label={`View ${image.name}`}
-                            aria-current={
-                              isActive
-                                ? "true"
-                                : undefined
-                            }
-                            className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${isActive
-                              ? "border-[#A054A0] shadow-md"
-                              : "border-transparent opacity-75"
-                              }`}
-                          >
-                            <Image
-                              src={
-                                image.url
-                              }
-                              alt={
-                                image.name
-                              }
-                              fill
-                              className="object-cover"
-                              sizes="112px"
-                              onError={() =>
-                                handleImageError(
-                                  image.key
-                                )
-                              }
-                            />
-
-                            {isActive && (
-                              <div className="absolute inset-0 bg-[#A054A0]/15" />
-                            )}
-                          </button>
-                        );
-                      }
-                    )}
+                    {availableGallery.map((image) => {
+                      const isActive = activeImg === image.key;
+                      return (
+                        <button
+                          key={image.key}
+                          ref={(element) => {
+                            thumbnailRefs.current[image.key] = element;
+                          }}
+                          type="button"
+                          onClick={() => selectImage(image.key)}
+                          aria-label={`View ${image.name}`}
+                          aria-current={isActive ? "true" : undefined}
+                          className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${isActive
+                            ? "border-[#A054A0] shadow-md"
+                            : "border-transparent opacity-75"
+                            }`}
+                        >
+                          <Image
+                            src={image.url}
+                            alt={image.name}
+                            fill
+                            className="object-cover"
+                            sizes="112px"
+                            onError={() => handleImageError(image.key)}
+                          />
+                          {isActive && (
+                            <div className="absolute inset-0 bg-[#A054A0]/15" />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* GALLERY HINT */}
-
-            {availableGallery.length >
-              1 && (
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-                  <span>
-                    Select an image to view
-                  </span>
-
-                  <span className="hidden md:inline">
-                    Use ← / → to navigate
-                  </span>
-
-                  <span>
-                    Changes automatically every
-                    25 seconds
-                  </span>
-                </div>
-              )}
           </div>
         </section>
 
-        {/* ===================================================
-            PROPERTY DETAILS
-        =================================================== */}
-
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:rounded-3xl sm:p-7 lg:p-8">
-
-          {/* =========================================
-              PROPERTY DETAILS
-          ========================================= */}
-
           <DetailSection title="Property details">
-
             {isCoworking ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
                 <DetailField
                   label="Managed By"
                   value={managedBy}
                   icon={Building2}
                 />
-
                 <DetailField
                   label="Offered Seats"
                   value={offeredSeats}
                   icon={Users}
                 />
-
                 <DetailField
                   label="Tower/Floor offered"
                   value={towerFloor}
                   icon={Layers3}
                 />
-
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
                 <DetailField
                   label="Area offered"
                   value={
-                    areaOffered !==
-                      "-" &&
-                      !isNaN(
-                        Number(
-                          areaOffered
-                        )
-                      )
-                      ? formatArea(
-                        Number(
-                          areaOffered
-                        ),
-                        unit
-                      )
+                    areaOffered !== "-" && !isNaN(Number(areaOffered))
+                      ? formatArea(Number(areaOffered), unit)
                       : areaOffered
                   }
                   icon={Building2}
                 />
-
                 <DetailField
                   label="Tower/Floor offered"
                   value={towerFloor}
                   icon={Layers3}
                 />
-
                 <DetailField
                   label="Availability Timeline"
                   value={availability}
                   icon={CalendarDays}
                 />
-
               </div>
             )}
           </DetailSection>
-
-          {/* =========================================
-              PROJECT SPECIFICATIONS
-          ========================================= */}
-
           <div className="mt-7">
             <DetailSection title="Project Specifications">
-
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
                 <DetailField
                   label="Building certification"
-                  value={
-                    buildingCertification
-                  }
+                  value={buildingCertification}
                   icon={Building2}
                 />
-
                 <DetailField
                   label="Number of elevators"
-                  value={
-                    numberOfElevators
-                  }
+                  value={numberOfElevators}
                   icon={Layers3}
                 />
-
                 <DetailField
                   label="Year of Completion"
-                  value={
-                    yearOfCompletion
-                  }
+                  value={yearOfCompletion}
                   icon={CalendarDays}
                 />
-
               </div>
             </DetailSection>
           </div>
-
-          {/* =========================================
-              BUILDING AMENITIES
-          ========================================= */}
-
-          <div className="mt-7">
-            <DetailSection title="Amenities of the building">
-
-              {amenities.length >
-                0 ? (
-                <div className="flex flex-wrap gap-2.5">
-                  {amenities.map(
-                    (
-                      amenity,
-                      index
-                    ) => (
-                      <span
-                        key={`${amenity}-${index}`}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm text-slate-700"
-                      >
-                        {formatDisplayValue(
-                          amenity
-                        )}
-                      </span>
-                    )
-                  )}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  <DetailField
-                    label="Building certification"
-                    value={
-                      buildingCertification
-                    }
-                  />
-
-                  <DetailField
-                    label="Number of elevators"
-                    value={
-                      numberOfElevators
-                    }
-                  />
-
-                  <DetailField
-                    label="Year of Completion"
-                    value={
-                      yearOfCompletion
-                    }
-                  />
-                </div>
-              )}
-
-            </DetailSection>
-          </div>
-
-          {/* =========================================
-              CONNECTIVITY
-          ========================================= */}
-
           <div className="mt-7">
             <DetailSection title="Connectivity">
-
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
                 <DetailField
                   label="Nearby Metro"
-                  value={
-                    nearbyMetro
-                  }
+                  value={nearbyMetro}
                   icon={TrainFront}
                 />
-
                 <DetailField
                   label="Bus station"
-                  value={
-                    busStation
-                  }
+                  value={busStation}
                   icon={BusFront}
                 />
-
-                <DetailField
-                  label="Airport"
-                  value={airport}
-                  icon={Plane}
-                />
-
+                <DetailField label="Airport" value={airport} icon={Plane} />
               </div>
             </DetailSection>
           </div>
-
         </section>
-
-        {/* ===================================================
-            QUICK PROPERTY INFO
-        =================================================== */}
-
-        <section className="mt-8 sm:mt-10">
+        {/* <section className="mt-8 sm:mt-10">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
 
             <Info
@@ -1532,11 +1104,8 @@ export default function PropertyDetailClient({
             />
 
           </div>
-        </section>
-
-
-
-        {property.description && (
+        </section> */}
+        {/* {property.description && (
           <section className="mt-8 sm:mt-10">
             <h2 className="mb-4 text-xl font-semibold text-slate-900 sm:text-2xl">
               About the Property
@@ -1549,11 +1118,6 @@ export default function PropertyDetailClient({
             </div>
           </section>
         )}
-
-        {/* ===================================================
-            PROJECT HIGHLIGHTS
-        =================================================== */}
-
         {property.projectHighlights && (
           <section className="mt-8 sm:mt-10">
             <h2 className="mb-4 text-xl font-semibold text-slate-900 sm:text-2xl">
@@ -1568,65 +1132,35 @@ export default function PropertyDetailClient({
               </p>
             </div>
           </section>
-        )}
+        )} */}
 
-        {/* ===================================================
-            AMENITIES
-        =================================================== */}
-
-        {amenities.length > 0 && (
-          <section className="mt-8 sm:mt-10">
-            <h2 className="mb-4 text-xl font-semibold text-slate-900 sm:text-2xl">
-              Amenities
-            </h2>
-
-            <div className="flex flex-wrap gap-2.5">
-              {amenities.map(
-                (
-                  amenity,
-                  index
-                ) => (
-                  <span
-                    key={`${amenity}-${index}`}
-                    className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm"
-                  >
-                    {formatDisplayValue(
-                      amenity
-                    )}
-                  </span>
-                )
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* ===================================================
-            CONTACT
-        =================================================== */}
-
-        {property.contact?.name && (
-          <section className="mt-8 rounded-2xl bg-slate-900 p-5 text-white sm:mt-10 sm:p-7">
-            <h2 className="mb-4 text-xl font-semibold">
-              Contact
-            </h2>
-
-            <p className="font-medium">
-              {property.contact.name}
-            </p>
-
-            {property.contact.phone && (
-              <p className="mt-1 text-sm text-slate-300">
-                {
-                  property.contact.phone
-                }
-              </p>
-            )}
-          </section>
-        )}
-
-        {/* ===================================================
-            SIMILAR PROPERTIES
-        =================================================== */}
+        <section className="w-full mt-8 sm:mt-10 flex justify-evenly gap-4">
+          {" "}
+          <button
+            type="button"
+            onClick={() => {
+              setIsContactModalOpen(true);
+            }}
+            className="px-6 py-3 rounded-xl border border-gray-300
+               bg-white text-gray-900 font-medium
+               hover:bg-gray-50 transition-all duration-200"
+          >
+            Contact Us
+          </button>
+          {/* Add to Wishlist */}
+          <button
+            type="button"
+            onClick={() => handleWishlist(property)}
+            className={`px-6 py-3 rounded-xl font-medium
+                transition-all duration-200
+                ${isWishlisted
+                ? "bg-pink-600 text-white"
+                : "bg-gray-900 text-white hover:bg-gray-800"
+              }`}
+          >
+            {isWishlisted ? "Added to Wishlist" : "Add to Wishlist"}
+          </button>
+        </section>
 
         {related.length > 0 && (
           <section className="mt-12 sm:mt-14">
@@ -1637,8 +1171,7 @@ export default function PropertyDetailClient({
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Explore other properties in
-                  this location.
+                  Explore other properties in this location.
                 </p>
               </div>
 
@@ -1646,20 +1179,12 @@ export default function PropertyDetailClient({
             </div>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {related.map(
-                (item) => (
-                  <PropertyCard
-                    key={
-                      item.id ||
-                      item.rowId ||
-                      item.ROWID
-                    }
-                    property={
-                      item
-                    }
-                  />
-                )
-              )}
+              {related.map((item) => (
+                <PropertyCard
+                  key={item.id || item.rowId || item.ROWID}
+                  property={item}
+                />
+              ))}
             </div>
           </section>
         )}

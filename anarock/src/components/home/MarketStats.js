@@ -1,285 +1,3 @@
-// "use client";
-
-// import { useEffect, useRef, useState } from "react";
-// import { usePreferences } from "@/lib/preferences";
-
-// const STAT_CONFIG = [
-//   {
-//     key: "totalStock",
-//     label: "Total Stock",
-//     description: "Total registered commercial stock across tracked markets.",
-//   },
-//   {
-//     key: "totalVacancy",
-//     label: "Total Vacancy",
-//     description: "Available commercial spaces across the tracked markets.",
-//   },
-//   {
-//     key: "totalAvailableSpace",
-//     label: "Total Available Space",
-//     description: "Commercial space currently available for occupation.",
-//   },
-//   {
-//     key: "areaTransacted",
-//     label: "Area Transacted",
-//     description: "Total area recorded through market transactions.",
-//   },
-// ];
-
-// const SQFT_TO_SQM = 0.09290304;
-
-// function formatArea(num, unit) {
-//   if (num === null || num === undefined || Number.isNaN(Number(num))) {
-//     return "—";
-//   }
-//   let value = Number(num);
-//   if (unit === "sqm") {
-//     value = value * SQFT_TO_SQM;
-//   }
-//   const abs = Math.abs(value);
-//   const suffix = unit === "sqm" ? "sq.m" : "sq.ft";
-//   if (abs >= 1_000_000_000) {
-//     return `${(value / 1_000_000_000).toFixed(1)}B ${suffix}`;
-//   }
-//   if (abs >= 1_000_000) {
-//     return `${(value / 1_000_000).toFixed(1)}M ${suffix}`;
-//   }
-//   if (abs >= 1_000) {
-//     return `${(value / 1_000).toFixed(1)}K ${suffix}`;
-//   }
-//   return `${value.toLocaleString(undefined, {
-//     maximumFractionDigits: 1,
-//   })} ${suffix}`;
-// }
-
-// function AnimatedNumber({ value, unit, startAnimation, delay = 0 }) {
-//   const [animatedValue, setAnimatedValue] = useState(0);
-//   const animationRef = useRef(null);
-//   const timeoutRef = useRef(null);
-
-//   useEffect(() => {
-//     if (
-//       value === null ||
-//       value === undefined ||
-//       Number.isNaN(Number(value))
-//     ) {
-//       return;
-//     }
-
-//     const target = Number(value);
-
-//     if (!Number.isFinite(target)) {
-//       return;
-//     }
-
-//     // Always show the real value even if the
-//     // intersection observer has not started the animation yet.
-//     if (!startAnimation) {
-//       setAnimatedValue(target);
-//       return;
-//     }
-
-//     const reducedMotion = window.matchMedia(
-//       "(prefers-reduced-motion: reduce)",
-//     ).matches;
-
-//     if (reducedMotion) {
-//       setAnimatedValue(target);
-//       return;
-//     }
-
-//     if (timeoutRef.current) {
-//       clearTimeout(timeoutRef.current);
-//     }
-
-//     if (animationRef.current) {
-//       cancelAnimationFrame(animationRef.current);
-//     }
-
-//     setAnimatedValue(0);
-
-//     const duration = 1800;
-//     let startTime = null;
-
-//     const animate = (currentTime) => {
-//       if (!startTime) {
-//         startTime = currentTime;
-//       }
-
-//       const elapsed = currentTime - startTime;
-//       const progress = Math.min(elapsed / duration, 1);
-
-//       const easedProgress = 1 - Math.pow(1 - progress, 4);
-//       const currentValue = target * easedProgress;
-
-//       setAnimatedValue(currentValue);
-
-//       if (progress < 1) {
-//         animationRef.current = requestAnimationFrame(animate);
-//       } else {
-//         setAnimatedValue(target);
-//       }
-//     };
-
-//     timeoutRef.current = setTimeout(() => {
-//       animationRef.current = requestAnimationFrame(animate);
-//     }, delay);
-
-//     return () => {
-//       if (timeoutRef.current) {
-//         clearTimeout(timeoutRef.current);
-//       }
-
-//       if (animationRef.current) {
-//         cancelAnimationFrame(animationRef.current);
-//       }
-//     };
-//   }, [value, startAnimation, delay]);
-
-//   return formatArea(animatedValue, unit);
-// }
-
-// export default function MarketStats() {
-//   const { unit } = usePreferences();
-//   const [stats, setStats] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [startAnimation, setStartAnimation] = useState(false);
-//   const statsRef = useRef(null);
-
-//   useEffect(() => {
-//     const element = statsRef.current;
-//     if (!element) return;
-
-//     const observer = new IntersectionObserver(
-//       ([entry]) => {
-//         if (entry.isIntersecting) {
-//           setStartAnimation(true);
-//           observer.disconnect();
-//         }
-//       },
-//       {
-//         threshold: 0.15,
-//         rootMargin: "0px 0px -40px 0px",
-//       },
-//     );
-
-//     observer.observe(element);
-//     return () => observer.disconnect();
-//   }, []);
-
-//   useEffect(() => {
-//     let isActive = true;
-
-//     async function loadStats() {
-//       try {
-//         setLoading(true);
-//         setError(null);
-//         const res = await fetch("/api/market-stats", { cache: "no-store" });
-//         if (!res.ok) {
-//           throw new Error(`Request failed with status ${res.status}`);
-//         }
-//         useEffect(() => {
-//           const page = Number(searchParams.get("page") || "1");
-
-//           if (page <= 1) return;
-
-//           const params = new URLSearchParams(searchParams.toString());
-//           params.delete("page");
-
-//           router.replace(
-//             `/properties${params.toString() ? `?${params.toString()}` : ""}`,
-//           );
-//         }, [
-//           filters.city,
-//           filters.micromarket,
-//           filters.type,
-//           filters.minBudget,
-//           filters.maxBudget,
-//           filters.area,
-//           filters.seats,
-//         ]);
-//       } catch (err) {
-//         if (isActive) setError(err.message || "Failed to load market stats");
-//       } finally {
-//         if (isActive) setLoading(false);
-//       }
-//     }
-
-//     loadStats();
-//     const interval = setInterval(loadStats, 12 * 60 * 60 * 1000);
-
-//     return () => {
-//       isActive = false;
-//       clearInterval(interval);
-//     };
-//   }, []);
-
-//   return (
-//     <section
-//       ref={statsRef}
-//       className="
-//         relative
-//         w-full
-//         overflow-hidden
-//         rounded-[1.75rem]
-//         border
-//         border-slate-200/80
-//         bg-white
-//         shadow-[0_20px_80px_-40px_rgba(15,23,42,0.18)]
-//         sm:rounded-[2.25rem]
-//       "
-//     >
-//       <div className="grid grid-cols-2 lg:grid-cols-4">
-//         {STAT_CONFIG.map(({ key, label, description }, i) => (
-//           <div
-//             key={key}
-//             className={`
-//               group relative flex min-w-0 flex-col justify-between
-//               p-5 min-[400px]:p-6 sm:p-8 lg:p-9 xl:p-10
-//               min-h-[220px] sm:min-h-[260px] lg:min-h-[290px] xl:min-h-[320px]
-//               transition-colors duration-300 hover:bg-slate-50/60
-//               ${i % 2 !== 0 ? "border-l border-slate-200/80" : ""}
-//               ${i >= 2 ? "border-t border-slate-200/80 lg:border-t-0" : ""}
-//               ${i > 0 ? "lg:border-l lg:border-slate-200/80" : ""}
-//             `}
-//           >
-//             <div className="flex flex-col gap-2.5 sm:gap-3">
-//               <div className="flex items-center min-h-[2.5rem] sm:min-h-[3.25rem] lg:min-h-[3.75rem]">
-//                 {loading ? (
-//                   <div className="h-8 w-28 sm:h-10 sm:w-36 lg:h-12 lg:w-40 animate-pulse rounded-lg bg-slate-100" />
-//                 ) : error ? (
-//                   <span className="text-xs sm:text-sm font-medium text-slate-400">
-//                     Unavailable
-//                   </span>
-//                 ) : (
-//                   <div className="min-w-0 truncate text-lg min-[400px]:text-xl sm:text-xl lg:text-2xl xl:text-3xl font-bold tracking-tight text-[#b54fb5] transition-transform duration-300 group-hover:translate-x-0.5">
-//                     <AnimatedNumber
-//                       value={stats?.[key]}
-//                       unit={unit}
-//                       startAnimation={startAnimation}
-//                       delay={i * 120}
-//                     />
-//                   </div>
-//                 )}
-//               </div>
-
-//               <h3 className="text-xs min-[400px]:text-sm sm:text-base font-semibold tracking-tight text-slate-800">
-//                 {label}
-//               </h3>
-//             </div>
-
-//             <p className="mt-4 max-w-[260px] text-[11px] leading-relaxed text-slate-500 sm:text-xs min-[400px]:text-[12px] sm:leading-relaxed">
-//               {description}
-//             </p>
-//           </div>
-//         ))}
-//       </div>
-//     </section>
-//   );
-// }
-
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -325,38 +43,32 @@ function formatArea(num, unit) {
 
   let value = Number(num);
 
+  if (!Number.isFinite(value)) {
+    return "—";
+  }
+
   if (unit === "sqm") {
     value *= SQFT_TO_SQM;
   }
 
   const abs = Math.abs(value);
-  const suffix =
-    unit === "sqm" ? "sq.m" : "sq.ft";
+  const suffix = unit === "sqm" ? "sq.m" : "sq.ft";
 
   if (abs >= 1_000_000_000) {
-    return `${(
-      value / 1_000_000_000
-    ).toFixed(1)}B ${suffix}`;
+    return `${(value / 1_000_000_000).toFixed(1)}B ${suffix}`;
   }
 
   if (abs >= 1_000_000) {
-    return `${(
-      value / 1_000_000
-    ).toFixed(1)}M ${suffix}`;
+    return `${(value / 1_000_000).toFixed(1)}M ${suffix}`;
   }
 
   if (abs >= 1_000) {
-    return `${(
-      value / 1_000
-    ).toFixed(1)}K ${suffix}`;
+    return `${(value / 1_000).toFixed(1)}K ${suffix}`;
   }
 
-  return `${value.toLocaleString(
-    undefined,
-    {
-      maximumFractionDigits: 1,
-    }
-  )} ${suffix}`;
+  return `${value.toLocaleString(undefined, {
+    maximumFractionDigits: 1,
+  })} ${suffix}`;
 }
 
 function AnimatedNumber({
@@ -365,8 +77,7 @@ function AnimatedNumber({
   startAnimation,
   delay = 0,
 }) {
-  const [animatedValue, setAnimatedValue] =
-    useState(0);
+  const [animatedValue, setAnimatedValue] = useState(0);
 
   const animationRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -387,18 +98,17 @@ function AnimatedNumber({
     }
 
     /*
-     * Show the real value immediately if the
-     * intersection observer has not triggered yet.
+     * If the section has not entered the viewport yet,
+     * immediately show the real value.
      */
     if (!startAnimation) {
       setAnimatedValue(target);
       return;
     }
 
-    const reducedMotion =
-      window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     if (reducedMotion) {
       setAnimatedValue(target);
@@ -406,15 +116,11 @@ function AnimatedNumber({
     }
 
     if (timeoutRef.current) {
-      clearTimeout(
-        timeoutRef.current
-      );
+      clearTimeout(timeoutRef.current);
     }
 
     if (animationRef.current) {
-      cancelAnimationFrame(
-        animationRef.current
-      );
+      cancelAnimationFrame(animationRef.current);
     }
 
     setAnimatedValue(0);
@@ -427,129 +133,99 @@ function AnimatedNumber({
         startTime = currentTime;
       }
 
-      const elapsed =
-        currentTime - startTime;
+      const elapsed = currentTime - startTime;
 
       const progress = Math.min(
         elapsed / duration,
-        1
+        1,
       );
 
       const easedProgress =
-        1 -
-        Math.pow(
-          1 - progress,
-          4
-        );
+        1 - Math.pow(1 - progress, 4);
 
       const currentValue =
         target * easedProgress;
 
-      setAnimatedValue(
-        currentValue
-      );
+      setAnimatedValue(currentValue);
 
       if (progress < 1) {
         animationRef.current =
-          requestAnimationFrame(
-            animate
-          );
+          requestAnimationFrame(animate);
       } else {
         setAnimatedValue(target);
       }
     };
 
-    timeoutRef.current =
-      setTimeout(() => {
-        animationRef.current =
-          requestAnimationFrame(
-            animate
-          );
-      }, delay);
+    timeoutRef.current = setTimeout(() => {
+      animationRef.current =
+        requestAnimationFrame(animate);
+    }, delay);
 
     return () => {
       if (timeoutRef.current) {
-        clearTimeout(
-          timeoutRef.current
-        );
+        clearTimeout(timeoutRef.current);
       }
 
       if (animationRef.current) {
         cancelAnimationFrame(
-          animationRef.current
+          animationRef.current,
         );
       }
     };
-  }, [
-    value,
-    startAnimation,
-    delay,
-  ]);
+  }, [value, startAnimation, delay]);
 
-  return formatArea(
-    animatedValue,
-    unit
-  );
+  return formatArea(animatedValue, unit);
 }
 
 export default function MarketStats() {
-  const { unit } =
-    usePreferences();
+  const { unit } = usePreferences();
 
-  const [stats, setStats] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState(null);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [startAnimation, setStartAnimation] =
     useState(false);
 
-  const statsRef =
-    useRef(null);
+  const statsRef = useRef(null);
 
   /*
-   * Start number animation when the
-   * section becomes visible.
+   * Start number animation when the section
+   * enters the viewport.
    */
   useEffect(() => {
-    const element =
-      statsRef.current;
+    const element = statsRef.current;
 
     if (!element) {
       return;
     }
 
-    const observer =
-      new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setStartAnimation(true);
-            observer.disconnect();
-          }
-        },
-        {
-          threshold: 0.15,
-          rootMargin:
-            "0px 0px -40px 0px",
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStartAnimation(true);
+          observer.disconnect();
         }
-      );
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -40px 0px",
+      },
+    );
 
     observer.observe(element);
 
-    return () =>
+    return () => {
       observer.disconnect();
+    };
   }, []);
 
   /*
-   * Fetch market statistics.
+   * Load market statistics.
    *
    * IMPORTANT:
-   * There must NOT be another useEffect()
-   * inside loadStats().
+   * Do NOT put useEffect inside loadStats().
+   * Hooks must only be called at the component level.
    */
   useEffect(() => {
     let isActive = true;
@@ -559,32 +235,36 @@ export default function MarketStats() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(
+        const res = await fetch(
           "/api/market-stats",
           {
             cache: "no-store",
-          }
+          },
         );
 
-        if (!response.ok) {
+        if (!res.ok) {
           throw new Error(
-            `Request failed with status ${response.status}`
+            `Request failed with status ${res.status}`,
           );
         }
 
-        const data =
-          await response.json();
+        const data = await res.json();
 
-        if (!isActive) {
-          return;
+        if (!data?.success) {
+          throw new Error(
+            data?.error ||
+            "Failed to load market stats",
+          );
         }
 
-        setStats(data);
+        if (isActive) {
+          setStats(data.data || data);
+        }
       } catch (err) {
         if (isActive) {
           setError(
             err?.message ||
-            "Failed to load market stats"
+            "Failed to load market stats",
           );
         }
       } finally {
@@ -597,14 +277,12 @@ export default function MarketStats() {
     loadStats();
 
     /*
-     * Refresh market statistics every
-     * 12 hours.
+     * Refresh every 12 hours.
      */
-    const interval =
-      setInterval(
-        loadStats,
-        12 * 60 * 60 * 1000
-      );
+    const interval = setInterval(
+      loadStats,
+      12 * 60 * 60 * 1000,
+    );
 
     return () => {
       isActive = false;
@@ -629,14 +307,7 @@ export default function MarketStats() {
     >
       <div className="grid grid-cols-2 lg:grid-cols-4">
         {STAT_CONFIG.map(
-          (
-            {
-              key,
-              label,
-              description,
-            },
-            index
-          ) => (
+          ({ key, label, description }, i) => (
             <div
               key={key}
               className={`
@@ -658,54 +329,116 @@ export default function MarketStats() {
                 transition-colors
                 duration-300
                 hover:bg-slate-50/60
-                ${index % 2 !== 0
+
+                ${i % 2 !== 0
                   ? "border-l border-slate-200/80"
                   : ""
                 }
-                ${index >= 2
+
+                ${i >= 2
                   ? "border-t border-slate-200/80 lg:border-t-0"
                   : ""
                 }
-                ${index > 0
+
+                ${i > 0
                   ? "lg:border-l lg:border-slate-200/80"
                   : ""
                 }
               `}
             >
               <div className="flex flex-col gap-2.5 sm:gap-3">
-                <div className="flex min-h-[2.5rem] items-center sm:min-h-[3.25rem] lg:min-h-[3.75rem]">
+                <div
+                  className="
+                    flex
+                    min-h-[2.5rem]
+                    items-center
+                    sm:min-h-[3.25rem]
+                    lg:min-h-[3.75rem]
+                  "
+                >
                   {loading ? (
-                    <div className="h-8 w-28 animate-pulse rounded-lg bg-slate-100 sm:h-10 sm:w-36 lg:h-12 lg:w-40" />
+                    <div
+                      className="
+                        h-8
+                        w-28
+                        animate-pulse
+                        rounded-lg
+                        bg-slate-100
+                        sm:h-10
+                        sm:w-36
+                        lg:h-12
+                        lg:w-40
+                      "
+                    />
                   ) : error ? (
-                    <span className="text-xs font-medium text-slate-400 sm:text-sm">
+                    <span
+                      className="
+                        text-xs
+                        font-medium
+                        text-slate-400
+                        sm:text-sm
+                      "
+                    >
                       Unavailable
                     </span>
                   ) : (
-                    <div className="min-w-0 truncate text-lg font-bold tracking-tight text-[#b54fb5] transition-transform duration-300 group-hover:translate-x-0.5 min-[400px]:text-xl sm:text-xl lg:text-2xl xl:text-3xl">
+                    <div
+                      className="
+                        min-w-0
+                        truncate
+                        text-lg
+                        font-bold
+                        tracking-tight
+                        text-[#b54fb5]
+                        transition-transform
+                        duration-300
+                        group-hover:translate-x-0.5
+                        min-[400px]:text-xl
+                        sm:text-xl
+                        lg:text-2xl
+                        xl:text-3xl
+                      "
+                    >
                       <AnimatedNumber
                         value={stats?.[key]}
                         unit={unit}
-                        startAnimation={
-                          startAnimation
-                        }
-                        delay={
-                          index * 120
-                        }
+                        startAnimation={startAnimation}
+                        delay={i * 120}
                       />
                     </div>
                   )}
                 </div>
 
-                <h3 className="text-xs font-semibold tracking-tight text-slate-800 min-[400px]:text-sm sm:text-base">
+                <h3
+                  className="
+                    text-xs
+                    font-semibold
+                    tracking-tight
+                    text-slate-800
+                    min-[400px]:text-sm
+                    sm:text-base
+                  "
+                >
                   {label}
                 </h3>
               </div>
 
-              <p className="mt-4 max-w-[260px] text-[11px] leading-relaxed text-slate-500 min-[400px]:text-[12px] sm:text-xs">
+              <p
+                className="
+                  mt-4
+                  max-w-[260px]
+                  text-[11px]
+                  leading-relaxed
+                  text-slate-500
+                  min-[400px]:text-[12px]
+                  sm:text-xs
+                  sm:leading-relaxed
+                "
+              >
                 {description}
               </p>
             </div>
-          )
+          ),
         )}
       </div>
     </section>

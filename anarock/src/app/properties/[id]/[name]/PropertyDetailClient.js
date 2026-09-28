@@ -2,7 +2,7 @@
 
 import { usePreferences } from "@/lib/preferences";
 import { formatPrice, formatArea } from "@/lib/format";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import PropertyCard from "@/components/properties/PropertyCard";
 import {
@@ -506,43 +506,38 @@ export default function PropertyDetailClient({ propertyId }) {
      NEXT IMAGE
   ========================================================= */
 
-  const goToNextImage = () => {
+  const goToNextImage = useCallback(() => {
     if (availableGallery.length === 0) {
       return;
     }
 
-    const nextIndex =
-      activeIndex + 1 >= availableGallery.length ? 0 : activeIndex + 1;
-
+    const nextIndex = activeIndex + 1 >= availableGallery.length ? 0 : activeIndex + 1;
     const nextImage = availableGallery[nextIndex];
-
     if (nextImage) {
       selectImage(nextImage.key);
     }
-  };
+  }, [
+    activeIndex,
+    availableGallery,
+    selectImage,
+  ]);
 
-  /* =========================================================
-     PREVIOUS IMAGE
-  ========================================================= */
-
-  const goToPreviousImage = () => {
-    if (availableGallery.length === 0) {
+  const goToPreviousImage = useCallback(() => {
+    if (!availableGallery.length) {
       return;
     }
 
-    const previousIndex =
-      activeIndex - 1 < 0 ? availableGallery.length - 1 : activeIndex - 1;
-
+    const previousIndex = (activeIndex - 1 + availableGallery.length) % availableGallery.length;
     const previousImage = availableGallery[previousIndex];
-
     if (previousImage) {
       selectImage(previousImage.key);
     }
-  };
+  }, [
+    activeIndex,
+    availableGallery,
+    selectImage,
+  ]);
 
-  /* =========================================================
-     AUTO SCROLL EVERY 25 SECONDS
-  ========================================================= */
 
   useEffect(() => {
     if (availableGallery.length <= 1) {

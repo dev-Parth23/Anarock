@@ -266,24 +266,23 @@ export default function PropertiesClient() {
 
   useEffect(() => {
     const page = Number(searchParams.get("page") || "1");
-
     if (page <= 1) return;
-
     const params = new URLSearchParams(searchParams.toString());
     params.delete("page");
 
     router.replace(
       `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
-  }, [
-    filters.city,
-    filters.micromarket,
-    filters.type,
-    filters.minBudget,
-    filters.maxBudget,
-    filters.area,
-    filters.seats,
-  ]);
+  }, [router, searchParams]);
+  // }, [
+  //   filters.city,
+  //   filters.micromarket,
+  //   filters.type,
+  //   filters.minBudget,
+  //   filters.maxBudget,
+  //   filters.area,
+  //   filters.seats,
+  // ]);
 
   const normalizedOfficeType = normalizeValue(filters.type);
   const isCoworking = normalizedOfficeType === "managed office/co-working";

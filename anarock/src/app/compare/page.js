@@ -1,21 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Trash2 } from "lucide-react";
-
 import { formatPrice, formatArea } from "@/lib/format";
-
 import { usePreferences } from "@/lib/preferences";
-
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
-
 const MAX_COMPARE_PROPERTIES = 3;
-
-/* =========================================================
-   CREATE SLUG
-========================================================= */
-
 const createSlug = (value) => {
     return String(value || "")
         .trim()
@@ -28,100 +20,55 @@ const createSlug = (value) => {
 
 export default function ComparePage() {
     const { currency, unit, exchangeRates } = usePreferences();
-
     const [properties, setProperties] = useState([]);
-
-    /* =========================================================
-            PROPERTY ID
-         ========================================================= */
-
     const getId = (property) => {
         return String(
             property?.id || property?.rowId || property?.ROWID || property?.ID || "",
         );
     };
-
-    /* =========================================================
-         LOAD COMPARE PROPERTIES
-      ========================================================= */
     useEffect(() => {
         let cancelled = false;
-
         async function loadCompareProperties() {
             try {
-                const stored =
-                    localStorage.getItem(
-                        COMPARE_STORAGE_KEY
-                    );
-
+                const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
                 if (!stored) {
                     setProperties([]);
                     return;
                 }
 
-                const parsed =
-                    JSON.parse(stored);
-
+                const parsed = JSON.parse(stored);
                 if (!Array.isArray(parsed)) {
                     setProperties([]);
                     return;
                 }
 
-                const selectedProperties =
-                    parsed
-                        .filter(
-                            (property) =>
-                                getId(property)
-                        )
-                        .slice(
-                            -MAX_COMPARE_PROPERTIES
-                        );
-
-                if (
-                    selectedProperties.length === 0
-                ) {
+                const selectedProperties = parsed
+                    .filter((property) => getId(property))
+                    .slice(-MAX_COMPARE_PROPERTIES);
+                if (selectedProperties.length === 0) {
                     setProperties([]);
                     return;
                 }
+                const incomplete = selectedProperties.some(
+                    (property) =>
+                        !(
+                            property?.name ||
+                            property?.Property_Name ||
+                            property?.propertyName
+                        ),
+                );
 
-                /*
-                 * Determine whether the stored objects
-                 * already contain actual property data.
-                 */
-                const incomplete =
-                    selectedProperties.some(
-                        (property) =>
-                            !(
-                                property?.name ||
-                                property?.Property_Name ||
-                                property?.propertyName
-                            )
-                    );
-
-                /*
-                 * If everything is already complete,
-                 * don't make an API request.
-                 */
                 if (!incomplete) {
-                    setProperties(
-                        selectedProperties
-                    );
+                    setProperties(selectedProperties);
                     return;
                 }
-                const response = await fetch("/api/properties",
-                    { cache: "no-store", }
-                );
+                const response = await fetch("/api/properties", { cache: "no-store" });
 
                 const data = await response.json();
 
-                if (
-                    !response.ok ||
-                    !data?.success ||
-                    !Array.isArray(data.data)
-                ) {
+                if (!response.ok || !data?.success || !Array.isArray(data.data)) {
                     throw new Error(
-                        data?.error ||
-                        "Failed to load comparison properties"
+                        data?.error || "Failed to load comparison properties",
                     );
                 }
 
@@ -135,31 +82,32 @@ export default function ComparePage() {
                     const id = getId(property);
 
                     if (id) {
-                        propertyMap.set(
-                            id,
-                            property
-                        );
+                        propertyMap.set(id, property);
                     }
                 });
 
                 const hydratedProperties = selectedProperties
                     .map((storedProperty) => {
                         const id = getId(storedProperty);
-                        return (propertyMap.get(id) || storedProperty);
+                        return propertyMap.get(id) || storedProperty;
                     })
                     .filter(Boolean);
 
                 setProperties(hydratedProperties);
-                localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(hydratedProperties));
+                localStorage.setItem(
+                    COMPARE_STORAGE_KEY,
+                    JSON.stringify(hydratedProperties),
+                );
             } catch (error) {
                 console.error("Unable to load comparison properties:", error);
                 setProperties([]);
             }
         }
         loadCompareProperties();
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, []);
-
 
     //   useEffect(() => {
     //     try {
@@ -186,8 +134,8 @@ export default function ComparePage() {
     //   }, []);
 
     /* =========================================================
-         PROPERTY NAME
-      ========================================================= */
+           PROPERTY NAME
+        ========================================================= */
 
     const getName = (property) => {
         return (
@@ -200,8 +148,8 @@ export default function ComparePage() {
     };
 
     /* =========================================================
-         PROPERTY SLUG
-      ========================================================= */
+           PROPERTY SLUG
+        ========================================================= */
 
     const getPropertySlug = (property) => {
         const existingSlug =
@@ -260,8 +208,8 @@ export default function ComparePage() {
     };
 
     /* =========================================================
-         COMPARISON ROWS
-      ========================================================= */
+           COMPARISON ROWS
+        ========================================================= */
 
     const rows = [
         {
@@ -372,24 +320,16 @@ export default function ComparePage() {
                         Review the key details of your selected properties side by side.
                     </p>
                 </div>
-
-                {/* =====================================================
-            EMPTY STATE
-        ===================================================== */}
-
                 {properties.length === 0 ? (
                     <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 text-center shadow-sm sm:mt-10 sm:p-10">
                         <h2 className="text-xl font-semibold text-slate-900">
                             No properties selected
                         </h2>
-
                         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
                             Return to the property list and select up to three properties to
                             compare.
                         </p>
-
-                        <Link
-                            href="/properties"
+                        <Link href="/properties"
                             className="
                 mt-5
                 inline-flex
@@ -410,14 +350,6 @@ export default function ComparePage() {
                     </div>
                 ) : (
                     <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:mt-10 sm:rounded-3xl">
-                        {/* =================================================
-                PROPERTY CARDS
-
-                MOBILE  = 1
-                TABLET  = 2
-                DESKTOP = 3
-            ================================================= */}
-
                         <section className="p-3 sm:p-5 lg:p-6">
                             <div
                                 className={`
@@ -432,19 +364,12 @@ export default function ComparePage() {
                             >
                                 {properties.map((property) => {
                                     const propertyId = getId(property);
-
                                     const propertyName = getName(property);
-
                                     const imageUrl = getImage(property);
-
                                     const propertyUrl = getPropertyUrl(property);
-
                                     return (
-                                        <article
-                                            key={propertyId}
-                                            className="
-                          group
-                          relative
+                                        <article key={propertyId} className="
+                          group relative
                           overflow-hidden
                           rounded-2xl
                           border
@@ -457,20 +382,10 @@ export default function ComparePage() {
                           hover:shadow-lg
                         "
                                         >
-                                            {/* =====================================
-                            CLICKABLE IMAGE
-                        ===================================== */}
-
                                             <Link
                                                 href={propertyUrl}
-                                                className="
-                            relative
-                            block
-                            overflow-hidden
-                            bg-slate-100
-                            focus:outline-none
-                            focus-visible:ring-2
-                            focus-visible:ring-[#A054A0]
+                                                className="relative block overflow-hidden bg-slate-100 focus:outline-none
+                            focus-visible:ring-2 focus-visible:ring-[#A054A0] 
                             focus-visible:ring-offset-2
                           "
                                                 aria-label={`View ${propertyName}`}
@@ -479,7 +394,7 @@ export default function ComparePage() {
                                                     <img
                                                         src={imageUrl}
                                                         alt={propertyName}
-                                                        loading="lazy"
+                                                        fill
                                                         className="
                                 h-48
                                 w-full
@@ -502,16 +417,8 @@ export default function ComparePage() {
 
                                                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                             </Link>
-
-                                            {/* =====================================
-                            REMOVE
-                        ===================================== */}
-
-                                            <button
-                                                type="button"
-                                                onClick={() => removeProperty(propertyId)}
-                                                className="
-                            absolute
+                                            <button type="button" onClick={() => removeProperty(propertyId)}
+                                                className=" absolute
                             right-3
                             top-3
                             z-20
@@ -530,9 +437,7 @@ export default function ComparePage() {
                                                 <Trash2 className="h-4 w-4" />
                                             </button>
 
-                                            {/* =====================================
-                            PROPERTY DETAILS
-                        ===================================== */}
+
 
                                             <div className="p-4">
                                                 <Link href={propertyUrl} className="block">
@@ -571,13 +476,7 @@ export default function ComparePage() {
                             </div>
                         </section>
 
-                        {/* =================================================
-                COMPARISON TABLE
-            ================================================= */}
-
                         <section className="border-t border-slate-200">
-                            {/* Mobile hint */}
-
                             {properties.length > 1 && (
                                 <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5 sm:hidden">
                                     <span className="text-[11px] font-medium text-slate-500">
@@ -590,44 +489,24 @@ export default function ComparePage() {
                                 </div>
                             )}
 
-                            {/* Horizontal scroll on mobile/tablet */}
-
                             <div className="w-full overflow-x-auto overscroll-x-contain">
-                                <div
-                                    className={`
-                    min-w-[720px]
+                                <div className={`min-w-[720px] ${properties.length === 1 ? "sm:min-w-0" : ""}
+                    ${properties.length === 2 ? "lg:min-w-0" : ""} ${properties.length === 3 ? "lg:min-w-0" : ""}`}>
 
-                    ${properties.length === 1 ? "sm:min-w-0" : ""}
-
-                    ${properties.length === 2 ? "lg:min-w-0" : ""}
-
-                    ${properties.length === 3 ? "lg:min-w-0" : ""}
-                  `}
-                                >
-                                    {/* =========================================
-                      TABLE HEADER
-                  ========================================= */}
-
-                                    <div
-                                        className={`
-                      grid
-                      border-b
-                      border-slate-200
-                      bg-white
-
-                      ${properties.length === 1
-                                                ? "grid-cols-[140px_minmax(260px,1fr)]"
-                                                : properties.length === 2
-                                                    ? "grid-cols-[140px_repeat(2,minmax(260px,1fr))]"
-                                                    : "grid-cols-[140px_repeat(3,minmax(260px,1fr))]"
-                                            }
+                                    <div className={`grid border-b border-slate-200
+                      bg-white ${properties.length === 1
+                                            ? "grid-cols-[140px_minmax(260px,1fr)]"
+                                            : properties.length === 2
+                                                ? "grid-cols-[140px_repeat(2,minmax(260px,1fr))]"
+                                                : "grid-cols-[140px_repeat(3,minmax(260px,1fr))]"
+                                        }
 
                       sm:${properties.length === 1
-                                                ? "grid-cols-[180px_minmax(0,1fr)]"
-                                                : properties.length === 2
-                                                    ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
-                                                    : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
-                                            }
+                                            ? "grid-cols-[180px_minmax(0,1fr)]"
+                                            : properties.length === 2
+                                                ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
+                                                : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
+                                        }
                     `}
                                     >
                                         <div className="bg-slate-50 px-4 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 sm:px-6">

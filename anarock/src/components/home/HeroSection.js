@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { usePreferences } from "@/lib/preferences";
 import { useRouter } from "next/navigation";
 import {
@@ -349,6 +350,7 @@ export default function HeroSection({ consentGranted, locationData }) {
         <div className="absolute inset-0 z-0">
           <img
             src="/main.jpg"
+            fill priority
             alt="Luxury Commercial Architecture"
             className="absolute inset-0 h-full w-full object-cover object-center lg:object-top"
           />

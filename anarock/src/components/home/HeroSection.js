@@ -348,10 +348,12 @@ export default function HeroSection({ consentGranted, locationData }) {
     <main className="relative w-full overflow-hidden bg-[#160B17]">
       <section className="relative flex min-h-[100svh] w-full items-start justify-center overflow-visible pb-10 pt-[76px] sm:pb-14 sm:pt-[88px] lg:min-h-[760px] lg:pt-[108px]">
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="/main.jpg"
-            fill priority
             alt="Luxury Commercial Architecture"
+            fill
+            priority
+            sizes="100vw"
             className="absolute inset-0 h-full w-full object-cover object-center lg:object-top"
           />
           <div className="absolute inset-0 bg-[#4E2352]/35 mix-blend-multiply" />

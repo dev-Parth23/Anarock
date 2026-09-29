@@ -68,19 +68,10 @@ const getOfficeTypeFromUrl = (value) => {
 };
 
 const getPropertyId = (property) =>
-  String(
-    property?.id ||
-    property?.rowId ||
-    property?.ROWID ||
-    "",
-  );
+  String(property?.id || property?.rowId || property?.ROWID || "");
 
 const getNumber = (value) => {
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
+  if (value === null || value === undefined || value === "") {
     return null;
   }
 
@@ -90,9 +81,7 @@ const getNumber = (value) => {
       .replace(/[^\d.-]/g, ""),
   );
 
-  return Number.isFinite(number)
-    ? number
-    : null;
+  return Number.isFinite(number) ? number : null;
 };
 
 const getFirstNumber = (property, fields = []) => {
@@ -218,7 +207,6 @@ const getSqftPrice = (property) => {
   return null;
 };
 
-
 export default function PropertiesClient() {
   const { currency, unit, exchangeRates } = usePreferences();
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
@@ -337,10 +325,7 @@ export default function PropertiesClient() {
         updatedSelection = previousSelection.filter(
           (item) => getPropertyId(item) !== propertyId,
         );
-      }
-
-
-      else {
+      } else {
         if (previousSelection.length >= MAX_COMPARE_PROPERTIES) {
           return previousSelection;
         }
@@ -929,8 +914,8 @@ export default function PropertiesClient() {
 
     filters.micromarket && {
       label: `Micromarkets: ${selectedMicromarketNames.length
-        ? selectedMicromarketNames.join(", ")
-        : filters.micromarket
+          ? selectedMicromarketNames.join(", ")
+          : filters.micromarket
         }`,
       key: "micromarket",
     },
@@ -987,10 +972,7 @@ export default function PropertiesClient() {
   );
 
   const goToPage = (page) => {
-    const nextPage = Math.min(
-      Math.max(1, Number(page) || 1),
-      totalPages,
-    );
+    const nextPage = Math.min(Math.max(1, Number(page) || 1), totalPages);
 
     if (nextPage === safeCurrentPage) {
       return;
@@ -1068,7 +1050,6 @@ export default function PropertiesClient() {
     : filters.area !== ""
       ? convertArea(getNumber(filters.area) || 0, filters.areaUnit, "sqft")
       : null;
-
 
   const requestedPrice = useMemo(() => {
     const min = getNumber(filters.minBudget);
@@ -1317,8 +1298,8 @@ export default function PropertiesClient() {
           >
             <div
               className={`border border-slate-200 bg-white p-4 ${showFilters
-                ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
-                : "rounded-xl lg:sticky lg:top-24"
+                  ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
+                  : "rounded-xl lg:sticky lg:top-24"
                 }`}
             >
               <div className="mb-4 flex items-center justify-between">
@@ -1366,8 +1347,8 @@ export default function PropertiesClient() {
                     disabled={!resolvedCity || micromarketsLoading}
                     onClick={() => setShowMicromarkets(!showMicromarkets)}
                     className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${!resolvedCity
-                      ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                      : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
+                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                        : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
                       }`}
                   >
                     <span className="truncate">
@@ -1393,8 +1374,8 @@ export default function PropertiesClient() {
                       >
                         <span
                           className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
-                            ? "border-[#A054A0] bg-[#A054A0]"
-                            : "border-slate-300"
+                              ? "border-[#A054A0] bg-[#A054A0]"
+                              : "border-slate-300"
                             }`}
                         >
                           {selectedMicromarkets.length === 0 && (
@@ -1427,8 +1408,8 @@ export default function PropertiesClient() {
                               >
                                 <span
                                   className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
-                                    ? "border-[#A054A0] bg-[#A054A0]"
-                                    : "border-slate-300"
+                                      ? "border-[#A054A0] bg-[#A054A0]"
+                                      : "border-slate-300"
                                     }`}
                                 >
                                   {selected && (
@@ -1438,8 +1419,8 @@ export default function PropertiesClient() {
 
                                 <span
                                   className={`truncate ${selected
-                                    ? "font-medium text-slate-900"
-                                    : "text-slate-700"
+                                      ? "font-medium text-slate-900"
+                                      : "text-slate-700"
                                     }`}
                                 >
                                   {market.name}
@@ -1702,23 +1683,15 @@ export default function PropertiesClient() {
               </div>
             ) : properties.length === 0 ? (
               <>
-                {/* =====================================================
-                    NO SEARCH RESULTS
-                ===================================================== */}
-
                 <div className="mb-8">
                   <h2 className="text-lg font-semibold text-[#241B2B] sm:text-xl">
                     No search results found for your search.
                   </h2>
-
                   <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#7D7482]">
                     We couldn&apos;t find a property matching your selected
                     requirements. Please explore other properties near you.
-                  </p> </div>
-
-                {/* =====================================================
-                    SUGGESTED PROPERTIES
-                ===================================================== */}
+                  </p>{" "}
+                </div>
 
                 {suggestionsLoading ? (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -1768,14 +1741,13 @@ export default function PropertiesClient() {
                   </>
                 ) : (
                   <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
-                    We couldn&apos;t find any nearby alternative properties at the
-                    moment.
+                    We couldn&apos;t find any nearby alternative properties at
+                    the moment.
                   </div>
                 )}
               </>
             ) : (
               <>
-
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {paginatedProperties.map((property) => (
                     <PropertyCard
@@ -1886,116 +1858,51 @@ export default function PropertiesClient() {
                   </div>
                 )}
 
-                {/* =====================================================
-                    SUGGESTED PROPERTIES
-                ===================================================== */}
+                {safeCurrentPage === totalPages &&
+                  !suggestionsLoading &&
+                  suggestedProperties.length > 0 && (
+                    <section className="mt-10 border-t border-slate-200 pt-9">
+                      <div className="mb-5">
+                        <div className="flex items-center justify-center gap-2">
+                          <Sparkles className="h-5 w-5 text-[#A054A0]" />
 
-                {/* =====================================================
-    SUGGESTED PROPERTIES
-===================================================== */}
-
-                {!suggestionsLoading && suggestedProperties.length > 0 && (
-                  <section className="mt-10 border-t border-slate-200 pt-9">
-                    <div className="mb-5">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-[#A054A0]" />
-
-                        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
-                          More properties you may consider
-                        </h2>
-                      </div>
-
-                      <p className="mt-1 text-sm leading-6 text-slate-600">
-                        Explore additional properties that are similar to your search.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                      {suggestedProperties.map((property) => {
-                        const propertyId = getPropertyId(property);
-
-                        return (
-                          <div
-                            key={propertyId}
-                            className="relative"
-                          >
-                            {/* Suggested badge */}
-                            <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-full border border-white/70 bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#A054A0] shadow-sm backdrop-blur">
-                              Suggested
-                            </div>
-
-                            <PropertyCard
-                              property={property}
-
-                              isCompared={compareSelection.some(
-                                (item) =>
-                                  getPropertyId(item) === propertyId,
-                              )}
-
-                              onCompareToggle={handleCompareToggle}
-
-                              isShortlisted={wishlistIds.some(
-                                (id) =>
-                                  String(id) === propertyId,
-                              )}
-
-                              onShortlistToggle={handleShortlistToggle}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-                )}
-                {/* {!suggestionsLoading && suggestedProperties.length > 0 && (
-                  <section className="mt-10 border-t border-slate-200 pt-9">
-                    <div className="mb-5">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-[#A054A0]" />
-
-                        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
-                          More properties you may consider
-                        </h2>
-                      </div>
-
-                      <p className="mt-1 text-sm leading-6 text-slate-600">
-                        Explore additional properties that are similar to your
-                        search.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                      {suggestedProperties.map((property) => (
-                        <div key={getPropertyId(property)} className="relative">
-                          <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-full border border-white/70 bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#A054A0] shadow-sm backdrop-blur">
-                            Suggested
-                          </div>
-
-                          <PropertyCard
-                            property={property}
-                            isCompared={compareSelection.some(
-                              (item) =>
-                                getPropertyId(item) === getPropertyId(property),
-                            )}
-                            onCompareToggle={handleCompareToggle}
-                            isShortlisted={wishlistIds.some(
-                              (id) => String(id) === getPropertyId(property),
-                            )}
-                            onShortlistToggle={handleShortlistToggle}
-                          />
+                          <h2 className="text-xl font-semibold text-slate-900 sm:text-xl">
+                            More properties you may consider
+                          </h2>
                         </div>
-                      ))}
-                    </div>
-                  </section>
-                )} */}
+
+                        <p className="text-center text-base leading-6 text-slate-600">
+                          Explore additional properties that are similar to your
+                          search.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {suggestedProperties.map((property) => {
+                          const propertyId = getPropertyId(property);
+                          return (
+                            <div key={propertyId} className="relative">
+                              <PropertyCard
+                                property={property}
+                                isCompared={compareSelection.some(
+                                  (item) => getPropertyId(item) === propertyId,
+                                )}
+                                onCompareToggle={handleCompareToggle}
+                                isShortlisted={wishlistIds.some(
+                                  (id) => String(id) === propertyId,
+                                )}
+                                onShortlistToggle={handleShortlistToggle}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
               </>
             )}
           </div>
         </div>
-
-        {/* =====================================================
-    COMPARE TRAY
-===================================================== */}
 
         {compareSelection.length > 0 && (
           <div className="fixed bottom-0 left-0 right-0 z-[150] border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:px-4">

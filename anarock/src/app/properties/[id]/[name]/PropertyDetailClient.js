@@ -86,15 +86,9 @@ const IMAGE_FILES = [
 ];
 
 const AUTO_SCROLL_INTERVAL = 25000;
-
-/* =========================================================
-   SAFE VALUE HELPERS
-========================================================= */
-
 const getValue = (property, keys, fallback = "-") => {
   for (const key of keys) {
     const value = property?.[key];
-
     if (value !== null && value !== undefined && String(value).trim() !== "") {
       return value;
     }
@@ -195,34 +189,21 @@ function Info({ label, value }) {
     </div>
   );
 }
-
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
-
 export default function PropertyDetailClient({ propertyId }) {
   const [property, setProperty] = useState(null);
   const [gallery, setGallery] = useState([]);
   const [activeImg, setActiveImg] = useState("project");
-
   const [related, setRelated] = useState([]);
-
   const { currency, unit, exchangeRates } = usePreferences();
-
   const [failedImages, setFailedImages] = useState(new Set());
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-
   const [isWishlisted, setIsWishlisted] = useState(false);
-
   const [contactForm, setContactForm] = useState({
     name: "",
     contactNumber: "",
   });
-
   const getPropertyId = (item) => {
     return String(
       item?.id ||
@@ -252,101 +233,70 @@ export default function PropertyDetailClient({ propertyId }) {
         const wishlist = JSON.parse(
           localStorage.getItem("anarock_wishlist_properties") || "[]",
         );
-
         const currentId = getPropertyId(property);
-
         const exists = wishlist.some(
           (item) => getPropertyId(item) === currentId,
         );
-
         setIsWishlisted(exists);
       } catch (error) {
         console.error("Wishlist sync failed:", error);
-
         setIsWishlisted(false);
       }
     };
-
     syncWishlist();
-
     window.addEventListener("wishlist-updated", syncWishlist);
-
     window.addEventListener("storage", syncWishlist);
-
     return () => {
       window.removeEventListener("wishlist-updated", syncWishlist);
-
       window.removeEventListener("storage", syncWishlist);
     };
   }, [property]);
-
   const handleWishlist = (item) => {
     if (!item) return;
-
     try {
       const storageKey = "anarock_wishlist_properties";
-
       const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
-
       const currentId = getPropertyId(item);
-
       if (!currentId) {
         console.error("Property ID missing:", item);
         return;
       }
-
       const exists = existing.some(
         (wishlistItem) => getPropertyId(wishlistItem) === currentId,
       );
-
       let updated;
-
       if (exists) {
         updated = existing.filter(
           (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
         );
-
         setIsWishlisted(false);
       } else {
         updated = [...existing, item];
-
         setIsWishlisted(true);
       }
-
       localStorage.setItem(storageKey, JSON.stringify(updated));
-
       window.dispatchEvent(new Event("wishlist-updated"));
     } catch (error) {
       console.error("Wishlist update failed:", error);
     }
   };
-  /* =========================================================
-     LOAD PROPERTY
-  ========================================================= */
-
   useEffect(() => {
     if (!propertyId) return;
-
     async function loadProperty() {
       try {
         setLoading(true);
         setError("");
-
         const response = await fetch(
           `/api/properties/${encodeURIComponent(propertyId)}`,
           {
             cache: "no-store",
           },
         );
-
         const data = await response.json();
-
         if (!response.ok || !data.success) {
           throw new Error(data.error || "Failed to load property");
         }
-
         const propertyData = data.data;
-
         const imageFolderPath = String(
           propertyData.imageFolderPath || "",
         ).replace(/^\/+|\/+$/g, "");
@@ -357,22 +307,13 @@ export default function PropertyDetailClient({ propertyId }) {
             url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
           }))
           : [];
-
         setProperty({
           ...propertyData,
           image: images.find((image) => image.key === "project")?.url || "",
         });
-
         setGallery(images);
-
         setActiveImg("project");
-
         setFailedImages(new Set());
-
-        /* ===============================================
-           RELATED PROPERTIES
-        =============================================== */
-
         if (propertyData.city) {
           try {
             const relatedResponse = await fetch(
@@ -406,18 +347,9 @@ export default function PropertyDetailClient({ propertyId }) {
 
     loadProperty();
   }, [propertyId]);
-
-  /* =========================================================
-     AVAILABLE GALLERY
-  ========================================================= */
-
   const availableGallery = useMemo(() => {
     return gallery.filter((image) => !failedImages.has(image.key));
   }, [gallery, failedImages]);
-
-  /* =========================================================
-     ACTIVE IMAGE
-  ========================================================= */
 
   const activeImage =
     availableGallery.find((image) => image.key === activeImg)?.url ||
@@ -428,10 +360,6 @@ export default function PropertyDetailClient({ propertyId }) {
     0,
     availableGallery.findIndex((image) => image.key === activeImg),
   );
-
-  /* =========================================================
-     IMAGE ERROR
-  ========================================================= */
 
   const handleImageError = (imageKey) => {
     setFailedImages((previous) => {
@@ -507,33 +435,26 @@ export default function PropertyDetailClient({ propertyId }) {
       return;
     }
 
-    const nextIndex = activeIndex + 1 >= availableGallery.length ? 0 : activeIndex + 1;
+    const nextIndex =
+      activeIndex + 1 >= availableGallery.length ? 0 : activeIndex + 1;
     const nextImage = availableGallery[nextIndex];
     if (nextImage) {
       selectImage(nextImage.key);
     }
-  }, [
-    activeIndex,
-    availableGallery,
-    selectImage,
-  ]);
+  }, [activeIndex, availableGallery, selectImage]);
 
   const goToPreviousImage = useCallback(() => {
     if (!availableGallery.length) {
       return;
     }
 
-    const previousIndex = (activeIndex - 1 + availableGallery.length) % availableGallery.length;
+    const previousIndex =
+      (activeIndex - 1 + availableGallery.length) % availableGallery.length;
     const previousImage = availableGallery[previousIndex];
     if (previousImage) {
       selectImage(previousImage.key);
     }
-  }, [
-    activeIndex,
-    availableGallery,
-    selectImage,
-  ]);
-
+  }, [activeIndex, availableGallery, selectImage]);
 
   useEffect(() => {
     if (availableGallery.length <= 1) {
@@ -1065,66 +986,6 @@ export default function PropertyDetailClient({ propertyId }) {
             </DetailSection>
           </div>
         </section>
-        {/* <section className="mt-8 sm:mt-10">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-
-            <Info
-              label="Type"
-              value={
-                property.officeType ||
-                property.type ||
-                "-"
-              }
-            />
-
-            <Info
-              label="Parking Ratio"
-              value={parking}
-            />
-
-            <Info
-              label="Building Type"
-              value={buildingType}
-            />
-
-            <Info
-              label="Availability"
-              value={
-                availability
-              }
-            />
-
-          </div>
-        </section> */}
-        {/* {property.description && (
-          <section className="mt-8 sm:mt-10">
-            <h2 className="mb-4 text-xl font-semibold text-slate-900 sm:text-2xl">
-              About the Property
-            </h2>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-              <p className="whitespace-pre-line text-sm leading-7 text-slate-600 sm:text-base">
-                {property.description}
-              </p>
-            </div>
-          </section>
-        )}
-        {property.projectHighlights && (
-          <section className="mt-8 sm:mt-10">
-            <h2 className="mb-4 text-xl font-semibold text-slate-900 sm:text-2xl">
-              Project Highlights
-            </h2>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-              <p className="whitespace-pre-line text-sm leading-7 text-slate-600 sm:text-base">
-                {
-                  property.projectHighlights
-                }
-              </p>
-            </div>
-          </section>
-        )} */}
-
         <section className="w-full mt-8 sm:mt-10 flex justify-evenly gap-4">
           {" "}
           <button
@@ -1138,7 +999,6 @@ export default function PropertyDetailClient({ propertyId }) {
           >
             Contact Us
           </button>
-          {/* Add to Wishlist */}
           <button
             type="button"
             onClick={() => handleWishlist(property)}

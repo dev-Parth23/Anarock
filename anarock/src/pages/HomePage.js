@@ -109,38 +109,47 @@ const phoneCountries = [
 const popularCities = [
   {
     name: "Mumbai",
+    slug: "mumbai",
     url: "https://images.unsplash.com/photo-1569758267239-d08deb78bb1a?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     name: "Bengaluru",
+    slug: "bengaluru",
     url: "https://images.unsplash.com/photo-1720954006045-6b801f7f919e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YmFuZ2Fsb3JlJTIwY2l0eXxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
     name: "Pune",
+    slug: "pune",
     url: "https://images.unsplash.com/photo-1608019425630-bec4810ccb60?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     name: "Gurugram",
+    slug: "gurugram",
     url: "https://images.unsplash.com/photo-1707549573382-de5ebcb30dae?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z3VydWdyYW18ZW58MHx8MHx8fDA%3D",
   },
   {
     name: "Delhi",
+    slug: "delhi",
     url: "https://plus.unsplash.com/premium_photo-1697729438410-d53c666e3810?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZGVsaGl8ZW58MHx8MHx8fDA%3D",
   },
   {
     name: "Hyderabad",
+    slug: "hyderabad",
     url: "https://images.unsplash.com/photo-1657981630164-769503f3a9a8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHlkZXJhYmFkfGVufDB8fDB8fHww",
   },
   {
     name: "Chennai",
+    slug: "chennai",
     url: "https://images.unsplash.com/photo-1616843413587-9e3a37f7bbd8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2hlbm5haXxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
     name: "Noida",
+    slug: "noida",
     url: "https://images.unsplash.com/photo-1661858435242-ed971767e954?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bm9pZGF8ZW58MHx8MHx8fDA%3D",
   },
   {
     name: "Kolkata",
+    slug: "kolkata",
     url: "https://images.unsplash.com/photo-1682582036641-91dfe7b66ba6?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8a29sa2F0YXxlbnwwfHwwfHx8MA%3D%3D",
   },
 ];
@@ -198,7 +207,6 @@ const journey = [
     desc: "Select the right property with confidence, supported by informed evaluation and commercial clarity.",
   },
 ];
-
 function GlassField({
   label,
   name,
@@ -498,10 +506,8 @@ function JourneyCard({ item, index }) {
 export default function HomePage() {
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
-
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitMessageType, setSubmitMessageType] = useState("success");
-
   const [selectedCountry, setSelectedCountry] = useState(phoneCountries[0]);
   const [countryOpen, setCountryOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
@@ -616,7 +622,6 @@ export default function HomePage() {
 
     const crmData = {
       ...data,
-
       ...(finalRequirementType
         ? {
           Requirement_Type: finalRequirementType,
@@ -704,7 +709,8 @@ export default function HomePage() {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        setSubmitMessage("Thank you Our team will get in touch with you shortly.",
+        setSubmitMessage(
+          "Thank you Our team will get in touch with you shortly.",
         );
 
         setSubmitMessageType("success");
@@ -787,7 +793,6 @@ export default function HomePage() {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-
           const response = await fetch("/api/location", {
             method: "POST",
             headers: {
@@ -803,48 +808,30 @@ export default function HomePage() {
 
           if (!response.ok || !data?.success || !data?.location) {
             console.warn("[LOCATION] Location unavailable:", data?.message);
-
-            // IMPORTANT:
-            // Do NOT clear city dropdown.
-            // Do NOT set requirement city.
-            // Do NOT set requirement type.
             return;
           }
 
           const location = {
             latitude,
             longitude,
-
             city: data.location.city || "",
-
             area: data.location.area || "",
-
             pincode: data.location.pincode || "",
-
             state: data.location.state || "",
-
             country: data.location.country || "",
-
             displayName: data.location.displayName || "",
           };
-
           sessionStorage.setItem(
             "anarock_user_location",
             JSON.stringify(location),
           );
-
           setLocationData({
             street: location.area || "",
-
             city: location.city || "",
-
             province: location.state || "",
-
             postalCode: location.pincode || "",
-
             country: location.country || "",
           });
-
           window.dispatchEvent(new Event("anarock-location-updated"));
         } catch (error) {
           console.warn(
@@ -948,21 +935,15 @@ export default function HomePage() {
   return (
     <>
       <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 font-sans text-slate-800 selection:bg-[#A054A0] selection:text-white">
-        <HeroSection
-          locationData={locationData}
-        />
+        <HeroSection locationData={locationData} />
 
         {/* POPULAR CITIES */}
         <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
-          {/* Background Decorations */}
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
             <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
           </div>
-
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
-
-            {/* SECTION HEADER */}
             <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
@@ -978,43 +959,23 @@ export default function HomePage() {
                 India&apos;s leading business destinations.
               </p>
             </div>
-
-            {/* CITIES */}
             <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
               {popularCities.map((city) => (
-                <Link
-                  key={city.name}
-                  href={`/kyc?city=${encodeURIComponent(city.name)}`}
-                  className="
-            group relative isolate overflow-hidden
-
-            /* Mobile */
-            w-full
-
-            /* Small screens */
-            sm:w-[calc(50%-0.625rem)]
-
-            /* Tablet */
-            md:w-[calc(33.333%-0.9rem)]
-
-            /* Desktop - 5 per row */
-            lg:w-[calc(20%-1rem)]
-
-            rounded-[1.5rem]
-            border border-[#A054A0]/15
-            bg-white
-            shadow-[0_10px_35px_rgba(86,42,91,0.05)]
-
+                <Link key={city.slug} href={`/kyc/city/${city.slug}`} className="
+            group relative isolate w-full overflow-hidden 
+            rounded-[1.5rem] border border-[#A054A0]/15
+            bg-white             shadow-[0_10px_35px_rgba(86,42,91,0.05)]
             transition-all
             duration-500
             ease-out
-
             hover:-translate-y-2
             hover:border-[#A054A0]/35
-            hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
-
+           hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
+            sm:w-[calc(50%-0.625rem)]
             sm:rounded-[1.75rem]
-          "
+            md:w-[calc(33.333%-0.9rem)]
+            lg:w-[calc(20%-1rem)]
+         "
                 >
                   {/* IMAGE */}
                   <div className="relative aspect-square overflow-hidden bg-[#A054A0]/5">
@@ -1022,8 +983,8 @@ export default function HomePage() {
                       src={city.url}
                       alt={`${city.name} commercial real estate`}
                       decoding="async"
-                      className="
-                h-full
+                      loading="lazy"
+                      className=" h-full
                 w-full
                 object-cover
                 object-top
@@ -1033,7 +994,6 @@ export default function HomePage() {
                 group-hover:scale-110
               "
                     />
-
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                       <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
@@ -1044,11 +1004,10 @@ export default function HomePage() {
                         <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
                           Explore properties
                         </p>
-
                         <ArrowRight
                           className="
-                    h-4
-                    w-4
+                  h-4
+                   w-4
                     shrink-0
                     text-white/70
                     transition-all
@@ -1060,15 +1019,12 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-
-                  {/* BOTTOM ACCENT */}
                   <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
                 </Link>
               ))}
             </div>
           </div>
         </section>
-
 
         {/* MARKET AT A GLANCE */}
         <section
@@ -1547,7 +1503,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      </div >
+      </div>
 
       <CookieConsent
         onConsentGiven={() => {

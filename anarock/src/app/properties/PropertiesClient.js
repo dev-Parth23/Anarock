@@ -264,26 +264,8 @@ export default function PropertiesClient() {
     };
   }, [searchParams, currency, unit]);
 
-  useEffect(() => {
-    const page = Number(searchParams.get("page") || "1");
-    if (page <= 1) return;
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("page");
-
-    router.replace(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
-    );
-  }, [router, searchParams]);
-  // }, [
-  //   filters.city,
-  //   filters.micromarket,
-  //   filters.type,
-  //   filters.minBudget,
-  //   filters.maxBudget,
-  //   filters.area,
-  //   filters.seats,
-  // ]);
-
+  // const params = new URLSearchParams(searchParams.toString());
+  // params.delete("page");
   const normalizedOfficeType = normalizeValue(filters.type);
   const isCoworking = normalizedOfficeType === "managed office/co-working";
 
@@ -1005,7 +987,14 @@ export default function PropertiesClient() {
   );
 
   const goToPage = (page) => {
-    const nextPage = Math.min(Math.max(1, page), totalPages);
+    const nextPage = Math.min(
+      Math.max(1, Number(page) || 1),
+      totalPages,
+    );
+
+    if (nextPage === safeCurrentPage) {
+      return;
+    }
 
     const params = new URLSearchParams(searchParams.toString());
 
@@ -1901,7 +1890,64 @@ export default function PropertiesClient() {
                     SUGGESTED PROPERTIES
                 ===================================================== */}
 
+                {/* =====================================================
+    SUGGESTED PROPERTIES
+===================================================== */}
+
                 {!suggestionsLoading && suggestedProperties.length > 0 && (
+                  <section className="mt-10 border-t border-slate-200 pt-9">
+                    <div className="mb-5">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-[#A054A0]" />
+
+                        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+                          More properties you may consider
+                        </h2>
+                      </div>
+
+                      <p className="mt-1 text-sm leading-6 text-slate-600">
+                        Explore additional properties that are similar to your search.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      {suggestedProperties.map((property) => {
+                        const propertyId = getPropertyId(property);
+
+                        return (
+                          <div
+                            key={propertyId}
+                            className="relative"
+                          >
+                            {/* Suggested badge */}
+                            <div className="pointer-events-none absolute left-3 top-3 z-10 rounded-full border border-white/70 bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[#A054A0] shadow-sm backdrop-blur">
+                              Suggested
+                            </div>
+
+                            <PropertyCard
+                              property={property}
+
+                              isCompared={compareSelection.some(
+                                (item) =>
+                                  getPropertyId(item) === propertyId,
+                              )}
+
+                              onCompareToggle={handleCompareToggle}
+
+                              isShortlisted={wishlistIds.some(
+                                (id) =>
+                                  String(id) === propertyId,
+                              )}
+
+                              onShortlistToggle={handleShortlistToggle}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
+                {/* {!suggestionsLoading && suggestedProperties.length > 0 && (
                   <section className="mt-10 border-t border-slate-200 pt-9">
                     <div className="mb-5">
                       <div className="flex items-center gap-2">
@@ -1941,7 +1987,7 @@ export default function PropertiesClient() {
                       ))}
                     </div>
                   </section>
-                )}
+                )} */}
               </>
             )}
           </div>

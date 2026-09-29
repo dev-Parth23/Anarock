@@ -502,10 +502,6 @@ export default function PropertyDetailClient({ propertyId }) {
     });
   };
 
-  /* =========================================================
-     NEXT IMAGE
-  ========================================================= */
-
   const goToNextImage = useCallback(() => {
     if (availableGallery.length === 0) {
       return;

@@ -509,7 +509,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
                                         <Check className="h-3.5 w-3.5 text-[#A054A0]" />
                                       </span>
-                                    )}``
+                                    )}
                                   </button>
                                 ))}
 

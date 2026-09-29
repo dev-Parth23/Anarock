@@ -1,14 +1,10 @@
-
 import { NextResponse } from "next/server";
 import { getPropertiesTable } from "@/lib/catalyst";
 import { mapProperty } from "@/lib/propertyMapper";
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
 function normalize(value) {
   if (value === null || value === undefined) return "";
-
   return String(value)
     .trim()
     .toLowerCase()
@@ -31,16 +27,13 @@ function parseNumber(value) {
     .trim();
 
   if (!cleaned) return null;
-
   const parsed = Number(cleaned);
-
   return Number.isFinite(parsed) ? parsed : null;
 }
 
 function getFirstValue(property, keys) {
   for (const key of keys) {
     const value = property?.[key];
-
     if (
       value !== undefined &&
       value !== null &&
@@ -52,75 +45,130 @@ function getFirstValue(property, keys) {
 
   return null;
 }
-
-
 async function getAllProperties(request) {
   const table = getPropertiesTable(request);
-
-  let rows = [];
+  const rows = [];
   let nextToken = null;
   let page = 1;
-
-  do {
-    console.log(`Fetching page ${page}...`);
-
-    const options = {
-      maxRows: 100,
-    };
-
+  while (true) {
+    console.log(`[Properties API] Fetching Catalyst page ${page}...`,);
+    const options = { maxRows: 100, };
     if (nextToken) {
       options.nextToken = nextToken;
-      console.log("Using next token");
+      console.log(`[Properties API] Using next token for page ${page}`,);
     }
 
     const result = await table.getPagedRows(options);
 
-    console.log("Response keys:", Object.keys(result || {}));
+    const pageRows = Array.isArray(result?.data)
+      ? result.data
+      : [];
 
     console.log(
-      "Rows received:",
-      Array.isArray(result?.data) ? result.data.length : "NO DATA ARRAY",
+      `[Properties API] Page ${page} rows: ${pageRows.length}`,
     );
 
-    if (Array.isArray(result?.data)) {
-      rows.push(...result.data);
+    rows.push(...pageRows);
 
-      if (page === 1 && result.data.length > 0) {
-        console.log(
-          "FIRST RAW PROPERTY:",
-          JSON.stringify(result.data[0], null, 2),
-        );
-      }
-    }
-
-    nextToken =
+    const newNextToken =
       result?.next_token ||
       result?.nextToken ||
       null;
 
-    if (!result?.more_records) {
-      break
+    const moreRecords =
+      result?.more_records === true ||
+      result?.moreRecords === true;
+
+    console.log(
+      `[Properties API] Page ${page} more records:`,
+      moreRecords,
+    );
+
+    console.log(
+      `[Properties API] Page ${page} next token:`,
+      Boolean(newNextToken),
+    );
+
+    /* -----------------------------------------------
+       No more records
+    ------------------------------------------------ */
+
+    if (!moreRecords) {
+      break;
     }
 
-    page++;
-  } while (nextToken);
+    /* -----------------------------------------------
+       Safety: more records but no token
+    ------------------------------------------------ */
+
+    if (!newNextToken) {
+      console.warn(
+        "[Properties API] Catalyst reported more records but no next token was returned.",
+      );
+
+      break;
+    }
+
+    /* -----------------------------------------------
+       Safety: prevent infinite loop
+    ------------------------------------------------ */
+
+    if (newNextToken === nextToken) {
+      console.warn(
+        "[Properties API] Catalyst returned the same next token. Stopping pagination.",
+      );
+
+      break;
+    }
+
+    nextToken = newNextToken;
+
+    page += 1;
+  }
+
+  console.log(
+    "==================================================",
+  );
+
+  console.log(
+    "[Properties API] TOTAL RAW CATALYST ROWS:",
+    rows.length,
+  );
+
+  console.log(
+    "==================================================",
+  );
+
+  /* =====================================================
+     MAP CATALYST ROWS
+  ===================================================== */
 
   const properties = rows
     .map((row) => {
       try {
         return mapProperty(row);
       } catch (error) {
-        console.error("PROPERTY MAPPING ERROR:", error);
+        console.error(
+          "[Properties API] PROPERTY MAPPING ERROR:",
+          error,
+        );
+
         return null;
       }
     })
     .filter(Boolean);
 
-  console.log("TOTAL RAW ROWS:", rows.length);
-  console.log("TOTAL MAPPED PROPERTIES:", properties.length);
+  console.log(
+    "[Properties API] TOTAL MAPPED PROPERTIES:",
+    properties.length,
+  );
 
   return properties;
 }
+
+/* =========================================================
+   GET
+========================================================= */
 
 export async function GET(request) {
   try {
@@ -128,167 +176,518 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
 
-    const city = searchParams.get("city") || "";
-    const type = searchParams.get("type") || "";
-    const micromarket = searchParams.get("micromarket") || "";
-    const budget = searchParams.get("budget") || "";
-    const area = searchParams.get("area") || "";
+    const city =
+      searchParams.get("city") || "";
+
+    const type =
+      searchParams.get("type") || "";
+
+    const micromarket =
+      searchParams.get("micromarket") || "";
+
+    const minBudget =
+      searchParams.get("minBudget") || "";
+
+    const maxBudget =
+      searchParams.get("maxBudget") || "";
+
+    const budget =
+      searchParams.get("budget") || "";
+
+    const area =
+      searchParams.get("area") || "";
+
+    const seats =
+      searchParams.get("seats") || "";
+
+    const prompt =
+      searchParams.get("prompt") || "";
 
     let filtered = [...properties];
 
-    console.log("--------------------------------------------------");
-    console.log("PROPERTY FILTERS");
-    console.log("City:", city);
-    console.log("Type:", type);
-    console.log("Micromarket:", micromarket);
-    console.log("Budget:", budget);
-    console.log("Area:", area);
-    console.log("Initial properties:", filtered.length);
-    console.log("--------------------------------------------------");
+    console.log(
+      "==================================================",
+    );
+
+    console.log(
+      "[Properties API] FILTER REQUEST",
+    );
+
+    console.log(
+      "City:",
+      city,
+    );
+
+    console.log(
+      "Type:",
+      type,
+    );
+
+    console.log(
+      "Micromarket:",
+      micromarket,
+    );
+
+    console.log(
+      "Min Budget:",
+      minBudget,
+    );
+
+    console.log(
+      "Max Budget:",
+      maxBudget,
+    );
+
+    console.log(
+      "Legacy Budget:",
+      budget,
+    );
+
+    console.log(
+      "Area:",
+      area,
+    );
+
+    console.log(
+      "Seats:",
+      seats,
+    );
+
+    console.log(
+      "Prompt:",
+      prompt,
+    );
+
+    console.log(
+      "Initial properties:",
+      filtered.length,
+    );
+
+    console.log(
+      "==================================================",
+    );
+
+    /* =====================================================
+       CITY
+    ===================================================== */
 
     if (city) {
-      const normalizedCity = normalize(city);
+      const normalizedCity =
+        normalize(city);
 
-      filtered = filtered.filter((property) => {
-        const propertyCity = normalize(
-          getFirstValue(property, [
-            "city",
-            "City",
-            "cityName",
-            "CityName",
-          ]),
-        );
+      filtered = filtered.filter(
+        (property) => {
+          const propertyCity =
+            normalize(
+              getFirstValue(property, [
+                "city",
+                "City",
+                "cityName",
+                "CityName",
+              ]),
+            );
 
-        return propertyCity === normalizedCity;
-      });
+          return (
+            propertyCity ===
+            normalizedCity
+          );
+        },
+      );
 
-      console.log("After city filter:", filtered.length);
+      console.log(
+        "[Properties API] After city filter:",
+        filtered.length,
+      );
     }
 
+    /* =====================================================
+       PROPERTY TYPE
+    ===================================================== */
 
-    if (type && normalize(type) !== "ai") {
-      const normalizedType = normalize(type);
+    if (
+      type &&
+      normalize(type) !== "ai"
+    ) {
+      const normalizedType =
+        normalize(type);
 
-      filtered = filtered.filter((property) => {
-        const propertyType = normalize(
-          getFirstValue(property, [
-            "type",
-            "Type",
-            "propertyType",
-            "PropertyType",
-            "officeType",
-            "OfficeType",
-          ]),
-        );
+      filtered = filtered.filter(
+        (property) => {
+          const propertyType =
+            normalize(
+              getFirstValue(property, [
+                "type",
+                "Type",
+                "propertyType",
+                "PropertyType",
+                "officeType",
+                "OfficeType",
+              ]),
+            );
 
-        return propertyType === normalizedType;
-      });
+          return (
+            propertyType ===
+            normalizedType
+          );
+        },
+      );
 
-      console.log("After type filter:", filtered.length);
+      console.log(
+        "[Properties API] After type filter:",
+        filtered.length,
+      );
     }
 
+    /* =====================================================
+       MICROMARKET
+    ===================================================== */
 
     if (micromarket) {
+      const selectedMicromarkets =
+        micromarket
+          .split(",")
+          .map((item) =>
+            normalize(item),
+          )
+          .filter(Boolean);
 
-      const selectedMicromarkets = micromarket
-        .split(",")
-        .map((item) => normalize(item))
-        .filter(Boolean);
+      if (
+        selectedMicromarkets.length > 0
+      ) {
+        filtered = filtered.filter(
+          (property) => {
+            const propertyMicromarket =
+              normalize(
+                getFirstValue(property, [
+                  "micromarket",
+                  "Micromarket",
+                  "microMarket",
+                  "MicroMarket",
+                  "micromarketName",
+                  "MicromarketName",
+                ]),
+              );
 
-      if (selectedMicromarkets.length > 0) {
-        filtered = filtered.filter((property) => {
-          const propertyMicromarket = normalize(
-            getFirstValue(property, [
-              "micromarket",
-              "Micromarket",
-              "microMarket",
-              "MicroMarket",
-              "micromarketName",
-              "MicromarketName",
-            ]),
-          );
-
-          return selectedMicromarkets.some((selected) =>
-            propertyMicromarket.includes(selected),
-          );
-        });
+            return selectedMicromarkets.some(
+              (selected) =>
+                propertyMicromarket ===
+                selected ||
+                propertyMicromarket.includes(
+                  selected,
+                ),
+            );
+          },
+        );
       }
 
-      console.log("After micromarket filter:", filtered.length);
+      console.log(
+        "[Properties API] After micromarket filter:",
+        filtered.length,
+      );
     }
 
-    if (budget !== "") {
-      const maxBudget = parseNumber(budget);
+    /* =====================================================
+       LEGACY BUDGET
+       ?budget=50000
+    ===================================================== */
 
-      if (maxBudget !== null) {
-        filtered = filtered.filter((property) => {
+    if (
+      budget !== "" &&
+      minBudget === "" &&
+      maxBudget === ""
+    ) {
+      const maxBudgetValue =
+        parseNumber(budget);
 
-          const propertyBudget = parseNumber(
-            getFirstValue(property, [
-              "budget",
-              "Budget",
-              "price",
-              "Price",
-              "maxBudget",
-              "MaxBudget",
-              "monthlyCost",
-              "MonthlyCost",
-              "monthlyCostPerSeat",
-              "MonthlyCostPerSeat",
-              "cost",
-              "Cost",
-            ]),
-          );
+      if (
+        maxBudgetValue !== null
+      ) {
+        filtered = filtered.filter(
+          (property) => {
+            const propertyBudget =
+              parseNumber(
+                getFirstValue(property, [
+                  "budget",
+                  "Budget",
+                  "price",
+                  "Price",
+                  "maxBudget",
+                  "MaxBudget",
+                  "monthlyCost",
+                  "MonthlyCost",
+                  "monthlyCostPerSeat",
+                  "MonthlyCostPerSeat",
+                  "cost",
+                  "Cost",
+                  "rent",
+                  "Rent",
+                ]),
+              );
 
-
-          if (propertyBudget === null) {
-            return false;
-          }
-
-          return propertyBudget <= maxBudget;
-        });
-
-        console.log("After budget filter:", filtered.length);
+            return (
+              propertyBudget !== null &&
+              propertyBudget <=
+              maxBudgetValue
+            );
+          },
+        );
       }
+
+      console.log(
+        "[Properties API] After legacy budget filter:",
+        filtered.length,
+      );
     }
 
+    /* =====================================================
+       MIN BUDGET
+    ===================================================== */
+
+    if (minBudget !== "") {
+      const minimum =
+        parseNumber(minBudget);
+
+      if (minimum !== null) {
+        filtered = filtered.filter(
+          (property) => {
+            const propertyBudget =
+              parseNumber(
+                getFirstValue(property, [
+                  "budget",
+                  "Budget",
+                  "price",
+                  "Price",
+                  "maxBudget",
+                  "MaxBudget",
+                  "monthlyCost",
+                  "MonthlyCost",
+                  "monthlyCostPerSeat",
+                  "MonthlyCostPerSeat",
+                  "cost",
+                  "Cost",
+                  "rent",
+                  "Rent",
+                  "quotedRent",
+                  "QuotedRent",
+                  "monthlyRent",
+                  "MonthlyRent",
+                ]),
+              );
+
+            if (
+              propertyBudget === null
+            ) {
+              return false;
+            }
+
+            return (
+              propertyBudget >=
+              minimum
+            );
+          },
+        );
+      }
+
+      console.log(
+        "[Properties API] After min budget filter:",
+        filtered.length,
+      );
+    }
+
+    /* =====================================================
+       MAX BUDGET
+    ===================================================== */
+
+    if (maxBudget !== "") {
+      const maximum =
+        parseNumber(maxBudget);
+
+      if (maximum !== null) {
+        filtered = filtered.filter(
+          (property) => {
+            const propertyBudget =
+              parseNumber(
+                getFirstValue(property, [
+                  "budget",
+                  "Budget",
+                  "price",
+                  "Price",
+                  "maxBudget",
+                  "MaxBudget",
+                  "monthlyCost",
+                  "MonthlyCost",
+                  "monthlyCostPerSeat",
+                  "MonthlyCostPerSeat",
+                  "cost",
+                  "Cost",
+                  "rent",
+                  "Rent",
+                  "quotedRent",
+                  "QuotedRent",
+                  "monthlyRent",
+                  "MonthlyRent",
+                ]),
+              );
+
+            if (
+              propertyBudget === null
+            ) {
+              return false;
+            }
+
+            return (
+              propertyBudget <=
+              maximum
+            );
+          },
+        );
+      }
+
+      console.log(
+        "[Properties API] After max budget filter:",
+        filtered.length,
+      );
+    }
+
+    /* =====================================================
+       AREA
+       Minimum area in sqft
+    ===================================================== */
 
     if (area !== "") {
-      const minArea = parseNumber(area);
+      const minArea =
+        parseNumber(area);
 
       if (minArea !== null) {
-        filtered = filtered.filter((property) => {
-          const propertyArea = parseNumber(
-            getFirstValue(property, [
-              "area",
-              "Area",
-              "superArea",
-              "SuperArea",
-              "carpetArea",
-              "CarpetArea",
-              "builtUpArea",
-              "BuiltUpArea",
-              "floorPlate",
-              "FloorPlate",
-              "Floor_Plate",
-              "size",
-              "Size",
-            ]),
-          );
+        filtered = filtered.filter(
+          (property) => {
+            const propertyArea =
+              parseNumber(
+                getFirstValue(property, [
+                  "area",
+                  "Area",
+                  "areaSqft",
+                  "AreaSqft",
+                  "superArea",
+                  "SuperArea",
+                  "superBuiltUpArea",
+                  "SuperBuiltUpArea",
+                  "carpetArea",
+                  "CarpetArea",
+                  "builtUpArea",
+                  "BuiltUpArea",
+                  "floorPlate",
+                  "FloorPlate",
+                  "Floor_Plate",
+                  "size",
+                  "Size",
+                ]),
+              );
 
+            if (
+              propertyArea === null
+            ) {
+              return false;
+            }
 
-          if (propertyArea === null) {
-            return false;
-          }
-
-          return propertyArea >= minArea;
-        });
-
-        console.log("After area filter:", filtered.length);
+            return (
+              propertyArea >=
+              minArea
+            );
+          },
+        );
       }
+
+      console.log(
+        "[Properties API] After area filter:",
+        filtered.length,
+      );
     }
 
-    console.log("FINAL FILTERED PROPERTIES:", filtered.length);
+    /* =====================================================
+       SEATS
+       Minimum seats required
+    ===================================================== */
+
+    if (seats !== "") {
+      const requiredSeats =
+        parseNumber(seats);
+
+      if (
+        requiredSeats !== null
+      ) {
+        filtered = filtered.filter(
+          (property) => {
+            const availableSeats =
+              parseNumber(
+                getFirstValue(property, [
+                  "seatsOffered",
+                  "SeatsOffered",
+                  "noofseatsoffered",
+                  "NoOfSeatsOffered",
+                  "NoofSeatsOffered",
+                  "noOfSeatsOffered",
+                  "seatsAvailable",
+                  "SeatsAvailable",
+                  "availableSeats",
+                  "AvailableSeats",
+                  "seatCapacity",
+                  "SeatCapacity",
+                  "totalSeats",
+                  "TotalSeats",
+                ]),
+              );
+
+            if (
+              availableSeats === null
+            ) {
+              return false;
+            }
+
+            return (
+              availableSeats >=
+              requiredSeats
+            );
+          },
+        );
+      }
+
+      console.log(
+        "[Properties API] After seats filter:",
+        filtered.length,
+      );
+    }
+
+    /* =====================================================
+       AI PROMPT
+       The prompt is logged/preserved here.
+       Existing AI ranking/search logic can use it
+       without affecting normal pagination.
+    ===================================================== */
+
+    if (prompt) {
+      console.log(
+        "[Properties API] AI prompt received:",
+        prompt,
+      );
+    }
+
+    /* =====================================================
+       FINAL RESULT
+    ===================================================== */
+
+    console.log(
+      "==================================================",
+    );
+
+    console.log(
+      "[Properties API] FINAL FILTERED PROPERTIES:",
+      filtered.length,
+    );
+
+    console.log(
+      "==================================================",
+    );
 
     return NextResponse.json(
       {
@@ -298,31 +697,63 @@ export async function GET(request) {
       },
       {
         headers: {
-          "Cache-Control": "no-store",
+          "Cache-Control":
+            "no-store",
         },
       },
     );
   } catch (error) {
     const errorMessage =
       error?.message ||
-      (typeof error === "string" ? error : String(error));
+      (typeof error === "string"
+        ? error
+        : String(error));
 
-    console.error("ERROR NAME:", error?.name);
-    console.error("ERROR MESSAGE:", errorMessage);
-    console.error("ERROR CODE:", error?.code);
-    console.error("ERROR STATUS:", error?.status);
-    console.error("FULL ERROR:", error);
-    console.error("STACK:", error?.stack);
+    console.error(
+      "[Properties API] ERROR NAME:",
+      error?.name,
+    );
+
+    console.error(
+      "[Properties API] ERROR MESSAGE:",
+      errorMessage,
+    );
+
+    console.error(
+      "[Properties API] ERROR CODE:",
+      error?.code,
+    );
+
+    console.error(
+      "[Properties API] ERROR STATUS:",
+      error?.status,
+    );
+
+    console.error(
+      "[Properties API] FULL ERROR:",
+      error,
+    );
+
+    console.error(
+      "[Properties API] STACK:",
+      error?.stack,
+    );
 
     return NextResponse.json(
       {
         success: false,
-        error: errorMessage || "Failed to fetch properties",
-        errorName: error?.name || null,
-        errorCode: error?.code || null,
-        errorStatus: error?.status || null,
+        error:
+          errorMessage ||
+          "Failed to fetch properties",
+        errorName:
+          error?.name || null,
+        errorCode:
+          error?.code || null,
+        errorStatus:
+          error?.status || null,
         stack:
-          process.env.NODE_ENV === "development"
+          process.env.NODE_ENV ===
+            "development"
             ? error?.stack
             : undefined,
       },
@@ -332,4 +763,3 @@ export async function GET(request) {
     );
   }
 }
-

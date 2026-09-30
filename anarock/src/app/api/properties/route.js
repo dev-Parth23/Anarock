@@ -176,96 +176,29 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
 
-    const city =
-      searchParams.get("city") || "";
-
-    const type =
-      searchParams.get("type") || "";
-
-    const micromarket =
-      searchParams.get("micromarket") || "";
-
-    const minBudget =
-      searchParams.get("minBudget") || "";
-
-    const maxBudget =
-      searchParams.get("maxBudget") || "";
-
-    const budget =
-      searchParams.get("budget") || "";
-
-    const area =
-      searchParams.get("area") || "";
-
-    const seats =
-      searchParams.get("seats") || "";
-
-    const prompt =
-      searchParams.get("prompt") || "";
-
+    const city = searchParams.get("city") || "";
+    const type = searchParams.get("type") || "";
+    const micromarket = searchParams.get("micromarket") || "";
+    const minBudget = searchParams.get("minBudget") || "";
+    const maxBudget = searchParams.get("maxBudget") || "";
+    const budget = searchParams.get("budget") || "";
+    const area = searchParams.get("area") || "";
+    const seats = searchParams.get("seats") || "";
+    const prompt = searchParams.get("prompt") || "";
+    const sort = searchParams.get("sort") || "";
     let filtered = [...properties];
+    console.log("[Properties API] FILTER REQUEST",);
+    console.log("City:", city,);
+    console.log("Type:", type,);
+    console.log("Micromarket:", micromarket,);
+    console.log("Min Budget:", minBudget,);
+    console.log("Max Budget:", maxBudget,);
+    console.log("Legacy Budget:", budget,);
+    console.log("Area:", area,);
+    console.log("Seats:", seats,);
+    console.log("Prompt:", prompt,);
+    console.log("Initial properties:", filtered.length,);
 
-    console.log(
-      "==================================================",
-    );
-
-    console.log(
-      "[Properties API] FILTER REQUEST",
-    );
-
-    console.log(
-      "City:",
-      city,
-    );
-
-    console.log(
-      "Type:",
-      type,
-    );
-
-    console.log(
-      "Micromarket:",
-      micromarket,
-    );
-
-    console.log(
-      "Min Budget:",
-      minBudget,
-    );
-
-    console.log(
-      "Max Budget:",
-      maxBudget,
-    );
-
-    console.log(
-      "Legacy Budget:",
-      budget,
-    );
-
-    console.log(
-      "Area:",
-      area,
-    );
-
-    console.log(
-      "Seats:",
-      seats,
-    );
-
-    console.log(
-      "Prompt:",
-      prompt,
-    );
-
-    console.log(
-      "Initial properties:",
-      filtered.length,
-    );
-
-    console.log(
-      "==================================================",
-    );
 
     /* =====================================================
        CITY
@@ -672,6 +605,291 @@ export async function GET(request) {
       );
     }
 
+    /* =====================================================
+   SORT
+   Sorting is applied AFTER all filters and BEFORE the
+   response is returned to the client.
+===================================================== */
+
+    const SORT_VALUES = new Set([
+      "budget_asc",
+      "budget_desc",
+      "area_asc",
+      "area_desc",
+      "seats_asc",
+      "seats_desc",
+      "name_asc",
+      "name_desc",
+    ]);
+
+    const getSortNumber = (property, keys) => {
+      return parseNumber(
+        getFirstValue(property, keys),
+      );
+    };
+
+    /* -----------------------------------------------------
+       BUDGET
+       Conventional:
+       monthly rent / quoted rent
+    
+       Managed Office / Co-working:
+       monthly cost per seat
+    ----------------------------------------------------- */
+
+    const getBudgetValue = (property) => {
+      const propertyType = normalize(
+        getFirstValue(property, [
+          "type",
+          "Type",
+          "propertyType",
+          "PropertyType",
+          "officeType",
+          "OfficeType",
+        ]),
+      );
+
+      const isManagedOffice =
+        propertyType === "managed office/co-working";
+
+      if (isManagedOffice) {
+        const seatBudget = getSortNumber(
+          property,
+          [
+            "monthlyCostPerSeat",
+            "MonthlyCostPerSeat",
+            "monthlyCostPerSeatInr",
+            "MonthlyCostPerSeatInr",
+            "pricePerSeat",
+            "PricePerSeat",
+            "costPerSeat",
+            "CostPerSeat",
+            "rentPerSeat",
+            "RentPerSeat",
+          ],
+        );
+
+        if (seatBudget !== null) {
+          return seatBudget;
+        }
+      }
+
+      return getSortNumber(
+        property,
+        [
+          "budget",
+          "Budget",
+          "price",
+          "Price",
+          "monthlyCost",
+          "MonthlyCost",
+          "rent",
+          "Rent",
+          "quotedRent",
+          "QuotedRent",
+          "monthlyRent",
+          "MonthlyRent",
+          "maxBudget",
+          "MaxBudget",
+        ],
+      );
+    };
+
+    /* -----------------------------------------------------
+       AREA
+    ----------------------------------------------------- */
+
+    const getSortArea = (property) => {
+      return getSortNumber(
+        property,
+        [
+          "areaSqft",
+          "AreaSqft",
+          "area",
+          "Area",
+          "superArea",
+          "SuperArea",
+          "superBuiltUpArea",
+          "SuperBuiltUpArea",
+          "carpetArea",
+          "CarpetArea",
+          "builtUpArea",
+          "BuiltUpArea",
+          "floorPlate",
+          "FloorPlate",
+          "Floor_Plate",
+          "size",
+          "Size",
+        ],
+      );
+    };
+
+    /* -----------------------------------------------------
+       SEATS
+    ----------------------------------------------------- */
+
+    const getSortSeats = (property) => {
+      return getSortNumber(
+        property,
+        [
+          "seatsOffered",
+          "SeatsOffered",
+          "noofseatsoffered",
+          "NoOfSeatsOffered",
+          "NoofSeatsOffered",
+          "noOfSeatsOffered",
+          "seatsAvailable",
+          "SeatsAvailable",
+          "availableSeats",
+          "AvailableSeats",
+          "seatCapacity",
+          "SeatCapacity",
+          "totalSeats",
+          "TotalSeats",
+        ],
+      );
+    };
+
+    /* -----------------------------------------------------
+       PROPERTY NAME
+    ----------------------------------------------------- */
+
+    const getSortName = (property) => {
+      return String(
+        getFirstValue(property, [
+          "propertyName",
+          "PropertyName",
+          "property_name",
+          "Property_Name",
+          "buildingName",
+          "BuildingName",
+          "projectName",
+          "ProjectName",
+          "name",
+          "Name",
+          "title",
+          "Title",
+        ]) || "",
+      ).trim();
+    };
+
+    /* -----------------------------------------------------
+       APPLY SORT
+    ----------------------------------------------------- */
+
+    if (SORT_VALUES.has(sort)) {
+      const direction =
+        sort.endsWith("_desc")
+          ? -1
+          : 1;
+
+      filtered.sort((a, b) => {
+        /* -----------------------------------------------
+           A-Z / Z-A
+        ----------------------------------------------- */
+
+        if (
+          sort === "name_asc" ||
+          sort === "name_desc"
+        ) {
+          const nameA = getSortName(a);
+          const nameB = getSortName(b);
+
+          const comparison =
+            nameA.localeCompare(
+              nameB,
+              undefined,
+              {
+                sensitivity: "base",
+                numeric: true,
+              },
+            );
+
+          if (comparison !== 0) {
+            return comparison * direction;
+          }
+
+          return String(
+            a?.id ||
+            a?.rowId ||
+            a?.ROWID ||
+            "",
+          ).localeCompare(
+            String(
+              b?.id ||
+              b?.rowId ||
+              b?.ROWID ||
+              "",
+            ),
+            undefined,
+            {
+              numeric: true,
+            },
+          );
+        }
+
+        /* -----------------------------------------------
+           NUMERIC SORTS
+        ----------------------------------------------- */
+
+        let getValue;
+
+        if (sort.startsWith("budget_")) {
+          getValue = getBudgetValue;
+        } else if (sort.startsWith("area_")) {
+          getValue = getSortArea;
+        } else {
+          getValue = getSortSeats;
+        }
+
+        const valueA = getValue(a);
+        const valueB = getValue(b);
+
+        /*
+          Properties without a value always stay at
+          the bottom of the list.
+        */
+
+        if (
+          valueA === null &&
+          valueB === null
+        ) {
+          return 0;
+        }
+
+        if (valueA === null) {
+          return 1;
+        }
+
+        if (valueB === null) {
+          return -1;
+        }
+
+        if (valueA === valueB) {
+          return String(
+            a?.id ||
+            a?.rowId ||
+            a?.ROWID ||
+            "",
+          ).localeCompare(
+            String(
+              b?.id ||
+              b?.rowId ||
+              b?.ROWID ||
+              "",
+            ),
+            undefined,
+            {
+              numeric: true,
+            },
+          );
+        }
+
+        return (
+          valueA - valueB
+        ) * direction;
+      });
+    }
     /* =====================================================
        FINAL RESULT
     ===================================================== */

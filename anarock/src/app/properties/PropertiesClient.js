@@ -14,6 +14,9 @@ import {
 import {
   Sparkles,
   SlidersHorizontal,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
   X,
   Search,
   ChevronDown,
@@ -32,9 +35,54 @@ const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const SHORTLIST_STORAGE_KEY = "anarock_shortlist_properties";
 const OFFICE_TYPES = [
   "Conventional",
-  "Managed Office/Co-working",
-  "Consulting",
-  "Others",
+  "Managed Office/Co-working"
+];
+const SORT_OPTIONS = [
+  {
+    value: "",
+    label: "Recommended",
+    shortLabel: "Recommended",
+  },
+  {
+    value: "budget_asc",
+    label: "Budget: Low to High",
+    shortLabel: "Budget ↑",
+  },
+  {
+    value: "budget_desc",
+    label: "Budget: High to Low",
+    shortLabel: "Budget ↓",
+  },
+  {
+    value: "area_asc",
+    label: "Area: Low to High",
+    shortLabel: "Area ↑",
+  },
+  {
+    value: "area_desc",
+    label: "Area: High to Low",
+    shortLabel: "Area ↓",
+  },
+  {
+    value: "seats_asc",
+    label: "Seat Count: Low to High",
+    shortLabel: "Seats ↑",
+  },
+  {
+    value: "seats_desc",
+    label: "Seat Count: High to Low",
+    shortLabel: "Seats ↓",
+  },
+  {
+    value: "name_asc",
+    label: "Alphabetically: A-Z",
+    shortLabel: "A-Z",
+  },
+  {
+    value: "name_desc",
+    label: "Alphabetically: Z-A",
+    shortLabel: "Z-A",
+  },
 ];
 const toUrlValue = (value) => {
   return String(value || "")
@@ -223,6 +271,8 @@ export default function PropertiesClient() {
   const [micromarketsLoading, setMicromarketsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showMicromarkets, setShowMicromarkets] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState("filters");
+  const [sortValue, setSortValue] = useState("");
   useEffect(() => {
     if (!showFilters) return;
     const previousOverflow = document.body.style.overflow;
@@ -252,8 +302,6 @@ export default function PropertiesClient() {
     };
   }, [searchParams, currency, unit]);
 
-  // const params = new URLSearchParams(searchParams.toString());
-  // params.delete("page");
   const normalizedOfficeType = normalizeValue(filters.type);
   const isCoworking = normalizedOfficeType === "managed office/co-working";
 
@@ -307,6 +355,7 @@ export default function PropertiesClient() {
       cancelled = true;
     };
   }, []);
+
   const handleCompareToggle = (property) => {
     const propertyId = getPropertyId(property);
 
@@ -376,6 +425,7 @@ export default function PropertiesClient() {
 
     router.push("/compare");
   };
+
   useEffect(() => {
     fetch("/api/cities")
       .then((response) => response.json())
@@ -410,6 +460,7 @@ export default function PropertiesClient() {
       console.error("Failed to load comparison properties:", error);
     }
   }, []);
+
   const resolvedCity = useMemo(() => {
     if (!filters.city) {
       return "";
@@ -690,8 +741,6 @@ export default function PropertiesClient() {
           params.delete("seats");
         }
       }
-
-      // Any filter change starts from page 1
       params.delete("page");
 
       router.push(
@@ -718,6 +767,14 @@ export default function PropertiesClient() {
     router.push(
       `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
+  };
+
+  const handleSortChange = (value) => {
+    setSortValue(value || "");
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   const handleCityChange = (selectedCity) => {
@@ -914,8 +971,8 @@ export default function PropertiesClient() {
 
     filters.micromarket && {
       label: `Micromarkets: ${selectedMicromarketNames.length
-          ? selectedMicromarketNames.join(", ")
-          : filters.micromarket
+        ? selectedMicromarketNames.join(", ")
+        : filters.micromarket
         }`,
       key: "micromarket",
     },
@@ -962,11 +1019,153 @@ export default function PropertiesClient() {
     },
   ].filter(Boolean);
 
-  const totalPages = Math.max(1, Math.ceil(properties.length / ITEMS_PER_PAGE));
+  const sortedProperties = useMemo(() => {
+    if (!Array.isArray(properties)) {
+      return [];
+    }
+
+    if (!sortValue) {
+      return properties;
+    }
+
+    const getBudget = (property) => {
+      const type = getPropertyType(property);
+
+      // Co-working sorting uses cost per seat.
+      if (type === "managed office/co-working") {
+        return getSeatPrice(property);
+      }
+
+
+      return getFirstNumber(property, [
+        "quotedRent",
+        "QuotedRent",
+        "monthlyRent",
+        "MonthlyRent",
+        "rent",
+        "Rent",
+        "budget",
+        "Budget",
+        "price",
+        "Price",
+        "monthlyCost",
+        "MonthlyCost",
+      ]);
+    };
+
+    const getName = (property) => {
+      return String(
+        property?.propertyName ||
+        property?.PropertyName ||
+        property?.property_name ||
+        property?.Property_Name ||
+        property?.buildingName ||
+        property?.BuildingName ||
+        property?.projectName ||
+        property?.ProjectName ||
+        property?.name ||
+        property?.Name ||
+        property?.title ||
+        property?.Title ||
+        "",
+      ).trim();
+    };
+
+    const getStableId = (property) => {
+      return String(property?.id || property?.rowId || property?.ROWID || "");
+    };
+
+    const getValue = (property) => {
+      switch (sortValue) {
+        case "budget_asc":
+        case "budget_desc":
+          return getBudget(property);
+
+        case "area_asc":
+        case "area_desc":
+          return getAreaSqft(property);
+
+        case "seats_asc":
+        case "seats_desc":
+          return getAvailableSeats(property);
+
+        default:
+          return null;
+      }
+    };
+
+    const sorted = [...properties];
+
+    /*
+     * A-Z / Z-A
+     */
+    if (sortValue === "name_asc" || sortValue === "name_desc") {
+      const direction = sortValue === "name_asc" ? 1 : -1;
+
+      sorted.sort((a, b) => {
+        const nameA = getName(a);
+        const nameB = getName(b);
+
+        const comparison = nameA.localeCompare(nameB, undefined, {
+          sensitivity: "base",
+          numeric: true,
+        });
+
+        if (comparison !== 0) {
+          return comparison * direction;
+        }
+
+        return getStableId(a).localeCompare(getStableId(b), undefined, {
+          numeric: true,
+        });
+      });
+
+      return sorted;
+    }
+
+    /*
+     * Numeric sorting
+     */
+    const direction = sortValue.endsWith("_desc") ? -1 : 1;
+
+    sorted.sort((a, b) => {
+      const valueA = getValue(a);
+      const valueB = getValue(b);
+
+      // Missing values stay at the bottom.
+      if (valueA === null && valueB === null) {
+        return 0;
+      }
+
+      if (valueA === null) {
+        return 1;
+      }
+
+      if (valueB === null) {
+        return -1;
+      }
+
+      // Stable ordering for equal values.
+      if (valueA === valueB) {
+        return getStableId(a).localeCompare(getStableId(b), undefined, {
+          numeric: true,
+        });
+      }
+
+      return (valueA - valueB) * direction;
+    });
+
+    return sorted;
+  }, [properties, sortValue]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(sortedProperties.length / ITEMS_PER_PAGE),
+  );
 
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
-  const paginatedProperties = properties.slice(
+  const paginatedProperties = sortedProperties.slice(
     (safeCurrentPage - 1) * ITEMS_PER_PAGE,
     safeCurrentPage * ITEMS_PER_PAGE,
   );
@@ -1228,6 +1427,10 @@ export default function PropertiesClient() {
     requestedPrice,
   ]);
 
+  const activeSort =
+    SORT_OPTIONS.find((option) => option.value === sortValue) ||
+    SORT_OPTIONS[0];
+
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="px-4 py-4">
@@ -1258,13 +1461,74 @@ export default function PropertiesClient() {
             </p>
           </div>
 
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm text-white lg:hidden"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filters
-          </button>
+          <div className="flex w-full items-center gap-2 sm:w-auto lg:hidden">
+            {/* FILTERS */}
+            <button
+              type="button"
+              onClick={() => {
+                setSidebarTab("filters");
+                setShowFilters(true);
+              }}
+              className="
+      flex flex-1 items-center justify-center gap-2
+      rounded-xl
+      bg-slate-900
+      px-4 py-2.5
+      text-sm font-semibold text-white
+      shadow-sm
+      transition
+      hover:bg-slate-800
+      sm:flex-none
+    "
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+
+              <span>Filters</span>
+            </button>
+
+            {/* SORT */}
+            <button
+              type="button"
+              onClick={() => {
+                setSidebarTab("sort");
+                setShowFilters(true);
+              }}
+              className="
+      flex flex-1 items-center justify-center gap-2
+      rounded-xl
+      border border-slate-200
+      bg-white
+      px-4 py-2.5
+      text-sm font-semibold text-slate-700
+      shadow-sm
+      transition
+      hover:border-[#A054A0]/40
+      hover:text-[#A054A0]
+      sm:flex-none
+    "
+            >
+              <ArrowUpDown className="h-4 w-4" />
+
+              <span>Sort</span>
+
+              {sortValue && (
+                <span
+                  className="
+          hidden
+          rounded-full
+          bg-[#A054A0]/10
+          px-1.5 py-0.5
+          text-[10px]
+          font-bold
+          text-[#A054A0]
+          min-[400px]:inline-flex
+        "
+                >
+                  {activeSort.shortLabel}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
         {activeChips.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
@@ -1298,359 +1562,592 @@ export default function PropertiesClient() {
           >
             <div
               className={`border border-slate-200 bg-white p-4 ${showFilters
-                  ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
-                  : "rounded-xl lg:sticky lg:top-24"
+                ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
+                : "rounded-xl lg:sticky lg:top-24"
                 }`}
             >
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900"> Filters</h3>
+              <div className="mb-4 flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <div
+                    className="
+        flex w-full items-center
+        rounded-xl
+        border border-slate-200
+        bg-slate-50
+        p-1
+        shadow-sm
+      "
+                  >
+                    {/* FILTER TAB */}
+                    <button
+                      type="button"
+                      onClick={() => setSidebarTab("filters")}
+                      className={`
+          flex min-w-0 flex-1
+          items-center justify-center gap-2
+          rounded-lg
+          px-3 py-2
+          text-sm font-semibold
+          transition-all
+          ${sidebarTab === "filters"
+                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                          : "text-slate-500 hover:text-slate-800"
+                        }
+        `}
+                    >
+                      <SlidersHorizontal className="h-4 w-4 shrink-0" />
+
+                      <span>Filters</span>
+                    </button>
+
+                    {/* SORT TAB */}
+                    <button
+                      type="button"
+                      onClick={() => setSidebarTab("sort")}
+                      className={`
+          flex min-w-0 flex-1
+          items-center justify-center gap-2
+          rounded-lg
+          px-3 py-2
+          text-sm font-semibold
+          transition-all
+          ${sidebarTab === "sort"
+                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                          : "text-slate-500 hover:text-slate-800"
+                        }
+        `}
+                    >
+                      <ArrowUpDown className="h-4 w-4 shrink-0" />
+
+                      <span>Sort</span>
+                    </button>
+                  </div>
+                </div>
+
                 <button
+                  type="button"
                   onClick={() => setShowFilters(false)}
-                  className="lg:hidden"
+                  className="
+      shrink-0
+      rounded-lg
+      p-1.5
+      text-slate-500
+      transition
+      hover:bg-slate-100
+      hover:text-slate-900
+      lg:hidden
+    "
+                  aria-label="Close filters"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    City
-                  </label>
+              {sidebarTab === "sort" ? (
+                <div className="space-y-3">
+                  {/* SORT PANEL */}
 
-                  <select
-                    value={resolvedCity}
-                    onChange={(e) => handleCityChange(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
-                  >
-                    <option value="">All Cities</option>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">
+                      Sort properties
+                    </p>
 
-                    {cities.map((cityOption) => (
-                      <option key={cityOption} value={cityOption}>
-                        {cityOption}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Choose how the property results should be ordered.
+                    </p>
+                  </div>
 
-                {/* =================================================
-                    MICROMARKET
-                ================================================= */}
+                  <div className="space-y-1.5">
+                    {SORT_OPTIONS.map((option) => {
+                      const selected = sortValue === option.value;
 
-                <div className="relative">
-                  <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    Micromarket
-                  </label>
+                      const isDescending = option.value.endsWith("_desc");
 
-                  <button
-                    type="button"
-                    disabled={!resolvedCity || micromarketsLoading}
-                    onClick={() => setShowMicromarkets(!showMicromarkets)}
-                    className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${!resolvedCity
-                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                        : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
-                      }`}
-                  >
-                    <span className="truncate">
-                      {micromarketsLoading
-                        ? "Loading micromarkets..."
-                        : selectedMicromarkets.length === 0
-                          ? "All Micromarkets"
-                          : `${selectedMicromarkets.length} selected`}
-                    </span>
+                      const isAscending = option.value.endsWith("_asc");
 
-                    <ChevronDown
-                      className={`h-4 w-4 shrink-0 transition-transform ${showMicromarkets ? "rotate-180" : ""
-                        }`}
-                    />
-                  </button>
-
-                  {showMicromarkets && resolvedCity && !micromarketsLoading && (
-                    <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-                      <button
-                        type="button"
-                        onClick={selectAllMicromarkets}
-                        className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
-                      >
-                        <span
-                          className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
-                              ? "border-[#A054A0] bg-[#A054A0]"
-                              : "border-slate-300"
-                            }`}
-                        >
-                          {selectedMicromarkets.length === 0 && (
-                            <Check className="h-3 w-3 text-white" />
-                          )}
-                        </span>
-
-                        <span className="font-medium text-slate-800">
-                          All Micromarkets
-                        </span>
-                      </button>
-
-                      <div className="max-h-64 overflow-y-auto">
-                        {micromarkets.length === 0 ? (
-                          <div className="px-3 py-3 text-sm text-slate-500">
-                            No micromarkets found
-                          </div>
-                        ) : (
-                          micromarkets.map((market) => {
-                            const id = String(market.id);
-
-                            const selected = selectedMicromarkets.includes(id);
-
-                            return (
-                              <button
-                                key={id}
-                                type="button"
-                                onClick={() => toggleMicromarket(id)}
-                                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
-                              >
-                                <span
-                                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
-                                      ? "border-[#A054A0] bg-[#A054A0]"
-                                      : "border-slate-300"
-                                    }`}
-                                >
-                                  {selected && (
-                                    <Check className="h-3 w-3 text-white" />
-                                  )}
-                                </span>
-
-                                <span
-                                  className={`truncate ${selected
-                                      ? "font-medium text-slate-900"
-                                      : "text-slate-700"
-                                    }`}
-                                >
-                                  {market.name}
-                                </span>
-                              </button>
-                            );
-                          })
-                        )}
-                      </div>
-
-                      <div className="border-t border-slate-100 p-2">
+                      return (
                         <button
+                          key={option.value || "recommended"}
                           type="button"
-                          onClick={() => setShowMicromarkets(false)}
-                          className="w-full rounded-md bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-800"
+                          onClick={() => handleSortChange(option.value)}
+                          aria-pressed={selected}
+                          className={`
+    group
+    flex w-full items-center gap-3
+    rounded-xl
+    border
+    px-3 py-3
+    text-left
+    transition-all duration-200
+    ${selected
+                              ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#7B3D7B] shadow-sm"
+                              : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
+                            }
+  `}
                         >
-                          Done
+                          {/* SORT ICON */}
+                          <span
+                            className={`
+      flex h-9 w-9 shrink-0
+      items-center justify-center
+      rounded-lg
+      border
+      transition-colors
+      ${selected
+                                ? "border-[#A054A0]/20 bg-[#A054A0]/10 text-[#A054A0]"
+                                : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
+                              }
+    `}
+                          >
+                            {option.value === "" ? (
+                              <ArrowUpDown className="h-4 w-4" />
+                            ) : isAscending ? (
+                              <ArrowUp className="h-4 w-4" />
+                            ) : isDescending ? (
+                              <ArrowDown className="h-4 w-4" />
+                            ) : (
+                              <span className="text-xs font-bold">A</span>
+                            )}
+                          </span>
+
+                          {/* LABEL */}
+                          <span className="min-w-0 flex-1">
+                            <span
+                              className={`
+      block
+      whitespace-normal
+      text-sm
+      leading-5
+      font-medium
+      ${selected
+                                  ? "text-[#7B3D7B]"
+                                  : "text-slate-700"
+                                }
+    `}
+                            >
+                              {option.label}
+                            </span>
+                          </span>
+
+                          {/* RADIO */}
+                          <span
+                            className={`
+      relative
+      flex h-5 w-5 shrink-0
+      items-center justify-center
+      rounded-full
+      border-2
+      transition-all
+      ${selected
+                                ? "border-[#A054A0]"
+                                : "border-slate-300 group-hover:border-slate-400"
+                              }
+    `}
+                          >
+                            {selected && (
+                              <span
+                                className="
+          h-2.5 w-2.5
+          rounded-full
+          bg-[#A054A0]
+        "
+                              />
+                            )}
+                          </span>
                         </button>
-                      </div>
-                    </div>
+                      );
+                    })}
+                  </div>
+
+                  {sortValue && (
+                    <button
+                      type="button"
+                      onClick={() => handleSortChange("")}
+                      className="
+          w-full
+          rounded-lg
+          border border-slate-200
+          py-2.5
+          text-sm font-medium
+          text-slate-600
+          transition
+          hover:bg-slate-50
+          hover:text-slate-900
+        "
+                    >
+                      Reset to Recommended
+                    </button>
                   )}
                 </div>
-
-                {/* =================================================
-                    OFFICE TYPE
-                ================================================= */}
-
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    Office Type
-                  </label>
-
-                  <select
-                    value={filters.type === "ai" ? "" : filters.type}
-                    onChange={(e) => updateFilter("type", e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
-                  >
-                    <option value="">All Types</option>
-
-                    {OFFICE_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* =================================================
-                    DYNAMIC FILTERS
-                ================================================= */}
-
-                {isCoworking ? (
-                  <>
-                    {/* SEATS */}
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Required Seats
-                      </label>
-
-                      <div className="relative">
-                        <Users className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                        <input
-                          type="number"
-                          min="0"
-                          value={filters.seats}
-                          onChange={(e) =>
-                            updateFilter("seats", e.target.value)
-                          }
-                          placeholder="e.g. 50"
-                          className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* MIN SEAT PRICE */}
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Min Seat Price / month ({filters.currency})
-                      </label>
-
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
-                          {renderCurrencyIcon()}
-                        </span>
-
-                        <input
-                          type="number"
-                          min="0"
-                          value={filters.minBudget}
-                          onChange={(e) =>
-                            updateFilter("minBudget", e.target.value)
-                          }
-                          placeholder="Min seat price"
-                          className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* MAX SEAT PRICE */}
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Max Seat Price / month ({filters.currency})
-                      </label>
-
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
-                          {renderCurrencyIcon()}
-                        </span>
-
-                        <input
-                          type="number"
-                          min="0"
-                          value={filters.maxBudget}
-                          onChange={(e) =>
-                            updateFilter("maxBudget", e.target.value)
-                          }
-                          placeholder="Max seat price"
-                          className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* MIN RENT */}
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Min Rent / month ({filters.currency})
-                      </label>
-
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
-                          {renderCurrencyIcon()}
-                        </span>
-
-                        <input
-                          type="number"
-                          min="0"
-                          value={filters.minBudget}
-                          onChange={(e) =>
-                            updateFilter("minBudget", e.target.value)
-                          }
-                          placeholder="Min rent"
-                          className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* MAX RENT */}
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Max Rent / month ({filters.currency})
-                      </label>
-
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
-                          {renderCurrencyIcon()}
-                        </span>
-
-                        <input
-                          type="number"
-                          min="0"
-                          value={filters.maxBudget}
-                          onChange={(e) =>
-                            updateFilter("maxBudget", e.target.value)
-                          }
-                          placeholder="Max rent"
-                          className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* AREA */}
-
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        Min Area (
-                        {filters.areaUnit === "sqm" ? "sq.m" : "sq.ft"})
-                      </label>
-
-                      <div className="relative">
-                        <Maximize2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                        <input
-                          type="number"
-                          min="0"
-                          value={filters.area}
-                          onChange={(e) => updateFilter("area", e.target.value)}
-                          placeholder={
-                            filters.areaUnit === "sqm"
-                              ? "Enter area"
-                              : "e.g. 2000"
-                          }
-                          className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {filters.isAi && (
+              ) : (
+                /* FILTER PANEL */
+                <div className="space-y-4">
                   <div>
                     <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                      AI Query
+                      City
                     </label>
 
-                    <textarea
-                      value={filters.prompt}
-                      onChange={(e) => updateFilter("prompt", e.target.value)}
-                      rows={3}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#A054A0] focus:outline-none"
-                    />
-                  </div>
-                )}
+                    <select
+                      value={resolvedCity}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
+                    >
+                      <option value="">All Cities</option>
 
-                <button
-                  onClick={clearAll}
-                  className="w-full rounded-lg border border-slate-300 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  Clear All
-                </button>
-              </div>
+                      {cities.map((cityOption) => (
+                        <option key={cityOption} value={cityOption}>
+                          {cityOption}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* MICROMARKET */}
+                  <div className="relative">
+                    <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                      Micromarket
+                    </label>
+
+                    <button
+                      type="button"
+                      disabled={!resolvedCity || micromarketsLoading}
+                      onClick={() => setShowMicromarkets(!showMicromarkets)}
+                      className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${!resolvedCity
+                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                        : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
+                        }`}
+                    >
+                      <span className="truncate">
+                        {micromarketsLoading
+                          ? "Loading micromarkets..."
+                          : selectedMicromarkets.length === 0
+                            ? "All Micromarkets"
+                            : `${selectedMicromarkets.length} selected`}
+                      </span>
+
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 transition-transform ${showMicromarkets ? "rotate-180" : ""
+                          }`}
+                      />
+                    </button>
+
+                    {showMicromarkets && resolvedCity && !micromarketsLoading && (
+                      <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+                        <button
+                          type="button"
+                          onClick={selectAllMicromarkets}
+                          className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
+                        >
+                          <span
+                            className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
+                              ? "border-[#A054A0] bg-[#A054A0]"
+                              : "border-slate-300"
+                              }`}
+                          >
+                            {selectedMicromarkets.length === 0 && (
+                              <Check className="h-3 w-3 text-white" />
+                            )}
+                          </span>
+
+                          <span className="font-medium text-slate-800">
+                            All Micromarkets
+                          </span>
+                        </button>
+
+                        <div className="max-h-64 overflow-y-auto">
+                          {micromarkets.length === 0 ? (
+                            <div className="px-3 py-3 text-sm text-slate-500">
+                              No micromarkets found
+                            </div>
+                          ) : (
+                            micromarkets.map((market) => {
+                              const id = String(market.id);
+
+                              const selected = selectedMicromarkets.includes(id);
+
+                              return (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() => toggleMicromarket(id)}
+                                  className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
+                                >
+                                  <span
+                                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
+                                      ? "border-[#A054A0] bg-[#A054A0]"
+                                      : "border-slate-300"
+                                      }`}
+                                  >
+                                    {selected && (
+                                      <Check className="h-3 w-3 text-white" />
+                                    )}
+                                  </span>
+
+                                  <span
+                                    className={`truncate ${selected
+                                      ? "font-medium text-slate-900"
+                                      : "text-slate-700"
+                                      }`}
+                                  >
+                                    {market.name}
+                                  </span>
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
+
+                        <div className="border-t border-slate-100 p-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowMicromarkets(false)}
+                            className="w-full rounded-md bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-800"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* OFFICE TYPE */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                      Office Type
+                    </label>
+
+                    <select
+                      value={filters.type === "ai" ? "" : filters.type}
+                      onChange={(e) => updateFilter("type", e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
+                    >
+                      <option value="">All Types</option>
+
+                      {OFFICE_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* DYNAMIC FILTERS */}
+                  {isCoworking ? (
+                    <>
+                      {/* SEATS */}
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          Required Seats
+                        </label>
+
+                        <div className="relative">
+                          <Users className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                          <input
+                            type="number"
+                            min="0"
+                            value={filters.seats}
+                            onChange={(e) =>
+                              updateFilter("seats", e.target.value)
+                            }
+                            placeholder="e.g. 50"
+                            className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* MIN SEAT PRICE */}
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          Min Seat Price / month ({filters.currency})
+                        </label>
+
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
+                            {renderCurrencyIcon()}
+                          </span>
+
+                          <input
+                            type="number"
+                            min="0"
+                            value={filters.minBudget}
+                            onChange={(e) =>
+                              updateFilter("minBudget", e.target.value)
+                            }
+                            placeholder="Min seat price"
+                            className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* MAX SEAT PRICE */}
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          Max Seat Price / month ({filters.currency})
+                        </label>
+
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
+                            {renderCurrencyIcon()}
+                          </span>
+
+                          <input
+                            type="number"
+                            min="0"
+                            value={filters.maxBudget}
+                            onChange={(e) =>
+                              updateFilter("maxBudget", e.target.value)
+                            }
+                            placeholder="Max seat price"
+                            className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* MIN RENT */}
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          Min Rent / month ({filters.currency})
+                        </label>
+
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
+                            {renderCurrencyIcon()}
+                          </span>
+
+                          <input
+                            type="number"
+                            min="0"
+                            value={filters.minBudget}
+                            onChange={(e) =>
+                              updateFilter("minBudget", e.target.value)
+                            }
+                            placeholder="Min rent"
+                            className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* MAX RENT */}
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          Max Rent / month ({filters.currency})
+                        </label>
+
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
+                            {renderCurrencyIcon()}
+                          </span>
+
+                          <input
+                            type="number"
+                            min="0"
+                            value={filters.maxBudget}
+                            onChange={(e) =>
+                              updateFilter("maxBudget", e.target.value)
+                            }
+                            placeholder="Max rent"
+                            className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* AREA */}
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          Min Area (
+                          {filters.areaUnit === "sqm" ? "sq.m" : "sq.ft"})
+                        </label>
+
+                        <div className="relative">
+                          <Maximize2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                          <input
+                            type="number"
+                            min="0"
+                            value={filters.area}
+                            onChange={(e) => updateFilter("area", e.target.value)}
+                            placeholder={
+                              filters.areaUnit === "sqm"
+                                ? "Enter area"
+                                : "e.g. 2000"
+                            }
+                            className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {filters.isAi && (
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        AI Query
+                      </label>
+
+                      <textarea
+                        value={filters.prompt}
+                        onChange={(e) => updateFilter("prompt", e.target.value)}
+                        rows={3}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#A054A0] focus:outline-none"
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    onClick={clearAll}
+                    className="w-full rounded-lg border border-slate-300 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              )}
             </div>
           </aside>
+
+          <div
+            className="
+    mb-4
+    hidden
+    items-center justify-between
+    rounded-xl
+    border border-slate-200
+    bg-white
+    px-3 py-2.5
+    shadow-sm
+    sm:flex
+    lg:hidden
+  "
+          >
+            <div className="flex min-w-0 items-center gap-2 text-sm text-slate-600">
+              <ArrowUpDown className="h-4 w-4 shrink-0 text-[#A054A0]" />
+
+              <span className="truncate">
+                Sorted by{" "}
+                <span className="font-semibold text-slate-900">
+                  {activeSort.label}
+                </span>
+              </span>
+            </div>
+
+            {filters.sort && (
+              <button
+                type="button"
+                onClick={() => handleSortChange("")}
+                className="
+        shrink-0
+        text-xs
+        font-semibold
+        text-[#A054A0]
+        hover:underline
+      "
+              >
+                Reset
+              </button>
+            )}
+          </div>
 
           <div>
             {loading ? (
@@ -1767,10 +2264,7 @@ export default function PropertiesClient() {
                   ))}
                 </div>
 
-                {/* =====================================================
-                    PAGINATION
-                ===================================================== */}
-
+                {/* PAGINATION */}
                 {totalPages > 1 && (
                   <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pb-8">
                     <button

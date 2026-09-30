@@ -426,9 +426,7 @@ export async function POST(request) {
         recordData.Email = email;
       }
       if (requirementCityId) {
-        recordData.Requirement_City = {
-          id: requirementCityId,
-        };
+        recordData.Requirement_City = { id: requirementCityId };
       }
       Object.keys(recordData).forEach((key) => {
         if (
@@ -459,10 +457,6 @@ export async function POST(request) {
         {
           success: true,
           message: "Lead created successfully.",
-          // leadId: result.leadId,
-          // cityFound: Boolean(result.requirementCityId),
-          // cityId: result.requirementCityId || null,
-          // leadOwnerTeam: result.leadOwnerTeam,
         },
         {
           status: 200,

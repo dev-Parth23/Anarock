@@ -23,8 +23,6 @@ import {
 const OFFICE_TYPES = [
   "Conventional",
   "Managed Office/Co-working",
-  "Consulting",
-  "Others",
 ];
 
 const SAMPLE_PROMPTS = [

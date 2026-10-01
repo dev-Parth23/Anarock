@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, MapPin } from "lucide-react";
+import { Heart, MapPin, Building2 } from "lucide-react";
 import { usePreferences } from "@/lib/preferences";
 import { useWishlist } from "@/lib/wishlist";
 import { formatArea } from "@/lib/format";
@@ -27,7 +28,7 @@ function getStratusImageUrl(imageFolderPath, filename) {
   if (!folder) return "";
 
   return `https://property-images.zohostratus.in/${folder}/${encodeURIComponent(
-    filename,
+    filename
   )}`;
 }
 
@@ -59,8 +60,9 @@ function getFirstValue(property, fields, fallback = "-") {
   return fallback;
 }
 
-export default function PropertyCard({
+function PropertyCard({
   property,
+  priority = false,
   isCompared = false,
   onCompareToggle,
   isShortlisted = false,
@@ -68,37 +70,38 @@ export default function PropertyCard({
 }) {
   const { unit } = usePreferences();
   const { ids, toggle } = useWishlist();
+
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
   const getPropertyId = (value) =>
     String(value?.id || value?.rowId || value?.ROWID || value?.ID || "");
 
   const propertyId = getPropertyId(property);
-
   const contextWishlisted = ids.some((id) => String(id) === propertyId);
-
   const isWishlisted = Boolean(isShortlisted) || contextWishlisted;
+
   const propertyName = String(
     property?.name ||
     property?.Property_Name ||
     property?.propertyName ||
     property?.Name ||
-    "Property",
+    "Property"
   );
 
   const propertySlug = createSlug(propertyName);
-
   const propertyUrl = propertyId
-    ? `/properties/${encodeURIComponent(
-      propertyId,
-    )}/${encodeURIComponent(propertySlug)}`
+    ? `/properties/${encodeURIComponent(propertyId)}/${encodeURIComponent(
+      propertySlug
+    )}`
     : "/properties";
 
   const imageUrl = getStratusImageUrl(
     property?.imageFolderPath || property?.ImageFolderPath,
-    "Project_Picture_1.jpg",
+    "Project_Picture_1.jpg"
   );
 
   const city = property?.city || property?.City || "";
-
   const micromarket =
     property?.micromarket ||
     property?.Micromarket ||
@@ -111,8 +114,8 @@ export default function PropertyCard({
     getFirstValue(
       property,
       ["officeType", "OfficeType", "type", "propertyType", "PropertyType"],
-      "",
-    ),
+      ""
+    )
   )
     .trim()
     .toLowerCase();
@@ -123,13 +126,12 @@ export default function PropertyCard({
   const developer = getFirstValue(
     property,
     ["developer", "Developer", "developerName", "Developer Name"],
-    "-",
+    "-"
   );
 
   const areaValue = Number(
-    property?.areaSqft ?? property?.AreaSqft ?? property?.area,
+    property?.areaSqft ?? property?.AreaSqft ?? property?.area
   );
-
   const hasArea = Number.isFinite(areaValue) && areaValue > 0;
 
   const seatsOffered = getFirstValue(
@@ -142,65 +144,36 @@ export default function PropertyCard({
       "seats",
       "Seats",
     ],
-    "-",
+    "-"
   );
 
   const operator = getFirstValue(
     property,
     ["operator", "Operator", "operatorName", "OperatorName", "Operator Name"],
-    "-",
+    "-"
   );
 
   const handleCompareClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
-
-    if (!propertyId || typeof onCompareToggle !== "function") {
-      return;
-    }
-
+    if (!propertyId || typeof onCompareToggle !== "function") return;
     onCompareToggle(property);
   };
 
   const handleShortlistClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
-
-    if (!propertyId) {
-      return;
-    }
+    if (!propertyId) return;
 
     if (typeof onShortlistToggle === "function") {
       onShortlistToggle(property);
       return;
     }
-
     toggle(property);
   };
 
   return (
-    <article
-      className="
-        group
-        relative
-        z-0
-        flex
-        h-full
-        flex-col
-        overflow-hidden
-        rounded-2xl
-        border
-        border-[#E8E3DC]
-        bg-white
-        shadow-[0_4px_20px_rgba(39,29,23,0.04)]
-        transition-all
-        duration-500
-        ease-out
-        hover:z-20
-        hover:-translate-y-1
-        hover:shadow-[0_16px_40px_rgba(39,29,23,0.10)]
-      "
-    >
+    <article className="group relative z-0 flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8E3DC] bg-white shadow-[0_4px_20px_rgba(39,29,23,0.04)] transition-all duration-500 ease-out hover:z-20 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(39,29,23,0.10)]">
       <div className="relative overflow-hidden bg-[#F8F7F5] p-2.5 sm:p-3">
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F3F1EE]">
           <Link
@@ -208,44 +181,45 @@ export default function PropertyCard({
             aria-label={`View details of ${propertyName}`}
             className="absolute inset-0 z-10 block"
           >
-            {imageUrl ? (
+            {/* Smooth Shimmer Background while Image Loads */}
+            {!imageLoaded && !imageError && (
+              <div className="shimmer-effect absolute inset-0 bg-[#E8E3DC]" />
+            )}
+
+            {imageUrl && !imageError ? (
               <Image
                 src={imageUrl}
                 alt={propertyName}
                 fill
-                priority
+                priority={priority}
+                loading={priority ? undefined : "lazy"}
                 unoptimized
-                className="
-                  object-cover
-                  transition-transform
-                  duration-700
-                  ease-out
-                  group-hover:scale-[1.035]
-                "
-                sizes="
-                  (max-width: 640px) 100vw,
-                  (max-width: 1024px) 50vw,
-                  33vw
-                "
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+                className={`object-cover transition-all duration-500 ease-out group-hover:scale-[1.035] ${imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs text-[#9B948C]">
-                Image unavailable
+              <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-[#F3F1EE] text-[#9B948C]">
+                <Building2 className="h-6 w-6 stroke-[1.5]" />
+                <span className="text-xs font-medium">Image unavailable</span>
               </div>
             )}
           </Link>
 
           <div className="pointer-events-none absolute inset-0 z-[11] bg-gradient-to-t from-black/[0.08] to-transparent" />
 
+          {/* COMPARE BADGE */}
           <div
             className="absolute left-3 top-3 z-[50]"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
             }}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
             }}
           >
             <button
@@ -257,89 +231,44 @@ export default function PropertyCard({
                   ? `Remove ${propertyName} from comparison`
                   : `Compare ${propertyName}`
               }
-              onMouseDown={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
               }}
               onClick={handleCompareClick}
-              className={`
-                flex
-                min-h-[34px]
-                items-center
-                gap-2
-                rounded-lg
-                border
-                px-2.5
-                py-1.5
-                text-[10px]
-                font-semibold
-                tracking-wide
-                shadow-md
-                backdrop-blur-md
-                transition-all
-                duration-200
-                ${isCompared
-                  ? "border-[#A054A0] bg-[#A054A0] text-white"
-                  : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:text-[#A054A0]"
-                }
-              `}
+              className={`flex min-h-[34px] items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold tracking-wide shadow-md backdrop-blur-md transition-all duration-200 ${isCompared
+                ? "border-[#A054A0] bg-[#A054A0] text-white"
+                : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:text-[#A054A0]"
+                }`}
             >
               <span
-                className={`
-                  flex
-                  h-3.5
-                  w-3.5
-                  items-center
-                  justify-center
-                  rounded-[3px]
-                  border
-                  text-[9px]
-                  leading-none
-                  ${isCompared
-                    ? "border-white bg-white text-[#A054A0]"
-                    : "border-[#A054A0] bg-white"
-                  }
-                `}
+                className={`flex h-3.5 w-3.5 items-center justify-center rounded-[3px] border text-[9px] leading-none ${isCompared
+                  ? "border-white bg-white text-[#A054A0]"
+                  : "border-[#A054A0] bg-white"
+                  }`}
               >
                 {isCompared ? "✓" : ""}
               </span>
-
               <span>Compare</span>
             </button>
           </div>
 
+          {/* WISHLIST BUTTON */}
           <button
             type="button"
             aria-label={
               isWishlisted ? "Remove from shortlist" : "Add to shortlist"
             }
             aria-pressed={isWishlisted}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
             }}
             onClick={handleShortlistClick}
-            className={`
-              absolute
-              right-3
-              top-3
-              z-[50]
-              flex
-              h-9
-              w-9
-              items-center
-              justify-center
-              rounded-lg
-              border
-              shadow-md
-              backdrop-blur-md
-              transition-all
-              duration-200
-              ${isWishlisted
-                ? "border-[#A054A0] bg-[#A054A0] text-white"
-                : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
-              }
-            `}
+            className={`absolute right-3 top-3 z-[50] flex h-9 w-9 items-center justify-center rounded-lg border shadow-md backdrop-blur-md transition-all duration-200 ${isWishlisted
+              ? "border-[#A054A0] bg-[#A054A0] text-white"
+              : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
+              }`}
           >
             <Heart
               className="h-[17px] w-[17px]"
@@ -355,8 +284,6 @@ export default function PropertyCard({
         aria-label={`View details of ${propertyName}`}
         className="flex flex-1 flex-col px-4 pb-4 pt-4 sm:px-5 sm:pb-5"
       >
-        {/* PROPERTY TYPE */}
-
         <div className="mb-2.5 flex items-center justify-between gap-2">
           <span className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A054A0]">
             {isCoworking
@@ -365,56 +292,32 @@ export default function PropertyCard({
           </span>
         </div>
 
-        {/* PROPERTY NAME */}
-
         <h3
-          className="
-            line-clamp-2
-            min-h-[50px]
-            text-[21px]
-            font-bold
-            leading-[1.2]
-            tracking-[-0.025em]
-            text-[#241B2B]
-            transition-colors
-            duration-300
-            group-hover:text-[#A054A0]
-            sm:text-[23px]
-          "
+          className="line-clamp-2 min-h-[50px] text-[21px] font-bold leading-[1.2] tracking-[-0.025em] text-[#241B2B] transition-colors duration-300 group-hover:text-[#A054A0] sm:text-[23px]"
           title={propertyName}
         >
           {propertyName}
         </h3>
-
-        {/* LOCATION */}
 
         <div className="flex min-w-0 items-center gap-1.5">
           <MapPin
             className="h-3.5 w-3.5 shrink-0 text-[#A054A0]"
             strokeWidth={1.7}
           />
-
           <p className="line-clamp-2 min-w-0 text-[11px] leading-[1.65] text-[#7D7482] sm:text-base">
             {location || "Location unavailable"}
           </p>
         </div>
 
-        {/* DIVIDER */}
-
         <div className="my-4 h-px bg-[#EEE9E4]" />
-
-        {/* DYNAMIC PROPERTY DETAILS */}
 
         <div className="grid grid-cols-2 gap-3">
           {isCoworking ? (
             <>
-              {/* OPERATOR */}
-
               <div className="min-w-0 border-l border-[#EEE9E4] pl-3 sm:pl-4">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
                   Operator
                 </p>
-
                 <p
                   className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]"
                   title={String(operator)}
@@ -423,13 +326,10 @@ export default function PropertyCard({
                 </p>
               </div>
 
-              {/* SEATS */}
-
               <div className="min-w-0">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
                   Seats Offered
                 </p>
-
                 <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">
                   {seatsOffered}
                 </p>
@@ -437,13 +337,10 @@ export default function PropertyCard({
             </>
           ) : (
             <>
-              {/* DEVELOPER */}
-
               <div className="min-w-0">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
                   Developer
                 </p>
-
                 <p
                   className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]"
                   title={String(developer)}
@@ -452,13 +349,10 @@ export default function PropertyCard({
                 </p>
               </div>
 
-              {/* AREA */}
-
               <div className="min-w-0 border-l border-[#EEE9E4] pl-3 sm:pl-4">
                 <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
                   Area
                 </p>
-
                 <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">
                   {hasArea ? formatArea(areaValue, unit) : "-"}
                 </p>
@@ -467,18 +361,16 @@ export default function PropertyCard({
           )}
         </div>
 
-        {/* VIEW DETAILS */}
-
         <div className="mt-3 flex items-center justify-center gap-2">
           <span className="h-px w-4 bg-[#DCCBE2]" />
-
           <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#9A88A5] transition-colors duration-300 group-hover:text-[#A054A0]">
             View Property Details
           </p>
-
           <span className="h-px w-4 bg-[#DCCBE2]" />
         </div>
       </Link>
     </article>
   );
 }
+
+export default memo(PropertyCard);

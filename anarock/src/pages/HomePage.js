@@ -961,37 +961,19 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
               {popularCities.map((city) => (
-                <Link key={city.slug} href={`/kyc/city/${city.slug}`} className="
-            group relative isolate w-full overflow-hidden 
-            rounded-[1.5rem] border border-[#A054A0]/15
-            bg-white             shadow-[0_10px_35px_rgba(86,42,91,0.05)]
-            transition-all
-            duration-500
-            ease-out
-            hover:-translate-y-2
-            hover:border-[#A054A0]/35
+                <Link key={city.slug} href={`/kyc/city/${city.slug}`}
+                  className="group relative isolate w-full overflow-hidden  rounded-[1.5rem] border border-[#A054A0]/15
+            bg-white shadow-[0_10px_35px_rgba(86,42,91,0.05)] transition-all duration-500 ease-out
+            hover:-translate-y-2 hover:border-[#A054A0]/35
            hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
-            sm:w-[calc(50%-0.625rem)]
-            sm:rounded-[1.75rem]
-            md:w-[calc(33.333%-0.9rem)]
-            lg:w-[calc(20%-1rem)]
-         "
+            sm:w-[calc(50%-0.625rem)] sm:rounded-[1.75rem] md:w-[calc(33.333%-0.9rem)]
+            lg:w-[calc(20%-1rem)]"
                 >
-                  {/* IMAGE */}
                   <div className="relative aspect-square overflow-hidden bg-[#A054A0]/5">
-                    <img
-                      src={city.url}
-                      alt={`${city.name} commercial real estate`}
-                      decoding="async"
-                      loading="lazy"
-                      className=" h-full
-                w-full
+                    <img src={city.url} alt={`${city.name} commercial real estate`}
+                      decoding="async" loading="lazy" className=" h-full w-full
                 object-cover
-                object-top
-                transition-transform
-                duration-700
-                ease-out
-                group-hover:scale-110
+                object-top transition-transform duration-700 ease-out group-hover:scale-110
               "
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
@@ -1315,7 +1297,9 @@ export default function HomePage() {
                           onChange={(e) => setRequirementCity(e.target.value)}
                           className="glass-input w-full appearance-none rounded-xl border border-white/80 bg-white/55 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all duration-300 focus:border-[#A054A0]/50 focus:bg-white/90 focus:ring-4 focus:ring-[#A054A0]/10"
                         >
-                          <option value="">Select City</option>
+                          <option value="" disabled>
+                            - Select City -
+                          </option>
 
                           {requirementCityOptions.map((city) => (
                             <option key={city} value={city}>

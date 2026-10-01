@@ -114,16 +114,6 @@ export function mapProperty(row) {
     creatorID: clean(row.CREATORID),
     createdTime: clean(row.CREATEDTIME),
     modifiedTime: clean(row.MODIFIEDTIME),
-    // image: primaryImage,
-    // gallery: primaryImage
-    //   ? [
-    //     {
-    //       name: "Project_Picture_1.jpg",
-    //       key: `${folder}Project_Picture_1.jpg`,
-    //       url: primaryImage,
-    //     },
-    //   ]
-    //   : [],
     imageFolderPath: folder,
   };
 }

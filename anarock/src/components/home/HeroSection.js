@@ -52,7 +52,7 @@ export default function HeroSection({ consentGranted, locationData }) {
   const [selectedMicromarket, setSelectedMicromarket] = useState("");
   const [loadingMicromarkets, setLoadingMicromarkets] = useState(false);
   const [minBudget, setMinBudget] = useState("");
-  const [maxBudget, setMaxBudget] = useState("");
+  // const [maxBudget, setMaxBudget] = useState("");
   const { currency, unit: areaUnit } = usePreferences();
   const [area, setArea] = useState("");
   const [seats, setSeats] = useState("");
@@ -68,9 +68,9 @@ export default function HeroSection({ consentGranted, locationData }) {
   const handleMinBudgetChange = (e) => {
     setMinBudget(formatNumberWithCommas(e.target.value));
   };
-  const handleMaxBudgetChange = (e) => {
-    setMaxBudget(formatNumberWithCommas(e.target.value));
-  };
+  // const handleMaxBudgetChange = (e) => {
+  //   setMaxBudget(formatNumberWithCommas(e.target.value));
+  // };
   const handleAreaChange = (e) => {
     setArea(formatNumberWithCommas(e.target.value));
   };
@@ -85,7 +85,7 @@ export default function HeroSection({ consentGranted, locationData }) {
     const newType = e.target.value;
     setOfficeType(newType);
     setMinBudget("");
-    setMaxBudget("");
+    // setMaxBudget("");
     setArea("");
     setSeats("");
   };
@@ -271,13 +271,14 @@ export default function HeroSection({ consentGranted, locationData }) {
       }
 
       const cleanedMinBudget = cleanNumber(minBudget);
-      const cleanedMaxBudget = cleanNumber(maxBudget);
+      // const cleanedMaxBudget = cleanNumber(maxBudget);
       if (cleanedMinBudget) {
         params.set("minBudget", cleanedMinBudget);
       }
-      if (cleanedMaxBudget) {
-        params.set("maxBudget", cleanedMaxBudget);
-      }
+      // if (cleanedMaxBudget) {
+      //   params.set("maxBudget", cleanedMaxBudget);
+      // }
+      params.delete("maxBudget");
 
       if (isCoworking) {
         const cleanedSeats = cleanNumber(seats);
@@ -636,7 +637,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         </div>
                       </div>
 
-                      {isRentBased && (
+                      {/* {isRentBased && (
                         <div>
                           <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                             Rent/month
@@ -675,9 +676,31 @@ export default function HeroSection({ consentGranted, locationData }) {
                             </div>
                           </div>
                         </div>
+                      )} */}
+                      {isRentBased && (
+                        <div>
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                            Rent/month
+                          </label>
+
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg">
+                              {renderCurrencyIcon()}
+                            </span>
+
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={minBudget}
+                              onChange={handleMinBudgetChange}
+                              placeholder="Minimum Rent/month"
+                              className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
+                            />
+                          </div>
+                        </div>
                       )}
 
-                      {isCoworking && (
+                      {/* {isCoworking && (
                         <div>
                           <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
                             Seat Price/month
@@ -713,6 +736,20 @@ export default function HeroSection({ consentGranted, locationData }) {
                                 className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
                               />
                             </div>
+                          </div>
+                        </div>
+                      )} */}
+                      {isCoworking && (
+                        <div>
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                            Seat Price/month
+                          </label>
+
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg">
+                              {renderCurrencyIcon()}
+                            </span>
+                            <input type="text" inputMode="numeric" value={minBudget} onChange={handleMinBudgetChange} placeholder="Minimum Seat Price/month" className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`} />
                           </div>
                         </div>
                       )}

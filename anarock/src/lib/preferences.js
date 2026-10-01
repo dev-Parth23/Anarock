@@ -1,14 +1,10 @@
 "use client";
-
 import { useSyncExternalStore } from "react";
-
 const DEFAULT_CURRENCY = "INR";
 const DEFAULT_UNIT = "sqft";
-
 const CURRENCY_STORAGE_KEY = "anarock_currency";
 const UNIT_STORAGE_KEY = "anarock_unit";
 const PREFERENCE_EVENT = "anarock-preferences-changed";
-
 const SERVER_SNAPSHOT = {
   currency: DEFAULT_CURRENCY,
   unit: DEFAULT_UNIT,
@@ -16,44 +12,32 @@ const SERVER_SNAPSHOT = {
     INR: 1,
   },
 };
-
 let state = {
   currency: DEFAULT_CURRENCY,
   unit: DEFAULT_UNIT,
-  exchangeRates: {
-    INR: 1,
-  },
+  exchangeRates: { INR: 1, },
 };
-
 let initialized = false;
 let ratesLoading = false;
-
 const listeners = new Set();
-
 function normalizeCurrency(currency) {
   return currency || DEFAULT_CURRENCY;
 }
-
 function normalizeUnit(unit) {
   if (unit === "sq.m" || unit === "sqm") {
     return "sqm";
   }
-
   return "sqft";
 }
-
 function getStoredPreferences() {
   if (typeof window === "undefined") {
     return SERVER_SNAPSHOT;
   }
-
   return {
     currency: normalizeCurrency(
       window.localStorage.getItem(CURRENCY_STORAGE_KEY),
     ),
-
     unit: normalizeUnit(window.localStorage.getItem(UNIT_STORAGE_KEY)),
-
     exchangeRates: state.exchangeRates || {
       INR: 1,
     },
@@ -106,7 +90,6 @@ function initialize() {
 
   state = {
     ...getStoredPreferences(),
-
     exchangeRates: state.exchangeRates || {
       INR: 1,
     },
@@ -118,7 +101,6 @@ function initialize() {
       window.localStorage.getItem(CURRENCY_STORAGE_KEY) ??
       state.currency,
     );
-
     const nextUnit = normalizeUnit(
       event.detail?.unit ??
       window.localStorage.getItem(UNIT_STORAGE_KEY) ??
@@ -127,7 +109,6 @@ function initialize() {
 
     state = {
       ...state,
-
       currency: nextCurrency,
       unit: nextUnit,
     };
@@ -181,8 +162,7 @@ export function setPreferences({ currency, unit }) {
   window.dispatchEvent(
     new CustomEvent(PREFERENCE_EVENT, {
       detail: {
-        currency: nextCurrency,
-        unit: nextUnit,
+        currency: nextCurrency, unit: nextUnit,
       },
     }),
   );

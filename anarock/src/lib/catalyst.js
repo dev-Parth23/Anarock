@@ -1,11 +1,9 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-export const PROPERTIES_TABLE_ID = process.env.CATALYST_PROPERTIES_TABLE_ID ||
-  "53125000000038011";
+export const PROPERTIES_TABLE_ID = process.env.CATALYST_PROPERTIES_TABLE_ID || "53125000000038011";
 export const PROPERTY_IMAGES_BUCKET = "property-images";
 const CATALYST_APP_NAME = "anarock-next-server";
 const globalForCatalyst = globalThis;
-
 if (!globalForCatalyst.__anarockCatalystState) {
   globalForCatalyst.__anarockCatalystState = {
     catalystSDK: null,
@@ -28,11 +26,7 @@ export function getStatsTable(request) {
 
 const catalystState = globalForCatalyst.__anarockCatalystState;
 function isPlaceholder(value) {
-  return (
-    !value ||
-    value === "your_zaid" ||
-    value === "your_project_key"
-  );
+  return (!value || value === "your_zaid" || value === "your_project_key");
 }
 
 function getRequiredEnv(name) {
@@ -49,89 +43,39 @@ function getRequiredEnv(name) {
 
 function getCatalystSDK() {
   if (!catalystState.catalystSDK) {
-    process.env.X_ZOHO_CATALYST_ACCOUNTS_URL ||=
-      process.env.CATALYST_ACCOUNTS_URL ||
-      process.env.ZOHO_ACCOUNTS_URL ||
-      "https://accounts.zoho.in";
-
-    process.env.X_ZOHO_CATALYST_CONSOLE_URL ||=
-      process.env.CATALYST_PROJECT_DOMAIN?.startsWith(
-        "http"
-      )
-        ? process.env.CATALYST_PROJECT_DOMAIN
-        : "https://api.catalyst.zoho.in";
-
-    catalystState.catalystSDK =
-      require("zcatalyst-sdk-node");
+    process.env.X_ZOHO_CATALYST_ACCOUNTS_URL || process.env.CATALYST_ACCOUNTS_URL || process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
+    process.env.X_ZOHO_CATALYST_CONSOLE_URL || process.env.CATALYST_PROJECT_DOMAIN?.startsWith("http") ? process.env.CATALYST_PROJECT_DOMAIN : "https://api.catalyst.zoho.in";
+    catalystState.catalystSDK = require("zcatalyst-sdk-node");
   }
-
   return catalystState.catalystSDK;
 }
-
-/* =========================================================
-   READ .CATALYSTRC
-========================================================= */
-
 function readLocalCatalystConfig() {
-  if (
-    catalystState.localCatalystConfig !== undefined
-  ) {
+  if (catalystState.localCatalystConfig !== undefined) {
     return catalystState.localCatalystConfig;
   }
-
   const fs = require("fs");
   const path = require("path");
-
-  const candidates = [
-    path.join(
-      process.cwd(),
-      ".catalystrc"
-    ),
-    path.join(
-      process.cwd(),
-      "..",
-      ".catalystrc"
-    ),
-  ];
-
+  const candidates = [path.join(process.cwd(), ".catalystrc"),
+  path.join(process.cwd(), "..", ".catalystrc")];
   for (const filePath of candidates) {
     try {
-      const contents =
-        fs.readFileSync(
-          filePath,
-          "utf8"
-        );
-
-      const catalystRc =
-        JSON.parse(contents);
-
-      const activeProjectIndex =
-        catalystRc?.actives?.project ??
-        catalystRc?.defaults?.project;
-
-      const project =
-        catalystRc?.projects?.find(
-          (item) =>
-            Number(item.idx) === Number(activeProjectIndex)
-        ) || catalystRc?.projects?.[0];
+      const contents = fs.readFileSync(filePath, "utf8");
+      const catalystRc = JSON.parse(contents);
+      const activeProjectIndex = catalystRc?.actives?.project ?? catalystRc?.defaults?.project;
+      const project = catalystRc?.projects?.find((item) => Number(item.idx) === Number(activeProjectIndex)) || catalystRc?.projects?.[0];
       if (!project) {
         continue;
       }
-
       const activeEnvIndex = catalystRc?.actives?.env ?? catalystRc?.defaults?.env;
       const env = project?.env?.find(
-        (item) =>
-          Number(item.idx) === Number(activeEnvIndex)
-      ) ||
+        (item) => Number(item.idx) === Number(activeEnvIndex)) ||
         project?.env?.[0];
-
       catalystState.localCatalystConfig = {
         projectId: project.id,
         projectKey: project.domain?.id,
         projectDomain: project.domain?.name,
         environment: env?.name,
       };
-
       return catalystState.localCatalystConfig;
     } catch { }
   }
@@ -151,27 +95,10 @@ function createCatalystApp() {
 
   const localConfig = readLocalCatalystConfig();
   const usingLocalProjectKey = isPlaceholder(process.env.CATALYST_PROJECT_KEY);
-
   const projectId = process.env.CATALYST_PROJECT_ID || localConfig?.projectId;
-
-  const projectKey = usingLocalProjectKey
-    ? localConfig?.projectKey
-    : process.env.CATALYST_PROJECT_KEY;
-
-  const environment =
-    (
-      usingLocalProjectKey
-        ? localConfig?.environment
-        : process.env.CATALYST_ENVIRONMENT
-    ) ||
-    process.env.CATALYST_ENVIRONMENT ||
-    "Development";
-
-  const projectDomain =
-    process.env.CATALYST_PROJECT_DOMAIN ||
-    localConfig?.projectDomain ||
-    "api.catalyst.zoho.in";
-
+  const projectKey = usingLocalProjectKey ? localConfig?.projectKey : process.env.CATALYST_PROJECT_KEY;
+  const environment = (usingLocalProjectKey ? localConfig?.environment : process.env.CATALYST_ENVIRONMENT) || process.env.CATALYST_ENVIRONMENT || "Development";
+  const projectDomain = process.env.CATALYST_PROJECT_DOMAIN || localConfig?.projectDomain || "api.catalyst.zoho.in";
   if (!projectId) {
     throw new Error(
       "CATALYST_PROJECT_ID is missing from .env.local and could not be inferred from .catalystrc"
@@ -184,33 +111,11 @@ function createCatalystApp() {
     );
   }
 
-  console.log(
-    "=========================================="
-  );
-
-  console.log(
-    "INITIALIZING ZOHO CATALYST"
-  );
-
-  console.log(
-    "Project ID:",
-    projectId
-  );
-
-  console.log(
-    "Project Key:",
-    `${String(projectKey).slice(
-      0,
-      6
-    )}...`
-  );
-
+  console.log("Project ID:", projectId);
+  console.log("Project Key:", `${String(projectKey).slice(0, 6)}...`);
   console.log("Project Domain:", projectDomain);
   console.log("Environment:", environment);
-
-  console.log("Accounts URL:", process.env.X_ZOHO_CATALYST_ACCOUNTS_URL ||
-    process.env.CATALYST_ACCOUNTS_URL || "https://accounts.zoho.in");
-
+  console.log("Accounts URL:", process.env.X_ZOHO_CATALYST_ACCOUNTS_URL || process.env.CATALYST_ACCOUNTS_URL || "https://accounts.zoho.in");
   console.log("Refresh Token:", refreshToken ? "CONFIGURED" : "MISSING");
   return sdk.initializeApp(
     {
@@ -269,4 +174,3 @@ export async function debugStratus(request) {
     throw error;
   }
 }
-

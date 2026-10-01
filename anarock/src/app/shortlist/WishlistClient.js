@@ -1,14 +1,11 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import PropertyCard from "@/components/properties/PropertyCard";
 import { useWishlist } from "@/lib/wishlist";
 import { usePreferences } from "@/lib/preferences";
-
 import {
   Heart,
   ArrowRight,
@@ -22,19 +19,14 @@ import {
   CheckCircle2,
   MessageSquare,
 } from "lucide-react";
-
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
-
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
-
 function getPropertyId(property) {
   if (!property) return "";
-
   if (typeof property === "string" || typeof property === "number") {
     return String(property);
   }
-
   return String(
     property?.id ??
     property?.ID ??
@@ -110,10 +102,8 @@ function readLocalStorageObject(keys) {
         };
       }
     } catch {
-      // Ignore invalid localStorage entries.
     }
   }
-
   return null;
 }
 
@@ -121,56 +111,33 @@ function readLocalStorageValue(keys) {
   if (typeof window === "undefined") {
     return "";
   }
-
   for (const key of keys) {
     try {
       const value = localStorage.getItem(key);
-
       if (value !== null && String(value).trim()) {
         const parsed = safeParseJSON(value);
-
         if (typeof parsed === "string" || typeof parsed === "number") {
           return String(parsed).trim();
         }
-
         if (parsed && typeof parsed === "object") {
-          const possibleValue =
-            parsed.city ||
-            parsed.City ||
-            parsed.name ||
-            parsed.Name ||
-            parsed.value;
-
+          const possibleValue = parsed.city || parsed.City || parsed.name || parsed.Name || parsed.value;
           if (possibleValue) {
             return String(possibleValue).trim();
           }
         }
-
         return String(value).trim();
       }
     } catch {
-      // Ignore invalid localStorage entries.
     }
   }
-
   return "";
 }
-
 function getShortlistPropertyCity(property) {
   if (!property || typeof property !== "object") {
     return "";
   }
-
-  return String(
-    property?.city ??
-    property?.City ??
-    property?.cityName ??
-    property?.City_Name ??
-    property?.micromarketCity ??
-    "",
-  ).trim();
+  return String(property?.city ?? property?.City ?? property?.cityName ?? property?.City_Name ?? property?.micromarketCity ?? "").trim();
 }
-
 function getShortlistPropertyType(property) {
   if (!property || typeof property !== "object") {
     return "";
@@ -195,14 +162,10 @@ function getStoredUserLocation() {
     const savedLocation = sessionStorage.getItem("anarock_user_location");
     if (!savedLocation) {
       console.warn("[ENQUIRY] No saved user location found in sessionStorage.");
-
       return null;
     }
-
     const location = JSON.parse(savedLocation);
-
     console.log("[ENQUIRY] Detected user location:", location);
-
     return {
       street: String(
         location?.area || location?.street || location?.address || "",
@@ -274,20 +237,27 @@ function hasCompletePropertyData(property) {
   );
 }
 
+function getSelectionKey(properties = []) {
+  return properties
+    .map((property) => getPropertyId(property))
+    .filter(Boolean)
+    .map(String)
+    .sort()
+    .join("|");
+}
+
 export default function WishlistClient() {
   const router = useRouter();
-
+  const [enquirySubmittedSelectionKey, setEnquirySubmittedSelectionKey] = useState("");
+  const [enquirySubmittedForSelection, setEnquirySubmittedForSelection] = useState(false);
+  const [enquirySuccess, setEnquirySuccess] = useState(false);
   const { items, count, isInitialized } = useWishlist();
-
   const { currency, unit } = usePreferences();
-
   const [compareSelection, setCompareSelection] = useState([]);
   const [enquirySelection, setEnquirySelection] = useState([]);
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
   const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState(false);
-  const [enquirySuccess, setEnquirySuccess] = useState(false);
   const [enquiryError, setEnquiryError] = useState("");
-
   const [enquiryForm, setEnquiryForm] = useState({
     firstName: "",
     lastName: "",
@@ -296,35 +266,27 @@ export default function WishlistClient() {
     company: "",
     message: "",
   });
-
   useEffect(() => {
     if (!isInitialized || !items.length) {
       return;
     }
-
     let cancelled = false;
-
     async function repairWishlist() {
       const needsRepair = items.some(
         (property) => !getPropertyId(property) || !getCRMPropertyId(property),
       );
-
       if (!needsRepair) {
         return;
       }
-
       try {
         console.log(
           "[SHORTLIST] Refreshing shortlisted properties to obtain CRM IDs...",
         );
-
         const response = await fetch("/api/properties", {
           method: "GET",
           cache: "no-store",
         });
-
         const data = await response.json();
-
         if (!response.ok || !data?.success || !Array.isArray(data?.data)) {
           throw new Error(
             data?.error ||
@@ -332,29 +294,22 @@ export default function WishlistClient() {
             "Unable to refresh shortlisted properties.",
           );
         }
-
         if (cancelled) {
           return;
         }
-
         const propertyMap = new Map();
-
         data.data.forEach((property) => {
           const id = getPropertyId(property);
-
           if (id) {
             propertyMap.set(id, property);
           }
         });
-
         const repairedItems = items
           .map((oldProperty) => {
             const id = getPropertyId(oldProperty);
-
             if (!id) {
               return null;
-            }
-            const freshProperty = propertyMap.get(id);
+            } const freshProperty = propertyMap.get(id);
             return freshProperty || oldProperty;
           })
           .filter(Boolean);
@@ -401,6 +356,16 @@ export default function WishlistClient() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    } if (!items.length) {
+      setEnquirySubmittedForSelection(false);
+      return;
+    }
+    setEnquirySubmittedForSelection(false);
+  }, [items, isInitialized]);
+
   const handleCompareToggle = (property) => {
     const propertyId = getPropertyId(property);
 
@@ -446,32 +411,21 @@ export default function WishlistClient() {
     router.push("/compare");
   };
 
-  const canCompare =
-    compareSelection.length >= MIN_COMPARE_PROPERTIES &&
-    compareSelection.length <= MAX_COMPARE_PROPERTIES;
-
-  const remainingToCompare = Math.max(
-    0,
-    MIN_COMPARE_PROPERTIES - compareSelection.length,
-  );
-
+  const canCompare = compareSelection.length >= MIN_COMPARE_PROPERTIES && compareSelection.length <= MAX_COMPARE_PROPERTIES;
+  const remainingToCompare = Math.max(0, MIN_COMPARE_PROPERTIES - compareSelection.length);
   const openEnquiryForm = () => {
-    /*
-     * IMPORTANT:
-     *
-     * Enquiry uses the SHORTLIST.
-     *
-     * It does NOT use compareSelection.
-     *
-     * Even if the user has selected 2/3 properties
-     * for comparison, enquiry still works independently.
-     */
     if (!items || items.length === 0) {
+      return;
+    }
+    const currentSelectionKey = getSelectionKey(items);
+    if (
+      enquirySubmittedSelectionKey &&
+      enquirySubmittedSelectionKey === currentSelectionKey
+    ) {
       return;
     }
 
     setEnquirySelection([...items]);
-
     setEnquiryError("");
     setEnquirySuccess(false);
     setIsEnquiryOpen(true);
@@ -639,68 +593,35 @@ export default function WishlistClient() {
 
       const payload = {
         firstName: enquiryForm.firstName.trim(),
-
         lastName: enquiryForm.lastName.trim(),
-
         email: enquiryForm.email.trim(),
-
         phone: enquiryForm.phone.trim(),
-
         company: enquiryForm.company.trim(),
-
         message: enquiryForm.message.trim(),
-
         source: "Shortlist",
         selectedProperties,
         requirementCity: lastSearchedCity || "",
         requirementType: lastRequirementType || "",
-
-        /*
-         * Current user location
-         */
         location: {
           street: userLocation.street,
-
           city: userLocation.city,
-
           state: userLocation.state,
-
           country: userLocation.country,
-
           postalCode: userLocation.postalCode,
-
           latitude: userLocation.latitude,
-
           longitude: userLocation.longitude,
         },
       };
-
-      console.log("================================================");
-
-      console.log("[ENQUIRY] FINAL FRONTEND PAYLOAD");
-
       console.log(JSON.stringify(payload, null, 2));
-
-      console.log("================================================");
-
-      /* ================================================================
-         6. SEND TO LEAD API
-         ================================================================ */
-
       const response = await fetch("/api/lead3", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify(payload),
       });
-
       const data = await response.json().catch(() => ({}));
-
       console.log("[ENQUIRY] API response:", data);
-
       if (!response.ok || !data?.success) {
         throw new Error(
           data?.message ||
@@ -708,16 +629,12 @@ export default function WishlistClient() {
           "Unable to submit your enquiry. Please try again.",
         );
       }
-
       console.log("[ENQUIRY] Lead created:", data?.leadId);
-
       console.log("[ENQUIRY] CRM Requirement City:", data?.requirementCity);
-
       console.log("[ENQUIRY] CRM Requirement Type:", data?.requirementType);
-
       console.log("[ENQUIRY] CRM Current Location:", data?.currentLocation);
-
       setEnquirySuccess(true);
+      setEnquirySubmittedSelectionKey(getSelectionKey(enquirySelection));
 
       setEnquiryForm({
         firstName: "",
@@ -868,7 +785,6 @@ export default function WishlistClient() {
               </div>
 
               <div className="flex flex-wrap items-center justify-end gap-2">
-                {/* CLEAR COMPARE */}
                 {compareSelection.length > 0 && (
                   <button
                     type="button"
@@ -879,19 +795,17 @@ export default function WishlistClient() {
                     Clear
                   </button>
                 )}
-
-                {/* ENQUIRY — COMPLETELY INDEPENDENT */}
-                <button
-                  type="button"
-                  onClick={openEnquiryForm}
-                  disabled={!items.length}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/5 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Raise Enquiry
-                </button>
-
-                {/* COMPARE — COMPLETELY INDEPENDENT */}
+                {getSelectionKey(items) !== enquirySubmittedSelectionKey && (
+                  <button
+                    type="button"
+                    onClick={openEnquiryForm}
+                    disabled={!items.length}
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/5 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Raise Enquiry
+                  </button>
+                )}
                 {compareSelection.length > 0 && (
                   <button
                     type="button"
@@ -1074,7 +988,6 @@ export default function WishlistClient() {
                           <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
                           <input
-                            required
                             type="email"
                             name="email"
                             value={enquiryForm.email}

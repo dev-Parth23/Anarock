@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
 import PropertyCard from "@/components/properties/PropertyCard";
-
 import {
     ArrowRight,
     Building2,
@@ -16,11 +14,9 @@ import {
     X,
     TrendingUp,
 } from "lucide-react";
-
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
-
 function getPropertyId(property) {
     return String(
         property?.ROWID ||
@@ -161,38 +157,24 @@ export default function CityPageClient({ city, slug }) {
             const exists = currentSelection.some(
                 (item) => getPropertyId(item) === propertyId,
             );
-
             let updatedSelection;
-
-            // REMOVE
             if (exists) {
                 updatedSelection = currentSelection.filter(
                     (item) => getPropertyId(item) !== propertyId,
                 );
             }
-
-            // ADD
             else {
                 if (currentSelection.length >= MAX_COMPARE_PROPERTIES) {
-                    alert(
-                        `You can compare maximum ${MAX_COMPARE_PROPERTIES} properties.`,
-                    );
-
+                    alert(`You can compare maximum ${MAX_COMPARE_PROPERTIES} properties.`,);
                     return currentSelection;
                 }
-
                 updatedSelection = [...currentSelection, property];
             }
-
             try {
-                localStorage.setItem(
-                    COMPARE_STORAGE_KEY,
-                    JSON.stringify(updatedSelection),
-                );
+                localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(updatedSelection));
             } catch (error) {
                 console.error("[CityPage] Failed to save compare selection:", error);
             }
-
             return updatedSelection;
         });
     };
@@ -805,10 +787,6 @@ function MarketOverviewCard({ kyc }) {
         </article>
     );
 }
-
-/* ================================================================
-   MARKET PERFORMANCE
-================================================================ */
 
 function MarketPerformanceCard({ kyc }) {
     return (

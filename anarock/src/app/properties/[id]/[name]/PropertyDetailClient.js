@@ -1,9 +1,10 @@
 "use client";
 
 import { usePreferences } from "@/lib/preferences";
-import { formatPrice, formatArea } from "@/lib/format";
+import { formatArea } from "@/lib/format";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import PropertyCard from "@/components/properties/PropertyCard";
 import {
   ChevronLeft,
@@ -16,11 +17,11 @@ import {
   TrainFront,
   BusFront,
   Plane,
-  Car,
   ArrowUpRight,
 } from "lucide-react";
 
 const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
+const AUTO_SCROLL_INTERVAL = 25000;
 
 const IMAGE_FILES = [
   {
@@ -28,11 +29,7 @@ const IMAGE_FILES = [
     name: "Project Picture 1",
     filename: "Project_Picture_1.jpg",
   },
-  {
-    key: "floor-plan",
-    name: "Floor Plan 1",
-    filename: "Floor_Plan_1.jpg",
-  },
+  { key: "floor-plan", name: "Floor Plan 1", filename: "Floor_Plan_1.jpg" },
   {
     key: "property-1",
     name: "Property Photo 1",
@@ -85,7 +82,6 @@ const IMAGE_FILES = [
   },
 ];
 
-const AUTO_SCROLL_INTERVAL = 25000;
 const getValue = (property, keys, fallback = "-") => {
   for (const key of keys) {
     const value = property?.[key];
@@ -93,7 +89,6 @@ const getValue = (property, keys, fallback = "-") => {
       return value;
     }
   }
-
   return fallback;
 };
 
@@ -112,7 +107,6 @@ const isCoworkingProperty = (property) => {
     property?.property_type ||
     property?.type,
   );
-
   return (
     type.includes("cowork") ||
     type.includes("co-working") ||
@@ -121,23 +115,29 @@ const isCoworkingProperty = (property) => {
 };
 
 const formatDisplayValue = (value) => {
-  if (value === null || value === undefined || value === "") {
-    return "-";
-  }
-
-  if (Array.isArray(value)) {
-    return value.length ? value.join(", ") : "-";
-  }
-
-  if (typeof value === "object") {
-    return Object.values(value).join(", ") || "-";
-  }
-
+  if (value === null || value === undefined || value === "") return "-";
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "-";
+  if (typeof value === "object") return Object.values(value).join(", ") || "-";
   return String(value);
 };
 
+const getPropertyId = (item) => {
+  return String(
+    item?.id ||
+    item?.ID ||
+    item?.rowId ||
+    item?.ROWID ||
+    item?.RowID ||
+    item?.propertyId ||
+    item?.Property_ID ||
+    item?.projectId ||
+    item?.Project_ID ||
+    "",
+  );
+};
+
 /* =========================================================
-   FIELD COMPONENT
+   UI SUB-COMPONENTS
 ========================================================= */
 
 function DetailField({ label, value, icon: Icon }) {
@@ -145,12 +145,10 @@ function DetailField({ label, value, icon: Icon }) {
     <div className="min-w-0">
       <div className="flex items-center gap-2">
         {Icon && <Icon className="h-4 w-4 shrink-0 text-[#A054A0]" />}
-
         <p className="text-sm font-semibold leading-5 text-slate-900">
           {label}
         </p>
       </div>
-
       <p className="mt-1.5 break-words text-sm leading-6 text-slate-600">
         {formatDisplayValue(value)}
       </p>
@@ -158,144 +156,60 @@ function DetailField({ label, value, icon: Icon }) {
   );
 }
 
-/* =========================================================
-   SECTION COMPONENT
-========================================================= */
-
 function DetailSection({ title, children }) {
   return (
     <section className="border-t border-slate-200 pt-6 first:border-t-0 first:pt-0">
       <h3 className="mb-5 text-base font-bold text-slate-900 sm:text-lg">
         {title}
       </h3>
-
       {children}
     </section>
   );
 }
 
 /* =========================================================
-   INFO COMPONENT
+   MAIN COMPONENT
 ========================================================= */
 
-function Info({ label, value }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <p className="text-sm text-slate-500">{label}</p>
-
-      <p className="mt-1 break-words font-semibold text-slate-900">
-        {formatDisplayValue(value)}
-      </p>
-    </div>
-  );
-}
 export default function PropertyDetailClient({ propertyId }) {
   const [property, setProperty] = useState(null);
   const [gallery, setGallery] = useState([]);
   const [activeImg, setActiveImg] = useState("project");
   const [related, setRelated] = useState([]);
-  const { currency, unit, exchangeRates } = usePreferences();
+  const { unit } = usePreferences();
   const [failedImages, setFailedImages] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [, setIsContactModalOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [contactForm, setContactForm] = useState({
-    name: "",
-    contactNumber: "",
-  });
-  const getPropertyId = (item) => {
-    return String(
-      item?.id ||
-      item?.ID ||
-      item?.rowId ||
-      item?.ROWID ||
-      item?.RowID ||
-      item?.propertyId ||
-      item?.Property_ID ||
-      item?.projectId ||
-      item?.Project_ID ||
-      "",
-    );
-  };
 
   const thumbnailContainerRef = useRef(null);
-
   const thumbnailRefs = useRef({});
-
   const autoScrollTimeoutRef = useRef(null);
 
-  useEffect(() => {
-    if (!property) return;
-
-    const syncWishlist = () => {
-      try {
-        const wishlist = JSON.parse(
-          localStorage.getItem("anarock_wishlist_properties") || "[]",
-        );
-        const currentId = getPropertyId(property);
-        const exists = wishlist.some(
-          (item) => getPropertyId(item) === currentId,
-        );
-        setIsWishlisted(exists);
-      } catch (error) {
-        console.error("Wishlist sync failed:", error);
-        setIsWishlisted(false);
-      }
-    };
-    syncWishlist();
-    window.addEventListener("wishlist-updated", syncWishlist);
-    window.addEventListener("storage", syncWishlist);
-    return () => {
-      window.removeEventListener("wishlist-updated", syncWishlist);
-      window.removeEventListener("storage", syncWishlist);
-    };
-  }, [property]);
-  const handleWishlist = (item) => {
-    if (!item) return;
-    try {
-      const storageKey = "anarock_wishlist_properties";
-      const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      const currentId = getPropertyId(item);
-      if (!currentId) {
-        console.error("Property ID missing:", item);
-        return;
-      }
-      const exists = existing.some(
-        (wishlistItem) => getPropertyId(wishlistItem) === currentId,
-      );
-      let updated;
-      if (exists) {
-        updated = existing.filter(
-          (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
-        );
-        setIsWishlisted(false);
-      } else {
-        updated = [...existing, item];
-        setIsWishlisted(true);
-      }
-      localStorage.setItem(storageKey, JSON.stringify(updated));
-      window.dispatchEvent(new Event("wishlist-updated"));
-    } catch (error) {
-      console.error("Wishlist update failed:", error);
-    }
-  };
+  /* ---------------------------------------------------------
+     FETCH PROPERTY & UNLIMITED RELATED PROPERTIES
+  --------------------------------------------------------- */
   useEffect(() => {
     if (!propertyId) return;
+
+    const controller = new AbortController();
+
     async function loadProperty() {
       try {
         setLoading(true);
         setError("");
+
         const response = await fetch(
           `/api/properties/${encodeURIComponent(propertyId)}`,
-          {
-            cache: "no-store",
-          },
+          { cache: "no-store", signal: controller.signal },
         );
         const data = await response.json();
+
         if (!response.ok || !data.success) {
           throw new Error(data.error || "Failed to load property");
         }
+
         const propertyData = data.data;
         const imageFolderPath = String(
           propertyData.imageFolderPath || "",
@@ -307,6 +221,7 @@ export default function PropertyDetailClient({ propertyId }) {
             url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
           }))
           : [];
+
         setProperty({
           ...propertyData,
           image: images.find((image) => image.key === "project")?.url || "",
@@ -314,39 +229,123 @@ export default function PropertyDetailClient({ propertyId }) {
         setGallery(images);
         setActiveImg("project");
         setFailedImages(new Set());
+
         if (propertyData.city) {
           try {
             const relatedResponse = await fetch(
               `/api/properties?city=${encodeURIComponent(propertyData.city)}`,
-              {
-                cache: "no-store",
-              },
+              { cache: "no-store", signal: controller.signal },
             );
-
             const relatedData = await relatedResponse.json();
 
             if (relatedData.success) {
-              const relatedProperties = (relatedData.data || [])
-                .filter((item) => String(item.id) !== String(propertyData.id))
-                .slice(0, 3);
-
+              const currentId = getPropertyId(propertyData);
+              // Unlimited fetch: remove slice filter and keep all matching properties
+              const relatedProperties = (relatedData.data || []).filter(
+                (item) => getPropertyId(item) !== currentId,
+              );
               setRelated(relatedProperties);
             }
           } catch (relatedError) {
-            console.error("Related properties error:", relatedError);
+            if (relatedError.name !== "AbortError") {
+              console.error("Related properties error:", relatedError);
+            }
           }
         }
       } catch (err) {
-        console.error(err);
-
-        setError(err?.message || "Unable to load property");
+        if (err.name !== "AbortError") {
+          console.error(err);
+          setError(err?.message || "Unable to load property");
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
 
     loadProperty();
+
+    return () => {
+      controller.abort();
+    };
   }, [propertyId]);
+
+  /* ---------------------------------------------------------
+     SPLIT RELATED PROPERTIES INTO 2 SEPARATE ROWS FOR X-SCROLL
+  --------------------------------------------------------- */
+  const { row1, row2 } = useMemo(() => {
+    const r1 = [];
+    const r2 = [];
+    related.forEach((item, index) => {
+      if (index % 2 === 0) {
+        r1.push(item);
+      } else {
+        r2.push(item);
+      }
+    });
+    return { row1: r1, row2: r2 };
+  }, [related]);
+
+  /* ---------------------------------------------------------
+     WISHLIST SYNC
+  --------------------------------------------------------- */
+  useEffect(() => {
+    if (!property) return;
+
+    const syncWishlist = () => {
+      try {
+        const wishlist = JSON.parse(
+          localStorage.getItem("anarock_wishlist_properties") || "[]",
+        );
+        const currentId = getPropertyId(property);
+        setIsWishlisted(
+          wishlist.some((item) => getPropertyId(item) === currentId),
+        );
+      } catch (err) {
+        console.error("Wishlist sync failed:", err);
+        setIsWishlisted(false);
+      }
+    };
+
+    syncWishlist();
+    window.addEventListener("wishlist-updated", syncWishlist);
+    window.addEventListener("storage", syncWishlist);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", syncWishlist);
+      window.removeEventListener("storage", syncWishlist);
+    };
+  }, [property]);
+
+  const handleWishlist = (item) => {
+    if (!item) return;
+    try {
+      const storageKey = "anarock_wishlist_properties";
+      const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      const currentId = getPropertyId(item);
+      if (!currentId) return;
+
+      const exists = existing.some(
+        (wishlistItem) => getPropertyId(wishlistItem) === currentId,
+      );
+      const updated = exists
+        ? existing.filter(
+          (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
+        )
+        : [...existing, item];
+
+      setIsWishlisted(!exists);
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (err) {
+      console.error("Wishlist update failed:", err);
+    }
+  };
+
+  /* ---------------------------------------------------------
+     GALLERY NAVIGATION & AUTO-SCROLL
+  --------------------------------------------------------- */
   const availableGallery = useMemo(() => {
     return gallery.filter((image) => !failedImages.has(image.key));
   }, [gallery, failedImages]);
@@ -362,278 +361,192 @@ export default function PropertyDetailClient({ propertyId }) {
   );
 
   const handleImageError = (imageKey) => {
-    setFailedImages((previous) => {
-      const updated = new Set(previous);
-
-      updated.add(imageKey);
-
-      return updated;
-    });
+    setFailedImages((prev) => new Set(prev).add(imageKey));
 
     if (activeImg === imageKey) {
       const currentIndex = availableGallery.findIndex(
-        (image) => image.key === imageKey,
+        (img) => img.key === imageKey,
       );
-
       const nextImage =
         availableGallery[currentIndex + 1] ||
         availableGallery[currentIndex - 1];
-
       if (nextImage) {
         setActiveImg(nextImage.key);
       }
     }
   };
 
-  /* =========================================================
-     SCROLL SELECTED THUMBNAIL
-  ========================================================= */
-
-  const scrollThumbnailToTop = (imageKey) => {
+  const scrollThumbnailToTop = useCallback((imageKey) => {
     const container = thumbnailContainerRef.current;
-
     const thumbnail = thumbnailRefs.current[imageKey];
+    if (!container || !thumbnail) return;
 
-    if (!container || !thumbnail) {
-      return;
-    }
-
-    /* Desktop: vertical thumbnail list */
     if (window.innerWidth >= 768) {
       const targetTop = thumbnail.offsetTop - container.offsetTop;
-
-      container.scrollTo({
-        top: Math.max(0, targetTop),
+      container.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+    } else {
+      thumbnail.scrollIntoView({
         behavior: "smooth",
+        block: "nearest",
+        inline: "center",
       });
-
-      return;
     }
+  }, []);
 
-    /* Mobile: horizontal thumbnail list */
-    thumbnail.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
-  };
-
-  /* =========================================================
-     SELECT IMAGE
-  ========================================================= */
-
-  const selectImage = (imageKey) => {
-    setActiveImg(imageKey);
-
-    requestAnimationFrame(() => {
-      scrollThumbnailToTop(imageKey);
-    });
-  };
+  const selectImage = useCallback(
+    (imageKey) => {
+      setActiveImg(imageKey);
+      requestAnimationFrame(() => {
+        scrollThumbnailToTop(imageKey);
+      });
+    },
+    [scrollThumbnailToTop],
+  );
 
   const goToNextImage = useCallback(() => {
-    if (availableGallery.length === 0) {
-      return;
-    }
-
-    const nextIndex =
-      activeIndex + 1 >= availableGallery.length ? 0 : activeIndex + 1;
+    if (!availableGallery.length) return;
+    const nextIndex = (activeIndex + 1) % availableGallery.length;
     const nextImage = availableGallery[nextIndex];
-    if (nextImage) {
-      selectImage(nextImage.key);
-    }
+    if (nextImage) selectImage(nextImage.key);
   }, [activeIndex, availableGallery, selectImage]);
 
   const goToPreviousImage = useCallback(() => {
-    if (!availableGallery.length) {
-      return;
-    }
-
+    if (!availableGallery.length) return;
     const previousIndex =
       (activeIndex - 1 + availableGallery.length) % availableGallery.length;
     const previousImage = availableGallery[previousIndex];
-    if (previousImage) {
-      selectImage(previousImage.key);
-    }
+    if (previousImage) selectImage(previousImage.key);
   }, [activeIndex, availableGallery, selectImage]);
 
   useEffect(() => {
-    if (availableGallery.length <= 1) {
-      return;
-    }
+    if (availableGallery.length <= 1) return;
 
-    const startAutoScroll = () => {
-      if (autoScrollTimeoutRef.current) {
-        clearTimeout(autoScrollTimeoutRef.current);
-      }
-
-      autoScrollTimeoutRef.current = setTimeout(() => {
-        goToNextImage();
-      }, AUTO_SCROLL_INTERVAL);
-    };
-
-    startAutoScroll();
+    autoScrollTimeoutRef.current = setTimeout(
+      goToNextImage,
+      AUTO_SCROLL_INTERVAL,
+    );
 
     return () => {
       if (autoScrollTimeoutRef.current) {
         clearTimeout(autoScrollTimeoutRef.current);
       }
     };
-  }, [activeImg, availableGallery.length]);
-
-  /* =========================================================
-     KEYBOARD NAVIGATION
-  ========================================================= */
+  }, [activeImg, availableGallery.length, goToNextImage]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "ArrowRight") {
-        goToNextImage();
-      }
-
-      if (event.key === "ArrowLeft") {
-        goToPreviousImage();
-      }
+      if (event.key === "ArrowRight") goToNextImage();
+      if (event.key === "ArrowLeft") goToPreviousImage();
     };
 
     window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [goToNextImage, goToPreviousImage]);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+  /* ---------------------------------------------------------
+     PROPERTY DETAILS MEMOIZATION
+  --------------------------------------------------------- */
+  const propertyDetails = useMemo(() => {
+    if (!property) return {};
+
+    return {
+      isCoworking: isCoworkingProperty(property),
+      propertyType: getValue(
+        property,
+        ["officeType", "office_type", "propertyType", "property_type", "type"],
+        "Conventional",
+      ),
+      managedBy: getValue(property, [
+        "operatorName",
+        "OperatorName",
+        "operator",
+        "Operator",
+        "managedBy",
+        "ManagedBy",
+        "managed_by",
+      ]),
+      offeredSeats: getValue(property, [
+        "seatsOffered",
+        "SeatsOffered",
+        "offeredSeats",
+        "OfferedSeats",
+        "seats",
+        "Seats",
+      ]),
+      towerFloor: getValue(property, [
+        "floor",
+        "Floor",
+        "proposedFloor",
+        "ProposedFloor",
+        "towerFloor",
+        "TowerFloor",
+        "towerFloorOffered",
+        "TowerFloorOffered",
+      ]),
+      areaOffered: getValue(property, [
+        "areaSqft",
+        "AreaSqft",
+        "area",
+        "Area",
+        "floorPlate",
+        "FloorPlate",
+      ]),
+      availability: getValue(property, [
+        "availability",
+        "Availability",
+        "availabilityTimeline",
+        "AvailabilityTimeline",
+        "availabilityDate",
+        "AvailabilityDate",
+      ]),
+      buildingCertification: getValue(property, [
+        "buildingCertification",
+        "BuildingCertification",
+        "certificateName",
+        "CertificateName",
+        "certification",
+        "Certification",
+      ]),
+      numberOfElevators: getValue(property, [
+        "numberOfElevators",
+        "NumberOfElevators",
+        "noOfElevators",
+        "NoOfElevators",
+        "elevators",
+        "Elevators",
+      ]),
+      yearOfCompletion: getValue(property, [
+        "yearBuilt",
+        "YearBuilt",
+        "yearOfCompletion",
+        "YearOfCompletion",
+        "completionYear",
+        "CompletionYear",
+      ]),
+      nearbyMetro: getValue(property, [
+        "nearbyMetro",
+        "NearbyMetro",
+        "metro",
+        "Metro",
+        "metroStation",
+        "MetroStation",
+      ]),
+      busStation: getValue(property, [
+        "busStation",
+        "BusStation",
+        "bussStation",
+        "BussStation",
+        "nearbyBus",
+        "NearbyBus",
+      ]),
+      airport: getValue(property, [
+        "airport",
+        "Airport",
+        "nearbyAirport",
+        "NearbyAirport",
+      ]),
     };
-  }, [activeIndex, availableGallery.length]);
-
-  /* =========================================================
-     PROPERTY TYPE
-  ========================================================= */
-
-  const isCoworking = isCoworkingProperty(property);
-
-  const propertyType = getValue(
-    property,
-    ["officeType", "office_type", "propertyType", "property_type", "type"],
-    "Conventional",
-  );
-
-  /* =========================================================
-     PROPERTY FIELDS
-  ========================================================= */
-
-  const managedBy = getValue(property, [
-    "operatorName",
-    "OperatorName",
-    "operator",
-    "Operator",
-    "managedBy",
-    "ManagedBy",
-    "managed_by",
-  ]);
-
-  const offeredSeats = getValue(property, [
-    "seatsOffered",
-    "SeatsOffered",
-    "offeredSeats",
-    "OfferedSeats",
-    "seats",
-    "Seats",
-  ]);
-
-  const towerFloor = getValue(property, [
-    "floor",
-    "Floor",
-    "proposedFloor",
-    "ProposedFloor",
-    "towerFloor",
-    "TowerFloor",
-    "towerFloorOffered",
-    "TowerFloorOffered",
-  ]);
-
-  const areaOffered = getValue(property, [
-    "areaSqft",
-    "AreaSqft",
-    "area",
-    "Area",
-    "floorPlate",
-    "FloorPlate",
-  ]);
-
-  const availability = getValue(property, [
-    "availability",
-    "Availability",
-    "availabilityTimeline",
-    "AvailabilityTimeline",
-    "availabilityDate",
-    "AvailabilityDate",
-  ]);
-
-  const buildingCertification = getValue(property, [
-    "buildingCertification",
-    "BuildingCertification",
-    "certificateName",
-    "CertificateName",
-    "certification",
-    "Certification",
-  ]);
-
-  const numberOfElevators = getValue(property, [
-    "numberOfElevators",
-    "NumberOfElevators",
-    "noOfElevators",
-    "NoOfElevators",
-    "elevators",
-    "Elevators",
-  ]);
-
-  const yearOfCompletion = getValue(property, [
-    "yearBuilt",
-    "YearBuilt",
-    "yearOfCompletion",
-    "YearOfCompletion",
-    "completionYear",
-    "CompletionYear",
-  ]);
-
-  const nearbyMetro = getValue(property, [
-    "nearbyMetro",
-    "NearbyMetro",
-    "metro",
-    "Metro",
-    "metroStation",
-    "MetroStation",
-  ]);
-
-  const busStation = getValue(property, [
-    "busStation",
-    "BusStation",
-    "bussStation",
-    "BussStation",
-    "nearbyBus",
-    "NearbyBus",
-  ]);
-
-  const airport = getValue(property, [
-    "airport",
-    "Airport",
-    "nearbyAirport",
-    "NearbyAirport",
-  ]);
-
-  const parking = getValue(property, [
-    "parkingRatio",
-    "ParkingRatio",
-    "parking",
-    "Parking",
-  ]);
-
-  const buildingType = getValue(property, ["buildingType", "BuildingType"]);
-  const amenities = Array.isArray(property?.amenities)
-    ? property.amenities
-    : typeof property?.amenities === "string"
-      ? property.amenities
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean)
-      : [];
+  }, [property]);
 
   if (loading) {
     return (
@@ -654,7 +567,6 @@ export default function PropertyDetailClient({ propertyId }) {
           <h1 className="mb-2 text-2xl font-semibold text-slate-900">
             {isAuthError ? "Unable to load property" : "Property not found"}
           </h1>
-
           <p className="text-slate-500">
             {isAuthError
               ? "There was a temporary problem connecting to the property database. Please try again."
@@ -666,353 +578,368 @@ export default function PropertyDetailClient({ propertyId }) {
   }
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        {/* ===================================================
-            PROPERTY HEADER
-        =================================================== */}
+      <div className="mx-auto w-full max-w-[85vw] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="relative">
+          <div className="sticky top-[72px] z-40 mb-6 border-b border-slate-200 bg-slate-50 px-4 py-4 shadow-[0_4px_18px_rgba(15,23,42,0.06)] sm:px-6 sm:py-5 lg:px-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1.5 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm">
+                  {property.city && <span>{property.city}</span>}
+                  {property.micromarket && (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span>{property.micromarket}</span>
+                    </>
+                  )}
 
-        <div className="mb-6">
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-slate-500">
-            {property.city && (
-              <>
-                <span>{property.city}</span>
-              </>
-            )}
+                  {propertyDetails.propertyType && (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span>{propertyDetails.propertyType}</span>
+                    </>
+                  )}
+                </div>
+                <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">
+                  {property.name}
+                </h1>
 
-            {property.micromarket && (
-              <>
-                <span>•</span>
+                {property.address && (
+                  <div className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-slate-500 sm:text-sm">
+                    <MapPin className="h-4 w-4 shrink-0 text-[#A054A0]" />
 
-                <span>{property.micromarket}</span>
-              </>
-            )}
-
-            {propertyType && (
-              <>
-                <span>•</span>
-
-                <span>{propertyType}</span>
-              </>
-            )}
+                    <p className="truncate">{property.address}</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex w-full shrink-0 items-center gap-2 sm:gap-3 lg:w-auto">
+                {/* <button type="button" onClick={() => setIsContactModalOpen(true)} className=" inline-flex h-10 flex-1 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 sm:h-11 sm:flex-none sm:px-5"> Contact Us </button> */}
+                <button
+                  type="button"
+                  onClick={() => handleWishlist(property)}
+                  className={` inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted ? "bg-pink-600 text-white hover:bg-pink-700" : "bg-gray-900 text-white hover:bg-gray-800"}`}
+                >
+                  {" "}
+                  {isWishlisted ? "Added to Wishlist" : "Add to Wishlist"}
+                </button>
+              </div>
+            </div>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl md:text-4xl">
-            {property.name}
-          </h1>
-
-          {property.address && (
-            <div className="mt-2 flex items-start gap-2 text-sm text-slate-500 sm:text-base">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#A054A0]" />
-
-              <p>{property.address}</p>
-            </div>
-          )}
-        </div>
-
-        {/* ===================================================
-            IMAGE GALLERY
-        =================================================== */}
-
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:rounded-3xl">
-          {/* GALLERY HEADER */}
-
-          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6">
-            <div>
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:rounded-3xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6">
               <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-900 sm:text-base">
                 Property Media Gallery
               </h2>
-            </div>
-
-            <div className="text-xs font-medium text-slate-500 sm:text-sm">
-              {availableGallery.length} image
-              {availableGallery.length === 1 ? "" : "s"} found
-            </div>
-          </div>
-
-          {/* GALLERY */}
-
-          <div className="p-3 sm:p-5">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px]">
-              {/* =========================================
-                  MAIN IMAGE
-              ========================================= */}
-
-              <div
-                className="group relative overflow-hidden rounded-2xl bg-slate-100"
-                onMouseEnter={() => {
-                  if (autoScrollTimeoutRef.current) {
-                    clearTimeout(autoScrollTimeoutRef.current);
-                  }
-                }}
-                onMouseLeave={() => {
-                  if (availableGallery.length > 1) {
-                    autoScrollTimeoutRef.current = setTimeout(() => {
-                      goToNextImage();
-                    }, AUTO_SCROLL_INTERVAL);
-                  }
-                }}
-              >
-                <div className="relative aspect-[4/3] min-h-[280px] w-full sm:aspect-[16/10] md:aspect-[4/3] lg:aspect-[16/10]">
-                  {activeImage ? (
-                    <Image
-                      key={activeImg}
-                      src={activeImage}
-                      alt={property.name || "Property image"}
-                      fill
-                      priority
-                      className="object-cover transition-opacity duration-500"
-                      sizes="(max-width: 767px) 100vw, 70vw"
-                      onError={() => handleImageError(activeImg)}
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-sm text-slate-400">
-                      Image unavailable
-                    </div>
-                  )}
-
-                  {/* DARK GRADIENT */}
-
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/65 to-transparent" />
-
-                  {/* IMAGE NAME */}
-
-                  <div className="absolute bottom-4 left-4 max-w-[70%] text-sm font-semibold text-white drop-shadow-md sm:text-base">
-                    {availableGallery.find((image) => image.key === activeImg)
-                      ?.name || "Property Photo"}
-                  </div>
-
-                  {/* COUNTER */}
-
-                  <div className="absolute right-4 top-4 rounded-full bg-black/65 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
-                    {activeIndex + 1} / {availableGallery.length}
-                  </div>
-
-                  {availableGallery.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={goToPreviousImage}
-                      aria-label="Previous image"
-                      className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white opacity-100 shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                  )}
-
-                  {availableGallery.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={goToNextImage}
-                      aria-label="Next image"
-                      className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white opacity-100 shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                  )}
-                </div>
+              <div className="text-xs font-medium text-slate-500 sm:text-sm">
+                {availableGallery.length} image
+                {availableGallery.length === 1 ? "" : "s"} found
               </div>
-
-              <div className="min-w-0">
+            </div>
+            <div className="p-3 sm:p-5">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px]">
                 <div
-                  ref={thumbnailContainerRef}
-                  className="hidden h-full max-h-[620px] flex-col gap-3 overflow-y-auto pr-1 md:flex"
+                  className="group relative overflow-hidden rounded-2xl bg-slate-100"
+                  onMouseEnter={() => {
+                    if (autoScrollTimeoutRef.current) {
+                      clearTimeout(autoScrollTimeoutRef.current);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (availableGallery.length > 1) {
+                      autoScrollTimeoutRef.current = setTimeout(
+                        goToNextImage,
+                        AUTO_SCROLL_INTERVAL,
+                      );
+                    }
+                  }}
                 >
-                  {availableGallery.map((image) => {
-                    const isActive = activeImg === image.key;
-                    return (
-                      <button
-                        key={image.key}
-                        ref={(element) => {
-                          thumbnailRefs.current[image.key] = element;
-                        }}
-                        type="button"
-                        onClick={() => selectImage(image.key)}
-                        aria-label={`View ${image.name}`}
-                        aria-current={isActive ? "true" : undefined}
-                        className={`group relative w-full shrink-0 overflow-hidden rounded-xl border-2 text-left transition-all duration-300 ${isActive
-                          ? "border-[#A054A0] shadow-md"
-                          : "border-transparent bg-slate-50 hover:border-slate-300"
-                          }`}
-                      >
-                        <div className="relative aspect-[16/9] w-full">
-                          <Image
-                            src={image.url}
-                            alt={image.name}
-                            fill
-                            className="object-cover"
-                            sizes="380px"
-                            onError={() => handleImageError(image.key)}
-                          />
-                          <div
-                            className={`absolute inset-0 transition ${isActive
-                              ? "bg-[#A054A0]/10"
-                              : "bg-black/0 group-hover:bg-black/10"
-                              }`}
-                          />
-                        </div>
+                  <div className="relative aspect-[4/3] min-h-[280px] w-full sm:aspect-[16/10] md:aspect-[4/3] lg:aspect-[16/10]">
+                    {activeImage ? (
+                      <Image
+                        key={activeImg}
+                        src={activeImage}
+                        alt={property.name || "Property image"}
+                        fill
+                        priority
+                        className="object-cover transition-opacity duration-500"
+                        sizes="(max-width: 767px) 100vw, 70vw"
+                        onError={() => handleImageError(activeImg)}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-slate-400">
+                        Image unavailable
+                      </div>
+                    )}
 
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-8">
-                          <p className="truncate text-xs font-medium text-white">
-                            {image.name}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/65 to-transparent" />
+                    <div className="absolute bottom-4 left-4 max-w-[80%] text-sm font-semibold text-white drop-shadow-md sm:text-base">
+                      {availableGallery.find((img) => img.key === activeImg)
+                        ?.name || "Property Photo"}
+                    </div>
+                    <div className="absolute right-4 top-4 rounded-full bg-black/65 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+                      {activeIndex + 1} / {availableGallery.length}
+                    </div>
+                    {availableGallery.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={goToPreviousImage}
+                          aria-label="Previous image"
+                          className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={goToNextImage}
+                          aria-label="Next image"
+                          className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
 
-                <div className="md:hidden">
+                {/* THUMBNAILS */}
+                <div className="min-w-0">
+                  {/* Desktop */}
                   <div
                     ref={thumbnailContainerRef}
-                    className="flex gap-2 overflow-x-auto pb-1"
+                    className="hidden h-full max-h-[620px] flex-col gap-3 overflow-y-auto pr-1 md:flex"
                   >
                     {availableGallery.map((image) => {
                       const isActive = activeImg === image.key;
+
                       return (
                         <button
                           key={image.key}
-                          ref={(element) => {
-                            thumbnailRefs.current[image.key] = element;
+                          ref={(el) => {
+                            thumbnailRefs.current[image.key] = el;
                           }}
                           type="button"
                           onClick={() => selectImage(image.key)}
                           aria-label={`View ${image.name}`}
                           aria-current={isActive ? "true" : undefined}
-                          className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${isActive
-                            ? "border-[#A054A0] shadow-md"
-                            : "border-transparent opacity-75"
-                            }`}
+                          className={`
+                          group
+                          relative
+                          w-full
+                          shrink-0
+                          overflow-hidden
+                          rounded-xl
+                          border-2
+                          text-left
+                          transition-all
+                          duration-300
+                          ${isActive
+                              ? "border-[#A054A0] shadow-md"
+                              : "border-transparent bg-slate-50 hover:border-slate-300"
+                            }
+                        `}
                         >
-                          <Image
-                            src={image.url}
-                            alt={image.name}
-                            fill
-                            className="object-cover"
-                            sizes="112px"
-                            onError={() => handleImageError(image.key)}
-                          />
-                          {isActive && (
-                            <div className="absolute inset-0 bg-[#A054A0]/15" />
-                          )}
+                          <div className="relative aspect-[16/9] w-full">
+                            <Image
+                              src={image.url}
+                              alt={image.name}
+                              fill
+                              className="object-cover"
+                              sizes="380px"
+                              onError={() => handleImageError(image.key)}
+                            />
+
+                            <div
+                              className={`
+                              absolute
+                              inset-0
+                              transition
+                              ${isActive
+                                  ? "bg-[#A054A0]/10"
+                                  : "bg-black/0 group-hover:bg-black/10"
+                                }
+                            `}
+                            />
+                          </div>
+
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-8">
+                            <p className="truncate text-xs font-medium text-white">
+                              {image.name}
+                            </p>
+                          </div>
                         </button>
                       );
                     })}
                   </div>
+
+                  {/* Mobile */}
+                  <div className="md:hidden">
+                    <div
+                      ref={thumbnailContainerRef}
+                      className="flex gap-2 overflow-x-auto pb-1"
+                    >
+                      {availableGallery.map((image) => {
+                        const isActive = activeImg === image.key;
+
+                        return (
+                          <button
+                            key={image.key}
+                            ref={(el) => {
+                              thumbnailRefs.current[image.key] = el;
+                            }}
+                            type="button"
+                            onClick={() => selectImage(image.key)}
+                            aria-label={`View ${image.name}`}
+                            aria-current={isActive ? "true" : undefined}
+                            className={`
+                            relative
+                            h-20
+                            w-28
+                            shrink-0
+                            overflow-hidden
+                            rounded-xl
+                            border-2
+                            transition-all
+                            ${isActive
+                                ? "border-[#A054A0] shadow-md"
+                                : "border-transparent opacity-75"
+                              }
+                          `}
+                          >
+                            <Image
+                              src={image.url}
+                              alt={image.name}
+                              fill
+                              className="object-cover"
+                              sizes="112px"
+                              onError={() => handleImageError(image.key)}
+                            />
+
+                            {isActive && (
+                              <div className="absolute inset-0 bg-[#A054A0]/15" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:rounded-3xl sm:p-7 lg:p-8">
-          <DetailSection title="Property details">
-            {isCoworking ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <DetailField
-                  label="Managed By"
-                  value={managedBy}
-                  icon={Building2}
-                />
-                <DetailField
-                  label="Offered Seats"
-                  value={offeredSeats}
-                  icon={Users}
-                />
-                <DetailField
-                  label="Tower/Floor offered"
-                  value={towerFloor}
-                  icon={Layers3}
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <DetailField
-                  label="Area offered"
-                  value={
-                    areaOffered !== "-" && !isNaN(Number(areaOffered))
-                      ? formatArea(Number(areaOffered), unit)
-                      : areaOffered
-                  }
-                  icon={Building2}
-                />
-                <DetailField
-                  label="Tower/Floor offered"
-                  value={towerFloor}
-                  icon={Layers3}
-                />
-                <DetailField
-                  label="Availability Timeline"
-                  value={availability}
-                  icon={CalendarDays}
-                />
-              </div>
-            )}
-          </DetailSection>
-          <div className="mt-7">
-            <DetailSection title="Project Specifications">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <DetailField
-                  label="Building certification"
-                  value={buildingCertification}
-                  icon={Building2}
-                />
-                <DetailField
-                  label="Number of elevators"
-                  value={numberOfElevators}
-                  icon={Layers3}
-                />
-                <DetailField
-                  label="Year of Completion"
-                  value={yearOfCompletion}
-                  icon={CalendarDays}
-                />
-              </div>
-            </DetailSection>
-          </div>
-          <div className="mt-7">
-            <DetailSection title="Connectivity">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <DetailField
-                  label="Nearby Metro"
-                  value={nearbyMetro}
-                  icon={TrainFront}
-                />
-                <DetailField
-                  label="Bus station"
-                  value={busStation}
-                  icon={BusFront}
-                />
-                <DetailField label="Airport" value={airport} icon={Plane} />
-              </div>
-            </DetailSection>
-          </div>
-        </section>
-        <section className="w-full mt-8 sm:mt-10 flex justify-evenly gap-4">
-          {" "}
-          <button
-            type="button"
-            onClick={() => {
-              setIsContactModalOpen(true);
-            }}
-            className="px-6 py-3 rounded-xl border border-gray-300
-               bg-white text-gray-900 font-medium
-               hover:bg-gray-50 transition-all duration-200"
-          >
-            Contact Us
-          </button>
-          <button
-            type="button"
-            onClick={() => handleWishlist(property)}
-            className={`px-6 py-3 rounded-xl font-medium
-                transition-all duration-200
-                ${isWishlisted
-                ? "bg-pink-600 text-white"
-                : "bg-gray-900 text-white hover:bg-gray-800"
-              }`}
-          >
-            {isWishlisted ? "Added to Wishlist" : "Add to Wishlist"}
-          </button>
-        </section>
+          {/* =======================================================
+            PROPERTY DETAILS
+        ======================================================== */}
+          <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:rounded-3xl sm:p-7 lg:p-8">
+            <DetailSection title="Property details">
+              {propertyDetails.isCoworking ? (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <DetailField
+                    label="Managed By"
+                    value={propertyDetails.managedBy}
+                    icon={Building2}
+                  />
 
+                  <DetailField
+                    label="Offered Seats"
+                    value={propertyDetails.offeredSeats}
+                    icon={Users}
+                  />
+
+                  <DetailField
+                    label="Tower/Floor offered"
+                    value={propertyDetails.towerFloor}
+                    icon={Layers3}
+                  />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <DetailField
+                    label="Area offered"
+                    value={
+                      propertyDetails.areaOffered !== "-" &&
+                        !isNaN(Number(propertyDetails.areaOffered))
+                        ? formatArea(Number(propertyDetails.areaOffered), unit)
+                        : propertyDetails.areaOffered
+                    }
+                    icon={Building2}
+                  />
+
+                  <DetailField
+                    label="Tower/Floor offered"
+                    value={propertyDetails.towerFloor}
+                    icon={Layers3}
+                  />
+
+                  <DetailField
+                    label="Availability Timeline"
+                    value={propertyDetails.availability}
+                    icon={CalendarDays}
+                  />
+                </div>
+              )}
+            </DetailSection>
+
+            <div className="mt-7">
+              <DetailSection title="Project Specifications">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <DetailField
+                    label="Building certification"
+                    value={propertyDetails.buildingCertification}
+                    icon={Building2}
+                  />
+
+                  <DetailField
+                    label="Number of elevators"
+                    value={propertyDetails.numberOfElevators}
+                    icon={Layers3}
+                  />
+
+                  <DetailField
+                    label="Year of Completion"
+                    value={propertyDetails.yearOfCompletion}
+                    icon={CalendarDays}
+                  />
+                </div>
+              </DetailSection>
+            </div>
+
+            <div className="mt-7">
+              <DetailSection title="Connectivity">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <DetailField
+                    label="Nearby Metro"
+                    value={propertyDetails.nearbyMetro}
+                    icon={TrainFront}
+                  />
+
+                  <DetailField
+                    label="Bus station"
+                    value={propertyDetails.busStation}
+                    icon={BusFront}
+                  />
+
+                  <DetailField
+                    label="Airport"
+                    value={propertyDetails.airport}
+                    icon={Plane}
+                  />
+                </div>
+              </DetailSection>
+            </div>
+          </section>
+        </div>
+        {/* =========================================================
+          END STICKY PROPERTY CONTENT
+          Sticky header stops here.
+      ========================================================== */}
+
+        {/* =========================================================
+          SUGGESTED / SIMILAR PROPERTIES
+          Header is no longer sticky from this point.
+      ========================================================== */}
         {related.length > 0 && (
           <section className="mt-12 sm:mt-14">
             <div className="mb-5 flex items-end justify-between gap-4">
@@ -1026,16 +953,53 @@ export default function PropertyDetailClient({ propertyId }) {
                 </p>
               </div>
 
-              <ArrowUpRight className="hidden h-5 w-5 text-slate-400 sm:block" />
+              <Link
+                href="/properties"
+                aria-label="View all properties"
+                className="inline-flex items-center justify-center"
+              >
+                <ArrowUpRight
+                  className="
+                  h-5
+                  w-5
+                  text-slate-400
+                  transition-transform
+                  duration-200
+                  hover:translate-x-0.5
+                  hover:-translate-y-0.5
+                "
+                />
+              </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {related.map((item) => (
-                <PropertyCard
-                  key={item.id || item.rowId || item.ROWID}
-                  property={item}
-                />
-              ))}
+            <div className="space-y-6">
+              {/* ROW 1 */}
+              {row1.length > 0 && (
+                <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
+                  {row1.map((item) => (
+                    <div
+                      key={getPropertyId(item)}
+                      className="w-[280px] shrink-0 snap-start sm:w-[320px] lg:w-[350px]"
+                    >
+                      <PropertyCard property={item} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ROW 2 */}
+              {row2.length > 0 && (
+                <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
+                  {row2.map((item) => (
+                    <div
+                      key={getPropertyId(item)}
+                      className="w-[280px] shrink-0 snap-start sm:w-[320px] lg:w-[350px]"
+                    >
+                      <PropertyCard property={item} />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         )}

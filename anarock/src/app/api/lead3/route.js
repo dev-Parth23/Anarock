@@ -712,10 +712,6 @@ async function createLeadInCRM(tokenInfo, recordData) {
             throw error;
         }
 
-        /* ------------------------------------------------------------------ */
-        /* Update existing Lead                                               */
-        /* ------------------------------------------------------------------ */
-
         const updateData = {};
 
         Object.entries(recordData || {}).forEach(([key, value]) => {

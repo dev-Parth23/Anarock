@@ -4,605 +4,523 @@ import { mapProperty } from "@/lib/propertyMapper";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-let propertiesCache = {
-  data: null,
-  timestamp: 0,
-};
-const CACHE_TTL = 60 * 1000;
 
+const globalState = globalThis;
+
+if (!globalState.__anarockPropertiesState) {
+  globalState.__anarockPropertiesState = {
+    data: null,
+    timestamp: 0,
+    fetchPromise: null,
+  };
+}
+
+const state = globalState.__anarockPropertiesState;
+const CACHE_TTL = Number(process.env.PROPERTIES_CACHE_TTL || "300") * 1000;
 function normalize(value) {
-  if (value === null || value === undefined) return "";
-  return String(value)
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
+  if (value === null || value === undefined) {
+    return "";
+  }
+  return String(value).trim().toLowerCase().replace(/\s+/g, " ");
 }
 function normalizeMatch(value) {
   return normalize(value).replace(/[^a-z0-9]/g, "");
 }
-
 function parseNumber(value) {
   if (value === null || value === undefined || value === "") {
     return null;
   }
-
   if (typeof value === "number") {
     return Number.isFinite(value) ? value : null;
   }
-
   const cleaned = String(value)
     .replace(/[,₹$€£\s]/g, "")
     .trim();
-
-  if (!cleaned) return null;
+  if (!cleaned) {
+    return null;
+  }
   const parsed = Number(cleaned);
   return Number.isFinite(parsed) ? parsed : null;
 }
-
 function getFirstValue(property, keys) {
-  if (!property) return null;
-  for (let i = 0; i < keys.length; i++) {
-    const value = property[keys[i]];
-    if (value !== undefined && value !== null) {
-      const str = String(value).trim();
-      if (str !== "") return value;
+  if (!property) {
+    return null;
+  }
+  for (const key of keys) {
+    const value = property[key];
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return value;
     }
   }
-
   return null;
 }
-
-async function getAllProperties(request) {
-  const now = Date.now();
-  if (propertiesCache.data && now - propertiesCache.timestamp < CACHE_TTL) {
-    console.log("[Properties API] Serving properties from server cache...");
-    return propertiesCache.data;
-  }
-
-  const table = getPropertiesTable(request);
-  const rows = [];
-  let nextToken = null;
-  let page = 1;
-
-  while (true) {
-    console.log(`[Properties API] Fetching Catalyst page ${page}...`);
-    const options = { maxRows: 100 };
-    if (nextToken) {
-      options.nextToken = nextToken;
-      console.log(`[Properties API] Using next token for page ${page}`);
-    }
-
-    const result = await table.getPagedRows(options);
-    const pageRows = Array.isArray(result?.data) ? result.data : [];
-
-    console.log(`[Properties API] Page ${page} rows: ${pageRows.length}`);
-    rows.push(...pageRows);
-
-    const newNextToken =
-      result?.next_token || result?.nextToken || null;
-    const moreRecords =
-      result?.more_records === true || result?.moreRecords === true;
-
-    console.log(`[Properties API] Page ${page} more records:`, moreRecords);
-    console.log(
-      `[Properties API] Page ${page} next token:`,
-      Boolean(newNextToken)
-    );
-
-    if (!moreRecords) break;
-
-    if (!newNextToken) {
-      console.warn(
-        "[Properties API] Catalyst reported more records but no next token was returned."
-      );
-      break;
-    }
-
-    if (newNextToken === nextToken) {
-      console.warn(
-        "[Properties API] Catalyst returned the same next token. Stopping pagination."
-      );
-      break;
-    }
-
-    nextToken = newNextToken;
-    page += 1;
-  }
-
-  console.log("==================================================");
-  console.log("[Properties API] TOTAL RAW CATALYST ROWS:", rows.length);
-  console.log("==================================================");
-
-  const properties = rows
-    .map((row) => {
-      try {
-        return mapProperty(row);
-      } catch (error) {
-        console.error("[Properties API] PROPERTY MAPPING ERROR:", error);
-        return null;
+async function fetchAllProperties() {
+  try {
+    console.log("[Properties] Getting Catalyst table...");
+    const table = await getPropertiesTable();
+    console.log("[Properties] Catalyst table obtained");
+    const rows = [];
+    let nextToken = null;
+    while (true) {
+      const options = { maxRows: 100 };
+      if (nextToken) {
+        options.nextToken = nextToken;
       }
+      console.log("[Properties] Fetching Data Store page:", {
+        maxRows: 100,
+        hasNextToken: Boolean(nextToken),
+      });
+      const result = await table.getPagedRows(options);
+      console.log("[Properties] Data Store response received");
+      const pageRows = Array.isArray(result?.data) ? result.data : [];
+      rows.push(...pageRows);
+      const newNextToken = result?.next_token || result?.nextToken || null;
+      const moreRecords =
+        result?.more_records === true || result?.moreRecords === true;
+      if (!moreRecords || !newNextToken) {
+        break;
+      }
+      if (newNextToken === nextToken) {
+        break;
+      }
+      nextToken = newNextToken;
+    }
+    console.log("[Properties] Total Catalyst rows:", rows.length);
+    return rows
+      .map((row) => {
+        try {
+          return mapProperty(row);
+        } catch (error) {
+          console.error("[Properties] Mapping error:", error);
+          return null;
+        }
+      })
+      .filter(Boolean);
+  } catch (error) {
+    console.error("========================================");
+    console.error("[Properties] FETCH ALL FAILED");
+    console.error("[Properties] RAW:", error);
+    console.error("[Properties] TYPE:", typeof error);
+    console.error("[Properties] MESSAGE:", error?.message);
+    console.error("[Properties] CODE:", error?.code);
+    console.error("[Properties] STATUS:", error?.status);
+    console.error("[Properties] STACK:", error?.stack);
+    console.error("========================================");
+    throw error;
+  }
+}
+function startRefresh() {
+  if (state.fetchPromise) {
+    return state.fetchPromise;
+  }
+  state.fetchPromise = fetchAllProperties()
+    .then((properties) => {
+      state.data = properties;
+      state.timestamp = Date.now();
+      console.log(`[Properties] Cached ${properties.length} properties`);
+      return properties;
     })
-    .filter(Boolean);
-
-  console.log("[Properties API] TOTAL MAPPED PROPERTIES:", properties.length);
-
-  propertiesCache = {
-    data: properties,
-    timestamp: now,
-  };
-
-  return properties;
+    .catch((error) => {
+      console.error("[Properties] Catalyst fetch failed:", error);
+      throw error;
+    })
+    .finally(() => {
+      state.fetchPromise = null;
+    });
+  return state.fetchPromise;
 }
 
-/* =========================================================
-   GET ROUTE HANDLER
-========================================================= */
+async function getAllProperties() {
+  const now = Date.now();
+  if (state.data && now - state.timestamp < CACHE_TTL) {
+    return state.data;
+  }
+  if (state.data) {
+    if (!state.fetchPromise) {
+      startRefresh().catch(() => {});
+    }
+    return state.data;
+  }
+  return startRefresh();
+}
+
+function getPropertyType(property) {
+  return normalizeMatch(
+    getFirstValue(property, [
+      "type",
+      "Type",
+      "propertyType",
+      "PropertyType",
+      "officeType",
+      "OfficeType",
+    ]),
+  );
+}
+
+function getPropertyCity(property) {
+  return normalizeMatch(
+    getFirstValue(property, ["city", "City", "cityName", "CityName"]),
+  );
+}
+
+function getPropertyMicromarket(property) {
+  return normalizeMatch(
+    getFirstValue(property, [
+      "micromarket",
+      "Micromarket",
+      "microMarket",
+      "MicroMarket",
+      "micromarketName",
+      "MicromarketName",
+    ]),
+  );
+}
+
+function getPropertyPrice(property) {
+  const type = getPropertyType(property);
+  const managedOffice = type === "managedofficecoworking";
+  return parseNumber(
+    getFirstValue(
+      property,
+      managedOffice
+        ? [
+            "monthlyCostPerSeat",
+            "MonthlyCostPerSeat",
+            "monthlyCostPerSeatInr",
+            "MonthlyCostPerSeatInr",
+            "pricePerSeat",
+            "PricePerSeat",
+            "costPerSeat",
+            "CostPerSeat",
+            "rentPerSeat",
+            "RentPerSeat",
+          ]
+        : [
+            "quotedRent",
+            "QuotedRent",
+            "monthlyRent",
+            "MonthlyRent",
+            "rent",
+            "Rent",
+            "monthlyCost",
+            "MonthlyCost",
+            "budget",
+            "Budget",
+            "price",
+            "Price",
+          ],
+    ),
+  );
+}
+
+function getPropertyArea(property) {
+  return parseNumber(
+    getFirstValue(property, [
+      "areaSqft",
+      "AreaSqft",
+      "area",
+      "Area",
+      "superArea",
+      "SuperArea",
+      "superBuiltUpArea",
+      "SuperBuiltUpArea",
+      "carpetArea",
+      "CarpetArea",
+      "builtUpArea",
+      "BuiltUpArea",
+      "floorPlate",
+      "FloorPlate",
+      "Floor_Plate",
+      "size",
+      "Size",
+    ]),
+  );
+}
+
+function getPropertySeats(property) {
+  return parseNumber(
+    getFirstValue(property, [
+      "seatsOffered",
+      "SeatsOffered",
+      "noofseatsoffered",
+      "NoOfSeatsOffered",
+      "NoofSeatsOffered",
+      "noOfSeatsOffered",
+      "seatsAvailable",
+      "SeatsAvailable",
+      "availableSeats",
+      "AvailableSeats",
+      "seatCapacity",
+      "SeatCapacity",
+      "totalSeats",
+      "TotalSeats",
+    ]),
+  );
+}
+
+function getPropertyName(property) {
+  return String(
+    getFirstValue(property, [
+      "propertyName",
+      "PropertyName",
+      "property_name",
+      "Property_Name",
+      "buildingName",
+      "BuildingName",
+      "projectName",
+      "ProjectName",
+      "name",
+      "Name",
+      "title",
+      "Title",
+    ]) || "",
+  ).trim();
+}
+
+function getLegacyBudget(property) {
+  return parseNumber(
+    getFirstValue(property, [
+      "budget",
+      "Budget",
+      "price",
+      "Price",
+      "monthlyCost",
+      "MonthlyCost",
+      "monthlyCostPerSeat",
+      "MonthlyCostPerSeat",
+      "cost",
+      "Cost",
+      "rent",
+      "Rent",
+    ]),
+  );
+}
+
+function sortProperties(properties, sort) {
+  const validSorts = new Set([
+    "budget_asc",
+    "budget_desc",
+    "area_asc",
+    "area_desc",
+    "seats_asc",
+    "seats_desc",
+    "name_asc",
+    "name_desc",
+  ]);
+  if (!validSorts.has(sort)) {
+    return properties;
+  }
+  const direction = sort.endsWith("_desc") ? -1 : 1;
+  const isNameSort = sort === "name_asc" || sort === "name_desc";
+  const items = properties.map((property) => {
+    let key = null;
+    if (isNameSort) {
+      key = getPropertyName(property);
+    } else if (sort.startsWith("budget_")) {
+      key = getPropertyPrice(property);
+    } else if (sort.startsWith("area_")) {
+      key = getPropertyArea(property);
+    } else {
+      key = getPropertySeats(property);
+    }
+    return {
+      property,
+      key,
+      id: String(property?.id || property?.rowId || property?.ROWID || ""),
+    };
+  });
+  items.sort((a, b) => {
+    if (isNameSort) {
+      const comparison = a.key.localeCompare(b.key, undefined, {
+        sensitivity: "base",
+        numeric: true,
+      });
+      if (comparison !== 0) {
+        return comparison * direction;
+      }
+      return a.id.localeCompare(b.id, undefined, { numeric: true });
+    }
+    if (a.key === null && b.key === null) {
+      return 0;
+    }
+    if (a.key === null) {
+      return 1;
+    }
+    if (b.key === null) {
+      return -1;
+    }
+    if (a.key === b.key) {
+      return a.id.localeCompare(b.id, undefined, { numeric: true });
+    }
+    return (a.key - b.key) * direction;
+  });
+  return items.map((item) => item.property);
+}
 
 export async function GET(request) {
   try {
-    const properties = await getAllProperties(request);
     const { searchParams } = new URL(request.url);
-
-    const city = searchParams.get("city") || "";
-    const type = searchParams.get("type") || "";
-    const micromarket = searchParams.get("micromarket") || "";
-    const minBudget = searchParams.get("minBudget") || "";
-    // const maxBudget = searchParams.get("maxBudget") || "";
-    const budget = searchParams.get("budget") || "";
-    const area = searchParams.get("area") || "";
-    const seats = searchParams.get("seats") || "";
-    const prompt = searchParams.get("prompt") || "";
-    const sort = searchParams.get("sort") || "";
-
-    let filtered = [...properties];
-
-    console.log("[Properties API] FILTER REQUEST");
-    console.log("City:", city);
-    console.log("Type:", type);
-    console.log("Micromarket:", micromarket);
-    console.log("Min Budget:", minBudget);
-    console.log("Legacy Budget:", budget);
-    console.log("Area:", area);
-    console.log("Seats:", seats);
-    console.log("Prompt:", prompt);
-    console.log("Initial properties:", filtered.length);
-
+    const [
+      properties,
+      city,
+      type,
+      micromarket,
+      minBudget,
+      maxBudget,
+      budget,
+      area,
+      seats,
+      prompt,
+      sort,
+    ] = await Promise.all([
+      getAllProperties(),
+      Promise.resolve(searchParams.get("city") || ""),
+      Promise.resolve(searchParams.get("type") || ""),
+      Promise.resolve(searchParams.get("micromarket") || ""),
+      Promise.resolve(searchParams.get("minBudget") || ""),
+      Promise.resolve(searchParams.get("maxBudget") || ""),
+      Promise.resolve(searchParams.get("budget") || ""),
+      Promise.resolve(searchParams.get("area") || ""),
+      Promise.resolve(searchParams.get("seats") || ""),
+      Promise.resolve(searchParams.get("prompt") || ""),
+      Promise.resolve(searchParams.get("sort") || ""),
+    ]);
+    let filtered = properties;
     if (city) {
       const normalizedCity = normalizeMatch(city);
-
-      filtered = filtered.filter((property) => {
-        const propertyCity = normalizeMatch(
-          getFirstValue(property, [
-            "city",
-            "City",
-            "cityName",
-            "CityName",
-          ])
-        );
-
-        return propertyCity === normalizedCity;
-      });
-
-      console.log(
-        "[Properties API] After city filter:",
-        filtered.length
+      filtered = filtered.filter(
+        (property) => getPropertyCity(property) === normalizedCity,
       );
     }
     if (type && normalize(type) !== "ai") {
       const normalizedType = normalizeMatch(type);
-
-      filtered = filtered.filter((property) => {
-        const propertyType = normalizeMatch(
-          getFirstValue(property, [
-            "type",
-            "Type",
-            "propertyType",
-            "PropertyType",
-            "officeType",
-            "OfficeType",
-          ])
-        );
-
-        return propertyType === normalizedType;
-      });
-
-      console.log(
-        "[Properties API] After type filter:",
-        filtered.length
+      filtered = filtered.filter(
+        (property) => getPropertyType(property) === normalizedType,
       );
     }
-
-    /* --- MICROMARKET --- */
     if (micromarket) {
       const selectedMicromarkets = micromarket
         .split(",")
         .map((item) => normalizeMatch(item))
         .filter(Boolean);
-
-      if (selectedMicromarkets.length > 0) {
+      if (selectedMicromarkets.length) {
         filtered = filtered.filter((property) => {
-          const propertyMicromarket = normalizeMatch(
-            getFirstValue(property, [
-              "micromarket",
-              "Micromarket",
-              "microMarket",
-              "MicroMarket",
-              "micromarketName",
-              "MicromarketName",
-            ])
-          );
-
+          const propertyMicromarket = getPropertyMicromarket(property);
           return selectedMicromarkets.some(
             (selected) =>
               propertyMicromarket === selected ||
-              propertyMicromarket.includes(selected)
+              propertyMicromarket.includes(selected),
           );
         });
       }
-
-      console.log(
-        "[Properties API] After micromarket filter:",
-        filtered.length
-      );
     }
-
-    /* --- LEGACY BUDGET --- */
     if (budget !== "" && minBudget === "" && maxBudget === "") {
       const maxBudgetValue = parseNumber(budget);
       if (maxBudgetValue !== null) {
         filtered = filtered.filter((property) => {
-          const propertyBudget = parseNumber(
-            getFirstValue(property, [
-              "budget",
-              "Budget",
-              "price",
-              "Price",
-              // "maxBudget",
-              // "MaxBudget",
-              "monthlyCost",
-              "MonthlyCost",
-              "monthlyCostPerSeat",
-              "MonthlyCostPerSeat",
-              "cost",
-              "Cost",
-              "rent",
-              "Rent",
-            ])
-          );
-          return propertyBudget !== null;
+          const propertyBudget = getLegacyBudget(property);
+          return propertyBudget !== null && propertyBudget <= maxBudgetValue;
         });
       }
-      console.log("[Properties API] After legacy budget filter:", filtered.length);
     }
-
-    /* --- MIN PRICE --- */
     if (minBudget !== "") {
       const minimum = parseNumber(minBudget);
-
       if (minimum !== null && minimum >= 0) {
         filtered = filtered.filter((property) => {
-          const propertyType = normalizeMatch(
-            getFirstValue(property, [
-              "type",
-              "Type",
-              "propertyType",
-              "PropertyType",
-              "officeType",
-              "OfficeType",
-            ])
-          );
-
-          const isManagedOffice =
-            propertyType === "managedofficecoworking";
-
-          const propertyPrice = parseNumber(
-            getFirstValue(
-              property,
-              isManagedOffice
-                ? [
-                  "monthlyCostPerSeat",
-                  "MonthlyCostPerSeat",
-                  "monthlyCostPerSeatInr",
-                  "MonthlyCostPerSeatInr",
-                  "pricePerSeat",
-                  "PricePerSeat",
-                  "costPerSeat",
-                  "CostPerSeat",
-                  "rentPerSeat",
-                  "RentPerSeat",
-                ]
-                : [
-                  "quotedRent",
-                  "QuotedRent",
-                  "monthlyRent",
-                  "MonthlyRent",
-                  "rent",
-                  "Rent",
-                  "monthlyCost",
-                  "MonthlyCost",
-                  "budget",
-                  "Budget",
-                  "price",
-                  "Price",
-                ]
-            )
-          );
-
-          return (
-            propertyPrice !== null &&
-            propertyPrice >= minimum
-          );
+          const propertyPrice = getPropertyPrice(property);
+          return propertyPrice !== null && propertyPrice >= minimum;
         });
       }
-
-      console.log(
-        "[Properties API] After min price filter:",
-        filtered.length
-      );
     }
-
-
-    /* --- AREA --- */
+    if (maxBudget !== "") {
+      const maximum = parseNumber(maxBudget);
+      if (maximum !== null && maximum >= 0) {
+        filtered = filtered.filter((property) => {
+          const propertyPrice = getPropertyPrice(property);
+          return propertyPrice !== null && propertyPrice <= maximum;
+        });
+      }
+    }
     if (area !== "") {
       const minArea = parseNumber(area);
       if (minArea !== null) {
         filtered = filtered.filter((property) => {
-          const propertyArea = parseNumber(
-            getFirstValue(property, [
-              "area",
-              "Area",
-              "areaSqft",
-              "AreaSqft",
-              "superArea",
-              "SuperArea",
-              "superBuiltUpArea",
-              "SuperBuiltUpArea",
-              "carpetArea",
-              "CarpetArea",
-              "builtUpArea",
-              "BuiltUpArea",
-              "floorPlate",
-              "FloorPlate",
-              "Floor_Plate",
-              "size",
-              "Size",
-            ])
-          );
+          const propertyArea = getPropertyArea(property);
           return propertyArea !== null && propertyArea >= minArea;
         });
       }
-      console.log("[Properties API] After area filter:", filtered.length);
     }
-
-    /* --- SEATS --- */
     if (seats !== "") {
       const requiredSeats = parseNumber(seats);
       if (requiredSeats !== null && requiredSeats >= 0) {
         filtered = filtered.filter((property) => {
-
-          const seatsOffered = parseNumber(
-            getFirstValue(property, [
-              "seatsOffered",
-              "SeatsOffered",
-              "noofseatsoffered",
-              "NoOfSeatsOffered",
-              "NoofSeatsOffered",
-              "noOfSeatsOffered",
-            ])
-          );
-          // const availableSeats = parseNumber(
-          //   getFirstValue(property, [
-          //     "seatsOffered",
-          //     "SeatsOffered",
-          //     "noofseatsoffered",
-          //     "NoOfSeatsOffered",
-          //     "NoofSeatsOffered",
-          //     "noOfSeatsOffered",
-          //     "seatsAvailable",
-          //     "SeatsAvailable",
-          //     "availableSeats",
-          //     "AvailableSeats",
-          //     "seatCapacity",
-          //     "SeatCapacity",
-          //     "totalSeats",
-          //     "TotalSeats",
-          //   ])
-          // );
+          const seatsOffered = getPropertySeats(property);
           return seatsOffered !== null && seatsOffered >= requiredSeats;
         });
       }
-      console.log("[Properties API] After seats filter:", filtered.length);
     }
-
     if (prompt) {
-      console.log("[Properties API] AI prompt received:", prompt);
+      console.log("[Properties] AI prompt:", prompt);
     }
-
-    const SORT_VALUES = new Set([
-      "budget_asc",
-      "budget_desc",
-      "area_asc",
-      "area_desc",
-      "seats_asc",
-      "seats_desc",
-      "name_asc",
-      "name_desc",
-    ]);
-
-    const getSortNumber = (property, keys) =>
-      parseNumber(getFirstValue(property, keys));
-
-    const getBudgetValue = (property) => {
-      const propertyType = normalize(
-        getFirstValue(property, [
-          "type",
-          "Type",
-          "propertyType",
-          "PropertyType",
-          "officeType",
-          "OfficeType",
-        ])
-      );
-
-      if (propertyType === "managed office/co-working") {
-        const seatBudget = getSortNumber(property, [
-          "monthlyCostPerSeat",
-          "MonthlyCostPerSeat",
-          "monthlyCostPerSeatInr",
-          "MonthlyCostPerSeatInr",
-          "pricePerSeat",
-          "PricePerSeat",
-          "costPerSeat",
-          "CostPerSeat",
-          "rentPerSeat",
-          "RentPerSeat",
-        ]);
-        if (seatBudget !== null) return seatBudget;
-      }
-
-      return getSortNumber(property, [
-        "budget",
-        "Budget",
-        "price",
-        "Price",
-        "monthlyCost",
-        "MonthlyCost",
-        "rent",
-        "Rent",
-        "quotedRent",
-        "QuotedRent",
-        "monthlyRent",
-        "MonthlyRent",
-        "maxBudget",
-        "MaxBudget",
-      ]);
-    };
-
-    const getSortArea = (property) =>
-      getSortNumber(property, [
-        "areaSqft",
-        "AreaSqft",
-        "area",
-        "Area",
-        "superArea",
-        "SuperArea",
-        "superBuiltUpArea",
-        "SuperBuiltUpArea",
-        "carpetArea",
-        "CarpetArea",
-        "builtUpArea",
-        "BuiltUpArea",
-        "floorPlate",
-        "FloorPlate",
-        "Floor_Plate",
-        "size",
-        "Size",
-      ]);
-
-    const getSortSeats = (property) =>
-      getSortNumber(property, [
-        "seatsOffered",
-        "SeatsOffered",
-        "noofseatsoffered",
-        "NoOfSeatsOffered",
-        "NoofSeatsOffered",
-        "noOfSeatsOffered",
-        "seatsAvailable",
-        "SeatsAvailable",
-        "availableSeats",
-        "AvailableSeats",
-        "seatCapacity",
-        "SeatCapacity",
-        "totalSeats",
-        "TotalSeats",
-      ]);
-
-    const getSortName = (property) =>
-      String(
-        getFirstValue(property, [
-          "propertyName",
-          "PropertyName",
-          "property_name",
-          "Property_Name",
-          "buildingName",
-          "BuildingName",
-          "projectName",
-          "ProjectName",
-          "name",
-          "Name",
-          "title",
-          "Title",
-        ]) || ""
-      ).trim();
-
-    if (SORT_VALUES.has(sort)) {
-      const direction = sort.endsWith("_desc") ? -1 : 1;
-      const isNameSort = sort === "name_asc" || sort === "name_desc";
-
-      const itemsWithKeys = filtered.map((p) => {
-        let key;
-        if (isNameSort) key = getSortName(p);
-        else if (sort.startsWith("budget_")) key = getBudgetValue(p);
-        else if (sort.startsWith("area_")) key = getSortArea(p);
-        else key = getSortSeats(p);
-
-        const id = String(p?.id || p?.rowId || p?.ROWID || "");
-        return { property: p, key, id };
-      });
-
-      itemsWithKeys.sort((a, b) => {
-        if (isNameSort) {
-          const comparison = a.key.localeCompare(b.key, undefined, {
-            sensitivity: "base",
-            numeric: true,
-          });
-          if (comparison !== 0) return comparison * direction;
-          return a.id.localeCompare(b.id, undefined, { numeric: true });
-        }
-
-        if (a.key === null && b.key === null) return 0;
-        if (a.key === null) return 1;
-        if (b.key === null) return -1;
-
-        if (a.key === b.key) {
-          return a.id.localeCompare(b.id, undefined, { numeric: true });
-        }
-
-        return (a.key - b.key) * direction;
-      });
-
-      filtered = itemsWithKeys.map((item) => item.property);
-    }
-
-    console.log("==================================================");
-    console.log("[Properties API] FINAL FILTERED PROPERTIES:", filtered.length);
-    console.log("==================================================");
-
+    filtered = sortProperties(filtered, sort);
     return NextResponse.json(
-      { success: true, data: filtered, total: filtered.length },
-      { headers: { "Cache-Control": "no-store" } }
+      {
+        success: true,
+        data: filtered,
+        total: filtered.length,
+        cachedAt: state.timestamp,
+      },
+      { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
-    const errorMessage =
-      error?.message || (typeof error === "string" ? error : String(error));
-
+    console.error("========================================");
+    console.error("[Properties API] RAW ERROR:", error);
+    console.error("[Properties API] ERROR TYPE:", typeof error);
+    console.error(
+      "[Properties API] ERROR JSON:",
+      (() => {
+        try {
+          return JSON.stringify(error, Object.getOwnPropertyNames(error || {}));
+        } catch {
+          return "Unable to stringify error";
+        }
+      })(),
+    );
+    console.error("[Properties API] ERROR MESSAGE:", error?.message);
     console.error("[Properties API] ERROR NAME:", error?.name);
-    console.error("[Properties API] ERROR MESSAGE:", errorMessage);
     console.error("[Properties API] ERROR CODE:", error?.code);
     console.error("[Properties API] ERROR STATUS:", error?.status);
-    console.error("[Properties API] FULL ERROR:", error);
-    console.error("[Properties API] STACK:", error?.stack);
-
+    console.error("[Properties API] ERROR STACK:", error?.stack);
+    console.error("========================================");
+    let errorMessage = "Failed to fetch properties";
+    if (typeof error === "string") {
+      errorMessage = error;
+    } else if (error && typeof error === "object") {
+      errorMessage =
+        error.message ||
+        error.error ||
+        error.description ||
+        error.detail ||
+        error.reason ||
+        (() => {
+          try {
+            return JSON.stringify(error);
+          } catch {
+            return "Unknown Catalyst error";
+          }
+        })();
+    } else if (error != null) {
+      errorMessage = String(error);
+    }
     return NextResponse.json(
       {
         success: false,
-        error: errorMessage || "Failed to fetch properties",
+        error: errorMessage,
         errorName: error?.name || null,
         errorCode: error?.code || null,
         errorStatus: error?.status || null,
-        stack: process.env.NODE_ENV === "development" ? error?.stack : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

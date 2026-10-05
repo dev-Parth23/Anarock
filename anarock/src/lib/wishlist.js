@@ -159,23 +159,23 @@ export function WishlistProvider({ children }) {
       const normalizedProperty =
         typeof property === "object"
           ? {
-            ...property,
-            id:
-              property.id ??
-              property.ID ??
-              property.rowId ??
-              property.ROWID ??
-              property.RowID ??
-              property.projectId ??
-              property.Project_ID ??
-              property.project_id ??
-              property.propertyId ??
-              property.Property_ID ??
-              propertyId,
-          }
+              ...property,
+              id:
+                property.id ??
+                property.ID ??
+                property.rowId ??
+                property.ROWID ??
+                property.RowID ??
+                property.projectId ??
+                property.Project_ID ??
+                property.project_id ??
+                property.propertyId ??
+                property.Property_ID ??
+                propertyId,
+            }
           : {
-            id: propertyId,
-          };
+              id: propertyId,
+            };
 
       const updatedItems = [...previousItems, normalizedProperty];
       saveWishlist(updatedItems);
@@ -244,10 +244,10 @@ export function useWishlist() {
       ids: [],
       count: 0,
 
-      add: () => { },
-      remove: () => { },
-      toggle: () => { },
-      clear: () => { },
+      add: () => {},
+      remove: () => {},
+      toggle: () => {},
+      clear: () => {},
 
       isInitialized: false,
     };

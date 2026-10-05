@@ -254,10 +254,11 @@ function PhoneInput({
 
       <div className="relative">
         <div
-          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border bg-white/55 backdrop-blur-xl transition-all duration-300 ${phoneError
-            ? "border-red-400 ring-2 ring-red-500/10"
-            : "border-white/80 focus-within:border-[#A054A0]/50 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
-            }`}
+          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border bg-white/55 backdrop-blur-xl transition-all duration-300 ${
+            phoneError
+              ? "border-red-400 ring-2 ring-red-500/10"
+              : "border-white/80 focus-within:border-[#A054A0]/50 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
+          }`}
         >
           <div className="relative shrink-0">
             <button
@@ -332,8 +333,9 @@ function PhoneInput({
                           key={`${country.code}-${country.dial}`}
                           type="button"
                           onClick={() => handleCountrySelect(country)}
-                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${isSelected ? "bg-[#A054A0]/10" : "hover:bg-slate-50"
-                            }`}
+                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${
+                            isSelected ? "bg-[#A054A0]/10" : "hover:bg-slate-50"
+                          }`}
                         >
                           <span className="text-[20px] leading-none">
                             {country.flag}
@@ -424,12 +426,12 @@ function JourneyCard({ item, index }) {
           shouldReduceMotion
             ? undefined
             : {
-              y: -8,
-              transition: {
-                duration: 0.35,
-                ease: [0.22, 1, 0.36, 1],
-              },
-            }
+                y: -8,
+                transition: {
+                  duration: 0.35,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              }
         }
         className="relative flex h-full min-h-[clamp(18rem,30vw,27rem)] flex-col overflow-hidden rounded-[clamp(1.25rem,2vw,2rem)] border border-slate-200/80 bg-white/85 p-[clamp(1.25rem,2.5vw,2.25rem)] shadow-[0_8px_40px_rgba(15,23,42,0.025)] backdrop-blur-xl transition-[border-color,box-shadow] duration-500 hover:border-[#A054A0]/40 hover:shadow-[0_20px_60px_rgba(160,84,160,0.12)]"
       >
@@ -443,9 +445,9 @@ function JourneyCard({ item, index }) {
               shouldReduceMotion
                 ? undefined
                 : {
-                  rotate: 6,
-                  scale: 1.08,
-                }
+                    rotate: 6,
+                    scale: 1.08,
+                  }
             }
             transition={{
               duration: 0.3,
@@ -582,9 +584,10 @@ export default function HomePage() {
       setPhoneError("");
     } else {
       setPhoneError(
-        `Please enter ${country.min === country.max
-          ? country.min
-          : `${country.min}-${country.max}`
+        `Please enter ${
+          country.min === country.max
+            ? country.min
+            : `${country.min}-${country.max}`
         } digits for ${country.name}.`,
       );
     }
@@ -624,71 +627,71 @@ export default function HomePage() {
       ...data,
       ...(finalRequirementType
         ? {
-          Requirement_Type: finalRequirementType,
-        }
+            Requirement_Type: finalRequirementType,
+          }
         : {}),
       ...(finalRequirementCity
         ? {
-          Requirement_City: finalRequirementCity,
-        }
+            Requirement_City: finalRequirementCity,
+          }
         : {}),
 
       ...(locationData.street
         ? {
-          Street: locationData.street,
-        }
+            Street: locationData.street,
+          }
         : {}),
 
       ...(locationData.city
         ? {
-          City: locationData.city,
-        }
+            City: locationData.city,
+          }
         : {}),
 
       ...(locationData.province
         ? {
-          Province: locationData.province,
-        }
+            Province: locationData.province,
+          }
         : {}),
 
       ...(locationData.postalCode
         ? {
-          Postal_Code: locationData.postalCode,
-        }
+            Postal_Code: locationData.postalCode,
+          }
         : {}),
 
       ...(locationData.country
         ? {
-          Country: locationData.country,
-        }
+            Country: locationData.country,
+          }
         : {}),
       ...(finalRequirementType === "Managed Office/Co-working"
         ? {
-          ...(data.requirementSeats
-            ? {
-              Requirement_Seats: Number(data.requirementSeats),
-            }
-            : {}),
+            ...(data.requirementSeats
+              ? {
+                  Requirement_Seats: Number(data.requirementSeats),
+                }
+              : {}),
 
-          ...(data.requirementSeatPrice
-            ? {
-              Requirement_Seat_Price: Number(data.requirementSeatPrice),
-            }
-            : {}),
-        }
+            ...(data.requirementSeatPrice
+              ? {
+                  Requirement_Seat_Price: Number(data.requirementSeatPrice),
+                }
+              : {}),
+          }
         : {
-          ...(data.requirementArea
-            ? {
-              Requirement_Area: Number(data.requirementArea),
-            }
-            : {}),
+            ...(data.requirementArea
+              ? {
+                  Requirement_Area: Number(data.requirementArea),
+                }
+              : {}),
 
-          ...(data.requirementRent
-            ? {
-              Requirement_Rent: Number(data.requirementRent),
-            }
-            : {}),
-        }),
+            ...(data.requirementRent
+              ? {
+                  Requirement_Rent: Number(data.requirementRent),
+                }
+              : {}),
+          }),
     };
 
     const payload = {
@@ -732,7 +735,7 @@ export default function HomePage() {
           result.errorCode === "DUPLICATE_DATA"
             ? "We already have your details on file. Our team will be in touch shortly."
             : result.message ||
-            "We couldn't submit your requirement right now. Please try again.",
+                "We couldn't submit your requirement right now. Please try again.",
         );
 
         setSubmitMessageType("error");
@@ -961,7 +964,9 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
               {popularCities.map((city) => (
-                <Link key={city.slug} href={`/kyc/city/${city.slug}`}
+                <Link
+                  key={city.slug}
+                  href={`/kyc/city/${city.slug}`}
                   className="group relative isolate w-full overflow-hidden  rounded-[1.5rem] border border-[#A054A0]/15
             bg-white shadow-[0_10px_35px_rgba(86,42,91,0.05)] transition-all duration-500 ease-out
             hover:-translate-y-2 hover:border-[#A054A0]/35
@@ -970,8 +975,12 @@ export default function HomePage() {
             lg:w-[calc(20%-1rem)]"
                 >
                   <div className="relative aspect-square overflow-hidden bg-[#A054A0]/5">
-                    <img src={city.url} alt={`${city.name} commercial real estate`}
-                      decoding="async" loading="lazy" className=" h-full w-full
+                    <img
+                      src={city.url}
+                      alt={`${city.name} commercial real estate`}
+                      decoding="async"
+                      loading="lazy"
+                      className=" h-full w-full
                 object-cover
                 object-top transition-transform duration-700 ease-out group-hover:scale-110
               "

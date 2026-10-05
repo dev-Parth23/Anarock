@@ -10,403 +10,479 @@ import { useWishlist } from "@/lib/wishlist";
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const MAX_COMPARE_PROPERTIES = 3;
 const createSlug = (value) => {
-    return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/&/g, "and")
-        .replace(/[\/\\]+/g, "-")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[\/\\]+/g, "-")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 };
 
 export default function ComparePage() {
-    const { currency, unit, exchangeRates } = usePreferences();
-    const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
-    const [properties, setProperties] = useState([]);
-    const getId = (property) => {
-        return String(
-            property?.id || property?.rowId || property?.ROWID || property?.ID || "",
-        );
-    };
-    const isShortlisted = (property) => {
-        const propertyId = getId(property);
-
-        if (!propertyId) {
-            return false;
-        }
-
-        return wishlistIds.some((id) => String(id) === String(propertyId));
-    };
-
-    const toggleShortlist = (property) => {
-        const propertyId = getId(property);
-
-        if (!propertyId) {
-            return;
-        }
-
-        toggleWishlist(propertyId);
-    };
-    useEffect(() => {
-        let cancelled = false;
-        async function loadCompareProperties() {
-            try {
-                const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
-                if (!stored) {
-                    setProperties([]);
-                    return;
-                }
-
-                const parsed = JSON.parse(stored);
-                if (!Array.isArray(parsed)) {
-                    setProperties([]);
-                    return;
-                }
-
-                const selectedProperties = parsed
-                    .filter((property) => getId(property))
-                    .slice(-MAX_COMPARE_PROPERTIES);
-                if (selectedProperties.length === 0) {
-                    setProperties([]);
-                    return;
-                }
-                const incomplete = selectedProperties.some(
-                    (property) =>
-                        !(
-                            property?.name ||
-                            property?.Property_Name ||
-                            property?.propertyName
-                        ),
-                );
-
-                if (!incomplete) {
-                    setProperties(selectedProperties);
-                    return;
-                }
-                const response = await fetch("/api/properties", { cache: "no-store" });
-
-                const data = await response.json();
-
-                if (!response.ok || !data?.success || !Array.isArray(data.data)) {
-                    throw new Error(
-                        data?.error || "Failed to load comparison properties",
-                    );
-                }
-
-                if (cancelled) {
-                    return;
-                }
-
-                const propertyMap = new Map();
-
-                data.data.forEach((property) => {
-                    const id = getId(property);
-
-                    if (id) {
-                        propertyMap.set(id, property);
-                    }
-                });
-
-                const hydratedProperties = selectedProperties
-                    .map((storedProperty) => {
-                        const id = getId(storedProperty);
-                        return propertyMap.get(id) || storedProperty;
-                    })
-                    .filter(Boolean);
-
-                setProperties(hydratedProperties);
-                localStorage.setItem(
-                    COMPARE_STORAGE_KEY,
-                    JSON.stringify(hydratedProperties),
-                );
-            } catch (error) {
-                console.error("Unable to load comparison properties:", error);
-                setProperties([]);
-            }
-        }
-        loadCompareProperties();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    const getName = (property) => {
-        return (
-            property?.name ||
-            property?.Property_Name ||
-            property?.propertyName ||
-            property?.Name ||
-            "Property"
-        );
-    };
-
-    const getPropertySlug = (property) => {
-        const existingSlug =
-            property?.slug ||
-            property?.Slug ||
-            property?.propertySlug ||
-            property?.Property_Slug;
-
-        if (existingSlug) {
-            return String(existingSlug);
-        }
-
-        return createSlug(getName(property));
-    };
-
-    const getPropertyUrl = (property) => {
-        const id = getId(property);
-        const slug = getPropertySlug(property);
-
-        if (!id) {
-            return "/properties";
-        }
-
-        return `/properties/${encodeURIComponent(id)}/${encodeURIComponent(slug)}`;
-    };
-    const getImage = (property) => {
-        const folder = String(
-            property?.imageFolderPath || property?.ImageFolderPath || "",
-        )
-            .trim()
-            .replace(/^\/+|\/+$/g, "");
-
-        if (!folder) {
-            return "";
-        }
-
-        return `https://property-images.zohostratus.in/${folder}/Project_Picture_1.jpg`;
-    };
-
-    const removeProperty = (id) => {
-        const updatedProperties = properties.filter(
-            (property) => getId(property) !== String(id),
-        );
-
-        setProperties(updatedProperties);
-
-        if (updatedProperties.length === 0) {
-            localStorage.removeItem(COMPARE_STORAGE_KEY);
-            return;
-        }
-
-        localStorage.setItem(
-            COMPARE_STORAGE_KEY,
-            JSON.stringify(updatedProperties),
-        );
-    };
-    const rows = [
-        {
-            label: "City",
-            value: (property) => property?.city || property?.City || "-",
-        },
-
-        {
-            label: "Micromarket",
-            value: (property) =>
-                property?.micromarket ||
-                property?.Micromarket ||
-                property?.microMarket ||
-                "-",
-        },
-
-        {
-            label: "Area",
-            value: (property) => {
-                const area = property?.areaSqft ?? property?.area ?? null;
-
-                if (area === null || area === "" || area === undefined) {
-                    return "-";
-                }
-
-                const numericArea = Number(area);
-
-                if (!Number.isFinite(numericArea)) {
-                    return "-";
-                }
-
-                return formatArea(numericArea, unit);
-            },
-        },
-
-        {
-            label: "Seats",
-            value: (property) => property?.seats ?? property?.Seats ?? "-",
-        },
-
-        {
-            label: "Type",
-            value: (property) =>
-                property?.buildingType ||
-                property?.officeType ||
-                property?.propertyType ||
-                "-",
-        },
-    ];
-
-    return (
-        <main className="min-h-screen bg-slate-50 px-4 py-6 pb-20 sm:px-6 sm:py-8 lg:px-10">
-            <div className="mx-auto max-w-7xl">
-                <Link
-                    href="/properties"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-[#A054A0] cursor-pointer"
-                >
-                    <ArrowLeft className="h-4 w-4" /> Back to Properties
-                </Link>
-
-                <div className="mt-7 sm:mt-8">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A054A0] sm:text-xs">
-                        Property Comparison
-                    </p>
-
-                    <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
-                        Compare Properties
-                    </h1>
-
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
-                        Review the key details of your selected properties side by side.
-                    </p>
-                </div>
-                {properties.length === 0 ? (
-                    <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 text-center shadow-sm sm:mt-10 sm:p-10">
-                        <h2 className="text-xl font-semibold text-slate-900">
-                            No properties selected
-                        </h2>
-                        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                            Return to the property list and select up to three properties to
-                            compare.
-                        </p>
-                        <Link href="/properties" className="  mt-5 inline-flex items-center rounded-xl bg-[#A054A0] px-5 py-3    text-sm font-semibold text-white transition hover:bg-[#864286] cursor-pointer">
-                            Browse Properties
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:mt-10 sm:rounded-3xl">
-                        <section className="p-3 sm:p-5 lg:p-6">
-                            <div className={`grid grid-cols-1 gap-4 ${properties.length >= 2 ? "sm:grid-cols-2" : ""} ${properties.length >= 3 ? "lg:grid-cols-3" : ""}`}>
-                                {properties.map((property) => {
-                                    const propertyId = getId(property);
-                                    const propertyName = getName(property);
-                                    const imageUrl = getImage(property);
-                                    const propertyUrl = getPropertyUrl(property);
-                                    return (
-                                        <article key={propertyId} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-0.5 hover:border-[#A054A0]/30 hover:shadow-lg">
-                                            <Link href={propertyUrl} className="relative block h-48 overflow-hidden bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2 sm:h-52 lg:h-56"
-                                                aria-label={`View ${propertyName}`}>
-                                                {imageUrl ? (<Image src={imageUrl} alt={propertyName} fill sizes="(max-width: 640px) 100vw,(max-width: 1024px) 50vw, 33vw" priority className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" onError={(event) => { event.currentTarget.style.display = "none"; }}
-                                                />
-                                                ) : (
-                                                    <div className="flex h-48 items-center justify-center text-sm text-slate-400 sm:h-52 lg:h-56">
-                                                        Image unavailable
-                                                    </div>
-                                                )}
-
-                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                            </Link>
-                                            <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
-                                                <button type="button" onClick={() => toggleShortlist(property)} className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-md backdrop-blur transition hover:bg-white ${isShortlisted(property) ? "text-[#A054A0]" : "text-slate-600 hover:text-[#A054A0]"}`}
-                                                    aria-label={isShortlisted(property) ? `Remove ${propertyName} from shortlist` : `Add ${propertyName} to shortlist`}
-                                                    title={isShortlisted(property) ? "Remove from Shortlist" : "Add to Shortlist"}>
-                                                    <Heart className="h-4 w-4" fill={isShortlisted(property) ? "currentColor" : "none"} />
-                                                </button>
-                                                <button type="button" onClick={() => removeProperty(propertyId)} className=" inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-600 shadow-md backdrop-blur transition hover:bg-white hover:text-red-600" aria-label={`Remove ${propertyName} from compare`} title="Remove from Compare">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            </div>
-
-                                            <div className="p-4">
-                                                <Link href={propertyUrl} className="block">
-                                                    <h2 className="truncate text-lg font-bold text-slate-950 transition group-hover:text-[#A054A0]"> {propertyName}</h2>
-                                                </Link>
-
-                                                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
-                                                    <MapPin className="h-3.5 w-3.5 shrink-0" />
-                                                    <span className="truncate">{property?.city || property?.City || "-"}   </span>
-                                                </p>
-
-                                                <Link href={propertyUrl} className="mt-3 inline-flex text-xs font-semibold text-[#A054A0] transition hover:text-[#864286]">
-                                                    View Property
-                                                    <span className="ml-1">→</span>
-                                                </Link>
-                                            </div>
-                                        </article>
-                                    );
-                                })}
-                            </div>
-                        </section>
-
-                        <section className="border-t border-slate-200">
-                            {properties.length > 1 && (
-                                <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5 sm:hidden">
-                                    <span className="text-[11px] font-medium text-slate-500">
-                                        Swipe horizontally to compare
-                                    </span>
-
-                                    <span className="text-[11px] text-slate-400">
-                                        {properties.length} properties
-                                    </span>
-                                </div>
-                            )}
-
-                            <div className="relative w-full overflow-hidden">
-                                <div className="w-full overflow-x-auto overscroll-x-contain scrollbar-thin">
-                                    <div className={`${properties.length === 1 ? "min-w-[365px]" : properties.length === 2 ? "min-w-[760px]" : "min-w-[1000px]"} sm:min-w-0`}>
-                                        <div className={`grid border-b border-slate-200 bg-white ${properties.length === 1 ? "grid-cols-[110px_minmax(255px,1fr)]" : properties.length === 2 ? "grid-cols-[110px_repeat(2,minmax(240px,1fr))]" : "grid-cols-[110px_repeat(3,minmax(240px,1fr))]"
-                                            } ${properties.length === 1 ? "grid-cols-[180px_minmax(0,1fr)]" : properties.length === 2 ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
-                                                : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"}`}>
-                                            <div className="sticky left-0 z-30 flex items-center bg-slate-50 px-3 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-r border-slate-200 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.35)] sm:px-6">
-                                                Details
-                                            </div>
-                                            {properties.map((property) => (
-                                                <Link key={`header-${getId(property)}`} href={getPropertyUrl(property)}
-                                                    className="min-w-0 border-l border-slate-100 bg-white px-4 py-4   text-sm font-semibold text-slate-800 transition hover:text-[#A054A0] sm:px-6">
-                                                    <span className="block truncate">
-                                                        {getName(property)}
-                                                    </span>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                        {rows.map((row) => (
-                                            <div
-                                                key={row.label}
-                                                className={`grid border-b border-slate-100 last:border-b-0
-                            ${properties.length === 1
-                                                        ? "grid-cols-[110px_minmax(255px,1fr)]"
-                                                        : properties.length === 2
-                                                            ? "grid-cols-[110px_repeat(2,minmax(240px,1fr))]"
-                                                            : "grid-cols-[110px_repeat(3,minmax(240px,1fr))]"
-                                                    }
-
-                            sm:${properties.length === 1
-                                                        ? "grid-cols-[180px_minmax(0,1fr)]"
-                                                        : properties.length === 2
-                                                            ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
-                                                            : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
-                                                    }`}>
-
-                                                <div className="sticky left-0 z-20 flex min-h-[58px] bg-slate-50 px-3 py-4 border-r border-slate-200 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.45)] text-[10px] font-bold uppercase tracking-wide text-slate-500 sm:px-6 sm:text-xs">
-                                                    <span className="truncate">{row.label}</span>
-                                                </div>
-                                                {properties.map((property) => (
-                                                    <div key={`${row.label}-${getId(property)}`} className="flex min-h-[58px] min-w-0 items-center border-l border-slate-100 bg-white px-4 py-4 text-sm font-medium text-slate-800 sm:px-6">
-                                                        <span className="truncate">{row.value(property)}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                )}
-
-                {properties.length > 1 && (
-                    <p className="mt-3 text-center text-[11px] text-slate-400 sm:hidden">
-                        ← Swipe left or right to compare property details →
-                    </p>
-                )}
-            </div>
-        </main>
+  const { currency, unit, exchangeRates } = usePreferences();
+  const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
+  const [properties, setProperties] = useState([]);
+  const getId = (property) => {
+    return String(
+      property?.id || property?.rowId || property?.ROWID || property?.ID || "",
     );
+  };
+  const isShortlisted = (property) => {
+    const propertyId = getId(property);
+
+    if (!propertyId) {
+      return false;
+    }
+
+    return wishlistIds.some((id) => String(id) === String(propertyId));
+  };
+
+  const toggleShortlist = (property) => {
+    const propertyId = getId(property);
+
+    if (!propertyId) {
+      return;
+    }
+
+    toggleWishlist(propertyId);
+  };
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCompareProperties() {
+      try {
+        const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
+        if (!stored) {
+          setProperties([]);
+          return;
+        }
+
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) {
+          setProperties([]);
+          return;
+        }
+
+        const selectedProperties = parsed
+          .filter((property) => getId(property))
+          .slice(-MAX_COMPARE_PROPERTIES);
+        if (selectedProperties.length === 0) {
+          setProperties([]);
+          return;
+        }
+        const incomplete = selectedProperties.some(
+          (property) =>
+            !(
+              property?.name ||
+              property?.Property_Name ||
+              property?.propertyName
+            ),
+        );
+
+        if (!incomplete) {
+          setProperties(selectedProperties);
+          return;
+        }
+        const response = await fetch("/api/properties", { cache: "no-store" });
+
+        const data = await response.json();
+
+        if (!response.ok || !data?.success || !Array.isArray(data.data)) {
+          throw new Error(
+            data?.error || "Failed to load comparison properties",
+          );
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        const propertyMap = new Map();
+
+        data.data.forEach((property) => {
+          const id = getId(property);
+
+          if (id) {
+            propertyMap.set(id, property);
+          }
+        });
+
+        const hydratedProperties = selectedProperties
+          .map((storedProperty) => {
+            const id = getId(storedProperty);
+            return propertyMap.get(id) || storedProperty;
+          })
+          .filter(Boolean);
+
+        setProperties(hydratedProperties);
+        localStorage.setItem(
+          COMPARE_STORAGE_KEY,
+          JSON.stringify(hydratedProperties),
+        );
+      } catch (error) {
+        console.error("Unable to load comparison properties:", error);
+        setProperties([]);
+      }
+    }
+    loadCompareProperties();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const getName = (property) => {
+    return (
+      property?.name ||
+      property?.Property_Name ||
+      property?.propertyName ||
+      property?.Name ||
+      "Property"
+    );
+  };
+
+  const getPropertySlug = (property) => {
+    const existingSlug =
+      property?.slug ||
+      property?.Slug ||
+      property?.propertySlug ||
+      property?.Property_Slug;
+
+    if (existingSlug) {
+      return String(existingSlug);
+    }
+
+    return createSlug(getName(property));
+  };
+
+  const getPropertyUrl = (property) => {
+    const id = getId(property);
+    const slug = getPropertySlug(property);
+
+    if (!id) {
+      return "/properties";
+    }
+
+    return `/properties/${encodeURIComponent(id)}/${encodeURIComponent(slug)}`;
+  };
+  const getImage = (property) => {
+    const folder = String(
+      property?.imageFolderPath || property?.ImageFolderPath || "",
+    )
+      .trim()
+      .replace(/^\/+|\/+$/g, "");
+
+    if (!folder) {
+      return "";
+    }
+
+    return `https://property-images.zohostratus.in/${folder}/Project_Picture_1.jpg`;
+  };
+
+  const removeProperty = (id) => {
+    const updatedProperties = properties.filter(
+      (property) => getId(property) !== String(id),
+    );
+
+    setProperties(updatedProperties);
+
+    if (updatedProperties.length === 0) {
+      localStorage.removeItem(COMPARE_STORAGE_KEY);
+      return;
+    }
+
+    localStorage.setItem(
+      COMPARE_STORAGE_KEY,
+      JSON.stringify(updatedProperties),
+    );
+  };
+  const rows = [
+    {
+      label: "City",
+      value: (property) => property?.city || property?.City || "-",
+    },
+
+    {
+      label: "Micromarket",
+      value: (property) =>
+        property?.micromarket ||
+        property?.Micromarket ||
+        property?.microMarket ||
+        "-",
+    },
+
+    {
+      label: "Area",
+      value: (property) => {
+        const area = property?.areaSqft ?? property?.area ?? null;
+
+        if (area === null || area === "" || area === undefined) {
+          return "-";
+        }
+
+        const numericArea = Number(area);
+
+        if (!Number.isFinite(numericArea)) {
+          return "-";
+        }
+
+        return formatArea(numericArea, unit);
+      },
+    },
+
+    {
+      label: "Seats",
+      value: (property) => property?.seats ?? property?.Seats ?? "-",
+    },
+
+    {
+      label: "Type",
+      value: (property) =>
+        property?.buildingType ||
+        property?.officeType ||
+        property?.propertyType ||
+        "-",
+    },
+  ];
+
+  return (
+    <main className="min-h-screen bg-slate-50 px-4 py-6 pb-20 sm:px-6 sm:py-8 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <Link
+          href="/properties"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-[#A054A0] cursor-pointer"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to Properties
+        </Link>
+
+        <div className="mt-7 sm:mt-8">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A054A0] sm:text-xs">
+            Property Comparison
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            Compare Properties
+          </h1>
+
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+            Review the key details of your selected properties side by side.
+          </p>
+        </div>
+        {properties.length === 0 ? (
+          <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 text-center shadow-sm sm:mt-10 sm:p-10">
+            <h2 className="text-xl font-semibold text-slate-900">
+              No properties selected
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+              Return to the property list and select up to three properties to
+              compare.
+            </p>
+            <Link
+              href="/properties"
+              className="  mt-5 inline-flex items-center rounded-xl bg-[#A054A0] px-5 py-3    text-sm font-semibold text-white transition hover:bg-[#864286] cursor-pointer"
+            >
+              Browse Properties
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:mt-10 sm:rounded-3xl">
+            <section className="p-3 sm:p-5 lg:p-6">
+              <div
+                className={`grid grid-cols-1 gap-4 ${properties.length >= 2 ? "sm:grid-cols-2" : ""} ${properties.length >= 3 ? "lg:grid-cols-3" : ""}`}
+              >
+                {properties.map((property) => {
+                  const propertyId = getId(property);
+                  const propertyName = getName(property);
+                  const imageUrl = getImage(property);
+                  const propertyUrl = getPropertyUrl(property);
+                  return (
+                    <article
+                      key={propertyId}
+                      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition duration-300 hover:-translate-y-0.5 hover:border-[#A054A0]/30 hover:shadow-lg"
+                    >
+                      <Link
+                        href={propertyUrl}
+                        className="relative block h-48 overflow-hidden bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2 sm:h-52 lg:h-56"
+                        aria-label={`View ${propertyName}`}
+                      >
+                        {imageUrl ? (
+                          <Image
+                            src={imageUrl}
+                            alt={propertyName}
+                            fill
+                            sizes="(max-width: 640px) 100vw,(max-width: 1024px) 50vw, 33vw"
+                            priority
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="flex h-48 items-center justify-center text-sm text-slate-400 sm:h-52 lg:h-56">
+                            Image unavailable
+                          </div>
+                        )}
+
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      </Link>
+                      <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleShortlist(property)}
+                          className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-md backdrop-blur transition hover:bg-white ${isShortlisted(property) ? "text-[#A054A0]" : "text-slate-600 hover:text-[#A054A0]"}`}
+                          aria-label={
+                            isShortlisted(property)
+                              ? `Remove ${propertyName} from shortlist`
+                              : `Add ${propertyName} to shortlist`
+                          }
+                          title={
+                            isShortlisted(property)
+                              ? "Remove from Shortlist"
+                              : "Add to Shortlist"
+                          }
+                        >
+                          <Heart
+                            className="h-4 w-4"
+                            fill={
+                              isShortlisted(property) ? "currentColor" : "none"
+                            }
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeProperty(propertyId)}
+                          className=" inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-600 shadow-md backdrop-blur transition hover:bg-white hover:text-red-600"
+                          aria-label={`Remove ${propertyName} from compare`}
+                          title="Remove from Compare"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="p-4">
+                        <Link href={propertyUrl} className="block">
+                          <h2 className="truncate text-lg font-bold text-slate-950 transition group-hover:text-[#A054A0]">
+                            {" "}
+                            {propertyName}
+                          </h2>
+                        </Link>
+
+                        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+                          <MapPin className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">
+                            {property?.city || property?.City || "-"}{" "}
+                          </span>
+                        </p>
+
+                        <Link
+                          href={propertyUrl}
+                          className="mt-3 inline-flex text-xs font-semibold text-[#A054A0] transition hover:text-[#864286]"
+                        >
+                          View Property
+                          <span className="ml-1">→</span>
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="border-t border-slate-200">
+              {properties.length > 1 && (
+                <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5 sm:hidden">
+                  <span className="text-[11px] font-medium text-slate-500">
+                    Swipe horizontally to compare
+                  </span>
+
+                  <span className="text-[11px] text-slate-400">
+                    {properties.length} properties
+                  </span>
+                </div>
+              )}
+
+              <div className="relative w-full overflow-hidden">
+                <div className="w-full overflow-x-auto overscroll-x-contain scrollbar-thin">
+                  <div
+                    className={`${properties.length === 1 ? "min-w-[365px]" : properties.length === 2 ? "min-w-[760px]" : "min-w-[1000px]"} sm:min-w-0`}
+                  >
+                    <div
+                      className={`grid border-b border-slate-200 bg-white ${
+                        properties.length === 1
+                          ? "grid-cols-[110px_minmax(255px,1fr)]"
+                          : properties.length === 2
+                            ? "grid-cols-[110px_repeat(2,minmax(240px,1fr))]"
+                            : "grid-cols-[110px_repeat(3,minmax(240px,1fr))]"
+                      } ${
+                        properties.length === 1
+                          ? "grid-cols-[180px_minmax(0,1fr)]"
+                          : properties.length === 2
+                            ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
+                            : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
+                      }`}
+                    >
+                      <div className="sticky left-0 z-30 flex items-center bg-slate-50 px-3 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-r border-slate-200 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.35)] sm:px-6">
+                        Details
+                      </div>
+                      {properties.map((property) => (
+                        <Link
+                          key={`header-${getId(property)}`}
+                          href={getPropertyUrl(property)}
+                          className="min-w-0 border-l border-slate-100 bg-white px-4 py-4   text-sm font-semibold text-slate-800 transition hover:text-[#A054A0] sm:px-6"
+                        >
+                          <span className="block truncate">
+                            {getName(property)}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                    {rows.map((row) => (
+                      <div
+                        key={row.label}
+                        className={`grid border-b border-slate-100 last:border-b-0
+                            ${
+                              properties.length === 1
+                                ? "grid-cols-[110px_minmax(255px,1fr)]"
+                                : properties.length === 2
+                                  ? "grid-cols-[110px_repeat(2,minmax(240px,1fr))]"
+                                  : "grid-cols-[110px_repeat(3,minmax(240px,1fr))]"
+                            }
+
+                            sm:${
+                              properties.length === 1
+                                ? "grid-cols-[180px_minmax(0,1fr)]"
+                                : properties.length === 2
+                                  ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
+                                  : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
+                            }`}
+                      >
+                        <div className="sticky left-0 z-20 flex min-h-[58px] bg-slate-50 px-3 py-4 border-r border-slate-200 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.45)] text-[10px] font-bold uppercase tracking-wide text-slate-500 sm:px-6 sm:text-xs">
+                          <span className="truncate">{row.label}</span>
+                        </div>
+                        {properties.map((property) => (
+                          <div
+                            key={`${row.label}-${getId(property)}`}
+                            className="flex min-h-[58px] min-w-0 items-center border-l border-slate-100 bg-white px-4 py-4 text-sm font-medium text-slate-800 sm:px-6"
+                          >
+                            <span className="truncate">
+                              {row.value(property)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {properties.length > 1 && (
+          <p className="mt-3 text-center text-[11px] text-slate-400 sm:hidden">
+            ← Swipe left or right to compare property details →
+          </p>
+        )}
+      </div>
+    </main>
+  );
 }

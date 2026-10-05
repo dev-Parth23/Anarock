@@ -54,8 +54,8 @@ async function generateZohoAccessToken() {
   if (!response.ok) {
     throw new Error(
       data?.error_description ||
-      data?.error ||
-      `Unable to generate Zoho access token. HTTP ${response.status}`,
+        data?.error ||
+        `Unable to generate Zoho access token. HTTP ${response.status}`,
     );
   }
 
@@ -109,7 +109,6 @@ function isValidCityName(value) {
   return /^[\p{L}\p{N} .'-]{1,100}$/u.test(value);
 }
 
-
 async function findCityId(tokenInfo, cityName) {
   const cleanCity = normalizeCityName(cityName);
 
@@ -134,9 +133,7 @@ async function findCityId(tokenInfo, cityName) {
   });
 
   if (response.status === 401) {
-    const error = new Error(
-      "Zoho access token expired while searching City.",
-    );
+    const error = new Error("Zoho access token expired while searching City.");
 
     error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
 
@@ -150,18 +147,14 @@ async function findCityId(tokenInfo, cityName) {
   try {
     data = responseText ? JSON.parse(responseText) : {};
   } catch {
-    throw new Error(
-      `Invalid response from Zoho City search: ${responseText}`,
-    );
+    throw new Error(`Invalid response from Zoho City search: ${responseText}`);
   }
 
   if (response.status === 204 || !response.ok) {
     return null;
   }
 
-  const records = Array.isArray(data?.data)
-    ? data.data
-    : [];
+  const records = Array.isArray(data?.data) ? data.data : [];
 
   const exactCity = records.find(
     (record) =>
@@ -308,10 +301,10 @@ export async function POST(request) {
     const company = String(body?.company || "").trim();
     const requirementDetails = String(
       body?.requirementDetails ||
-      body?.Requirement_Details ||
-      body?.message ||
-      body?.description ||
-      "",
+        body?.Requirement_Details ||
+        body?.message ||
+        body?.description ||
+        "",
     ).trim();
     const location = body?.location || {};
     const street = String(
@@ -324,11 +317,11 @@ export async function POST(request) {
 
     const province = String(
       body?.Province ||
-      body?.province ||
-      body?.state ||
-      location?.province ||
-      location?.state ||
-      "",
+        body?.province ||
+        body?.state ||
+        location?.province ||
+        location?.state ||
+        "",
     ).trim();
 
     const country = String(
@@ -337,12 +330,12 @@ export async function POST(request) {
 
     const postalCode = String(
       body?.Postal_Code ||
-      body?.PostalCode ||
-      body?.postalCode ||
-      body?.pincode ||
-      location?.postalCode ||
-      location?.pincode ||
-      "",
+        body?.PostalCode ||
+        body?.postalCode ||
+        body?.pincode ||
+        location?.postalCode ||
+        location?.pincode ||
+        "",
     ).trim();
     const rawRequirementCity = String(
       body?.requirementCity || body?.Requirement_City || "",
@@ -400,27 +393,27 @@ export async function POST(request) {
         Zip_Code: postalCode || undefined,
         ...(requirementType === "Managed Office/Co-working"
           ? {
-            Requirement_Seats:
-              body?.Requirement_Seats !== undefined
-                ? Number(body.Requirement_Seats)
-                : undefined,
+              Requirement_Seats:
+                body?.Requirement_Seats !== undefined
+                  ? Number(body.Requirement_Seats)
+                  : undefined,
 
-            Requirement_Seat_Price:
-              body?.Requirement_Seat_Price !== undefined
-                ? Number(body.Requirement_Seat_Price)
-                : undefined,
-          }
+              Requirement_Seat_Price:
+                body?.Requirement_Seat_Price !== undefined
+                  ? Number(body.Requirement_Seat_Price)
+                  : undefined,
+            }
           : {
-            Requirement_Area:
-              body?.Requirement_Area !== undefined
-                ? Number(body.Requirement_Area)
-                : undefined,
+              Requirement_Area:
+                body?.Requirement_Area !== undefined
+                  ? Number(body.Requirement_Area)
+                  : undefined,
 
-            Requirement_Rent:
-              body?.Requirement_Rent !== undefined
-                ? Number(body.Requirement_Rent)
-                : undefined,
-          }),
+              Requirement_Rent:
+                body?.Requirement_Rent !== undefined
+                  ? Number(body.Requirement_Rent)
+                  : undefined,
+            }),
       };
       if (email) {
         recordData.Email = email;

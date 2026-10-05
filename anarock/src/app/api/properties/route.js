@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { getPropertiesTable } from "@/lib/catalyst";
 import { mapProperty } from "@/lib/propertyMapper";
 
@@ -109,11 +110,11 @@ async function fetchAllProperties() {
     throw error;
   }
 }
-function startRefresh() {
+const getCachedProperties = unstable_cache(\n  fetchAllProperties,\n  ["anarock-properties-v1"],\n  { revalidate: Math.max(30, Number(process.env.PROPERTIES_CACHE_TTL || "300")) },\n);\n\nfunction startRefresh() {
   if (state.fetchPromise) {
     return state.fetchPromise;
   }
-  state.fetchPromise = fetchAllProperties()
+  state.fetchPromise = getCachedProperties()
     .then((properties) => {
       state.data = properties;
       state.timestamp = Date.now();
@@ -470,7 +471,7 @@ export async function GET(request) {
         total: filtered.length,
         cachedAt: state.timestamp,
       },
-      { headers: { "Cache-Control": "no-store" } },
+      { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300" } },
     );
   } catch (error) {
     console.error("========================================");
@@ -492,35 +493,15 @@ export async function GET(request) {
     console.error("[Properties API] ERROR STATUS:", error?.status);
     console.error("[Properties API] ERROR STACK:", error?.stack);
     console.error("========================================");
-    let errorMessage = "Failed to fetch properties";
-    if (typeof error === "string") {
-      errorMessage = error;
-    } else if (error && typeof error === "object") {
-      errorMessage =
-        error.message ||
-        error.error ||
-        error.description ||
-        error.detail ||
-        error.reason ||
-        (() => {
-          try {
-            return JSON.stringify(error);
-          } catch {
-            return "Unknown Catalyst error";
-          }
-        })();
-    } else if (error != null) {
-      errorMessage = String(error);
-    }
     return NextResponse.json(
       {
         success: false,
-        error: errorMessage,
-        errorName: error?.name || null,
-        errorCode: error?.code || null,
-        errorStatus: error?.status || null,
+        error: "Unable to fetch properties right now.",
       },
-      { status: 500 },
+      {
+        status: 500,
+        headers: { "Cache-Control": "no-store" },
+      },
     );
   }
 }

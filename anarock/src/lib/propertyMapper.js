@@ -26,8 +26,6 @@ export function mapProperty(row) {
   if (!row || typeof row !== "object") {
     return null;
   }
-
-  console.log("row of property", row);
   const folder = folderPath(row.ImageFolderPath);
   return {
     ...row,

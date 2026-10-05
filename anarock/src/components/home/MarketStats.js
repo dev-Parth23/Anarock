@@ -7,37 +7,29 @@ const STAT_CONFIG = [
   {
     key: "totalStock",
     label: "Total Stock",
-    description:
-      "Total registered commercial stock across tracked markets.",
+    description: "Total registered commercial stock across tracked markets.",
   },
   {
     key: "totalVacancy",
     label: "Total Vacancy",
-    description:
-      "Available commercial spaces across the tracked markets.",
+    description: "Available commercial spaces across the tracked markets.",
   },
   {
     key: "totalAvailableSpace",
     label: "Total Available Space",
-    description:
-      "Commercial space currently available for occupation.",
+    description: "Commercial space currently available for occupation.",
   },
   {
     key: "areaTransacted",
     label: "Area Transacted",
-    description:
-      "Total area recorded through market transactions.",
+    description: "Total area recorded through market transactions.",
   },
 ];
 
 const SQFT_TO_SQM = 0.09290304;
 
 function formatArea(num, unit) {
-  if (
-    num === null ||
-    num === undefined ||
-    Number.isNaN(Number(num))
-  ) {
+  if (num === null || num === undefined || Number.isNaN(Number(num))) {
     return "—";
   }
 
@@ -71,23 +63,14 @@ function formatArea(num, unit) {
   })} ${suffix}`;
 }
 
-function AnimatedNumber({
-  value,
-  unit,
-  startAnimation,
-  delay = 0,
-}) {
+function AnimatedNumber({ value, unit, startAnimation, delay = 0 }) {
   const [animatedValue, setAnimatedValue] = useState(0);
 
   const animationRef = useRef(null);
   const timeoutRef = useRef(null);
 
   useEffect(() => {
-    if (
-      value === null ||
-      value === undefined ||
-      Number.isNaN(Number(value))
-    ) {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
       return;
     }
 
@@ -135,30 +118,23 @@ function AnimatedNumber({
 
       const elapsed = currentTime - startTime;
 
-      const progress = Math.min(
-        elapsed / duration,
-        1,
-      );
+      const progress = Math.min(elapsed / duration, 1);
 
-      const easedProgress =
-        1 - Math.pow(1 - progress, 4);
+      const easedProgress = 1 - Math.pow(1 - progress, 4);
 
-      const currentValue =
-        target * easedProgress;
+      const currentValue = target * easedProgress;
 
       setAnimatedValue(currentValue);
 
       if (progress < 1) {
-        animationRef.current =
-          requestAnimationFrame(animate);
+        animationRef.current = requestAnimationFrame(animate);
       } else {
         setAnimatedValue(target);
       }
     };
 
     timeoutRef.current = setTimeout(() => {
-      animationRef.current =
-        requestAnimationFrame(animate);
+      animationRef.current = requestAnimationFrame(animate);
     }, delay);
 
     return () => {
@@ -167,9 +143,7 @@ function AnimatedNumber({
       }
 
       if (animationRef.current) {
-        cancelAnimationFrame(
-          animationRef.current,
-        );
+        cancelAnimationFrame(animationRef.current);
       }
     };
   }, [value, startAnimation, delay]);
@@ -184,8 +158,7 @@ export default function MarketStats() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [startAnimation, setStartAnimation] =
-    useState(false);
+  const [startAnimation, setStartAnimation] = useState(false);
 
   const statsRef = useRef(null);
 
@@ -223,9 +196,9 @@ export default function MarketStats() {
   /*
    * Load market statistics.
    *
-   * IMPORTANT:
-   * Do NOT put useEffect inside loadStats().
-   * Hooks must only be called at the component level.
+   * The API already handles server-side caching,
+   * so we intentionally do not poll every few hours
+   * from every user's browser.
    */
   useEffect(() => {
     let isActive = true;
@@ -235,26 +208,18 @@ export default function MarketStats() {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(
-          "/api/market-stats",
-          {
-            cache: "no-store",
-          },
-        );
+        const res = await fetch("/api/market-stats", {
+          cache: "no-store",
+        });
 
         if (!res.ok) {
-          throw new Error(
-            `Request failed with status ${res.status}`,
-          );
+          throw new Error(`Request failed with status ${res.status}`);
         }
 
         const data = await res.json();
 
         if (!data?.success) {
-          throw new Error(
-            data?.error ||
-            "Failed to load market stats",
-          );
+          throw new Error(data?.error || "Failed to load market stats");
         }
 
         if (isActive) {
@@ -262,10 +227,7 @@ export default function MarketStats() {
         }
       } catch (err) {
         if (isActive) {
-          setError(
-            err?.message ||
-            "Failed to load market stats",
-          );
+          setError(err?.message || "Failed to load market stats");
         }
       } finally {
         if (isActive) {
@@ -276,17 +238,8 @@ export default function MarketStats() {
 
     loadStats();
 
-    /*
-     * Refresh every 12 hours.
-     */
-    const interval = setInterval(
-      loadStats,
-      12 * 60 * 60 * 1000,
-    );
-
     return () => {
       isActive = false;
-      clearInterval(interval);
     };
   }, []);
 
@@ -306,11 +259,10 @@ export default function MarketStats() {
       "
     >
       <div className="grid grid-cols-2 lg:grid-cols-4">
-        {STAT_CONFIG.map(
-          ({ key, label, description }, i) => (
-            <div
-              key={key}
-              className={`
+        {STAT_CONFIG.map(({ key, label, description }, i) => (
+          <div
+            key={key}
+            className={`
                 group
                 relative
                 flex
@@ -330,35 +282,26 @@ export default function MarketStats() {
                 duration-300
                 hover:bg-slate-50/60
 
-                ${i % 2 !== 0
-                  ? "border-l border-slate-200/80"
-                  : ""
-                }
+                ${i % 2 !== 0 ? "border-l border-slate-200/80" : ""}
 
-                ${i >= 2
-                  ? "border-t border-slate-200/80 lg:border-t-0"
-                  : ""
-                }
+                ${i >= 2 ? "border-t border-slate-200/80 lg:border-t-0" : ""}
 
-                ${i > 0
-                  ? "lg:border-l lg:border-slate-200/80"
-                  : ""
-                }
+                ${i > 0 ? "lg:border-l lg:border-slate-200/80" : ""}
               `}
-            >
-              <div className="flex flex-col gap-2.5 sm:gap-3">
-                <div
-                  className="
+          >
+            <div className="flex flex-col gap-2.5 sm:gap-3">
+              <div
+                className="
                     flex
                     min-h-[2.5rem]
                     items-center
                     sm:min-h-[3.25rem]
                     lg:min-h-[3.75rem]
                   "
-                >
-                  {loading ? (
-                    <div
-                      className="
+              >
+                {loading ? (
+                  <div
+                    className="
                         h-8
                         w-28
                         animate-pulse
@@ -369,21 +312,21 @@ export default function MarketStats() {
                         lg:h-12
                         lg:w-40
                       "
-                    />
-                  ) : error ? (
-                    <span
-                      className="
+                  />
+                ) : error ? (
+                  <span
+                    className="
                         text-xs
                         font-medium
                         text-slate-400
                         sm:text-sm
                       "
-                    >
-                      Unavailable
-                    </span>
-                  ) : (
-                    <div
-                      className="
+                  >
+                    Unavailable
+                  </span>
+                ) : (
+                  <div
+                    className="
                         min-w-0
                         truncate
                         text-lg
@@ -398,19 +341,19 @@ export default function MarketStats() {
                         lg:text-2xl
                         xl:text-3xl
                       "
-                    >
-                      <AnimatedNumber
-                        value={stats?.[key]}
-                        unit={unit}
-                        startAnimation={startAnimation}
-                        delay={i * 120}
-                      />
-                    </div>
-                  )}
-                </div>
+                  >
+                    <AnimatedNumber
+                      value={stats?.[key]}
+                      unit={unit}
+                      startAnimation={startAnimation}
+                      delay={i * 120}
+                    />
+                  </div>
+                )}
+              </div>
 
-                <h3
-                  className="
+              <h3
+                className="
                     text-xs
                     font-semibold
                     tracking-tight
@@ -418,13 +361,13 @@ export default function MarketStats() {
                     min-[400px]:text-sm
                     sm:text-base
                   "
-                >
-                  {label}
-                </h3>
-              </div>
+              >
+                {label}
+              </h3>
+            </div>
 
-              <p
-                className="
+            <p
+              className="
                   mt-4
                   max-w-[260px]
                   text-[11px]
@@ -434,12 +377,11 @@ export default function MarketStats() {
                   sm:text-xs
                   sm:leading-relaxed
                 "
-              >
-                {description}
-              </p>
-            </div>
-          ),
-        )}
+            >
+              {description}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );

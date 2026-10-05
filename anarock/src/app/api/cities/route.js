@@ -1,241 +1,314 @@
+// import { NextResponse } from "next/server";
+
+// export const dynamic = "force-dynamic";
+// export const runtime = "nodejs";
+
+// const ACCOUNTS_URL =
+//   process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
+
+// const DEFAULT_API_URL =
+//   process.env.ZOHO_API_URL || "https://www.zohoapis.in";
+
+// const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
+// const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
+// const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
+
+// let zohoTokenCache = {
+//   accessToken: null,
+//   expiresAt: 0,
+//   apiDomain: DEFAULT_API_URL,
+// };
+
+// let tokenGenerationPromise = null;
+// async function generateZohoAccessToken() {
+//   if (!CLIENT_ID) {
+//     throw new Error("ZOHO_CLIENT_ID is missing from .env.local");
+//   }
+
+//   if (!CLIENT_SECRET) {
+//     throw new Error("ZOHO_CLIENT_SECRET is missing from .env.local");
+//   }
+
+//   if (!REFRESH_TOKEN) {
+//     throw new Error("ZOHO_REFRESH_TOKEN is missing from .env.local");
+//   }
+
+//   const tokenUrl = `${ACCOUNTS_URL}/oauth/v2/token`;
+
+//   const params = new URLSearchParams();
+
+//   params.set("refresh_token", REFRESH_TOKEN.trim());
+//   params.set("client_id", CLIENT_ID.trim());
+//   params.set("client_secret", CLIENT_SECRET.trim());
+//   params.set("grant_type", "refresh_token");
+
+//   const response = await fetch(tokenUrl, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/x-www-form-urlencoded",
+//     },
+//     body: params.toString(),
+//     cache: "no-store",
+//   });
+
+//   const responseText = await response.text();
+
+//   let data = {};
+
+//   try {
+//     data = responseText ? JSON.parse(responseText) : {};
+//   } catch {
+//     throw new Error(
+//       `Zoho OAuth returned invalid response: ${responseText}`,
+//     );
+//   }
+
+//   if (!response.ok) {
+//     throw new Error(
+//       data?.error_description ||
+//       data?.error ||
+//       `Unable to generate Zoho access token. HTTP ${response.status}`,
+//     );
+//   }
+
+//   if (!data?.access_token) {
+//     throw new Error("Zoho did not return an access token.");
+//   }
+
+//   const expiresInSeconds = Number(data.expires_in) || 3600;
+//   const refreshAfterMilliseconds = Math.min(
+//     59 * 60 * 1000,
+//     Math.max(60, expiresInSeconds - 60) * 1000,
+//   );
+
+//   const apiDomain = String(
+//     data.api_domain || DEFAULT_API_URL,
+//   ).replace(/\/$/, "");
+
+//   zohoTokenCache = {
+//     accessToken: data.access_token,
+//     expiresAt: Date.now() + refreshAfterMilliseconds,
+//     apiDomain,
+//   };
+
+//   return zohoTokenCache;
+// }
+
+// async function getZohoAccessToken(forceRefresh = false) {
+
+//   if (
+//     !forceRefresh &&
+//     zohoTokenCache.accessToken &&
+//     zohoTokenCache.expiresAt > Date.now()
+//   ) {
+//     return zohoTokenCache;
+//   }
+
+//   if (tokenGenerationPromise) {
+//     return tokenGenerationPromise;
+//   }
+
+//   tokenGenerationPromise = generateZohoAccessToken();
+
+//   try {
+//     return await tokenGenerationPromise;
+//   } finally {
+//     tokenGenerationPromise = null;
+//   }
+// }
+
+// async function fetchCities(tokenInfo) {
+//   const url =
+//     `${tokenInfo.apiDomain}/crm/v8/City` +
+//     "?fields=id,Name";
+
+//   const response = await fetch(url, {
+//     method: "GET",
+//     headers: {
+//       Authorization: `Zoho-oauthtoken ${tokenInfo.accessToken}`,
+//       Accept: "application/json",
+//     },
+//     cache: "no-store",
+//   });
+
+//   const responseText = await response.text();
+
+//   let data = {};
+
+//   try {
+//     data = responseText ? JSON.parse(responseText) : {};
+//   } catch {
+//     throw new Error(
+//       `Invalid response from Zoho City module: ${responseText}`,
+//     );
+//   }
+
+//   if (response.status === 401) {
+//     const error = new Error("Zoho access token expired.");
+//     error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
+//     throw error;
+//   }
+
+//   if (!response.ok) {
+//     const error = new Error(
+//       data?.data?.[0]?.message ||
+//       data?.message ||
+//       `Unable to fetch cities from Zoho CRM. HTTP ${response.status}`,
+//     );
+
+//     error.status = response.status;
+
+//     throw error;
+//   }
+
+//   const cities = Array.isArray(data?.data)
+//     ? data.data
+//       .map((record) => record?.Name)
+//       .filter(Boolean)
+//     : [];
+
+//   return cities;
+// }
+
+// export async function GET() {
+//   try {
+//     let tokenInfo = await getZohoAccessToken();
+
+//     try {
+//       const cities = await fetchCities(tokenInfo);
+
+//       return NextResponse.json(
+//         {
+//           success: true,
+//           cities,
+//         },
+//         {
+//           status: 200,
+//           headers: {
+//             "Cache-Control": "no-store",
+//           },
+//         },
+//       );
+//     } catch (error) {
+//       /*
+//        * If the access token has expired, refresh it once and retry.
+//        */
+//       if (error?.code === "ZOHO_ACCESS_TOKEN_EXPIRED") {
+//         tokenInfo = await getZohoAccessToken(true);
+
+//         const cities = await fetchCities(tokenInfo);
+
+//         return NextResponse.json(
+//           {
+//             success: true,
+//             cities,
+//           },
+//           {
+//             status: 200,
+//             headers: {
+//               "Cache-Control": "no-store",
+//             },
+//           },
+//         );
+//       }
+
+//       throw error;
+//     }
+//   } catch (error) {
+//     console.error("Cities API error:", {
+//       message: error?.message,
+//       status: error?.status,
+//       stack: error?.stack,
+//     });
+
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         message:
+//           error?.message ||
+//           "Unable to fetch cities.",
+//       },
+//       {
+//         status: 500,
+//         headers: {
+//           "Cache-Control": "no-store",
+//         },
+//       },
+//     );
+//   }
+// }
 import { NextResponse } from "next/server";
+import { getZohoAccessToken, zohoFetch } from "@/lib/zoho";
+import { getOrFetchCache } from "@/lib/cache";
 
-export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-const ACCOUNTS_URL =
-  process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
+const CACHE_TTL = Number(process.env.CITIES_CACHE_TTL || "21600") * 1000;
 
-const DEFAULT_API_URL =
-  process.env.ZOHO_API_URL || "https://www.zohoapis.in";
+async function fetchCities() {
+  const tokenInfo = await getZohoAccessToken();
 
-const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
-const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
-const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
+  const url = `${tokenInfo.apiDomain}/crm/v8/City` + "?fields=id,Name";
 
-let zohoTokenCache = {
-  accessToken: null,
-  expiresAt: 0,
-  apiDomain: DEFAULT_API_URL,
-};
-
-let tokenGenerationPromise = null;
-async function generateZohoAccessToken() {
-  if (!CLIENT_ID) {
-    throw new Error("ZOHO_CLIENT_ID is missing from .env.local");
-  }
-
-  if (!CLIENT_SECRET) {
-    throw new Error("ZOHO_CLIENT_SECRET is missing from .env.local");
-  }
-
-  if (!REFRESH_TOKEN) {
-    throw new Error("ZOHO_REFRESH_TOKEN is missing from .env.local");
-  }
-
-  const tokenUrl = `${ACCOUNTS_URL}/oauth/v2/token`;
-
-  const params = new URLSearchParams();
-
-  params.set("refresh_token", REFRESH_TOKEN.trim());
-  params.set("client_id", CLIENT_ID.trim());
-  params.set("client_secret", CLIENT_SECRET.trim());
-  params.set("grant_type", "refresh_token");
-
-  const response = await fetch(tokenUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: params.toString(),
-    cache: "no-store",
-  });
-
-  const responseText = await response.text();
-
-  let data = {};
-
-  try {
-    data = responseText ? JSON.parse(responseText) : {};
-  } catch {
-    throw new Error(
-      `Zoho OAuth returned invalid response: ${responseText}`,
-    );
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      data?.error_description ||
-      data?.error ||
-      `Unable to generate Zoho access token. HTTP ${response.status}`,
-    );
-  }
-
-  if (!data?.access_token) {
-    throw new Error("Zoho did not return an access token.");
-  }
-
-  const expiresInSeconds = Number(data.expires_in) || 3600;
-  const refreshAfterMilliseconds = Math.min(
-    59 * 60 * 1000,
-    Math.max(60, expiresInSeconds - 60) * 1000,
-  );
-
-  const apiDomain = String(
-    data.api_domain || DEFAULT_API_URL,
-  ).replace(/\/$/, "");
-
-  zohoTokenCache = {
-    accessToken: data.access_token,
-    expiresAt: Date.now() + refreshAfterMilliseconds,
-    apiDomain,
-  };
-
-  return zohoTokenCache;
-}
-
-
-async function getZohoAccessToken(forceRefresh = false) {
-
-  if (
-    !forceRefresh &&
-    zohoTokenCache.accessToken &&
-    zohoTokenCache.expiresAt > Date.now()
-  ) {
-    return zohoTokenCache;
-  }
-
-
-  if (tokenGenerationPromise) {
-    return tokenGenerationPromise;
-  }
-
-  tokenGenerationPromise = generateZohoAccessToken();
-
-  try {
-    return await tokenGenerationPromise;
-  } finally {
-    tokenGenerationPromise = null;
-  }
-}
-
-async function fetchCities(tokenInfo) {
-  const url =
-    `${tokenInfo.apiDomain}/crm/v8/City` +
-    "?fields=id,Name";
-
-  const response = await fetch(url, {
+  const response = await zohoFetch(url, {
     method: "GET",
-    headers: {
-      Authorization: `Zoho-oauthtoken ${tokenInfo.accessToken}`,
-      Accept: "application/json",
-    },
-    cache: "no-store",
   });
 
-  const responseText = await response.text();
-
-  let data = {};
-
-  try {
-    data = responseText ? JSON.parse(responseText) : {};
-  } catch {
-    throw new Error(
-      `Invalid response from Zoho City module: ${responseText}`,
-    );
-  }
-
-
-  if (response.status === 401) {
-    const error = new Error("Zoho access token expired.");
-    error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
-    throw error;
-  }
-
-  if (!response.ok) {
-    const error = new Error(
-      data?.data?.[0]?.message ||
-      data?.message ||
-      `Unable to fetch cities from Zoho CRM. HTTP ${response.status}`,
-    );
-
-    error.status = response.status;
-
-    throw error;
-  }
+  const data = await response.json();
 
   const cities = Array.isArray(data?.data)
     ? data.data
-      .map((record) => record?.Name)
-      .filter(Boolean)
+        .map((record) => String(record?.Name || "").trim())
+        .filter(Boolean)
     : [];
 
-  return cities;
+  return [...new Set(cities)].sort((a, b) =>
+    a.localeCompare(b, undefined, {
+      sensitivity: "base",
+    }),
+  );
 }
 
 export async function GET() {
   try {
-    let tokenInfo = await getZohoAccessToken();
+    const cities = await getOrFetchCache(
+      "zoho:cities",
+      fetchCities,
+      CACHE_TTL,
+      {
+        staleWhileRevalidate: true,
+      },
+    );
 
-    try {
-      const cities = await fetchCities(tokenInfo);
-
-      return NextResponse.json(
-        {
-          success: true,
-          cities,
+    return NextResponse.json(
+      {
+        success: true,
+        cities,
+        count: cities.length,
+      },
+      {
+        status: 200,
+        headers: {
+          "Cache-Control":
+            "public, s-maxage=21600, stale-while-revalidate=86400",
         },
-        {
-          status: 200,
-          headers: {
-            "Cache-Control": "no-store",
-          },
-        },
-      );
-    } catch (error) {
-      /*
-       * If the access token has expired, refresh it once and retry.
-       */
-      if (error?.code === "ZOHO_ACCESS_TOKEN_EXPIRED") {
-        tokenInfo = await getZohoAccessToken(true);
-
-        const cities = await fetchCities(tokenInfo);
-
-        return NextResponse.json(
-          {
-            success: true,
-            cities,
-          },
-          {
-            status: 200,
-            headers: {
-              "Cache-Control": "no-store",
-            },
-          },
-        );
-      }
-
-      throw error;
-    }
+      },
+    );
   } catch (error) {
-    console.error("Cities API error:", {
+    console.error("[Cities API] Failed:", {
       message: error?.message,
       status: error?.status,
-      stack: error?.stack,
     });
 
     return NextResponse.json(
       {
         success: false,
-        message:
-          error?.message ||
-          "Unable to fetch cities.",
+        cities: [],
+        message: error?.message || "Unable to fetch cities.",
       },
       {
-        status: 500,
-        headers: {
-          "Cache-Control": "no-store",
-        },
+        status: 502,
       },
     );
   }

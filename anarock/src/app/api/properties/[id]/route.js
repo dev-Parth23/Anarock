@@ -1,4 +1,5 @@
 // import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 // import { getPropertiesTable } from "@/lib/catalyst";
 // import { mapProperty } from "@/lib/propertyMapper";
 
@@ -17,172 +18,35 @@
 //   ).trim();
 // }
 
-// async function findPropertyRow(table, requestedId) {
-//   const targetId = String(requestedId ?? "").trim();
-//   if (!targetId) return null;
-//   let nextToken = null;
-//   let page = 1;
-//   while (true) {
-//     const options = { maxRows: 100 };
-//     if (nextToken) {
-//       options.nextToken = nextToken;
-//     }
-//     console.log(
-//       `[Property Detail API] Fetching Catalyst page ${page} for ROWID ${targetId}...`,
-//     );
-//     const result = await table.getPagedRows(options);
-//     const rows = Array.isArray(result?.data) ? result.data : [];
-//     const matchedRow = rows.find((row) => getRowId(row) === targetId);
-//     if (matchedRow) {
-//       console.log(
-//         `[Property Detail API] Found property ${targetId} on page ${page}.`,
-//       );
-//       return matchedRow;
-//     }
-//     const newNextToken = result?.next_token || result?.nextToken || null;
-//     const moreRecords =
-//       result?.more_records === true || result?.moreRecords === true;
-//     if (!moreRecords || !newNextToken) {
-//       break;
-//     }
-//     if (newNextToken === nextToken) {
-//       console.warn(
-//         "[Property Detail API] Catalyst returned the same next token. Stopping pagination.",
-//       );
-//       break;
-//     }
-//     nextToken = newNextToken;
-//     page += 1;
-//   }
-//   return null;
-// }
+// const getCachedPropertyRows = unstable_cache(
+  async () => {
+    const table = await getPropertiesTable();
+    const rows = [];
+    let nextToken = null;
+    let page = 0;
+    while (page < 1000) {
+      const options = { maxRows: 100 };
+      if (nextToken) options.nextToken = nextToken;
+      const result = await table.getPagedRows(options);
+      const pageRows = Array.isArray(result?.data) ? result.data : [];
+      rows.push(...pageRows);
+      const newNextToken = result?.next_token || result?.nextToken || null;
+      const moreRecords = result?.more_records === true || result?.moreRecords === true;
+      if (!moreRecords || !newNextToken || newNextToken === nextToken) break;
+      nextToken = newNextToken;
+      page += 1;
+    }
+    return rows;
+  },
+  ["anarock-property-rows-v1"],
+  { revalidate: Math.max(60, Number(process.env.PROPERTIES_CACHE_TTL || "300")) },
+);
 
-// export async function GET(request, { params }) {
-//   try {
-//     const id = String(params?.id ?? "").trim();
-//     if (!id) {
-//       return NextResponse.json(
-//         { success: false, error: "Property ID is required" },
-//         { status: 400 },
-//       );
-//     }
-//     const row = await findPropertyRow(table, id);
-//     if (!row) {
-//       return NextResponse.json(
-//         { success: false, error: "Property not found" },
-//         { status: 404 },
-//       );
-//     }
-//     const property = mapProperty(row);
-//     return NextResponse.json(
-//       { success: true, data: property },
-//       { headers: { "Cache-Control": "no-store" } },
-//     );
-//   } catch (error) {
-//     const errorMessage =
-//       error?.message || (typeof error === "string" ? error : String(error));
-//     console.error("GET /api/properties/[id] error:", error);
-//     return NextResponse.json(
-//       { success: false, error: errorMessage || "Failed to fetch property" },
-//       { status: 500 },
-//     );
-//   }
-// }
-
-import { NextResponse } from "next/server";
-
-import { getPropertiesTable } from "@/lib/catalyst";
-
-import { mapProperty } from "@/lib/propertyMapper";
-
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-const CACHE_TTL = Number(process.env.PROPERTY_DETAIL_CACHE_TTL || "600") * 1000;
-
-const globalState = globalThis;
-
-if (!globalState.__anarockPropertyDetailCache) {
-  globalState.__anarockPropertyDetailCache = new Map();
-}
-
-const propertyCache = globalState.__anarockPropertyDetailCache;
-
-function getRowId(row) {
-  return String(
-    row?.ROWID ??
-      row?.rowId ??
-      row?.RowID ??
-      row?.rowID ??
-      row?.id ??
-      row?.ID ??
-      "",
-  ).trim();
-}
-
-async function findPropertyRow(table, requestedId) {
+async function findPropertyRow(requestedId) {
   const targetId = String(requestedId ?? "").trim();
-
-  if (!targetId) {
-    return null;
-  }
-
-  let nextToken = null;
-  let page = 1;
-
-  while (true) {
-    const options = {
-      maxRows: 100,
-    };
-
-    if (nextToken) {
-      options.nextToken = nextToken;
-    }
-
-    const result = await table.getPagedRows(options);
-
-    const rows = Array.isArray(result?.data) ? result.data : [];
-
-    const matchedRow = rows.find((row) => getRowId(row) === targetId);
-
-    if (matchedRow) {
-      return matchedRow;
-    }
-
-    const newNextToken = result?.next_token || result?.nextToken || null;
-
-    const moreRecords =
-      result?.more_records === true || result?.moreRecords === true;
-
-    if (!moreRecords || !newNextToken) {
-      break;
-    }
-
-    /*
-     * Safety protection against
-     * an accidental infinite loop.
-     */
-    if (newNextToken === nextToken) {
-      console.warn(
-        "[Property Detail API] Catalyst returned the same next token. Stopping pagination.",
-      );
-
-      break;
-    }
-
-    nextToken = newNextToken;
-
-    page += 1;
-
-    /*
-     * Extra safety protection.
-     */
-    if (page > 1000) {
-      throw new Error("Property pagination exceeded safety limit");
-    }
-  }
-
-  return null;
+  if (!targetId) return null;
+  const rows = await getCachedPropertyRows();
+  return rows.find((row) => getRowId(row) === targetId) || null;
 }
 
 async function getCachedProperty(id) {
@@ -211,9 +75,7 @@ async function getCachedProperty(id) {
      * THIS is the missing line
      * in your current code.
      */
-    const table = await getPropertiesTable();
-
-    const row = await findPropertyRow(table, id);
+    const row = await findPropertyRow(id);
 
     if (!row) {
       return null;
@@ -302,7 +164,7 @@ export async function GET(request, { params }) {
            *
            * Our server-side cache handles it.
            */
-          "Cache-Control": "private, no-store",
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=600",
         },
       },
     );
@@ -325,7 +187,7 @@ export async function GET(request, { params }) {
       {
         success: false,
 
-        error: errorMessage,
+        error: "Unable to fetch property right now.",
       },
       {
         status: 500,

@@ -31,11 +31,23 @@ const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
 const SORT_OPTIONS = [
   { value: "", label: "Recommended", shortLabel: "Recommended" },
   { value: "budget_asc", label: "Budget: Low to High", shortLabel: "Budget ↑" },
-  { value: "budget_desc", label: "Budget: High to Low", shortLabel: "Budget ↓" },
+  {
+    value: "budget_desc",
+    label: "Budget: High to Low",
+    shortLabel: "Budget ↓",
+  },
   { value: "area_asc", label: "Area: Low to High", shortLabel: "Area ↑" },
   { value: "area_desc", label: "Area: High to Low", shortLabel: "Area ↓" },
-  { value: "seats_asc", label: "Seat Count: Low to High", shortLabel: "Seats ↑" },
-  { value: "seats_desc", label: "Seat Count: High to Low", shortLabel: "Seats ↓" },
+  {
+    value: "seats_asc",
+    label: "Seat Count: Low to High",
+    shortLabel: "Seats ↑",
+  },
+  {
+    value: "seats_desc",
+    label: "Seat Count: High to Low",
+    shortLabel: "Seats ↓",
+  },
   { value: "name_asc", label: "Alphabetically: A-Z", shortLabel: "A-Z" },
   { value: "name_desc", label: "Alphabetically: Z-A", shortLabel: "Z-A" },
 ];
@@ -90,7 +102,7 @@ const getOfficeTypeFromUrl = (value) => {
   const match = OFFICE_TYPES.find(
     (type) =>
       normalizeValue(type) === normalized ||
-      toUrlValue(type) === String(value).toLowerCase()
+      toUrlValue(type) === String(value).toLowerCase(),
   );
   return match || value;
 };
@@ -101,7 +113,9 @@ const getPropertyId = (property) =>
 const getNumber = (value) => {
   if (value === null || value === undefined || value === "") return null;
   const number = Number(
-    String(value).replace(/,/g, "").replace(/[^\d.-]/g, "")
+    String(value)
+      .replace(/,/g, "")
+      .replace(/[^\d.-]/g, ""),
   );
   return Number.isFinite(number) ? number : null;
 };
@@ -137,7 +151,7 @@ const getPropertyType = (property) => {
     property?.Type ||
     property?.officeType ||
     property?.OfficeType ||
-    ""
+    "",
   );
 };
 
@@ -147,7 +161,7 @@ const getPropertyCity = (property) => {
     property?.City ||
     property?.cityName ||
     property?.CityName ||
-    ""
+    "",
   );
 };
 
@@ -157,7 +171,7 @@ const getPropertyMicromarket = (property) => {
     property?.Micromarket ||
     property?.micromarketName ||
     property?.MicromarketName ||
-    ""
+    "",
   );
 };
 
@@ -222,11 +236,13 @@ export default function PropertiesClient() {
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const [compareSelection, setCompareSelection] = useState([]);
-  const [allProperties, setAllProperties] = useState([]);
-  const [suggestionsLoading, setSuggestionsLoading] = useState(true);
+  const [suggestedProperties, setSuggestedProperties] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
+
+  const [totalProperties, setTotalProperties] = useState(0);
+  const [totalPagesFromApi, setTotalPagesFromApi] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cities, setCities] = useState([]);
@@ -246,16 +262,11 @@ export default function PropertiesClient() {
   }, [showFilters]);
 
   const ITEMS_PER_PAGE = 30;
-  const currentPage = Math.max(
-    1,
-    Number(searchParams.get("page") || "1") || 1
-  );
+  const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1);
 
   const filters = useMemo(() => {
     const rawType = searchParams.get("type") || "";
-    const type = rawType === "ai"
-      ? "ai"
-      : getOfficeTypeFromUrl(rawType);
+    const type = rawType === "ai" ? "ai" : getOfficeTypeFromUrl(rawType);
 
     return {
       city: searchParams.get("city") || "",
@@ -282,33 +293,33 @@ export default function PropertiesClient() {
     toggleWishlist(property);
   };
 
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchAllProperties() {
-      setSuggestionsLoading(true);
-      try {
-        const response = await fetch("/api/properties", {
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || "Failed to fetch suggested properties");
-        }
-        setAllProperties(Array.isArray(data.data) ? data.data : []);
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          setAllProperties([]);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setSuggestionsLoading(false);
-        }
-      }
-    }
-    fetchAllProperties();
-    return () => controller.abort();
-  }, []);
+  // useEffect(() => {
+  //   const controller = new AbortController();
+  //   async function fetchAllProperties() {
+  //     setSuggestionsLoading(true);
+  //     try {
+  //       const response = await fetch("/api/properties", {
+  //         cache: "no-store",
+  //         signal: controller.signal,
+  //       });
+  //       const data = await response.json();
+  //       if (!response.ok || !data.success) {
+  //         throw new Error(data.error || "Failed to fetch suggested properties");
+  //       }
+  //       setAllProperties(Array.isArray(data.data) ? data.data : []);
+  //     } catch (err) {
+  //       if (err.name !== "AbortError") {
+  //         setAllProperties([]);
+  //       }
+  //     } finally {
+  //       if (!controller.signal.aborted) {
+  //         setSuggestionsLoading(false);
+  //       }
+  //     }
+  //   }
+  //   fetchAllProperties();
+  //   return () => controller.abort();
+  // }, []);
 
   const handleCompareToggle = (property) => {
     const propertyId = getPropertyId(property);
@@ -316,7 +327,7 @@ export default function PropertiesClient() {
 
     setCompareSelection((prev) => {
       const alreadySelected = prev.some(
-        (item) => getPropertyId(item) === propertyId
+        (item) => getPropertyId(item) === propertyId,
       );
       let updated;
       if (alreadySelected) {
@@ -353,7 +364,7 @@ export default function PropertiesClient() {
     try {
       localStorage.setItem(
         COMPARE_STORAGE_KEY,
-        JSON.stringify(compareSelection)
+        JSON.stringify(compareSelection),
       );
     } catch (e) {
       console.error("Failed to save comparison properties:", e);
@@ -390,7 +401,7 @@ export default function PropertiesClient() {
   const resolvedCity = useMemo(() => {
     if (!filters.city) return "";
     const match = cities.find(
-      (c) => toUrlValue(c) === filters.city.toLowerCase()
+      (c) => toUrlValue(c) === filters.city.toLowerCase(),
     );
     return match || filters.city;
   }, [filters.city, cities]);
@@ -438,7 +449,7 @@ export default function PropertiesClient() {
         return selectedNames.some(
           (selected) =>
             selected === String(market.name).trim().toLowerCase() ||
-            selected === marketSlug
+            selected === marketSlug,
         );
       })
       .map((market) => String(market.id));
@@ -447,25 +458,130 @@ export default function PropertiesClient() {
   const selectedMicromarketNames = useMemo(() => {
     if (selectedMicromarkets.length === 0) return [];
     return selectedMicromarkets
-      .map((id) => micromarkets.find((item) => String(item.id) === String(id))?.name || "")
+      .map(
+        (id) =>
+          micromarkets.find((item) => String(item.id) === String(id))?.name ||
+          "",
+      )
       .filter(Boolean);
   }, [selectedMicromarkets, micromarkets]);
 
   /* --- MAIN PROPERTIES FETCH WITH ABORT CONTROLLER --- */
+  // useEffect(() => {
+  //   const controller = new AbortController();
+  //   async function fetchProperties() {
+  //     setLoading(true);
+  //     setError("");
+
+  //     try {
+  //       const params = new URLSearchParams(searchParams.toString());
+  //       params.delete("page");
+  //       if (resolvedCity) params.set("city", resolvedCity);
+  //       if (filters.type && filters.type !== "ai") {
+  //         params.set("type", filters.type.toLowerCase());
+  //       }
+
+  //       if (filters.minBudget !== "") {
+  //         const value = Number(filters.minBudget);
+  //         if (Number.isFinite(value)) {
+  //           const converted = convertCurrency(
+  //             value,
+  //             filters.currency,
+  //             "INR",
+  //             exchangeRates
+  //           );
+  //           params.set("minBudget", String(Math.round(converted)));
+  //         }
+  //       } else {
+  //         params.delete("minBudget");
+  //       }
+
+  //       params.delete("maxBudget");
+
+  //       if (!isCoworking && filters.area !== "") {
+  //         const enteredArea = Number(filters.area);
+  //         if (Number.isFinite(enteredArea)) {
+  //           const areaInSqft = convertArea(enteredArea, filters.areaUnit, "sqft");
+  //           params.set("area", String(Math.round(areaInSqft)));
+  //         }
+  //       } else {
+  //         params.delete("area");
+  //       }
+
+  //       if (isCoworking && filters.seats !== "") {
+  //         const enteredSeats = Number(filters.seats);
+  //         if (Number.isFinite(enteredSeats)) {
+  //           params.set("seats", String(Math.round(enteredSeats)));
+  //         }
+  //       } else {
+  //         params.delete("seats");
+  //       }
+
+  //       if (selectedMicromarketNames.length) {
+  //         params.set("micromarket", selectedMicromarketNames.join(","));
+  //       } else {
+  //         params.delete("micromarket");
+  //       }
+
+  //       if (filters.currency) params.set("currency", filters.currency);
+  //       if (filters.areaUnit) params.set("areaUnit", filters.areaUnit);
+  //       if (filters.isAi) params.set("type", "ai");
+
+  //       const query = params.toString();
+  //       const response = await fetch(
+  //         `/api/properties${query ? `?${query}` : ""}`,
+  //         { cache: "no-store", signal: controller.signal }
+  //       );
+
+  //       const data = await response.json();
+  //       if (!response.ok || !data.success) {
+  //         throw new Error(data.error || "Failed to fetch properties");
+  //       }
+  //       setProperties(data.data || []);
+  //     } catch (err) {
+  //       if (err.name !== "AbortError") {
+  //         setError(err?.message || "Failed to fetch properties");
+  //         setProperties([]);
+  //       }
+  //     } finally {
+  //       if (!controller.signal.aborted) {
+  //         setLoading(false);
+  //       }
+  //     }
+  //   }
+
+  //   fetchProperties();
+  //   return () => controller.abort();
+  // }, [
+  //   searchParams,
+  //   resolvedCity,
+  //   selectedMicromarketNames,
+  //   filters.type,
+  //   filters.minBudget,
+  //   filters.area,
+  //   filters.seats,
+  //   filters.currency,
+  //   filters.areaUnit,
+  //   filters.isAi,
+  //   exchangeRates,
+  //   isCoworking,
+  // ]);
+
   useEffect(() => {
     const controller = new AbortController();
     async function fetchProperties() {
       setLoading(true);
       setError("");
-
       try {
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete("page");
-        if (resolvedCity) params.set("city", resolvedCity);
+        const params = new URLSearchParams();
+        params.set("page", String(currentPage));
+        params.set("pageSize", String(ITEMS_PER_PAGE));
+        if (resolvedCity) {
+          params.set("city", resolvedCity);
+        }
         if (filters.type && filters.type !== "ai") {
           params.set("type", filters.type.toLowerCase());
         }
-
         if (filters.minBudget !== "") {
           const value = Number(filters.minBudget);
           if (Number.isFinite(value)) {
@@ -473,60 +589,69 @@ export default function PropertiesClient() {
               value,
               filters.currency,
               "INR",
-              exchangeRates
+              exchangeRates,
             );
             params.set("minBudget", String(Math.round(converted)));
           }
-        } else {
-          params.delete("minBudget");
         }
-
-        params.delete("maxBudget");
-
         if (!isCoworking && filters.area !== "") {
           const enteredArea = Number(filters.area);
           if (Number.isFinite(enteredArea)) {
-            const areaInSqft = convertArea(enteredArea, filters.areaUnit, "sqft");
+            const areaInSqft = convertArea(
+              enteredArea,
+              filters.areaUnit,
+              "sqft",
+            );
+
             params.set("area", String(Math.round(areaInSqft)));
           }
-        } else {
-          params.delete("area");
         }
-
         if (isCoworking && filters.seats !== "") {
           const enteredSeats = Number(filters.seats);
+
           if (Number.isFinite(enteredSeats)) {
             params.set("seats", String(Math.round(enteredSeats)));
           }
-        } else {
-          params.delete("seats");
         }
-
         if (selectedMicromarketNames.length) {
           params.set("micromarket", selectedMicromarketNames.join(","));
-        } else {
-          params.delete("micromarket");
+        }
+        if (sortValue) {
+          params.set("sort", sortValue);
+        }
+        if (filters.isAi) {
+          params.set("type", "ai");
         }
 
-        if (filters.currency) params.set("currency", filters.currency);
-        if (filters.areaUnit) params.set("areaUnit", filters.areaUnit);
-        if (filters.isAi) params.set("type", "ai");
-
+        if (filters.prompt) {
+          params.set("prompt", filters.prompt);
+        }
         const query = params.toString();
-        const response = await fetch(
-          `/api/properties${query ? `?${query}` : ""}`,
-          { cache: "no-store", signal: controller.signal }
-        );
+
+        const response = await fetch(`/api/properties?${query}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
         const data = await response.json();
+
         if (!response.ok || !data.success) {
           throw new Error(data.error || "Failed to fetch properties");
         }
-        setProperties(data.data || []);
+        setProperties(Array.isArray(data.data) ? data.data : []);
+        setTotalProperties(Number(data.total || 0));
+        setTotalPagesFromApi(Math.max(1, Number(data.totalPages || 1)));
       } catch (err) {
-        if (err.name !== "AbortError") {
+        if (err?.name !== "AbortError") {
+          console.error("[PropertiesClient] Fetch failed:", err);
+
           setError(err?.message || "Failed to fetch properties");
+
           setProperties([]);
+
+          setTotalProperties(0);
+
+          setTotalPagesFromApi(1);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -536,9 +661,12 @@ export default function PropertiesClient() {
     }
 
     fetchProperties();
-    return () => controller.abort();
+
+    return () => {
+      controller.abort();
+    };
   }, [
-    searchParams,
+    currentPage,
     resolvedCity,
     selectedMicromarketNames,
     filters.type,
@@ -547,7 +675,281 @@ export default function PropertiesClient() {
     filters.seats,
     filters.currency,
     filters.areaUnit,
+    filters.prompt,
     filters.isAi,
+    filters.sort,
+    sortValue,
+    exchangeRates,
+    isCoworking,
+  ]);
+  /* =========================================================
+   SUGGESTED PROPERTIES
+
+   Suggestions are fetched ONLY on the last page.
+
+   The server returns only 9 properties.
+   We never download all properties to the browser.
+   ========================================================= */
+
+  useEffect(() => {
+    // Wait until the main properties request has finished.
+    if (loading) {
+      return;
+    }
+
+    // If there are results and this is NOT the last page,
+    // suggestions should not be loaded or displayed.
+    if (
+      totalProperties > 0 &&
+      currentPage !== totalPagesFromApi
+    ) {
+      setSuggestedProperties([]);
+      setSuggestionsLoading(false);
+      return;
+    }
+
+    const controller =
+      new AbortController();
+
+    async function fetchSuggestions() {
+      setSuggestionsLoading(true);
+
+      try {
+        const params =
+          new URLSearchParams();
+
+        // -----------------------------------------------------
+        // CITY
+        // -----------------------------------------------------
+
+        if (resolvedCity) {
+          params.set(
+            "city",
+            resolvedCity
+          );
+        }
+
+        // -----------------------------------------------------
+        // PROPERTY TYPE
+        // -----------------------------------------------------
+
+        if (
+          filters.type &&
+          filters.type !== "ai"
+        ) {
+          params.set(
+            "type",
+            filters.type.toLowerCase()
+          );
+        }
+
+        // -----------------------------------------------------
+        // MICROMARKET
+        // -----------------------------------------------------
+
+        if (
+          selectedMicromarketNames.length
+        ) {
+          params.set(
+            "micromarket",
+            selectedMicromarketNames.join(",")
+          );
+        }
+
+        // -----------------------------------------------------
+        // MINIMUM BUDGET
+        // -----------------------------------------------------
+
+        if (
+          filters.minBudget !== ""
+        ) {
+          const value =
+            Number(
+              filters.minBudget
+            );
+
+          if (
+            Number.isFinite(value)
+          ) {
+            const converted =
+              convertCurrency(
+                value,
+                filters.currency,
+                "INR",
+                exchangeRates
+              );
+
+            params.set(
+              "minBudget",
+              String(
+                Math.round(
+                  converted
+                )
+              )
+            );
+          }
+        }
+
+        // -----------------------------------------------------
+        // AREA
+        // -----------------------------------------------------
+
+        if (
+          !isCoworking &&
+          filters.area !== ""
+        ) {
+          const enteredArea =
+            Number(
+              filters.area
+            );
+
+          if (
+            Number.isFinite(
+              enteredArea
+            )
+          ) {
+            const areaInSqft =
+              convertArea(
+                enteredArea,
+                filters.areaUnit,
+                "sqft"
+              );
+
+            params.set(
+              "area",
+              String(
+                Math.round(
+                  areaInSqft
+                )
+              )
+            );
+          }
+        }
+
+        // -----------------------------------------------------
+        // SEATS
+        // -----------------------------------------------------
+
+        if (
+          isCoworking &&
+          filters.seats !== ""
+        ) {
+          const enteredSeats =
+            Number(
+              filters.seats
+            );
+
+          if (
+            Number.isFinite(
+              enteredSeats
+            )
+          ) {
+            params.set(
+              "seats",
+              String(
+                Math.round(
+                  enteredSeats
+                )
+              )
+            );
+          }
+        }
+
+        // -----------------------------------------------------
+        // EXCLUDE CURRENT LAST-PAGE RESULTS
+        // -----------------------------------------------------
+
+        const excludeIds =
+          properties
+            .map(
+              (property) =>
+                getPropertyId(property)
+            )
+            .filter(Boolean);
+
+        if (
+          excludeIds.length > 0
+        ) {
+          params.set(
+            "exclude",
+            excludeIds.join(",")
+          );
+        }
+
+        // -----------------------------------------------------
+        // REQUEST
+        // -----------------------------------------------------
+
+        const response =
+          await fetch(
+            `/api/properties/suggestions?${params.toString()}`,
+            {
+              cache: "no-store",
+              signal:
+                controller.signal,
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+          throw new Error(
+            data.error ||
+            "Failed to fetch suggested properties"
+          );
+        }
+
+        setSuggestedProperties(
+          Array.isArray(
+            data.data
+          )
+            ? data.data
+            : []
+        );
+      } catch (error) {
+        if (
+          error?.name !==
+          "AbortError"
+        ) {
+          console.error(
+            "[PropertiesClient] Suggested properties failed:",
+            error
+          );
+
+          setSuggestedProperties([]);
+        }
+      } finally {
+        if (
+          !controller.signal.aborted
+        ) {
+          setSuggestionsLoading(false);
+        }
+      }
+    }
+
+    fetchSuggestions();
+
+    return () => {
+      controller.abort();
+    };
+  }, [
+    loading,
+    currentPage,
+    totalProperties,
+    totalPagesFromApi,
+    properties,
+    resolvedCity,
+    filters.type,
+    filters.minBudget,
+    filters.area,
+    filters.seats,
+    filters.currency,
+    filters.areaUnit,
+    selectedMicromarketNames,
     exchangeRates,
     isCoworking,
   ]);
@@ -565,7 +967,7 @@ export default function PropertiesClient() {
       };
       localStorage.setItem(
         "anarock_last_searched_location",
-        JSON.stringify(searchLocationObj)
+        JSON.stringify(searchLocationObj),
       );
     } catch (e) {
       console.error("Unable to save last searched location:", e);
@@ -593,7 +995,9 @@ export default function PropertiesClient() {
         else params.delete("seats");
       }
       params.delete("page");
-      router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+      router.push(
+        `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      );
       return;
     }
 
@@ -603,7 +1007,9 @@ export default function PropertiesClient() {
     if (key === "area" && isCoworking) params.delete("area");
     if (key === "seats" && !isCoworking) params.delete("seats");
     params.delete("page");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
   };
 
   const handleSortChange = (value) => {
@@ -614,7 +1020,9 @@ export default function PropertiesClient() {
       params.delete("sort");
     }
     params.delete("page");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
     setShowFilters(false);
     window.scrollTo({
       top: 0,
@@ -628,7 +1036,9 @@ export default function PropertiesClient() {
     else params.delete("city");
     params.delete("micromarket");
     params.delete("page");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
     setShowMicromarkets(false);
   };
 
@@ -639,25 +1049,30 @@ export default function PropertiesClient() {
       : [...selectedMicromarkets, id];
 
     const selectedNames = nextSelected
-      .map((selectedId) => micromarkets.find((item) => String(item.id) === String(selectedId))?.name || "")
+      .map(
+        (selectedId) =>
+          micromarkets.find((item) => String(item.id) === String(selectedId))
+            ?.name || "",
+      )
       .filter(Boolean);
 
     const params = new URLSearchParams(searchParams.toString());
     if (selectedNames.length) {
-      params.set(
-        "micromarket",
-        selectedNames.join(",")
-      );
+      params.set("micromarket", selectedNames.join(","));
     } else {
       params.delete("micromarket");
     }
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
   };
 
   const selectAllMicromarkets = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("micromarket");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
     setShowMicromarkets(false);
   };
 
@@ -665,7 +1080,9 @@ export default function PropertiesClient() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(key);
     params.delete("page");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
   };
 
   const clearAll = () => {
@@ -673,7 +1090,6 @@ export default function PropertiesClient() {
     setShowMicromarkets(false);
     setShowFilters(false);
   };
-
   const renderCurrencyIcon = () => {
     switch (String(filters.currency || currency).toUpperCase()) {
       case "USD":
@@ -687,18 +1103,29 @@ export default function PropertiesClient() {
         return <IndianRupee className="h-4 w-4 text-[#A054A0]" />;
     }
   };
-
   const getCurrencySymbol = (value) => {
-    switch (String(value || "").trim().toUpperCase()) {
-      case "USD": return "$";
-      case "EUR": return "€";
-      case "GBP": return "£";
-      case "AED": return "د.إ";
-      case "SGD": return "S$";
-      case "AUD": return "A$";
-      case "CAD": return "C$";
+    switch (
+    String(value || "")
+      .trim()
+      .toUpperCase()
+    ) {
+      case "USD":
+        return "$";
+      case "EUR":
+        return "€";
+      case "GBP":
+        return "£";
+      case "AED":
+        return "د.إ";
+      case "SGD":
+        return "S$";
+      case "AUD":
+        return "A$";
+      case "CAD":
+        return "C$";
       case "INR":
-      default: return "₹";
+      default:
+        return "₹";
     }
   };
 
@@ -710,16 +1137,25 @@ export default function PropertiesClient() {
   };
 
   const getAreaUnitLabel = (value) => {
-    switch (String(value || "").trim().toLowerCase()) {
+    switch (
+    String(value || "")
+      .trim()
+      .toLowerCase()
+    ) {
       case "sqm":
-      case "sq.m": return "sq.m";
+      case "sq.m":
+        return "sq.m";
       case "sqyd":
-      case "sq.yd": return "sq.yd";
+      case "sq.yd":
+        return "sq.yd";
       case "acre":
-      case "acres": return "acre";
+      case "acres":
+        return "acre";
       case "hectare":
-      case "hectares": return "hectare";
-      default: return "sq.ft";
+      case "hectares":
+        return "hectare";
+      default:
+        return "sq.ft";
     }
   };
 
@@ -738,7 +1174,8 @@ export default function PropertiesClient() {
         }`,
       key: "micromarket",
     },
-    filters.type && filters.type !== "ai" && {
+    filters.type &&
+    filters.type !== "ai" && {
       label: `Type: ${filters.type}`,
       key: "type",
     },
@@ -746,11 +1183,13 @@ export default function PropertiesClient() {
       label: `Min ${isCoworking ? "Seat Price" : "Rent"}: ${currencySymbol}${formatRawNumber(filters.minBudget)}`,
       key: "minBudget",
     },
-    !isCoworking && filters.area !== "" && {
+    !isCoworking &&
+    filters.area !== "" && {
       label: `Min Area: ${formatRawNumber(filters.area)} ${areaUnitLabel}`,
       key: "area",
     },
-    isCoworking && filters.seats !== "" && {
+    isCoworking &&
+    filters.seats !== "" && {
       label: `Seats: ${formatRawNumber(filters.seats)}`,
       key: "seats",
     },
@@ -855,22 +1294,26 @@ export default function PropertiesClient() {
   //   return sorted;
   // }, [properties, sortValue]);
 
-  const sortedProperties = Array.isArray(properties)
-    ? properties
-    : [];
+  // const sortedProperties = Array.isArray(properties)
+  //   ? properties
+  //   : [];
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedProperties.length / ITEMS_PER_PAGE)
-  );
+  // const totalPages = Math.max(
+  //   1,
+  //   Math.ceil(sortedProperties.length / ITEMS_PER_PAGE)
+  // );
 
+  // const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  // const paginatedProperties = sortedProperties.slice(
+  //   (safeCurrentPage - 1) * ITEMS_PER_PAGE,
+  //   safeCurrentPage * ITEMS_PER_PAGE
+  // );
+
+  const sortedProperties = Array.isArray(properties) ? properties : [];
+  const totalPages = totalPagesFromApi;
   const safeCurrentPage = Math.min(currentPage, totalPages);
-
-  const paginatedProperties = sortedProperties.slice(
-    (safeCurrentPage - 1) * ITEMS_PER_PAGE,
-    safeCurrentPage * ITEMS_PER_PAGE
-  );
-
+  const paginatedProperties = sortedProperties;
 
   const goToPage = (page) => {
     const nextPage = Math.min(Math.max(1, Number(page) || 1), totalPages);
@@ -879,7 +1322,9 @@ export default function PropertiesClient() {
     if (nextPage <= 1) params.delete("page");
     else params.set("page", String(nextPage));
 
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -915,120 +1360,125 @@ export default function PropertiesClient() {
     return min !== null ? min : null;
   }, [filters.minBudget]);
 
-  const suggestedProperties = useMemo(() => {
-    if (!Array.isArray(allProperties) || allProperties.length === 0) return [];
-    const filteredIds = new Set(
-      properties.map((p) => getPropertyId(p)).filter(Boolean)
-    );
-    const requestedCity = normalizeValue(resolvedCity || filters.city);
-    const requestedType =
-      filters.type && filters.type !== "ai" ? normalizeValue(filters.type) : "";
-    const requestedMicromarkets = selectedMicromarketNames
-      .map(normalizeValue)
-      .filter(Boolean);
+  // const suggestedProperties = useMemo(() => {
+  //   if (!Array.isArray(allProperties) || allProperties.length === 0) return [];
+  //   const filteredIds = new Set(
+  //     properties.map((p) => getPropertyId(p)).filter(Boolean),
+  //   );
+  //   const requestedCity = normalizeValue(resolvedCity || filters.city);
+  //   const requestedType =
+  //     filters.type && filters.type !== "ai" ? normalizeValue(filters.type) : "";
+  //   const requestedMicromarkets = selectedMicromarketNames
+  //     .map(normalizeValue)
+  //     .filter(Boolean);
 
-    const hasCity = Boolean(requestedCity);
-    const hasType = Boolean(requestedType);
-    const hasMicromarket = requestedMicromarkets.length > 0;
+  //   const hasCity = Boolean(requestedCity);
+  //   const hasType = Boolean(requestedType);
+  //   const hasMicromarket = requestedMicromarkets.length > 0;
 
-    const scored = allProperties
-      .filter((p) => {
-        const id = getPropertyId(p);
-        return id && !filteredIds.has(id);
-      })
-      .map((p) => {
-        const city = getPropertyCity(p);
-        const type = getPropertyType(p);
-        const micromarket = getPropertyMicromarket(p);
+  //   const scored = allProperties
+  //     .filter((p) => {
+  //       const id = getPropertyId(p);
+  //       return id && !filteredIds.has(id);
+  //     })
+  //     .map((p) => {
+  //       const city = getPropertyCity(p);
+  //       const type = getPropertyType(p);
+  //       const micromarket = getPropertyMicromarket(p);
 
-        const cityMatch = hasCity && city === requestedCity;
-        const typeMatch = hasType && type === requestedType;
-        const micromarketMatch =
-          hasMicromarket && requestedMicromarkets.includes(micromarket);
+  //       const cityMatch = hasCity && city === requestedCity;
+  //       const typeMatch = hasType && type === requestedType;
+  //       const micromarketMatch =
+  //         hasMicromarket && requestedMicromarkets.includes(micromarket);
 
-        let tier = 4;
-        if (cityMatch && typeMatch && micromarketMatch) tier = 0;
-        else if (cityMatch && typeMatch) tier = 1;
-        else if (cityMatch) tier = 2;
-        else if (typeMatch) tier = 3;
+  //       let tier = 4;
+  //       if (cityMatch && typeMatch && micromarketMatch) tier = 0;
+  //       else if (cityMatch && typeMatch) tier = 1;
+  //       else if (cityMatch) tier = 2;
+  //       else if (typeMatch) tier = 3;
 
-        const available = isCoworking ? getAvailableSeats(p) : getAreaSqft(p);
-        let capacityRank = 2;
-        let capacityDistance = Number.POSITIVE_INFINITY;
+  //       const available = isCoworking ? getAvailableSeats(p) : getAreaSqft(p);
+  //       let capacityRank = 2;
+  //       let capacityDistance = Number.POSITIVE_INFINITY;
 
-        if (
-          requestedCapacity !== null &&
-          requestedCapacity > 0 &&
-          available !== null &&
-          available > 0
-        ) {
-          capacityRank = available >= requestedCapacity ? 0 : 1;
-          capacityDistance = Math.abs(available - requestedCapacity);
-        } else if (requestedCapacity === null && available !== null) {
-          capacityRank = 0;
-          capacityDistance = 0;
-        }
+  //       if (
+  //         requestedCapacity !== null &&
+  //         requestedCapacity > 0 &&
+  //         available !== null &&
+  //         available > 0
+  //       ) {
+  //         capacityRank = available >= requestedCapacity ? 0 : 1;
+  //         capacityDistance = Math.abs(available - requestedCapacity);
+  //       } else if (requestedCapacity === null && available !== null) {
+  //         capacityRank = 0;
+  //         capacityDistance = 0;
+  //       }
 
-        const price = isCoworking ? getSeatPrice(p) : getSqftPrice(p);
-        let priceRank = 2;
-        let priceDistance = Number.POSITIVE_INFINITY;
+  //       const price = isCoworking ? getSeatPrice(p) : getSqftPrice(p);
+  //       let priceRank = 2;
+  //       let priceDistance = Number.POSITIVE_INFINITY;
 
-        if (price !== null && price >= 0) {
-          if (requestedPrice !== null && requestedPrice >= 0) {
-            const minBudget = getNumber(filters.minBudget);
-            const meetsMinimum = minBudget === null || price >= minBudget;
-            priceRank = meetsMinimum ? 0 : 1;
-            priceDistance = Math.abs(price - requestedPrice);
-          } else {
-            priceRank = 0;
-            priceDistance = price;
-          }
-        }
+  //       if (price !== null && price >= 0) {
+  //         if (requestedPrice !== null && requestedPrice >= 0) {
+  //           const minBudget = getNumber(filters.minBudget);
+  //           const meetsMinimum = minBudget === null || price >= minBudget;
+  //           priceRank = meetsMinimum ? 0 : 1;
+  //           priceDistance = Math.abs(price - requestedPrice);
+  //         } else {
+  //           priceRank = 0;
+  //           priceDistance = price;
+  //         }
+  //       }
 
-        return {
-          property: p,
-          tier,
-          capacityRank,
-          capacityDistance,
-          priceRank,
-          priceDistance,
-        };
-      });
+  //       return {
+  //         property: p,
+  //         tier,
+  //         capacityRank,
+  //         capacityDistance,
+  //         priceRank,
+  //         priceDistance,
+  //       };
+  //     });
 
-    scored.sort((a, b) => {
-      if (a.tier !== b.tier) return a.tier - b.tier;
-      if (a.capacityRank !== b.capacityRank) return a.capacityRank - b.capacityRank;
-      if (a.capacityDistance !== b.capacityDistance) return a.capacityDistance - b.capacityDistance;
-      if (a.priceRank !== b.priceRank) return a.priceRank - b.priceRank;
-      if (a.priceDistance !== b.priceDistance) return a.priceDistance - b.priceDistance;
-      return 0;
-    });
+  //   scored.sort((a, b) => {
+  //     if (a.tier !== b.tier) return a.tier - b.tier;
+  //     if (a.capacityRank !== b.capacityRank)
+  //       return a.capacityRank - b.capacityRank;
+  //     if (a.capacityDistance !== b.capacityDistance)
+  //       return a.capacityDistance - b.capacityDistance;
+  //     if (a.priceRank !== b.priceRank) return a.priceRank - b.priceRank;
+  //     if (a.priceDistance !== b.priceDistance)
+  //       return a.priceDistance - b.priceDistance;
+  //     return 0;
+  //   });
 
-    return scored.slice(0, 9).map((item) => item.property);
-  }, [
-    allProperties,
-    properties,
-    resolvedCity,
-    filters.city,
-    filters.type,
-    filters.minBudget,
-    selectedMicromarketNames,
-    isCoworking,
-    requestedCapacity,
-    requestedPrice,
-  ]);
+  //   return scored.slice(0, 9).map((item) => item.property);
+  // }, [
+  //   allProperties,
+  //   properties,
+  //   resolvedCity,
+  //   filters.city,
+  //   filters.type,
+  //   filters.minBudget,
+  //   selectedMicromarketNames,
+  //   isCoworking,
+  //   requestedCapacity,
+  //   requestedPrice,
+  // ]);
 
   const activeSort =
     SORT_OPTIONS.find((option) => option.value === sortValue) ||
     SORT_OPTIONS[0];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* SHIMMER ANIMATION STYLE OVERLAY */}
-      <style jsx global>{`
+    <div className="min-h-screen bg-slate-50">      <style jsx global>{`
         @keyframes shimmerSweep {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
         }
         .shimmer-effect {
           position: relative;
@@ -1036,7 +1486,10 @@ export default function PropertiesClient() {
         }
         .shimmer-effect::after {
           position: absolute;
-          top: 0; right: 0; bottom: 0; left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
           transform: translateX(-100%);
           background-image: linear-gradient(
             90deg,
@@ -1046,7 +1499,7 @@ export default function PropertiesClient() {
             rgba(255, 255, 255, 0)
           );
           animation: shimmerSweep 1.6s infinite ease-in-out;
-          content: '';
+          content: "";
         }
       `}</style>
 
@@ -1071,7 +1524,7 @@ export default function PropertiesClient() {
             <p className="mt-1 text-sm text-slate-600">
               {loading
                 ? "Searching..."
-                : `${properties.length} properties found${properties.length > ITEMS_PER_PAGE
+                : `${totalProperties.toLocaleString("en-IN")} properties found${totalProperties > ITEMS_PER_PAGE
                   ? ` • Page ${safeCurrentPage} of ${totalPages}`
                   : ""
                 }`}
@@ -1312,81 +1765,84 @@ export default function PropertiesClient() {
                       />
                     </button>
 
-                    {showMicromarkets && resolvedCity && !micromarketsLoading && (
-                      <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
-                        <button
-                          type="button"
-                          onClick={selectAllMicromarkets}
-                          className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
-                        >
-                          <span
-                            className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
-                              ? "border-[#A054A0] bg-[#A054A0]"
-                              : "border-slate-300"
-                              }`}
-                          >
-                            {selectedMicromarkets.length === 0 && (
-                              <Check className="h-3 w-3 text-white" />
-                            )}
-                          </span>
-                          <span className="font-medium text-slate-800">
-                            All Micromarkets
-                          </span>
-                        </button>
-
-                        <div className="max-h-64 overflow-y-auto">
-                          {micromarkets.length === 0 ? (
-                            <div className="px-3 py-3 text-sm text-slate-500">
-                              No micromarkets found
-                            </div>
-                          ) : (
-                            micromarkets.map((market) => {
-                              const id = String(market.id);
-                              const selected = selectedMicromarkets.includes(id);
-
-                              return (
-                                <button
-                                  key={id}
-                                  type="button"
-                                  onClick={() => toggleMicromarket(id)}
-                                  className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
-                                >
-                                  <span
-                                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
-                                      ? "border-[#A054A0] bg-[#A054A0]"
-                                      : "border-slate-300"
-                                      }`}
-                                  >
-                                    {selected && (
-                                      <Check className="h-3 w-3 text-white" />
-                                    )}
-                                  </span>
-
-                                  <span
-                                    className={`truncate ${selected
-                                      ? "font-medium text-slate-900"
-                                      : "text-slate-700"
-                                      }`}
-                                  >
-                                    {market.name}
-                                  </span>
-                                </button>
-                              );
-                            })
-                          )}
-                        </div>
-
-                        <div className="border-t border-slate-100 p-2">
+                    {showMicromarkets &&
+                      resolvedCity &&
+                      !micromarketsLoading && (
+                        <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
                           <button
                             type="button"
-                            onClick={() => setShowMicromarkets(false)}
-                            className="w-full rounded-md bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-800"
+                            onClick={selectAllMicromarkets}
+                            className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
                           >
-                            Done
+                            <span
+                              className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
+                                ? "border-[#A054A0] bg-[#A054A0]"
+                                : "border-slate-300"
+                                }`}
+                            >
+                              {selectedMicromarkets.length === 0 && (
+                                <Check className="h-3 w-3 text-white" />
+                              )}
+                            </span>
+                            <span className="font-medium text-slate-800">
+                              All Micromarkets
+                            </span>
                           </button>
+
+                          <div className="max-h-64 overflow-y-auto">
+                            {micromarkets.length === 0 ? (
+                              <div className="px-3 py-3 text-sm text-slate-500">
+                                No micromarkets found
+                              </div>
+                            ) : (
+                              micromarkets.map((market) => {
+                                const id = String(market.id);
+                                const selected =
+                                  selectedMicromarkets.includes(id);
+
+                                return (
+                                  <button
+                                    key={id}
+                                    type="button"
+                                    onClick={() => toggleMicromarket(id)}
+                                    className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
+                                  >
+                                    <span
+                                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
+                                        ? "border-[#A054A0] bg-[#A054A0]"
+                                        : "border-slate-300"
+                                        }`}
+                                    >
+                                      {selected && (
+                                        <Check className="h-3 w-3 text-white" />
+                                      )}
+                                    </span>
+
+                                    <span
+                                      className={`truncate ${selected
+                                        ? "font-medium text-slate-900"
+                                        : "text-slate-700"
+                                        }`}
+                                    >
+                                      {market.name}
+                                    </span>
+                                  </button>
+                                );
+                              })
+                            )}
+                          </div>
+
+                          <div className="border-t border-slate-100 p-2">
+                            <button
+                              type="button"
+                              onClick={() => setShowMicromarkets(false)}
+                              className="w-full rounded-md bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-800"
+                            >
+                              Done
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
 
                   <div>
@@ -1419,7 +1875,9 @@ export default function PropertiesClient() {
                             type="number"
                             min="0"
                             value={filters.seats}
-                            onChange={(e) => updateFilter("seats", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("seats", e.target.value)
+                            }
                             placeholder="e.g. 50"
                             className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
                           />
@@ -1438,14 +1896,14 @@ export default function PropertiesClient() {
                             type="number"
                             min="0"
                             value={filters.minBudget}
-                            onChange={(e) => updateFilter("minBudget", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("minBudget", e.target.value)
+                            }
                             placeholder="Min seat price"
                             className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
                           />
                         </div>
                       </div>
-
-
                     </>
                   ) : (
                     <>
@@ -1461,17 +1919,19 @@ export default function PropertiesClient() {
                             type="number"
                             min="0"
                             value={filters.minBudget}
-                            onChange={(e) => updateFilter("minBudget", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("minBudget", e.target.value)
+                            }
                             placeholder="Min rent"
                             className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
                           />
                         </div>
                       </div>
 
-
                       <div>
                         <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                          Min Area ({filters.areaUnit === "sqm" ? "sq.m" : "sq.ft"})
+                          Min Area (
+                          {filters.areaUnit === "sqm" ? "sq.m" : "sq.ft"})
                         </label>
                         <div className="relative">
                           <Maximize2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -1479,7 +1939,9 @@ export default function PropertiesClient() {
                             type="number"
                             min="0"
                             value={filters.area}
-                            onChange={(e) => updateFilter("area", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("area", e.target.value)
+                            }
                             placeholder={
                               filters.areaUnit === "sqm"
                                 ? "Enter area"
@@ -1557,7 +2019,7 @@ export default function PropertiesClient() {
                   {error}
                 </p>
               </div>
-            ) : properties.length === 0 ? (
+            ) : totalProperties.length === 0 ? (
               <>
                 <div className="mb-8">
                   <h2 className="text-lg font-semibold text-[#241B2B] sm:text-xl">
@@ -1591,11 +2053,12 @@ export default function PropertiesClient() {
                             priority={index < 3}
                             property={property}
                             isCompared={compareSelection.some(
-                              (item) => getPropertyId(item) === getPropertyId(property)
+                              (item) =>
+                                getPropertyId(item) === getPropertyId(property),
                             )}
                             onCompareToggle={handleCompareToggle}
                             isShortlisted={wishlistIds.some(
-                              (id) => String(id) === getPropertyId(property)
+                              (id) => String(id) === getPropertyId(property),
                             )}
                             onShortlistToggle={handleShortlistToggle}
                           />
@@ -1619,11 +2082,13 @@ export default function PropertiesClient() {
                       priority={index < 3}
                       property={property}
                       isCompared={compareSelection.some(
-                        (item) => getPropertyId(item) === getPropertyId(property)
+                        (item) =>
+                          getPropertyId(item) === getPropertyId(property),
                       )}
                       onCompareToggle={handleCompareToggle}
                       isShortlisted={wishlistIds.some(
-                        (item) => getPropertyId(item) === getPropertyId(property)
+                        (item) =>
+                          getPropertyId(item) === getPropertyId(property),
                       )}
                       onShortlistToggle={handleShortlistToggle}
                     />
@@ -1665,7 +2130,7 @@ export default function PropertiesClient() {
                         >
                           {page}
                         </button>
-                      )
+                      ),
                     )}
 
                     <button
@@ -1704,11 +2169,11 @@ export default function PropertiesClient() {
                               <PropertyCard
                                 property={property}
                                 isCompared={compareSelection.some(
-                                  (item) => getPropertyId(item) === propertyId
+                                  (item) => getPropertyId(item) === propertyId,
                                 )}
                                 onCompareToggle={handleCompareToggle}
                                 isShortlisted={wishlistIds.some(
-                                  (id) => String(id) === propertyId
+                                  (id) => String(id) === propertyId,
                                 )}
                                 onShortlistToggle={handleShortlistToggle}
                               />

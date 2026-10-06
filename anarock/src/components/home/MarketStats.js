@@ -16,7 +16,7 @@ const STAT_CONFIG = [
   },
   {
     key: "totalAvailableSpace",
-    label: "Total Available Space",
+    label: "Space Available",
     description: "Commercial space currently available for occupation.",
   },
   {
@@ -79,11 +79,6 @@ function AnimatedNumber({ value, unit, startAnimation, delay = 0 }) {
     if (!Number.isFinite(target)) {
       return;
     }
-
-    /*
-     * If the section has not entered the viewport yet,
-     * immediately show the real value.
-     */
     if (!startAnimation) {
       setAnimatedValue(target);
       return;

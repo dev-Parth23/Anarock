@@ -68,25 +68,36 @@ export default function CookieConsent({ onConsentGiven }) {
                 <Cookie size={18} className="sm:w-5 sm:h-5 stroke-[2.2]" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8f3d8a] truncate">
+                {/* <span className="block text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8f3d8a] truncate">
                   ANAROCK PROPERTY CONSULTANTS
-                </span>
+                </span> */}
                 <h3 className="text-lg sm:text-2xl font-bold text-slate-900 leading-tight">
-                  Your privacy, your choice
+                  We value your privacy.
                 </h3>
               </div>
             </div>
             <p className="text-[13px] sm:text-sm md:text-[15px] text-slate-600 leading-relaxed max-w-[760px]">
-              We use cookies and similar technologies to personalise your experience, analyse site performance, and surface the most relevant commercial real estate opportunities for you. You remain in control of what we collect.
+              We use cookies and similar technologies to personalise your
+              experience, analyse site performance, and showcase the most
+              relevant commercial real estate opportunities for you. You remain
+              in control of what we collect.
             </p>
           </div>
 
-          <div className="w-full lg:w-[260px] flex flex-col gap-2 sm:gap-2.5 shrink-0">
-            <button type="button" onClick={handleAcceptAll} className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl bg-[#8f3d8a] hover:bg-[#7e3479] active:bg-[#702d6b] text-white text-xs sm:text-sm     font-semibold transition-all shadow-sm">
+          <div className="w-full lg:w-[300px] flex flex-col gap-2 sm:gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleAcceptAll}
+              className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl bg-[#8f3d8a] hover:bg-[#7e3479] active:bg-[#702d6b] text-white text-xs sm:text-sm     font-semibold transition-all shadow-sm"
+            >
               Accept All Cookies
             </button>
-            <button type="button" onClick={handleEssentialOnly} className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-[#8f3d8a] text-xs sm:text-sm font-semibold transition-all shadow-sm">
-              Essential Cookies Only
+            <button
+              type="button"
+              onClick={handleEssentialOnly}
+              className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl text-nowrap bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-[#8f3d8a] text-xs sm:text-sm font-semibold transition-all shadow-sm"
+            >
+              Reject Non-Essential Cookies
             </button>
           </div>
         </div>

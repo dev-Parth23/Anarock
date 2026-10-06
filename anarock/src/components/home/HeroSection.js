@@ -20,10 +20,7 @@ import {
   Euro,
 } from "lucide-react";
 
-const OFFICE_TYPES = [
-  "Conventional",
-  "Managed Office/Co-working",
-];
+const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
 
 const SAMPLE_PROMPTS = [
   "5,000 sq ft managed office in Whitefield with 80+ desks & boardrooms",
@@ -32,22 +29,16 @@ const SAMPLE_PROMPTS = [
 ];
 
 const CONTROL_H = "h-[50px] sm:h-[52px] lg:h-[54px]";
-
 const inputBase = `w-full ${CONTROL_H} rounded-[14px] bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10`;
-
 export default function HeroSection({ consentGranted, locationData }) {
   const router = useRouter();
-
   const [tab, setTab] = useState("filters");
-
   const [city, setCity] = useState("");
   const [cityOpen, setCityOpen] = useState(false);
   const [citySearch, setCitySearch] = useState("");
   const [cityOptions, setCityOptions] = useState([]);
   const [loadingCities, setLoadingCities] = useState(false);
-
   const [officeType, setOfficeType] = useState("");
-
   const [micromarkets, setMicromarkets] = useState([]);
   const [selectedMicromarket, setSelectedMicromarket] = useState("");
   const [loadingMicromarkets, setLoadingMicromarkets] = useState(false);
@@ -106,9 +97,7 @@ export default function HeroSection({ consentGranted, locationData }) {
             if (errorData?.message) {
               errorMessage = errorData.message;
             }
-          } catch {
-            // Ignore JSON parsing errors
-          }
+          } catch {}
           throw new Error(errorMessage);
         }
         const data = await response.json();
@@ -211,7 +200,6 @@ export default function HeroSection({ consentGranted, locationData }) {
     };
   }, []);
 
-
   const handleSearch = (e) => {
     e.preventDefault();
 
@@ -228,7 +216,7 @@ export default function HeroSection({ consentGranted, locationData }) {
 
         localStorage.setItem(
           "anarock_last_searched_location",
-          JSON.stringify(searchLocationObj)
+          JSON.stringify(searchLocationObj),
         );
       } else {
         localStorage.removeItem("anarock_last_searched_location");
@@ -258,16 +246,10 @@ export default function HeroSection({ consentGranted, locationData }) {
         params.set("city", toUrlValue(city));
       }
       if (selectedMicromarket?.trim()) {
-        params.set(
-          "micromarket",
-          toUrlValue(selectedMicromarket)
-        );
+        params.set("micromarket", toUrlValue(selectedMicromarket));
       }
       if (officeType?.trim()) {
-        params.set(
-          "type",
-          toUrlValue(officeType)
-        );
+        params.set("type", toUrlValue(officeType));
       }
 
       const cleanedMinBudget = cleanNumber(minBudget);
@@ -296,25 +278,16 @@ export default function HeroSection({ consentGranted, locationData }) {
       }
 
       if (currency) {
-        params.set(
-          "currency",
-          String(currency).trim().toUpperCase()
-        );
+        params.set("currency", String(currency).trim().toUpperCase());
       }
 
       if (areaUnit) {
-        params.set(
-          "areaUnit",
-          toUrlValue(areaUnit)
-        );
+        params.set("areaUnit", toUrlValue(areaUnit));
       }
     } else {
       params.set("type", "ai");
       if (prompt.trim()) {
-        params.set(
-          "prompt",
-          prompt.trim()
-        );
+        params.set("prompt", prompt.trim());
       }
     }
 
@@ -397,35 +370,38 @@ export default function HeroSection({ consentGranted, locationData }) {
 
           <div className="relative z-30 mx-auto w-full max-w-[1240px]">
             <div className="overflow-visible rounded-[24px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(20,5,25,.34)] sm:rounded-[28px] lg:rounded-[32px]">
-
               <div className="flex items-center px-4 pt-4 sm:px-6 sm:pt-5 lg:px-7 lg:pt-6">
                 <div className="grid w-full max-w-[430px] grid-cols-2 rounded-2xl border border-[#ECE7EC] bg-[#F7F5F7] p-1 shadow-[inset_0_1px_2px_rgba(30,15,30,.04)] sm:inline-flex sm:w-auto sm:max-w-none sm:grid-cols-none sm:rounded-full">
                   <button
                     type="button"
                     onClick={() => setTab("filters")}
-                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${tab === "filters"
-                      ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
-                      : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
-                      }`}
+                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${
+                      tab === "filters"
+                        ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
+                        : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
+                    }`}
                   >
                     <SlidersHorizontal
-                      className={`h-4 w-4 ${tab === "filters" ? "text-[#A054A0]" : "text-[#9A939A]"
-                        }`}
+                      className={`h-4 w-4 ${
+                        tab === "filters" ? "text-[#A054A0]" : "text-[#9A939A]"
+                      }`}
                     />
-                    Smart Filters
+                    Filter Properties
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setTab("ai")}
-                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${tab === "ai"
-                      ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
-                      : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
-                      }`}
+                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${
+                      tab === "ai"
+                        ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
+                        : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
+                    }`}
                   >
                     <Sparkles
-                      className={`h-4 w-4 ${tab === "ai" ? "text-[#A054A0]" : "text-[#9A939A]"
-                        }`}
+                      className={`h-4 w-4 ${
+                        tab === "ai" ? "text-[#A054A0]" : "text-[#9A939A]"
+                      }`}
                     />
                     AI Search
                   </button>
@@ -436,7 +412,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                 <form onSubmit={handleSearch}>
                   {tab === "filters" ? (
                     <div className="space-y-4">
-
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <div className="relative" ref={dropdownRef}>
                           <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
@@ -446,10 +421,11 @@ export default function HeroSection({ consentGranted, locationData }) {
                           <button
                             type="button"
                             onClick={() => setCityOpen(!cityOpen)}
-                            className={`${inputBase} flex items-center justify-between px-3.5 text-left ${cityOpen
-                              ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
-                              : ""
-                              }`}
+                            className={`${inputBase} flex items-center justify-between px-3.5 text-left ${
+                              cityOpen
+                                ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
+                                : ""
+                            }`}
                           >
                             <span className="flex min-w-0 items-center gap-2.5">
                               <span className="flex h-8 w-8 shrink-0 items-center justify-center">
@@ -457,10 +433,11 @@ export default function HeroSection({ consentGranted, locationData }) {
                               </span>
 
                               <span
-                                className={`truncate ${city
-                                  ? "font-semibold text-[#211A21]"
-                                  : "text-black/35"
-                                  }`}
+                                className={`truncate ${
+                                  city
+                                    ? "font-semibold text-[#211A21]"
+                                    : "text-black/35"
+                                }`}
                               >
                                 {loadingCities
                                   ? "Loading cities..."
@@ -469,8 +446,9 @@ export default function HeroSection({ consentGranted, locationData }) {
                             </span>
 
                             <ChevronDown
-                              className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${cityOpen ? "rotate-180 text-[#A054A0]" : ""
-                                }`}
+                              className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
+                                cityOpen ? "rotate-180 text-[#A054A0]" : ""
+                              }`}
                             />
                           </button>
 
@@ -562,7 +540,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                         </div>
                       </div>
 
-
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <div>
                           <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
@@ -586,7 +563,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                                 </option>
                               ))}
                             </select>
-
                           </div>
                         </div>
 
@@ -594,7 +570,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                           {isCoworking ? (
                             <>
                               <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
-                                Required Seats
+                                Seats Required
                               </label>
 
                               <div className="relative">
@@ -615,7 +591,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                           ) : (
                             <>
                               <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
-                                Min Area ({areaUnit})
+                                Min Area Required ({areaUnit})
                               </label>
 
                               <div className="relative">
@@ -680,7 +656,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                       {isRentBased && (
                         <div>
                           <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
-                            Rent/month
+                            Rent/{areaUnit}/month
                           </label>
 
                           <div className="relative">
@@ -693,7 +669,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                               inputMode="numeric"
                               value={minBudget}
                               onChange={handleMinBudgetChange}
-                              placeholder="Minimum Rent/month"
+                              placeholder="Rent/month"
                               className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
                             />
                           </div>
@@ -749,7 +725,14 @@ export default function HeroSection({ consentGranted, locationData }) {
                             <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg">
                               {renderCurrencyIcon()}
                             </span>
-                            <input type="text" inputMode="numeric" value={minBudget} onChange={handleMinBudgetChange} placeholder="Minimum Seat Price/month" className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`} />
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={minBudget}
+                              onChange={handleMinBudgetChange}
+                              placeholder="Seat Price/month"
+                              className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
+                            />
                           </div>
                         </div>
                       )}
@@ -764,7 +747,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         <textarea
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
-                          placeholder="Tell us what kind of workspace you're looking for..."
+                          placeholder="Describe the workspace you're looking for..."
                           rows={4}
                           className="min-h-[150px] w-full resize-none rounded-2xl border border-[#E8E0E8] bg-[#FAF8FA] p-4 pl-16 text-sm font-medium leading-6 text-[#211A21] outline-none transition-all duration-200 placeholder:text-black/30 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10 sm:min-h-[160px]"
                         />
@@ -793,9 +776,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                     </div>
                   )}
                   <div className="mt-5 flex flex-col gap-3 border-t border-[#EEE7EE] pt-4 sm:mt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-5">
-                    <div className="hidden items-center gap-2 sm:flex">
-
-                    </div>
+                    <div className="hidden items-center gap-2 sm:flex"></div>
                     <button
                       type="submit"
                       disabled={loading}

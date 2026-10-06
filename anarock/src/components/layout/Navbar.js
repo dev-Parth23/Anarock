@@ -127,7 +127,7 @@ const phoneCountries = [
 
 const navigation = [
   { label: "Properties", href: "/properties", type: "link" },
-  { label: "Services & Tools", href: "/services", type: "link" },
+  { label: "Services", href: "/services", type: "link" },
   { label: "About Us", href: "/#aboutus", type: "link" },
   { label: "Post a Requirement", href: "/#enquiry", type: "link" },
   { label: "List your Property", href: "/list-your-property", type: "link" },

@@ -102,10 +102,10 @@ const normalizeType = (value) => {
 const isCoworkingProperty = (property) => {
   const type = normalizeType(
     property?.officeType ||
-    property?.office_type ||
-    property?.propertyType ||
-    property?.property_type ||
-    property?.type,
+      property?.office_type ||
+      property?.propertyType ||
+      property?.property_type ||
+      property?.type,
   );
   return (
     type.includes("cowork") ||
@@ -124,15 +124,15 @@ const formatDisplayValue = (value) => {
 const getPropertyId = (item) => {
   return String(
     item?.id ||
-    item?.ID ||
-    item?.rowId ||
-    item?.ROWID ||
-    item?.RowID ||
-    item?.propertyId ||
-    item?.Property_ID ||
-    item?.projectId ||
-    item?.Project_ID ||
-    "",
+      item?.ID ||
+      item?.rowId ||
+      item?.ROWID ||
+      item?.RowID ||
+      item?.propertyId ||
+      item?.Property_ID ||
+      item?.projectId ||
+      item?.Project_ID ||
+      "",
   );
 };
 
@@ -217,9 +217,9 @@ export default function PropertyDetailClient({ propertyId }) {
 
         const images = imageFolderPath
           ? IMAGE_FILES.map((image) => ({
-            ...image,
-            url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
-          }))
+              ...image,
+              url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
+            }))
           : [];
 
         setProperty({
@@ -331,8 +331,8 @@ export default function PropertyDetailClient({ propertyId }) {
       );
       const updated = exists
         ? existing.filter(
-          (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
-        )
+            (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
+          )
         : [...existing, item];
 
       setIsWishlisted(!exists);
@@ -619,7 +619,7 @@ export default function PropertyDetailClient({ propertyId }) {
                   className={` inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted ? "bg-pink-600 text-white hover:bg-pink-700" : "bg-gray-900 text-white hover:bg-gray-800"}`}
                 >
                   {" "}
-                  {isWishlisted ? "Added to Wishlist" : "Add to Wishlist"}
+                  {isWishlisted ? "Shortlisted" : "Shortlist"}
                 </button>
               </div>
             </div>
@@ -734,10 +734,11 @@ export default function PropertyDetailClient({ propertyId }) {
                           text-left
                           transition-all
                           duration-300
-                          ${isActive
+                          ${
+                            isActive
                               ? "border-[#A054A0] shadow-md"
                               : "border-transparent bg-slate-50 hover:border-slate-300"
-                            }
+                          }
                         `}
                         >
                           <div className="relative aspect-[16/9] w-full">
@@ -755,10 +756,11 @@ export default function PropertyDetailClient({ propertyId }) {
                               absolute
                               inset-0
                               transition
-                              ${isActive
+                              ${
+                                isActive
                                   ? "bg-[#A054A0]/10"
                                   : "bg-black/0 group-hover:bg-black/10"
-                                }
+                              }
                             `}
                             />
                           </div>
@@ -801,10 +803,11 @@ export default function PropertyDetailClient({ propertyId }) {
                             rounded-xl
                             border-2
                             transition-all
-                            ${isActive
+                            ${
+                              isActive
                                 ? "border-[#A054A0] shadow-md"
                                 : "border-transparent opacity-75"
-                              }
+                            }
                           `}
                           >
                             <Image
@@ -860,7 +863,7 @@ export default function PropertyDetailClient({ propertyId }) {
                     label="Area offered"
                     value={
                       propertyDetails.areaOffered !== "-" &&
-                        !isNaN(Number(propertyDetails.areaOffered))
+                      !isNaN(Number(propertyDetails.areaOffered))
                         ? formatArea(Number(propertyDetails.areaOffered), unit)
                         : propertyDetails.areaOffered
                     }

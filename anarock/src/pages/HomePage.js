@@ -108,34 +108,9 @@ const phoneCountries = [
 ];
 const popularCities = [
   {
-    name: "Mumbai",
-    slug: "mumbai",
-    url: "https://images.unsplash.com/photo-1569758267239-d08deb78bb1a?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-  {
     name: "Bengaluru",
     slug: "bengaluru",
     url: "https://images.unsplash.com/photo-1720954006045-6b801f7f919e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YmFuZ2Fsb3JlJTIwY2l0eXxlbnwwfHwwfHx8MA%3D%3D",
-  },
-  {
-    name: "Pune",
-    slug: "pune",
-    url: "https://images.unsplash.com/photo-1608019425630-bec4810ccb60?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-  {
-    name: "Gurugram",
-    slug: "gurugram",
-    url: "https://images.unsplash.com/photo-1707549573382-de5ebcb30dae?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z3VydWdyYW18ZW58MHx8MHx8fDA%3D",
-  },
-  {
-    name: "Delhi",
-    slug: "delhi",
-    url: "https://plus.unsplash.com/premium_photo-1697729438410-d53c666e3810?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZGVsaGl8ZW58MHx8MHx8fDA%3D",
-  },
-  {
-    name: "Hyderabad",
-    slug: "hyderabad",
-    url: "https://images.unsplash.com/photo-1657981630164-769503f3a9a8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHlkZXJhYmFkfGVufDB8fDB8fHww",
   },
   {
     name: "Chennai",
@@ -143,68 +118,98 @@ const popularCities = [
     url: "https://images.unsplash.com/photo-1616843413587-9e3a37f7bbd8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2hlbm5haXxlbnwwfHwwfHx8MA%3D%3D",
   },
   {
-    name: "Noida",
-    slug: "noida",
-    url: "https://images.unsplash.com/photo-1661858435242-ed971767e954?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bm9pZGF8ZW58MHx8MHx8fDA%3D",
+    name: "Delhi",
+    slug: "delhi",
+    url: "https://plus.unsplash.com/premium_photo-1697729438410-d53c666e3810?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZGVsaGl8ZW58MHx8MHx8fDA%3D",
+  },
+  {
+    name: "Gurugram",
+    slug: "gurugram",
+    url: "https://images.unsplash.com/photo-1707549573382-de5ebcb30dae?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z3VydWdyYW18ZW58MHx8MHx8fDA%3D",
+  },
+  {
+    name: "Hyderabad",
+    slug: "hyderabad",
+    url: "https://images.unsplash.com/photo-1657981630164-769503f3a9a8?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHlkZXJhYmFkfGVufDB8fDB8fHww",
   },
   {
     name: "Kolkata",
     slug: "kolkata",
     url: "https://images.unsplash.com/photo-1682582036641-91dfe7b66ba6?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8a29sa2F0YXxlbnwwfHwwfHx8MA%3D%3D",
   },
+  {
+    name: "Mumbai",
+    slug: "mumbai",
+    url: "https://images.unsplash.com/photo-1569758267239-d08deb78bb1a?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    name: "Noida",
+    slug: "noida",
+    url: "https://images.unsplash.com/photo-1661858435242-ed971767e954?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bm9pZGF8ZW58MHx8MHx8fDA%3D",
+  },
+  {
+    name: "Pune",
+    slug: "pune",
+    url: "https://images.unsplash.com/photo-1608019425630-bec4810ccb60?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
 ];
 const features = [
   {
     icon: Users,
     title: "Client-Centric",
-    desc: "Tailored advisory built around your unique business needs.",
+    desc: "Advisory shaped around your business objectives, real estate needs and long-term priorities.",
   },
   {
     icon: Sparkles,
     title: "AI-Enabled",
-    desc: "Smart search that understands your intent, not just keywords.",
+    desc: "Technology and AI integrated into research, analysis and decision-making to deliver smarter outcomes.",
   },
   {
     icon: BarChart3,
     title: "Data-Driven",
-    desc: "Decisions backed by market intelligence and analytics.",
+    desc: "Data, analytics and market evidence that inform every stage of the real estate decision-making process.",
   },
   {
     icon: Handshake,
     title: "Transaction Expertise",
-    desc: "End-to-end deal execution with commercial clarity.",
+    desc: "End-to-end support from strategy and site selection through negotiations and transaction execution.",
   },
   {
     icon: Leaf,
     title: "Sustainability-Focused",
-    desc: "Green-certified buildings and ESG-aligned choices.",
+    desc: "Integrating sustainability and ESG considerations into your overall strategy",
   },
   {
     icon: Brain,
     title: "Market Intelligence",
-    desc: "Real-time insights across 850M+ sq.ft of commercial stock.",
+    desc: "Deep market knowledge and granular insights to identify opportunities, assess risks and guide decisions.",
   },
 ];
 const journey = [
   {
     icon: Compass,
     title: "Define",
-    desc: "Outline your property requirements across location, space, budget and key business priorities.",
+    desc: "Mention location, space, budget and other preferences to define what you're looking for.",
   },
   {
     icon: Search,
     title: "Discover",
-    desc: "Explore relevant property options aligned with your defined requirements and search criteria.",
+    desc: "Browse properties that match your requirements and discover relevant locations, buildings and spaces.",
   },
   {
     icon: Scale,
     title: "Evaluate",
-    desc: "Shortlist suitable options and engage with our experts to assess fit, commercials and negotiate optimal terms.",
+    desc: "Shortlist your preferred properties and compare them side by side across key parameters.",
   },
   {
     icon: CheckCircle2,
     title: "Decide",
-    desc: "Select the right property with confidence, supported by informed evaluation and commercial clarity.",
+    desc: " Review property details, insights and comparisons to identify the option that best meets your needs.",
+  },
+  {
+    icon: Handshake,
+    title: "Connect",
+    desc: "Connect with our team to discuss your shortlisted property and move forward with your requirement.",
   },
 ];
 function GlassField({
@@ -458,7 +463,7 @@ function JourneyCard({ item, index }) {
             <item.icon className="h-[clamp(1.1rem,1.7vw,1.5rem)] w-[clamp(1.1rem,1.7vw,1.5rem)]" />
           </motion.div>
 
-          <span className="pointer-events-none absolute -right-4 -top-8 select-none text-[clamp(7rem,10vw,10rem)] font-extrabold leading-none tracking-[-0.08em] text-slate-900/[0.04] transition-all duration-700 group-hover:scale-105 group-hover:text-[#A054A0]/[0.10]">
+          <span className="pointer-events-none absolute -right-4 -top-8 select-none text-[clamp(6rem,9vw,9rem)] font-extrabold leading-none tracking-[-0.05em] text-slate-900/[0.04] transition-all duration-700 group-hover:scale-105 group-hover:text-[#A054A0]/[0.10]">
             0{index + 1}
           </span>
         </div>
@@ -947,15 +952,14 @@ export default function HomePage() {
             <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
           </div>
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
-            <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                  Explore{" "}
-                  <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                    Popular Cities
-                  </span>
-                </h2>
-              </div>
+            <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-center lg:justify-center">
+              <h2 className="max-w-3xl  text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
+                Explore{" "}
+                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
+                  India&apos;s Key{" "}
+                </span>{" "}
+                Cities
+              </h2>
 
               <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base lg:text-lg">
                 Discover premium commercial real estate opportunities across
@@ -993,7 +997,7 @@ export default function HomePage() {
                       </h3>
                       <div className="mt-3 flex items-center justify-between gap-3">
                         <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
-                          Explore properties
+                          Explore
                         </p>
                         <ArrowRight
                           className="
@@ -1025,13 +1029,14 @@ export default function HomePage() {
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-20 py-14">
             <div className="mb-12 text-left md:mb-16">
               <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                Market at a {"  "}
+                Key {"  "}
                 <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  Glance
+                  Metrics
                 </span>
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base md:text-lg">
-                The trusted partner for India&apos;s most ambitious enterprises.
+                Your expert guide to navigate through India&apos;s commerical
+                real estate.
               </p>
             </div>
             <MarketStats />
@@ -1087,7 +1092,7 @@ export default function HomePage() {
           id="client-journey"
           className="relative isolate overflow-hidden py-8 sm:py-10 lg:py-14"
         >
-          <div className="relative mx-auto w-full max-w-[1800px] px-[clamp(1rem,3vw,4rem)]">
+          <div className="relative mx-auto w-full px-[clamp(1rem,3vw,4rem)]">
             <motion.div
               initial={{ y: 40 }}
               whileInView={{ y: 0 }}
@@ -1099,15 +1104,19 @@ export default function HomePage() {
               className="mx-auto mb-[clamp(3rem,7vw,6rem)] max-w-3xl text-center"
             >
               <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                The Client {"  "}
+                Find Your{" "}
                 <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  Journey
+                  Next Office{" "}
+                </span>
+                in{" "}
+                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
+                  5 Simple Steps{" "}
                 </span>
               </h2>
-              <p className="mx-auto mt-6 max-w-2xl text-[clamp(0.875rem,1.3vw,1.125rem)] leading-[1.8] tracking-[-0.01em] text-slate-500">
+              {/* <p className="mx-auto mt-6 max-w-2xl text-[clamp(0.875rem,1.3vw,1.125rem)] leading-[1.8] tracking-[-0.01em] text-slate-500">
                 A seamless, insight-led process to help you find, evaluate, and
                 secure the right commercial space.
-              </p>
+              </p> */}
             </motion.div>
 
             <div className="relative">
@@ -1115,7 +1124,7 @@ export default function HomePage() {
                 aria-hidden="true"
                 className="pointer-events-none absolute left-0 right-0 top-1/2 hidden h-px bg-gradient-to-r from-transparent via-[#A054A0]/20 to-transparent lg:block"
               />
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-4 xl:gap-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-5 lg:gap-4 xl:gap-5">
                 {journey.map((item, index) => (
                   <JourneyCard key={item.title} item={item} index={index} />
                 ))}
@@ -1278,16 +1287,10 @@ export default function HomePage() {
                           <option value="" disabled>
                             Select requirement type
                           </option>
-
                           <option value="Conventional">Conventional</option>
-
                           <option value="Managed Office/Co-working">
                             Managed Office/Co-working
                           </option>
-
-                          <option value="Consulting">Consulting</option>
-
-                          <option value="Others">Others</option>
                         </select>
                       </div>
 
@@ -1296,7 +1299,7 @@ export default function HomePage() {
                           htmlFor="requirementCity"
                           className="text-xs font-semibold text-slate-600"
                         >
-                          Requirement City
+                          Preffered City
                         </label>
 
                         <select
@@ -1307,7 +1310,7 @@ export default function HomePage() {
                           className="glass-input w-full appearance-none rounded-xl border border-white/80 bg-white/55 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all duration-300 focus:border-[#A054A0]/50 focus:bg-white/90 focus:ring-4 focus:ring-[#A054A0]/10"
                         >
                           <option value="" disabled>
-                            - Select City -
+                            - Select your preferred city -
                           </option>
 
                           {requirementCityOptions.map((city) => (
@@ -1315,10 +1318,6 @@ export default function HomePage() {
                               {city}
                             </option>
                           ))}
-
-                          <option value="__NONE__">
-                            - None of the above -
-                          </option>
                         </select>
                       </div>
 
@@ -1332,10 +1331,10 @@ export default function HomePage() {
                           />
 
                           <GlassField
-                            label="Per Seat Budget"
+                            label="Per Seat Cost / Month"
                             name="requirementSeatPrice"
                             type="number"
-                            placeholder="Enter budget per seat/month"
+                            placeholder="Enter Min Seat price /Month"
                           />
                         </>
                       ) : (
@@ -1399,7 +1398,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ================= ABOUT US ================= */}
+        {/* ABOUT US */}
         <section
           id="aboutus"
           className="relative isolate overflow-hidden py-20 sm:py-24 md:py-20 lg:py-20"
@@ -1420,16 +1419,16 @@ export default function HomePage() {
               <div className="flex flex-col justify-between">
                 <div>
                   <p className="max-w-3xl text-xl font-medium leading-relaxed tracking-tight text-slate-800 sm:text-2xl md:text-3xl">
-                    We empower businesses to make confident real estate
-                    decisions through intelligence, expertise, and
-                    technology-led solutions.
+                    Redefining real estate through intelligence, integrity and
+                    impact
                   </p>
 
                   <p className="mt-7 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base sm:leading-8">
-                    From discovering the right location to evaluating commercial
-                    opportunities, ANAROCK combines market insights, strategic
-                    advisory, and execution to simplify every stage of your real
-                    estate journey.
+                    Anarock combines 30+ years of institutional real estate
+                    expertise with data-led intelligence, technology-driven
+                    solutions and deep market relationships to deliver
+                    comprehensive advisory and execution capabilities across
+                    India and the Middle East.
                   </p>
                 </div>
 
@@ -1451,28 +1450,21 @@ export default function HomePage() {
               </div>
 
               {/* Right Visual / Philosophy Card */}
-              <div className="relative">
+              {/* <div className="relative">
                 <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-[#A054A0]/15 bg-[#FCFAFF] p-6 shadow-[0_25px_100px_rgba(160,84,160,0.10)] sm:min-h-[480px] sm:p-8 md:p-10">
-                  {/* Card Glow */}
                   <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#A054A0]/15 blur-[90px]" />
-
-                  {/* Decorative Circle */}
                   <div className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full border border-[#A054A0]/10" />
                   <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full border border-[#A054A0]/10" />
-
                   <div className="relative z-10 flex h-full min-h-[368px] flex-col justify-between">
-                    {/* Card Top */}
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#A054A0] sm:text-xs">
                         Our Perspective
-                      </span>
+                      </span> 
 
                       <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#A054A0]/20 bg-white text-[#A054A0]">
                         <Sparkles className="h-4 w-4" />
                       </span>
                     </div>
-
-                    {/* Large Statement */}
                     <div className="py-12">
                       <p className="text-3xl font-semibold leading-[1.1] tracking-[-0.04em] text-slate-900 sm:text-4xl md:text-5xl">
                         Intelligence
@@ -1482,8 +1474,6 @@ export default function HomePage() {
                         Results
                       </p>
                     </div>
-
-                    {/* Card Bottom */}
                     <div className="flex items-end justify-between gap-5 border-t border-slate-200/80 pt-5">
                       <p className="max-w-xs text-xs leading-relaxed text-slate-500 sm:text-sm">
                         Helping businesses navigate complex real estate
@@ -1492,7 +1482,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </section>

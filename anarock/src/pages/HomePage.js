@@ -1,5 +1,4 @@
 "use client";
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CookieConsent from "@/components/common/CookieConsent";
 import HeroSection from "@/components/home/HeroSection";
@@ -24,31 +23,10 @@ import {
 } from "lucide-react";
 const phoneCountries = [
   { name: "India", code: "IN", dial: "+91", flag: "🇮🇳", min: 10, max: 10 },
-  {
-    name: "United States",
-    code: "US",
-    dial: "+1",
-    flag: "🇺🇸",
-    min: 10,
-    max: 10,
-  },
+  { name: "United States", code: "US", dial: "+1", flag: "🇺🇸", min: 10, max: 10 },
   { name: "Canada", code: "CA", dial: "+1", flag: "🇨🇦", min: 10, max: 10 },
-  {
-    name: "United Kingdom",
-    code: "GB",
-    dial: "+44",
-    flag: "🇬🇧",
-    min: 10,
-    max: 10,
-  },
-  {
-    name: "United Arab Emirates",
-    code: "AE",
-    dial: "+971",
-    flag: "🇦🇪",
-    min: 9,
-    max: 9,
-  },
+  { name: "United Kingdom", code: "GB", dial: "+44", flag: "🇬🇧", min: 10, max: 10 },
+  { name: "United Arab Emirates", code: "AE", dial: "+971", flag: "🇦🇪", min: 9, max: 9, },
   { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺", min: 9, max: 9 },
   { name: "Singapore", code: "SG", dial: "+65", flag: "🇸🇬", min: 8, max: 8 },
   { name: "Germany", code: "DE", dial: "+49", flag: "🇩🇪", min: 10, max: 11 },
@@ -67,37 +45,16 @@ const phoneCountries = [
   { name: "Thailand", code: "TH", dial: "+66", flag: "🇹🇭", min: 9, max: 9 },
   { name: "Israel", code: "IL", dial: "+972", flag: "🇮🇱", min: 9, max: 9 },
   { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩", min: 9, max: 12 },
-  {
-    name: "Philippines",
-    code: "PH",
-    dial: "+63",
-    flag: "🇵🇭",
-    min: 10,
-    max: 10,
-  },
+  { name: "Philippines", code: "PH", dial: "+63", flag: "🇵🇭", min: 10, max: 10 },
   { name: "Vietnam", code: "VN", dial: "+84", flag: "🇻🇳", min: 9, max: 10 },
   { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦", min: 9, max: 9 },
-  {
-    name: "Saudi Arabia",
-    code: "SA",
-    dial: "+966",
-    flag: "🇸🇦",
-    min: 9,
-    max: 9,
-  },
+  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", min: 9, max: 9, },
   { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦", min: 8, max: 8 },
   { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼", min: 8, max: 8 },
   { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲", min: 8, max: 8 },
   { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭", min: 8, max: 8 },
   { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", min: 10, max: 10 },
-  {
-    name: "Bangladesh",
-    code: "BD",
-    dial: "+880",
-    flag: "🇧🇩",
-    min: 10,
-    max: 10,
-  },
+  { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", min: 10, max: 10 },
   { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", min: 10, max: 10 },
   { name: "Sri Lanka", code: "LK", dial: "+94", flag: "🇱🇰", min: 9, max: 9 },
   { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", min: 10, max: 10 },
@@ -259,11 +216,10 @@ function PhoneInput({
 
       <div className="relative">
         <div
-          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border bg-white/55 backdrop-blur-xl transition-all duration-300 ${
-            phoneError
-              ? "border-red-400 ring-2 ring-red-500/10"
-              : "border-white/80 focus-within:border-[#A054A0]/50 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
-          }`}
+          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border bg-white/55 backdrop-blur-xl transition-all duration-300 ${phoneError
+            ? "border-red-400 ring-2 ring-red-500/10"
+            : "border-white/80 focus-within:border-[#A054A0]/50 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
+            }`}
         >
           <div className="relative shrink-0">
             <button
@@ -338,9 +294,8 @@ function PhoneInput({
                           key={`${country.code}-${country.dial}`}
                           type="button"
                           onClick={() => handleCountrySelect(country)}
-                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${
-                            isSelected ? "bg-[#A054A0]/10" : "hover:bg-slate-50"
-                          }`}
+                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${isSelected ? "bg-[#A054A0]/10" : "hover:bg-slate-50"
+                            }`}
                         >
                           <span className="text-[20px] leading-none">
                             {country.flag}
@@ -431,12 +386,12 @@ function JourneyCard({ item, index }) {
           shouldReduceMotion
             ? undefined
             : {
-                y: -8,
-                transition: {
-                  duration: 0.35,
-                  ease: [0.22, 1, 0.36, 1],
-                },
-              }
+              y: -8,
+              transition: {
+                duration: 0.35,
+                ease: [0.22, 1, 0.36, 1],
+              },
+            }
         }
         className="relative flex h-full min-h-[clamp(18rem,30vw,27rem)] flex-col overflow-hidden rounded-[clamp(1.25rem,2vw,2rem)] border border-slate-200/80 bg-white/85 p-[clamp(1.25rem,2.5vw,2.25rem)] shadow-[0_8px_40px_rgba(15,23,42,0.025)] backdrop-blur-xl transition-[border-color,box-shadow] duration-500 hover:border-[#A054A0]/40 hover:shadow-[0_20px_60px_rgba(160,84,160,0.12)]"
       >
@@ -450,9 +405,9 @@ function JourneyCard({ item, index }) {
               shouldReduceMotion
                 ? undefined
                 : {
-                    rotate: 6,
-                    scale: 1.08,
-                  }
+                  rotate: 6,
+                  scale: 1.08,
+                }
             }
             transition={{
               duration: 0.3,
@@ -509,7 +464,6 @@ function JourneyCard({ item, index }) {
     </motion.div>
   );
 }
-
 export default function HomePage() {
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -589,10 +543,9 @@ export default function HomePage() {
       setPhoneError("");
     } else {
       setPhoneError(
-        `Please enter ${
-          country.min === country.max
-            ? country.min
-            : `${country.min}-${country.max}`
+        `Please enter ${country.min === country.max
+          ? country.min
+          : `${country.min}-${country.max}`
         } digits for ${country.name}.`,
       );
     }
@@ -632,71 +585,71 @@ export default function HomePage() {
       ...data,
       ...(finalRequirementType
         ? {
-            Requirement_Type: finalRequirementType,
-          }
+          Requirement_Type: finalRequirementType,
+        }
         : {}),
       ...(finalRequirementCity
         ? {
-            Requirement_City: finalRequirementCity,
-          }
+          Requirement_City: finalRequirementCity,
+        }
         : {}),
 
       ...(locationData.street
         ? {
-            Street: locationData.street,
-          }
+          Street: locationData.street,
+        }
         : {}),
 
       ...(locationData.city
         ? {
-            City: locationData.city,
-          }
+          City: locationData.city,
+        }
         : {}),
 
       ...(locationData.province
         ? {
-            Province: locationData.province,
-          }
+          Province: locationData.province,
+        }
         : {}),
 
       ...(locationData.postalCode
         ? {
-            Postal_Code: locationData.postalCode,
-          }
+          Postal_Code: locationData.postalCode,
+        }
         : {}),
 
       ...(locationData.country
         ? {
-            Country: locationData.country,
-          }
+          Country: locationData.country,
+        }
         : {}),
       ...(finalRequirementType === "Managed Office/Co-working"
         ? {
-            ...(data.requirementSeats
-              ? {
-                  Requirement_Seats: Number(data.requirementSeats),
-                }
-              : {}),
+          ...(data.requirementSeats
+            ? {
+              Requirement_Seats: Number(data.requirementSeats),
+            }
+            : {}),
 
-            ...(data.requirementSeatPrice
-              ? {
-                  Requirement_Seat_Price: Number(data.requirementSeatPrice),
-                }
-              : {}),
-          }
+          ...(data.requirementSeatPrice
+            ? {
+              Requirement_Seat_Price: Number(data.requirementSeatPrice),
+            }
+            : {}),
+        }
         : {
-            ...(data.requirementArea
-              ? {
-                  Requirement_Area: Number(data.requirementArea),
-                }
-              : {}),
+          ...(data.requirementArea
+            ? {
+              Requirement_Area: Number(data.requirementArea),
+            }
+            : {}),
 
-            ...(data.requirementRent
-              ? {
-                  Requirement_Rent: Number(data.requirementRent),
-                }
-              : {}),
-          }),
+          ...(data.requirementRent
+            ? {
+              Requirement_Rent: Number(data.requirementRent),
+            }
+            : {}),
+        }),
     };
 
     const payload = {
@@ -740,7 +693,7 @@ export default function HomePage() {
           result.errorCode === "DUPLICATE_DATA"
             ? "We already have your details on file. Our team will be in touch shortly."
             : result.message ||
-                "We couldn't submit your requirement right now. Please try again.",
+            "We couldn't submit your requirement right now. Please try again.",
         );
 
         setSubmitMessageType("error");
@@ -1134,10 +1087,7 @@ export default function HomePage() {
         </section>
 
         {/* POST A REQUIREMENT */}
-        <section
-          id="enquiry"
-          className="relative isolate overflow-hidden py-[clamp(4rem,8vw,9rem)]"
-        >
+        <section id="enquiry" className="relative isolate overflow-hidden py-[clamp(3.5rem,8vw,7.5rem)]">
           <div className="pointer-events-none absolute inset-0 -z-10">
             <div className="absolute inset-0 opacity-[0.035]" />
             <motion.div
@@ -1399,90 +1349,44 @@ export default function HomePage() {
         </section>
 
         {/* ABOUT US */}
-        <section
-          id="aboutus"
-          className="relative isolate overflow-hidden py-20 sm:py-24 md:py-20 lg:py-20"
-        >
+        <section id="aboutus" className="relative isolate overflow-hidden py-20 sm:py-24 md:py-20 lg:py-20">
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,4vw,5rem)]">
             <div className="mb-14 lg:mb-20 text-center">
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                About {"  "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  Anarock
-                </span>
+              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">About {"  "}
+                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">Anarock</span>
               </h2>
             </div>
 
-            {/* Main Content */}
-            <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 xl:gap-32">
-              {/* Left Content */}
-              <div className="flex flex-col justify-between">
-                <div>
-                  <p className="max-w-3xl text-xl font-medium leading-relaxed tracking-tight text-slate-800 sm:text-2xl md:text-3xl">
-                    Redefining real estate through intelligence, integrity and
-                    impact
-                  </p>
+            <div className="flex flex-col justify-between">
+              <div>
+                <p className="text-xl text-center font-medium leading-relaxed tracking-tight text-slate-800 sm:text-2xl md:text-3xl">
+                  Redefining real estate through intelligence, integrity and
+                  impact
+                </p>
 
-                  <p className="mt-7 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base sm:leading-8">
-                    Anarock combines 30+ years of institutional real estate
-                    expertise with data-led intelligence, technology-driven
-                    solutions and deep market relationships to deliver
-                    comprehensive advisory and execution capabilities across
-                    India and the Middle East.
-                  </p>
-                </div>
-
-                {/* Single CTA */}
-                <div className="mt-10 sm:mt-14">
-                  <Link
-                    href="https://www.anarock.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-5 rounded-full bg-[#A054A0] px-6 py-4 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(160,84,160,0.25)] transition-all duration-500 hover:-translate-y-1 hover:bg-[#873D87] hover:shadow-[0_18px_45px_rgba(160,84,160,0.35)] sm:px-7 sm:py-5"
-                  >
-                    <span>Know More</span>
-
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition-transform duration-500 group-hover:rotate-[-45deg]">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </span>
-                  </Link>
-                </div>
+                <p className="mt-7 text-center text-lg leading-7 text-slate-500 sm:text-lg sm:leading-8">
+                  Anarock combines 30+ years of institutional real estate
+                  expertise with data-led intelligence, technology-driven
+                  solutions and deep market relationships to deliver
+                  comprehensive advisory and execution capabilities across India
+                  and the Middle East.
+                </p>
               </div>
 
-              {/* Right Visual / Philosophy Card */}
-              {/* <div className="relative">
-                <div className="relative min-h-[420px] overflow-hidden rounded-[2rem] border border-[#A054A0]/15 bg-[#FCFAFF] p-6 shadow-[0_25px_100px_rgba(160,84,160,0.10)] sm:min-h-[480px] sm:p-8 md:p-10">
-                  <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#A054A0]/15 blur-[90px]" />
-                  <div className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full border border-[#A054A0]/10" />
-                  <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full border border-[#A054A0]/10" />
-                  <div className="relative z-10 flex h-full min-h-[368px] flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#A054A0] sm:text-xs">
-                        Our Perspective
-                      </span> 
+              <div className="mt-10 sm:mt-14 text-center">
+                <Link
+                  href="https://www.anarock.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-5 rounded-full bg-[#A054A0] px-6 py-4 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(160,84,160,0.25)] transition-all duration-500 hover:-translate-y-1 hover:bg-[#873D87] hover:shadow-[0_18px_45px_rgba(160,84,160,0.35)] sm:px-7 sm:py-5"
+                >
+                  <span>Know More</span>
 
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#A054A0]/20 bg-white text-[#A054A0]">
-                        <Sparkles className="h-4 w-4" />
-                      </span>
-                    </div>
-                    <div className="py-12">
-                      <p className="text-3xl font-semibold leading-[1.1] tracking-[-0.04em] text-slate-900 sm:text-4xl md:text-5xl">
-                        Intelligence
-                        <br />
-                        Expertise
-                        <br />
-                        Results
-                      </p>
-                    </div>
-                    <div className="flex items-end justify-between gap-5 border-t border-slate-200/80 pt-5">
-                      <p className="max-w-xs text-xs leading-relaxed text-slate-500 sm:text-sm">
-                        Helping businesses navigate complex real estate
-                        decisions with clarity and confidence.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition-transform duration-500 group-hover:rotate-[-45deg]">
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
+                </Link>
+              </div>
             </div>
           </div>
         </section>

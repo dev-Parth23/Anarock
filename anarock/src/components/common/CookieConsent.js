@@ -76,7 +76,7 @@ export default function CookieConsent({ onConsentGiven }) {
                 </h3>
               </div>
             </div>
-            <p className="text-[13px] sm:text-sm md:text-[15px] text-slate-600 leading-relaxed max-w-[760px]">
+            <p className="text-[13px] sm:text-base md:text-lg text-slate-600 leading-relaxed max-w-[760px]">
               We use cookies and similar technologies to personalise your
               experience, analyse site performance, and showcase the most
               relevant commercial real estate opportunities for you. You remain

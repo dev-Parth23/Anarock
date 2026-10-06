@@ -30,6 +30,7 @@ const SAMPLE_PROMPTS = [
 
 const CONTROL_H = "h-[50px] sm:h-[52px] lg:h-[54px]";
 const inputBase = `w-full ${CONTROL_H} rounded-[14px] bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10`;
+
 export default function HeroSection({ consentGranted, locationData }) {
   const router = useRouter();
   const [tab, setTab] = useState("filters");
@@ -38,48 +39,58 @@ export default function HeroSection({ consentGranted, locationData }) {
   const [citySearch, setCitySearch] = useState("");
   const [cityOptions, setCityOptions] = useState([]);
   const [loadingCities, setLoadingCities] = useState(false);
+
   const [officeType, setOfficeType] = useState("");
+  const [officeTypeOpen, setOfficeTypeOpen] = useState(false);
+
   const [micromarkets, setMicromarkets] = useState([]);
   const [selectedMicromarket, setSelectedMicromarket] = useState("");
+  const [micromarketOpen, setMicromarketOpen] = useState(false);
+  const [micromarketSearch, setMicromarketSearch] = useState("");
   const [loadingMicromarkets, setLoadingMicromarkets] = useState(false);
+
   const [minBudget, setMinBudget] = useState("");
-  // const [maxBudget, setMaxBudget] = useState("");
   const { currency, unit: areaUnit } = usePreferences();
   const [area, setArea] = useState("");
   const [seats, setSeats] = useState("");
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const dropdownRef = useRef(null);
+
+  const cityDropdownRef = useRef(null);
+  const micromarketDropdownRef = useRef(null);
+  const officeTypeDropdownRef = useRef(null);
   const locationAutoSelectedRef = useRef(false);
+
   const formatNumberWithCommas = (value) => {
     const rawValue = String(value || "").replace(/\D/g, "");
     if (!rawValue) return "";
     return new Intl.NumberFormat("en-IN").format(rawValue);
   };
+
   const handleMinBudgetChange = (e) => {
     setMinBudget(formatNumberWithCommas(e.target.value));
   };
-  // const handleMaxBudgetChange = (e) => {
-  //   setMaxBudget(formatNumberWithCommas(e.target.value));
-  // };
+
   const handleAreaChange = (e) => {
     setArea(formatNumberWithCommas(e.target.value));
   };
+
   const handleSeatsChange = (e) => {
     setSeats(formatNumberWithCommas(e.target.value));
   };
+
   const normalizedOfficeType = officeType.trim().toLowerCase();
-  const isConventional = normalizedOfficeType === "conventional";
   const isCoworking = normalizedOfficeType === "managed office/co-working";
   const isRentBased = !isCoworking;
-  const handleOfficeTypeChange = (e) => {
-    const newType = e.target.value;
+
+  const handleOfficeTypeChange = (val) => {
+    const newType = typeof val === "string" ? val : val?.target?.value || "";
     setOfficeType(newType);
     setMinBudget("");
-    // setMaxBudget("");
     setArea("");
     setSeats("");
   };
+
   useEffect(() => {
     const controller = new AbortController();
     const fetchCities = async () => {
@@ -136,6 +147,7 @@ export default function HeroSection({ consentGranted, locationData }) {
       controller.abort();
     };
   }, []);
+
   useEffect(() => {
     if (locationAutoSelectedRef.current) {
       return;
@@ -166,6 +178,8 @@ export default function HeroSection({ consentGranted, locationData }) {
     if (!city) {
       setMicromarkets([]);
       setSelectedMicromarket("");
+      setMicromarketOpen(false);
+      setMicromarketSearch("");
       return;
     }
     setLoadingMicromarkets(true);
@@ -188,8 +202,23 @@ export default function HeroSection({ consentGranted, locationData }) {
 
   useEffect(() => {
     const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      if (
+        cityDropdownRef.current &&
+        !cityDropdownRef.current.contains(e.target)
+      ) {
         setCityOpen(false);
+      }
+      if (
+        micromarketDropdownRef.current &&
+        !micromarketDropdownRef.current.contains(e.target)
+      ) {
+        setMicromarketOpen(false);
+      }
+      if (
+        officeTypeDropdownRef.current &&
+        !officeTypeDropdownRef.current.contains(e.target)
+      ) {
+        setOfficeTypeOpen(false);
       }
     };
 
@@ -253,13 +282,9 @@ export default function HeroSection({ consentGranted, locationData }) {
       }
 
       const cleanedMinBudget = cleanNumber(minBudget);
-      // const cleanedMaxBudget = cleanNumber(maxBudget);
       if (cleanedMinBudget) {
         params.set("minBudget", cleanedMinBudget);
       }
-      // if (cleanedMaxBudget) {
-      //   params.set("maxBudget", cleanedMaxBudget);
-      // }
       params.delete("maxBudget");
 
       if (isCoworking) {
@@ -300,6 +325,10 @@ export default function HeroSection({ consentGranted, locationData }) {
 
   const filteredCities = cityOptions.filter((c) =>
     c.toLowerCase().includes(citySearch.toLowerCase()),
+  );
+
+  const filteredMicromarkets = micromarkets.filter((m) =>
+    (m.name || "").toLowerCase().includes(micromarketSearch.toLowerCase()),
   );
 
   const renderCurrencyIcon = () => {
@@ -413,8 +442,8 @@ export default function HeroSection({ consentGranted, locationData }) {
                   {tab === "filters" ? (
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                        <div className="relative" ref={dropdownRef}>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                        <div className="relative" ref={cityDropdownRef}>
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
                             City
                           </label>
 
@@ -435,7 +464,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                               <span
                                 className={`truncate ${
                                   city
-                                    ? "font-semibold text-[#211A21]"
+                                    ? "font-semibold text-[#211A21]/85"
                                     : "text-black/35"
                                 }`}
                               >
@@ -445,11 +474,15 @@ export default function HeroSection({ consentGranted, locationData }) {
                               </span>
                             </span>
 
-                            <ChevronDown
-                              className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
-                                cityOpen ? "rotate-180 text-[#A054A0]" : ""
-                              }`}
-                            />
+                            {loadingCities ? (
+                              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
+                            ) : (
+                              <ChevronDown
+                                className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
+                                  cityOpen ? "rotate-180 text-[#A054A0]" : ""
+                                }`}
+                              />
+                            )}
                           </button>
 
                           {cityOpen && (
@@ -480,7 +513,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                                       setCityOpen(false);
                                       setCitySearch("");
                                     }}
-                                    className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
+                                    className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-base text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
                                   >
                                     <span>{c}</span>
 
@@ -502,80 +535,220 @@ export default function HeroSection({ consentGranted, locationData }) {
                           )}
                         </div>
 
-                        <div>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                        <div className="relative" ref={micromarketDropdownRef}>
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
                             Micromarket
                           </label>
 
-                          <div className="relative">
-                            <select
-                              value={selectedMicromarket}
-                              disabled={!city || loadingMicromarkets}
-                              onChange={(e) =>
-                                setSelectedMicromarket(e.target.value)
-                              }
-                              className={`${inputBase} cursor-pointer appearance-none px-4 pr-10 disabled:cursor-not-allowed disabled:opacity-50`}
-                            >
-                              <option value="">
+                          <button
+                            type="button"
+                            disabled={!city || loadingMicromarkets}
+                            onClick={() => setMicromarketOpen(!micromarketOpen)}
+                            className={`${inputBase} flex items-center justify-between px-3.5 text-left disabled:cursor-not-allowed disabled:opacity-50 ${
+                              micromarketOpen
+                                ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
+                                : ""
+                            }`}
+                          >
+                            <span className="flex min-w-0 items-center gap-2.5">
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center">
+                                <MapPin className="h-4 w-4 text-[#A054A0]" />
+                              </span>
+
+                              <span
+                                className={`truncate ${
+                                  selectedMicromarket
+                                    ? "font-semibold text-[#211A21]/85"
+                                    : "text-black/35"
+                                }`}
+                              >
                                 {loadingMicromarkets
                                   ? "Loading..."
                                   : city
-                                    ? "All Micromarkets"
+                                    ? selectedMicromarket || "All Micromarkets"
                                     : "Select City First"}
-                              </option>
-
-                              {micromarkets.map((m) => (
-                                <option key={m.id || m.name} value={m.name}>
-                                  {m.name}
-                                </option>
-                              ))}
-                            </select>
+                              </span>
+                            </span>
 
                             {loadingMicromarkets ? (
-                              <Loader2 className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[#A054A0]" />
+                              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
                             ) : (
-                              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/35" />
+                              <ChevronDown
+                                className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
+                                  micromarketOpen
+                                    ? "rotate-180 text-[#A054A0]"
+                                    : ""
+                                }`}
+                              />
                             )}
-                          </div>
+                          </button>
+
+                          {micromarketOpen && !loadingMicromarkets && city && (
+                            <div className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]">
+                              {micromarkets.length > 5 && (
+                                <div className="border-b border-[#EEE7EE] bg-[#FBF9FB] p-3">
+                                  <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30" />
+
+                                    <input
+                                      value={micromarketSearch}
+                                      onChange={(e) =>
+                                        setMicromarketSearch(e.target.value)
+                                      }
+                                      placeholder="Search micromarket..."
+                                      autoFocus
+                                      className="h-10 w-full rounded-xl border border-[#E7DFE7] bg-white pl-9 pr-3 text-sm text-[#211A21] outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="max-h-60 overflow-y-auto p-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedMicromarket("");
+                                    setMicromarketOpen(false);
+                                    setMicromarketSearch("");
+                                  }}
+                                  className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
+                                >
+                                  <span>All Micromarkets</span>
+
+                                  {!selectedMicromarket && (
+                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
+                                      <Check className="h-3.5 w-3.5 text-[#A054A0]" />
+                                    </span>
+                                  )}
+                                </button>
+
+                                {filteredMicromarkets.map((m) => (
+                                  <button
+                                    type="button"
+                                    key={m.id || m.name}
+                                    onClick={() => {
+                                      setSelectedMicromarket(m.name);
+                                      setMicromarketOpen(false);
+                                      setMicromarketSearch("");
+                                    }}
+                                    className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
+                                  >
+                                    <span>{m.name}</span>
+
+                                    {selectedMicromarket === m.name && (
+                                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
+                                        <Check className="h-3.5 w-3.5 text-[#A054A0]" />
+                                      </span>
+                                    )}
+                                  </button>
+                                ))}
+
+                                {micromarkets.length > 5 &&
+                                  !filteredMicromarkets.length && (
+                                    <div className="px-4 py-8 text-center text-xs text-black/35">
+                                      No micromarkets found
+                                    </div>
+                                  )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                        <div>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                        <div className="relative" ref={officeTypeDropdownRef}>
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
                             Property Type
                           </label>
 
-                          <div className="relative">
-                            <span className="h-8 w-8 shrink-0 items-center justify-center">
-                              <Building2 className="text-[#A054A0] pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
-                            </span>
-                            <select
-                              value={officeType}
-                              onChange={handleOfficeTypeChange}
-                              className={`${inputBase} cursor-pointer appearance-none px-4 pr-10`}
-                            >
-                              <option value="">All Office Types</option>
+                          <button
+                            type="button"
+                            onClick={() => setOfficeTypeOpen(!officeTypeOpen)}
+                            className={`${inputBase} flex items-center justify-between px-3.5 text-left ${
+                              officeTypeOpen
+                                ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
+                                : ""
+                            }`}
+                          >
+                            <span className="flex min-w-0 items-center gap-2.5">
+                              <span className="flex h-8 w-8 shrink-0 items-center justify-center">
+                                <Building2 className="h-4 w-4 text-[#A054A0]" />
+                              </span>
 
-                              {OFFICE_TYPES.map((t) => (
-                                <option key={t} value={t}>
-                                  {t}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                              <span
+                                className={`truncate ${
+                                  officeType
+                                    ? "font-semibold text-[#211A21]/85"
+                                    : "text-black/35"
+                                }`}
+                              >
+                                {officeType || "All Office Types"}
+                              </span>
+                            </span>
+
+                            <ChevronDown
+                              className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
+                                officeTypeOpen
+                                  ? "rotate-180 text-[#A054A0]"
+                                  : ""
+                              }`}
+                            />
+                          </button>
+
+                          {officeTypeOpen && (
+                            <div className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]">
+                              <div className="max-h-60 overflow-y-auto p-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    handleOfficeTypeChange("");
+                                    setOfficeTypeOpen(false);
+                                  }}
+                                  className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
+                                >
+                                  <span>All Office Types</span>
+
+                                  {!officeType && (
+                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
+                                      <Check className="h-3.5 w-3.5 text-[#A054A0]" />
+                                    </span>
+                                  )}
+                                </button>
+
+                                {OFFICE_TYPES.map((t) => (
+                                  <button
+                                    type="button"
+                                    key={t}
+                                    onClick={() => {
+                                      handleOfficeTypeChange(t);
+                                      setOfficeTypeOpen(false);
+                                    }}
+                                    className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
+                                  >
+                                    <span>{t}</span>
+
+                                    {officeType === t && (
+                                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
+                                        <Check className="h-3.5 w-3.5 text-[#A054A0]" />
+                                      </span>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <div>
                           {isCoworking ? (
                             <>
-                              <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                              <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
                                 Seats Required
                               </label>
 
                               <div className="relative">
                                 <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center">
-                                  <Users className="h-4 w-4 text-[#A054A0]" />
+                                  <Users className="h-4 w-4  text-[#A054A0]" />
                                 </span>
 
                                 <input
@@ -584,13 +757,13 @@ export default function HeroSection({ consentGranted, locationData }) {
                                   value={seats}
                                   onChange={handleSeatsChange}
                                   placeholder="e.g. 50"
-                                  className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
+                                  className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
                                 />
                               </div>
                             </>
                           ) : (
                             <>
-                              <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                              <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
                                 Min Area Required ({areaUnit})
                               </label>
 
@@ -605,7 +778,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                                   value={area}
                                   onChange={handleAreaChange}
                                   placeholder="e.g. 2,500"
-                                  className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
+                                  className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
                                 />
                               </div>
                             </>
@@ -613,49 +786,9 @@ export default function HeroSection({ consentGranted, locationData }) {
                         </div>
                       </div>
 
-                      {/* {isRentBased && (
-                        <div>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
-                            Rent/month
-                          </label>
-
-                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-
-                            <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
-                                {renderCurrencyIcon()}
-                              </span>
-
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={minBudget}
-                                onChange={handleMinBudgetChange}
-                                placeholder="Min Rent/month"
-                                className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
-                              />
-                            </div>
-
-                            <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
-                                {renderCurrencyIcon()}
-                              </span>
-
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={maxBudget}
-                                onChange={handleMaxBudgetChange}
-                                placeholder="Max Rent/month"
-                                className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )} */}
                       {isRentBased && (
                         <div>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
                             Rent/{areaUnit}/month
                           </label>
 
@@ -670,54 +803,15 @@ export default function HeroSection({ consentGranted, locationData }) {
                               value={minBudget}
                               onChange={handleMinBudgetChange}
                               placeholder="Rent/month"
-                              className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
+                              className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
                             />
                           </div>
                         </div>
                       )}
 
-                      {/* {isCoworking && (
-                        <div>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
-                            Seat Price/month
-                          </label>
-
-                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                            <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
-                                {renderCurrencyIcon()}
-                              </span>
-
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={minBudget}
-                                onChange={handleMinBudgetChange}
-                                placeholder="Min Seat Price/month"
-                                className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
-                              />
-                            </div>
-
-                            <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg ">
-                                {renderCurrencyIcon()}
-                              </span>
-
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={maxBudget}
-                                onChange={handleMaxBudgetChange}
-                                placeholder="Max Seat Price/month"
-                                className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )} */}
                       {isCoworking && (
                         <div>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/50 sm:text-[16px]">
+                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
                             Seat Price/month
                           </label>
 
@@ -731,7 +825,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                               value={minBudget}
                               onChange={handleMinBudgetChange}
                               placeholder="Seat Price/month"
-                              className={`${inputBase} pl-14 pr-4 placeholder:text-black/25`}
+                              className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
                             />
                           </div>
                         </div>
@@ -775,12 +869,11 @@ export default function HeroSection({ consentGranted, locationData }) {
                       </div>
                     </div>
                   )}
-                  <div className="mt-5 flex flex-col gap-3 border-t border-[#EEE7EE] pt-4 sm:mt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-5">
-                    <div className="hidden items-center gap-2 sm:flex"></div>
+                  <div className="mt-5 flex items-center justify-center border-t border-[#EEE7EE] pt-4 sm:mt-6 sm:pt-5">
                     <button
                       type="submit"
                       disabled={loading}
-                      className="group inline-flex h-[52px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-[#A054A0] px-7 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_10px_28px_rgba(160,84,160,.28)] transition-all duration-200 hover:bg-[#914891] hover:shadow-[0_14px_34px_rgba(160,84,160,.38)] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2 sm:w-auto sm:min-w-[220px]"
+                      className="group inline-flex h-[52px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-[#A054A0] px-7 text-[14px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_10px_28px_rgba(160,84,160,.28)] transition-all duration-200 hover:bg-[#914891] hover:shadow-[0_14px_34px_rgba(160,84,160,.38)] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2 sm:w-auto sm:min-w-[220px]"
                     >
                       {loading ? (
                         <>

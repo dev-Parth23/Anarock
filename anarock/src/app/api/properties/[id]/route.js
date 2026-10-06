@@ -20,12 +20,12 @@ const propertyCache = globalState.__anarockPropertyDetailCache;
 function getRowId(row) {
   return String(
     row?.ROWID ??
-      row?.rowId ??
-      row?.RowID ??
-      row?.rowID ??
-      row?.id ??
-      row?.ID ??
-      "",
+    row?.rowId ??
+    row?.RowID ??
+    row?.rowID ??
+    row?.id ??
+    row?.ID ??
+    "",
   ).trim();
 }
 
@@ -67,10 +67,6 @@ async function findPropertyRow(table, requestedId) {
       break;
     }
 
-    /*
-     * Safety protection against
-     * an accidental infinite loop.
-     */
     if (newNextToken === nextToken) {
       console.warn(
         "[Property Detail API] Catalyst returned the same next token. Stopping pagination.",
@@ -83,9 +79,7 @@ async function findPropertyRow(table, requestedId) {
 
     page += 1;
 
-    /*
-     * Extra safety protection.
-     */
+
     if (page > 1000) {
       throw new Error("Property pagination exceeded safety limit");
     }
@@ -99,27 +93,17 @@ async function getCachedProperty(id) {
 
   const cached = propertyCache.get(id);
 
-  /*
-   * Fresh cache.
-   */
+
   if (cached && cached.data && cached.expiresAt > now) {
     return cached.data;
   }
 
-  /*
-   * If another request is already
-   * fetching this exact property,
-   * reuse that Promise.
-   */
   if (cached?.promise) {
     return cached.promise;
   }
 
   const promise = (async () => {
-    /*
-     * THIS is the missing line
-     * in your current code.
-     */
+
     const table = await getPropertiesTable();
 
     const row = await findPropertyRow(table, id);

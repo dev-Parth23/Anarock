@@ -1,4 +1,5 @@
 "use client";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CookieConsent from "@/components/common/CookieConsent";
 import HeroSection from "@/components/home/HeroSection";
@@ -462,6 +463,141 @@ function JourneyCard({ item, index }) {
         />
       </motion.div>
     </motion.div>
+  );
+}
+function PremiumDropdown({
+  id,
+  name,
+  value,
+  placeholder,
+  options,
+  onChange,
+}) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest(`[data-dropdown="${id}"]`)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [id]);
+
+  const selectedOption = options.find(
+    (option) => option.value === value
+  );
+
+  return (
+    <div
+      className="relative w-full"
+      data-dropdown={id}
+    >
+      {/* Hidden native field keeps form submission unchanged */}
+      <input
+        type="hidden"
+        id={id}
+        name={name}
+        value={value}
+      />
+
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={`group relative flex w-full items-center justify-between rounded-xl border px-4 py-3.5 text-left text-sm outline-none transition-all duration-300 ${open
+          ? "border-[#A054A0]/50 bg-white/95 shadow-[0_12px_35px_rgba(160,84,160,0.12)] ring-4 ring-[#A054A0]/10"
+          : "border-white/80 bg-white/55 hover:border-[#A054A0]/25 hover:bg-white/75"
+          }`}
+      >
+        <span
+          className={
+            selectedOption
+              ? "text-slate-800"
+              : "text-slate-400"
+          }
+        >
+          {selectedOption?.label || placeholder}
+        </span>
+
+        <span
+          className={`ml-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#A054A0]/[0.07] text-[#A054A0] transition-transform duration-300 ${open ? "rotate-180" : ""
+            }`}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </span>
+      </button>
+
+      {/* Options */}
+      <div
+        className={`absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[80] origin-top transition-all duration-200 ${open
+          ? "pointer-events-auto scale-100 opacity-100"
+          : "pointer-events-none scale-[0.98] opacity-0"
+          }`}
+      >
+        <div className="overflow-hidden rounded-2xl border border-white/90 bg-white/95 p-1.5 shadow-[0_20px_50px_rgba(40,20,50,0.14)] backdrop-blur-2xl">
+          <div className="max-h-64 overflow-y-auto pr-1">
+            {options.map((option) => {
+              const isSelected = value === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => {
+                    onChange(option.value);
+                    setOpen(false);
+                  }}
+                  className={`group flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm transition-all duration-200 ${isSelected
+                    ? "bg-[#A054A0]/[0.09] font-semibold text-[#8B438B]"
+                    : "text-slate-600 hover:bg-[#A054A0]/[0.055] hover:text-slate-900"
+                    }`}
+                >
+                  <span>{option.label}</span>
+
+                  {isSelected && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#A054A0] text-white shadow-sm">
+                      <svg
+                        width="11"
+                        height="11"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m5 12 4 4L19 6" />
+                      </svg>
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 export default function HomePage() {
@@ -1219,7 +1355,7 @@ export default function HomePage() {
 
                       {/* REQUIREMENT TYPE */}
 
-                      <div className="space-y-2">
+                      {/* <div className="space-y-2">
                         <label
                           htmlFor="requirementType"
                           className="text-xs font-semibold text-slate-600"
@@ -1242,9 +1378,36 @@ export default function HomePage() {
                             Managed Office/Co-working
                           </option>
                         </select>
+                      </div> */}
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="requirementType"
+                          className="text-xs font-semibold text-slate-600"
+                        >
+                          Requirement Type
+                        </label>
+
+                        <PremiumDropdown
+                          id="requirementType"
+                          name="requirementType"
+                          value={requirementType}
+                          placeholder="Select requirement type"
+                          onChange={setRequirementType}
+                          options={[
+                            {
+                              value: "Conventional",
+                              label: "Conventional",
+                            },
+                            {
+                              value: "Managed Office/Co-working",
+                              label: "Managed Office / Co-working",
+                            },
+                          ]}
+                        />
                       </div>
 
-                      <div className="space-y-2">
+
+                      {/* <div className="space-y-2">
                         <label
                           htmlFor="requirementCity"
                           className="text-xs font-semibold text-slate-600"
@@ -1269,7 +1432,28 @@ export default function HomePage() {
                             </option>
                           ))}
                         </select>
+                      </div> */}
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="requirementCity"
+                          className="text-xs font-semibold text-slate-600"
+                        >
+                          Preferred City
+                        </label>
+
+                        <PremiumDropdown
+                          id="requirementCity"
+                          name="requirementCity"
+                          value={requirementCity}
+                          placeholder="- Select your preferred city -"
+                          onChange={setRequirementCity}
+                          options={requirementCityOptions.map((city) => ({
+                            value: city,
+                            label: city,
+                          }))}
+                        />
                       </div>
+
 
                       {requirementType === "Managed Office/Co-working" ? (
                         <>
@@ -1401,3 +1585,4 @@ export default function HomePage() {
     </>
   );
 }
+

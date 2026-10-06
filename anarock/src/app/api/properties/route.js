@@ -137,7 +137,7 @@ async function getAllProperties() {
   }
   if (state.data) {
     if (!state.fetchPromise) {
-      startRefresh().catch(() => {});
+      startRefresh().catch(() => { });
     }
     return state.data;
   }
@@ -184,31 +184,31 @@ function getPropertyPrice(property) {
       property,
       managedOffice
         ? [
-            "monthlyCostPerSeat",
-            "MonthlyCostPerSeat",
-            "monthlyCostPerSeatInr",
-            "MonthlyCostPerSeatInr",
-            "pricePerSeat",
-            "PricePerSeat",
-            "costPerSeat",
-            "CostPerSeat",
-            "rentPerSeat",
-            "RentPerSeat",
-          ]
+          "monthlyCostPerSeat",
+          "MonthlyCostPerSeat",
+          "monthlyCostPerSeatInr",
+          "MonthlyCostPerSeatInr",
+          "pricePerSeat",
+          "PricePerSeat",
+          "costPerSeat",
+          "CostPerSeat",
+          "rentPerSeat",
+          "RentPerSeat",
+        ]
         : [
-            "quotedRent",
-            "QuotedRent",
-            "monthlyRent",
-            "MonthlyRent",
-            "rent",
-            "Rent",
-            "monthlyCost",
-            "MonthlyCost",
-            "budget",
-            "Budget",
-            "price",
-            "Price",
-          ],
+          "quotedRent",
+          "QuotedRent",
+          "monthlyRent",
+          "MonthlyRent",
+          "rent",
+          "Rent",
+          "monthlyCost",
+          "MonthlyCost",
+          "budget",
+          "Budget",
+          "price",
+          "Price",
+        ],
     ),
   );
 }

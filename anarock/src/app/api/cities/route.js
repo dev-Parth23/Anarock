@@ -259,8 +259,8 @@ async function fetchCities() {
 
   const cities = Array.isArray(data?.data)
     ? data.data
-        .map((record) => String(record?.Name || "").trim())
-        .filter(Boolean)
+      .map((record) => String(record?.Name || "").trim())
+      .filter(Boolean)
     : [];
 
   return [...new Set(cities)].sort((a, b) =>

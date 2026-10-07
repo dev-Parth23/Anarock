@@ -1,155 +1,16 @@
 import { NextResponse } from "next/server";
-
-import { getPropertiesTable } from "@/lib/catalyst";
-
-import { mapProperty } from "@/lib/propertyMapper";
-
+import { getPropertyById, getPropertiesCacheInfo } from "@/lib/propertiesCache";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const CACHE_TTL = Number(process.env.PROPERTY_DETAIL_CACHE_TTL || "600") * 1000;
-
-const globalState = globalThis;
-
-if (!globalState.__anarockPropertyDetailCache) {
-  globalState.__anarockPropertyDetailCache = new Map();
-}
-
-const propertyCache = globalState.__anarockPropertyDetailCache;
-
-function getRowId(row) {
-  return String(
-    row?.ROWID ??
-    row?.rowId ??
-    row?.RowID ??
-    row?.rowID ??
-    row?.id ??
-    row?.ID ??
-    "",
-  ).trim();
-}
-
-async function findPropertyRow(table, requestedId) {
-  const targetId = String(requestedId ?? "").trim();
-
-  if (!targetId) {
-    return null;
-  }
-
-  let nextToken = null;
-  let page = 1;
-
-  while (true) {
-    const options = {
-      maxRows: 100,
-    };
-
-    if (nextToken) {
-      options.nextToken = nextToken;
-    }
-
-    const result = await table.getPagedRows(options);
-
-    const rows = Array.isArray(result?.data) ? result.data : [];
-
-    const matchedRow = rows.find((row) => getRowId(row) === targetId);
-
-    if (matchedRow) {
-      return matchedRow;
-    }
-
-    const newNextToken = result?.next_token || result?.nextToken || null;
-
-    const moreRecords =
-      result?.more_records === true || result?.moreRecords === true;
-
-    if (!moreRecords || !newNextToken) {
-      break;
-    }
-
-    if (newNextToken === nextToken) {
-      console.warn(
-        "[Property Detail API] Catalyst returned the same next token. Stopping pagination.",
-      );
-
-      break;
-    }
-
-    nextToken = newNextToken;
-
-    page += 1;
-
-
-    if (page > 1000) {
-      throw new Error("Property pagination exceeded safety limit");
-    }
-  }
-
-  return null;
-}
-
-async function getCachedProperty(id) {
-  const now = Date.now();
-
-  const cached = propertyCache.get(id);
-
-
-  if (cached && cached.data && cached.expiresAt > now) {
-    return cached.data;
-  }
-
-  if (cached?.promise) {
-    return cached.promise;
-  }
-
-  const promise = (async () => {
-
-    const table = await getPropertiesTable();
-
-    const row = await findPropertyRow(table, id);
-
-    if (!row) {
-      return null;
-    }
-
-    return mapProperty(row);
-  })();
-
-  propertyCache.set(id, {
-    data: cached?.data || null,
-
-    expiresAt: cached?.expiresAt || 0,
-
-    promise,
-  });
+export async function GET(request, context) {
+  const requestStartedAt = Date.now();
 
   try {
-    const property = await promise;
-
-    propertyCache.set(id, {
-      data: property,
-
-      expiresAt: Date.now() + CACHE_TTL,
-
-      promise: null,
-    });
-
-    return property;
-  } catch (error) {
-    /*
-     * Don't leave a failed Promise
-     * inside the cache.
-     */
-    propertyCache.delete(id);
-
-    throw error;
-  }
-}
-
-export async function GET(request, { params }) {
-  try {
+    const params =
+      context?.params instanceof Promise
+        ? await context.params
+        : context?.params;
     const id = String(params?.id ?? "").trim();
-
     if (!id) {
       return NextResponse.json(
         {
@@ -158,65 +19,108 @@ export async function GET(request, { params }) {
         },
         {
           status: 400,
-        },
-      );
-    }
-
-    const property = await getCachedProperty(id);
-
-    if (!property) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Property not found",
-        },
-        {
-          status: 404,
           headers: {
             "Cache-Control": "no-store",
           },
         },
       );
     }
+    const property = await getPropertyById(id);
+    if (!property) {
+      const cacheInfo = getPropertiesCacheInfo();
+      console.warn("[Property Detail API] Property not found:", {
+        id,
+        cacheCount: cacheInfo.count,
+        cachedAt: cacheInfo.cachedAt,
+      });
 
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Property not found",
+          id,
+        },
+        {
+          status: 404,
+
+          headers: {
+            "Cache-Control": "no-store",
+          },
+        },
+      );
+    }
+    const cacheInfo = getPropertiesCacheInfo();
+    const durationMs = Date.now() - requestStartedAt;
+    console.log("[Property Detail API] Request completed:", {
+      id,
+      durationMs,
+      cacheCount: cacheInfo.count,
+      cacheFresh: cacheInfo.isFresh,
+      cacheStale: cacheInfo.isStale,
+      refreshInProgress: cacheInfo.refreshInProgress,
+    });
     return NextResponse.json(
       {
         success: true,
-
         data: property,
-
         property,
+        cachedAt: cacheInfo.cachedAt,
+        cache: {
+          count: cacheInfo.count,
+          isFresh: cacheInfo.isFresh,
+          isStale: cacheInfo.isStale,
+          refreshInProgress: cacheInfo.refreshInProgress,
+        },
       },
       {
         headers: {
-          "Cache-Control": "private, no-store",
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+          "X-Property-Cache": cacheInfo.isFresh
+            ? "fresh"
+            : cacheInfo.isStale
+              ? "stale"
+              : "cold",
         },
       },
     );
   } catch (error) {
-    const errorMessage =
-      error?.message ||
-      (typeof error === "string" ? error : "Failed to fetch property");
-
-    console.error("[Property Detail API] GET failed:", {
-      message: error?.message,
-
-      name: error?.name,
-
-      code: error?.code,
-
-      status: error?.status,
-    });
-
+    console.error("[Property Detail API] RAW ERROR:", error);
+    console.error("[Property Detail API] ERROR TYPE:", typeof error);
+    console.error("[Property Detail API] ERROR MESSAGE:", error?.message);
+    console.error("[Property Detail API] ERROR NAME:", error?.name);
+    console.error("[Property Detail API] ERROR CODE:", error?.code);
+    console.error("[Property Detail API] ERROR STATUS:", error?.status);
+    console.error("[Property Detail API] ERROR STACK:", error?.stack);
+    let errorMessage = "Failed to fetch property";
+    if (typeof error === "string") {
+      errorMessage = error;
+    } else if (error && typeof error === "object") {
+      errorMessage =
+        error.message ||
+        error.error ||
+        error.description ||
+        error.detail ||
+        error.reason ||
+        (() => {
+          try {
+            return JSON.stringify(error);
+          } catch {
+            return "Unknown Catalyst error";
+          }
+        })();
+    } else if (error !== null && error !== undefined) {
+      errorMessage = String(error);
+    }
     return NextResponse.json(
       {
         success: false,
-
         error: errorMessage,
+        errorName: error?.name || null,
+        errorCode: error?.code || null,
+        errorStatus: error?.status || null,
       },
       {
         status: 500,
-
         headers: {
           "Cache-Control": "no-store",
         },

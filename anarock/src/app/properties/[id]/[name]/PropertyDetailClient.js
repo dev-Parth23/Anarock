@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PropertyCard from "@/components/properties/PropertyCard";
+
 import {
   ChevronLeft,
   ChevronRight,
@@ -18,18 +19,27 @@ import {
   BusFront,
   Plane,
   ArrowUpRight,
+  GitCompare,
+  X,
 } from "lucide-react";
 
 const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
 const AUTO_SCROLL_INTERVAL = 25000;
 
+const COMPARE_STORAGE_KEY = "anarock_compare_properties";
+const MAX_COMPARE_PROPERTIES = 3;
+const MIN_COMPARE_PROPERTIES = 2;
 const IMAGE_FILES = [
   {
     key: "project",
     name: "Project Picture 1",
     filename: "Project_Picture_1.jpg",
   },
-  { key: "floor-plan", name: "Floor Plan 1", filename: "Floor_Plan_1.jpg" },
+  {
+    key: "floor-plan",
+    name: "Floor Plan 1",
+    filename: "Floor_Plan_1.jpg",
+  },
   {
     key: "property-1",
     name: "Property Photo 1",
@@ -85,10 +95,12 @@ const IMAGE_FILES = [
 const getValue = (property, keys, fallback = "-") => {
   for (const key of keys) {
     const value = property?.[key];
+
     if (value !== null && value !== undefined && String(value).trim() !== "") {
       return value;
     }
   }
+
   return fallback;
 };
 
@@ -102,11 +114,12 @@ const normalizeType = (value) => {
 const isCoworkingProperty = (property) => {
   const type = normalizeType(
     property?.officeType ||
-      property?.office_type ||
-      property?.propertyType ||
-      property?.property_type ||
-      property?.type,
+    property?.office_type ||
+    property?.propertyType ||
+    property?.property_type ||
+    property?.type,
   );
+
   return (
     type.includes("cowork") ||
     type.includes("co-working") ||
@@ -115,25 +128,38 @@ const isCoworkingProperty = (property) => {
 };
 
 const formatDisplayValue = (value) => {
-  if (value === null || value === undefined || value === "") return "-";
-  if (Array.isArray(value)) return value.length ? value.join(", ") : "-";
-  if (typeof value === "object") return Object.values(value).join(", ") || "-";
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? value.join(", ") : "-";
+  }
+
+  if (typeof value === "object") {
+    return Object.values(value).join(", ") || "-";
+  }
+
   return String(value);
 };
+
+/* =========================================================
+   PROPERTY ID
+========================================================= */
 
 const getPropertyId = (item) => {
   return String(
     item?.id ||
-      item?.ID ||
-      item?.rowId ||
-      item?.ROWID ||
-      item?.RowID ||
-      item?.propertyId ||
-      item?.Property_ID ||
-      item?.projectId ||
-      item?.Project_ID ||
-      "",
-  );
+    item?.ID ||
+    item?.rowId ||
+    item?.ROWID ||
+    item?.RowID ||
+    item?.propertyId ||
+    item?.Property_ID ||
+    item?.projectId ||
+    item?.Project_ID ||
+    "",
+  ).trim();
 };
 
 /* =========================================================
@@ -145,10 +171,12 @@ function DetailField({ label, value, icon: Icon }) {
     <div className="min-w-0">
       <div className="flex items-center gap-2">
         {Icon && <Icon className="h-4 w-4 shrink-0 text-[#A054A0]" />}
+
         <p className="text-sm font-semibold leading-5 text-slate-900">
           {label}
         </p>
       </div>
+
       <p className="mt-1.5 break-words text-sm leading-6 text-slate-600">
         {formatDisplayValue(value)}
       </p>
@@ -162,6 +190,7 @@ function DetailSection({ title, children }) {
       <h3 className="mb-5 text-base font-bold text-slate-900 sm:text-lg">
         {title}
       </h3>
+
       {children}
     </section>
   );
@@ -181,15 +210,23 @@ export default function PropertyDetailClient({ propertyId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [, setIsContactModalOpen] = useState(false);
+
   const [isWishlisted, setIsWishlisted] = useState(false);
+
+  /* =========================================================
+     COMPARE STATE
+  ========================================================= */
+
+  const [compareSelection, setCompareSelection] = useState([]);
 
   const thumbnailContainerRef = useRef(null);
   const thumbnailRefs = useRef({});
   const autoScrollTimeoutRef = useRef(null);
 
-  /* ---------------------------------------------------------
-     FETCH PROPERTY & UNLIMITED RELATED PROPERTIES
-  --------------------------------------------------------- */
+  /* =========================================================
+     FETCH PROPERTY & RELATED PROPERTIES
+  ========================================================= */
+
   useEffect(() => {
     if (!propertyId) return;
 
@@ -202,8 +239,12 @@ export default function PropertyDetailClient({ propertyId }) {
 
         const response = await fetch(
           `/api/properties/${encodeURIComponent(propertyId)}`,
-          { cache: "no-store", signal: controller.signal },
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          },
         );
+
         const data = await response.json();
 
         if (!response.ok || !data.success) {
@@ -211,39 +252,49 @@ export default function PropertyDetailClient({ propertyId }) {
         }
 
         const propertyData = data.data;
+
         const imageFolderPath = String(
           propertyData.imageFolderPath || "",
         ).replace(/^\/+|\/+$/g, "");
 
         const images = imageFolderPath
           ? IMAGE_FILES.map((image) => ({
-              ...image,
-              url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
-            }))
+            ...image,
+            url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
+          }))
           : [];
 
         setProperty({
           ...propertyData,
           image: images.find((image) => image.key === "project")?.url || "",
         });
+
         setGallery(images);
         setActiveImg("project");
         setFailedImages(new Set());
 
+        /*
+         * Related properties
+         */
         if (propertyData.city) {
           try {
             const relatedResponse = await fetch(
               `/api/properties?city=${encodeURIComponent(propertyData.city)}`,
-              { cache: "no-store", signal: controller.signal },
+              {
+                cache: "no-store",
+                signal: controller.signal,
+              },
             );
+
             const relatedData = await relatedResponse.json();
 
             if (relatedData.success) {
               const currentId = getPropertyId(propertyData);
-              // Unlimited fetch: remove slice filter and keep all matching properties
+
               const relatedProperties = (relatedData.data || []).filter(
                 (item) => getPropertyId(item) !== currentId,
               );
+
               setRelated(relatedProperties);
             }
           } catch (relatedError) {
@@ -255,6 +306,7 @@ export default function PropertyDetailClient({ propertyId }) {
       } catch (err) {
         if (err.name !== "AbortError") {
           console.error(err);
+
           setError(err?.message || "Unable to load property");
         }
       } finally {
@@ -271,12 +323,14 @@ export default function PropertyDetailClient({ propertyId }) {
     };
   }, [propertyId]);
 
-  /* ---------------------------------------------------------
-     SPLIT RELATED PROPERTIES INTO 2 SEPARATE ROWS FOR X-SCROLL
-  --------------------------------------------------------- */
+  /* =========================================================
+     RELATED PROPERTIES → TWO ROWS
+  ========================================================= */
+
   const { row1, row2 } = useMemo(() => {
     const r1 = [];
     const r2 = [];
+
     related.forEach((item, index) => {
       if (index % 2 === 0) {
         r1.push(item);
@@ -284,12 +338,17 @@ export default function PropertyDetailClient({ propertyId }) {
         r2.push(item);
       }
     });
-    return { row1: r1, row2: r2 };
+
+    return {
+      row1: r1,
+      row2: r2,
+    };
   }, [related]);
 
-  /* ---------------------------------------------------------
+  /* =========================================================
      WISHLIST SYNC
-  --------------------------------------------------------- */
+  ========================================================= */
+
   useEffect(() => {
     if (!property) return;
 
@@ -298,54 +357,253 @@ export default function PropertyDetailClient({ propertyId }) {
         const wishlist = JSON.parse(
           localStorage.getItem("anarock_wishlist_properties") || "[]",
         );
+
         const currentId = getPropertyId(property);
+
         setIsWishlisted(
           wishlist.some((item) => getPropertyId(item) === currentId),
         );
       } catch (err) {
         console.error("Wishlist sync failed:", err);
+
         setIsWishlisted(false);
       }
     };
 
     syncWishlist();
+
     window.addEventListener("wishlist-updated", syncWishlist);
+
     window.addEventListener("storage", syncWishlist);
 
     return () => {
       window.removeEventListener("wishlist-updated", syncWishlist);
+
       window.removeEventListener("storage", syncWishlist);
     };
   }, [property]);
 
+  /* =========================================================
+     WISHLIST
+  ========================================================= */
+
   const handleWishlist = (item) => {
     if (!item) return;
+
     try {
       const storageKey = "anarock_wishlist_properties";
+
       const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
       const currentId = getPropertyId(item);
+
       if (!currentId) return;
 
       const exists = existing.some(
         (wishlistItem) => getPropertyId(wishlistItem) === currentId,
       );
+
       const updated = exists
         ? existing.filter(
-            (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
-          )
+          (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
+        )
         : [...existing, item];
 
       setIsWishlisted(!exists);
+
       localStorage.setItem(storageKey, JSON.stringify(updated));
+
       window.dispatchEvent(new Event("wishlist-updated"));
     } catch (err) {
       console.error("Wishlist update failed:", err);
     }
   };
 
-  /* ---------------------------------------------------------
-     GALLERY NAVIGATION & AUTO-SCROLL
-  --------------------------------------------------------- */
+  /* =========================================================
+     COMPARE — LOAD FROM LOCAL STORAGE
+  ========================================================= */
+
+  useEffect(() => {
+    const loadCompareSelection = () => {
+      try {
+        const saved = localStorage.getItem(COMPARE_STORAGE_KEY);
+
+        if (!saved) {
+          setCompareSelection([]);
+          return;
+        }
+
+        const parsed = JSON.parse(saved);
+
+        if (!Array.isArray(parsed)) {
+          setCompareSelection([]);
+          return;
+        }
+
+        /*
+         * Remove invalid items, remove duplicates,
+         * and keep only the latest 3.
+         */
+        const unique = [];
+        const seenIds = new Set();
+
+        for (const item of parsed) {
+          const id = getPropertyId(item);
+
+          if (!id || seenIds.has(id)) {
+            continue;
+          }
+
+          seenIds.add(id);
+          unique.push(item);
+        }
+
+        setCompareSelection(unique.slice(-MAX_COMPARE_PROPERTIES));
+      } catch (err) {
+        console.error("Failed to load compare selection:", err);
+
+        setCompareSelection([]);
+      }
+    };
+
+    loadCompareSelection();
+
+    /*
+     * Same-tab updates.
+     */
+    window.addEventListener("compare-updated", loadCompareSelection);
+
+    /*
+     * Cross-tab updates.
+     */
+    window.addEventListener("storage", loadCompareSelection);
+
+    return () => {
+      window.removeEventListener("compare-updated", loadCompareSelection);
+
+      window.removeEventListener("storage", loadCompareSelection);
+    };
+  }, []);
+
+  /* =========================================================
+     COMPARE — CURRENT PROPERTY STATUS
+  ========================================================= */
+
+  const currentPropertyId = useMemo(() => {
+    return getPropertyId(property);
+  }, [property]);
+
+  const isCompared = useMemo(() => {
+    if (!currentPropertyId) return false;
+
+    return compareSelection.some(
+      (item) => getPropertyId(item) === currentPropertyId,
+    );
+  }, [compareSelection, currentPropertyId]);
+
+  /* =========================================================
+     COMPARE — TOGGLE
+  ========================================================= */
+
+  const handleCompareToggle = useCallback(() => {
+    if (!property) return;
+
+    const propertyId = getPropertyId(property);
+
+    if (!propertyId) {
+      console.warn("Cannot compare property without ID");
+      return;
+    }
+
+    setCompareSelection((previousSelection) => {
+      const alreadySelected = previousSelection.some(
+        (item) => getPropertyId(item) === propertyId,
+      );
+
+      let updatedSelection;
+
+      if (alreadySelected) {
+        /*
+         * Remove current property.
+         */
+        updatedSelection = previousSelection.filter(
+          (item) => getPropertyId(item) !== propertyId,
+        );
+      } else {
+        /*
+         * Add current property.
+         *
+         * Maximum 3 properties.
+         * If a fourth property is added,
+         * the oldest one is removed.
+         */
+        updatedSelection = [...previousSelection, property].slice(
+          -MAX_COMPARE_PROPERTIES,
+        );
+      }
+
+      try {
+        localStorage.setItem(
+          COMPARE_STORAGE_KEY,
+          JSON.stringify(updatedSelection),
+        );
+
+        /*
+         * Notify other components in the same tab.
+         */
+        window.dispatchEvent(new Event("compare-updated"));
+      } catch (err) {
+        console.error("Failed to save compare selection:", err);
+      }
+
+      return updatedSelection;
+    });
+  }, [property]);
+
+  /* =========================================================
+     COMPARE — CLEAR
+  ========================================================= */
+
+  const clearCompareSelection = useCallback(() => {
+    setCompareSelection([]);
+
+    try {
+      localStorage.removeItem(COMPARE_STORAGE_KEY);
+
+      window.dispatchEvent(new Event("compare-updated"));
+    } catch (err) {
+      console.error("Failed to clear compare selection:", err);
+    }
+  }, []);
+
+  /* =========================================================
+     COMPARE — OPEN PAGE
+  ========================================================= */
+
+  const openComparePage = useCallback(() => {
+    if (
+      compareSelection.length < MIN_COMPARE_PROPERTIES ||
+      compareSelection.length > MAX_COMPARE_PROPERTIES
+    ) {
+      return;
+    }
+
+    try {
+      localStorage.setItem(
+        COMPARE_STORAGE_KEY,
+        JSON.stringify(compareSelection),
+      );
+
+      window.location.href = "/compare";
+    } catch (err) {
+      console.error("Failed to open compare page:", err);
+    }
+  }, [compareSelection]);
+
+  /* =========================================================
+     GALLERY
+  ========================================================= */
+
   const availableGallery = useMemo(() => {
     return gallery.filter((image) => !failedImages.has(image.key));
   }, [gallery, failedImages]);
@@ -361,15 +619,21 @@ export default function PropertyDetailClient({ propertyId }) {
   );
 
   const handleImageError = (imageKey) => {
-    setFailedImages((prev) => new Set(prev).add(imageKey));
+    setFailedImages((previous) => {
+      const next = new Set(previous);
+      next.add(imageKey);
+      return next;
+    });
 
     if (activeImg === imageKey) {
       const currentIndex = availableGallery.findIndex(
         (img) => img.key === imageKey,
       );
+
       const nextImage =
         availableGallery[currentIndex + 1] ||
         availableGallery[currentIndex - 1];
+
       if (nextImage) {
         setActiveImg(nextImage.key);
       }
@@ -378,12 +642,20 @@ export default function PropertyDetailClient({ propertyId }) {
 
   const scrollThumbnailToTop = useCallback((imageKey) => {
     const container = thumbnailContainerRef.current;
+
     const thumbnail = thumbnailRefs.current[imageKey];
-    if (!container || !thumbnail) return;
+
+    if (!container || !thumbnail) {
+      return;
+    }
 
     if (window.innerWidth >= 768) {
       const targetTop = thumbnail.offsetTop - container.offsetTop;
-      container.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+
+      container.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: "smooth",
+      });
     } else {
       thumbnail.scrollIntoView({
         behavior: "smooth",
@@ -396,6 +668,7 @@ export default function PropertyDetailClient({ propertyId }) {
   const selectImage = useCallback(
     (imageKey) => {
       setActiveImg(imageKey);
+
       requestAnimationFrame(() => {
         scrollThumbnailToTop(imageKey);
       });
@@ -405,21 +678,33 @@ export default function PropertyDetailClient({ propertyId }) {
 
   const goToNextImage = useCallback(() => {
     if (!availableGallery.length) return;
+
     const nextIndex = (activeIndex + 1) % availableGallery.length;
+
     const nextImage = availableGallery[nextIndex];
-    if (nextImage) selectImage(nextImage.key);
+
+    if (nextImage) {
+      selectImage(nextImage.key);
+    }
   }, [activeIndex, availableGallery, selectImage]);
 
   const goToPreviousImage = useCallback(() => {
     if (!availableGallery.length) return;
+
     const previousIndex =
       (activeIndex - 1 + availableGallery.length) % availableGallery.length;
+
     const previousImage = availableGallery[previousIndex];
-    if (previousImage) selectImage(previousImage.key);
+
+    if (previousImage) {
+      selectImage(previousImage.key);
+    }
   }, [activeIndex, availableGallery, selectImage]);
 
   useEffect(() => {
-    if (availableGallery.length <= 1) return;
+    if (availableGallery.length <= 1) {
+      return;
+    }
 
     autoScrollTimeoutRef.current = setTimeout(
       goToNextImage,
@@ -435,102 +720,42 @@ export default function PropertyDetailClient({ propertyId }) {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "ArrowRight") goToNextImage();
-      if (event.key === "ArrowLeft") goToPreviousImage();
+      if (event.key === "ArrowRight") {
+        goToNextImage();
+      }
+
+      if (event.key === "ArrowLeft") {
+        goToPreviousImage();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [goToNextImage, goToPreviousImage]);
 
-  /* ---------------------------------------------------------
-     PROPERTY DETAILS MEMOIZATION
-  --------------------------------------------------------- */
+  /* =========================================================
+     PROPERTY DETAILS
+  ========================================================= */
+
   const propertyDetails = useMemo(() => {
     if (!property) return {};
 
     return {
       isCoworking: isCoworkingProperty(property),
-      propertyType: getValue(
-        property,
-        ["officeType", "office_type", "propertyType", "property_type", "type"],
-        "Conventional",
-      ),
-      managedBy: getValue(property, [
-        "operatorName",
-        "OperatorName",
-        "operator",
-        "Operator",
-        "managedBy",
-        "ManagedBy",
-        "managed_by",
-      ]),
-      offeredSeats: getValue(property, [
-        "seatsOffered",
-        "SeatsOffered",
-        "offeredSeats",
-        "OfferedSeats",
-        "seats",
-        "Seats",
-      ]),
-      towerFloor: getValue(property, [
-        "floor",
-        "Floor",
-        "proposedFloor",
-        "ProposedFloor",
-        "towerFloor",
-        "TowerFloor",
-        "towerFloorOffered",
-        "TowerFloorOffered",
-      ]),
-      areaOffered: getValue(property, [
-        "areaSqft",
-        "AreaSqft",
-        "area",
-        "Area",
-        "floorPlate",
-        "FloorPlate",
-      ]),
-      availability: getValue(property, [
-        "availability",
-        "Availability",
-        "availabilityTimeline",
-        "AvailabilityTimeline",
-        "availabilityDate",
-        "AvailabilityDate",
-      ]),
-      buildingCertification: getValue(property, [
-        "buildingCertification",
-        "BuildingCertification",
-        "certificateName",
-        "CertificateName",
-        "certification",
-        "Certification",
-      ]),
-      numberOfElevators: getValue(property, [
-        "numberOfElevators",
-        "NumberOfElevators",
-        "noOfElevators",
-        "NoOfElevators",
-        "elevators",
-        "Elevators",
-      ]),
-      yearOfCompletion: getValue(property, [
-        "yearBuilt",
-        "YearBuilt",
-        "yearOfCompletion",
-        "YearOfCompletion",
-        "completionYear",
-        "CompletionYear",
-      ]),
-      nearbyMetro: getValue(property, [
-        "nearbyMetro",
-        "NearbyMetro",
-        "metro",
-        "Metro",
-        "metroStation",
-        "MetroStation",
-      ]),
+      propertyType: getValue(property, ["officeType"], "Conventional"),
+      managedBy: getValue(property, ["operator"]),
+      offeredSeats: getValue(property, ["NoOfSeatsOffered"]),
+      towerFloor: getValue(property, ["floor"]),
+      areaOffered: getValue(property, ["offeredSuperArea"]),
+      availability: getValue(property, ["availability"]),
+      buildingCertification: getValue(property, ["buildingCertifications"]),
+      numberOfElevators: getValue(property, ["elevators"]),
+      yearOfCompletion: getValue(property, ["estYearOfCompletion"]),
+      nearbyMetro: getValue(property, ["distanceFromMetro"]),
+      airport: getValue(property, ["distanceFromAirport"]),
       busStation: getValue(property, [
         "busStation",
         "BusStation",
@@ -539,14 +764,12 @@ export default function PropertyDetailClient({ propertyId }) {
         "nearbyBus",
         "NearbyBus",
       ]),
-      airport: getValue(property, [
-        "airport",
-        "Airport",
-        "nearbyAirport",
-        "NearbyAirport",
-      ]),
     };
   }, [property]);
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
 
   if (loading) {
     return (
@@ -555,6 +778,10 @@ export default function PropertyDetailClient({ propertyId }) {
       </div>
     );
   }
+
+  /* =========================================================
+     ERROR
+  ========================================================= */
 
   if (error || !property) {
     const isAuthError =
@@ -567,6 +794,7 @@ export default function PropertyDetailClient({ propertyId }) {
           <h1 className="mb-2 text-2xl font-semibold text-slate-900">
             {isAuthError ? "Unable to load property" : "Property not found"}
           </h1>
+
           <p className="text-slate-500">
             {isAuthError
               ? "There was a temporary problem connecting to the property database. Please try again."
@@ -576,18 +804,31 @@ export default function PropertyDetailClient({ propertyId }) {
       </div>
     );
   }
+
+  /* =========================================================
+     MAIN UI
+  ========================================================= */
+
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto w-full max-w-[85vw] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="relative">
+          {/* =====================================================
+              STICKY PROPERTY HEADER
+          ===================================================== */}
+
           <div className="sticky top-[72px] z-40 mb-6 border-b border-slate-200 bg-slate-50 px-4 py-4 shadow-[0_4px_18px_rgba(15,23,42,0.06)] sm:px-6 sm:py-5 lg:px-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              {/* PROPERTY INFO */}
+
               <div className="min-w-0 flex-1">
                 <div className="mb-1.5 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm">
                   {property.city && <span>{property.city}</span>}
+
                   {property.micromarket && (
                     <>
                       <span className="text-slate-300">•</span>
+
                       <span>{property.micromarket}</span>
                     </>
                   )}
@@ -595,10 +836,12 @@ export default function PropertyDetailClient({ propertyId }) {
                   {propertyDetails.propertyType && (
                     <>
                       <span className="text-slate-300">•</span>
+
                       <span>{propertyDetails.propertyType}</span>
                     </>
                   )}
                 </div>
+
                 <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">
                   {property.name}
                 </h1>
@@ -611,32 +854,66 @@ export default function PropertyDetailClient({ propertyId }) {
                   </div>
                 )}
               </div>
+
+              {/* ACTION BUTTONS */}
+
               <div className="flex w-full shrink-0 items-center gap-2 sm:gap-3 lg:w-auto">
-                {/* <button type="button" onClick={() => setIsContactModalOpen(true)} className=" inline-flex h-10 flex-1 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 sm:h-11 sm:flex-none sm:px-5"> Contact Us </button> */}
+                {/* COMPARE */}
+
+                <button
+                  type="button"
+                  onClick={handleCompareToggle}
+                  className={`inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isCompared
+                    ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
+                    : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
+                    }`}
+                  aria-pressed={isCompared}
+                >
+                  {isCompared ? (
+                    <X className="h-4 w-4" />
+                  ) : (
+                    <GitCompare className="h-4 w-4" />
+                  )}
+
+                  {isCompared ? "Compared" : "Compare"}
+                </button>
+
+                {/* SHORTLIST */}
+
                 <button
                   type="button"
                   onClick={() => handleWishlist(property)}
-                  className={` inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted ? "bg-pink-600 text-white hover:bg-pink-700" : "bg-gray-900 text-white hover:bg-gray-800"}`}
+                  className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
+                    ? "bg-pink-600 text-white hover:bg-pink-700"
+                    : "bg-gray-900 text-white hover:bg-gray-800"
+                    }`}
                 >
-                  {" "}
                   {isWishlisted ? "Shortlisted" : "Shortlist"}
                 </button>
               </div>
             </div>
           </div>
 
+          {/* =====================================================
+              MEDIA GALLERY
+          ===================================================== */}
+
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:rounded-3xl">
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6">
               <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-900 sm:text-base">
                 Property Media Gallery
               </h2>
+
               <div className="text-xs font-medium text-slate-500 sm:text-sm">
                 {availableGallery.length} image
                 {availableGallery.length === 1 ? "" : "s"} found
               </div>
             </div>
+
             <div className="p-3 sm:p-5">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px]">
+                {/* MAIN IMAGE */}
+
                 <div
                   className="group relative overflow-hidden rounded-2xl bg-slate-100"
                   onMouseEnter={() => {
@@ -672,13 +949,16 @@ export default function PropertyDetailClient({ propertyId }) {
                     )}
 
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/65 to-transparent" />
+
                     <div className="absolute bottom-4 left-4 max-w-[80%] text-sm font-semibold text-white drop-shadow-md sm:text-base">
                       {availableGallery.find((img) => img.key === activeImg)
                         ?.name || "Property Photo"}
                     </div>
+
                     <div className="absolute right-4 top-4 rounded-full bg-black/65 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
                       {activeIndex + 1} / {availableGallery.length}
                     </div>
+
                     {availableGallery.length > 1 && (
                       <>
                         <button
@@ -704,8 +984,10 @@ export default function PropertyDetailClient({ propertyId }) {
                 </div>
 
                 {/* THUMBNAILS */}
+
                 <div className="min-w-0">
-                  {/* Desktop */}
+                  {/* DESKTOP */}
+
                   <div
                     ref={thumbnailContainerRef}
                     className="hidden h-full max-h-[620px] flex-col gap-3 overflow-y-auto pr-1 md:flex"
@@ -724,22 +1006,21 @@ export default function PropertyDetailClient({ propertyId }) {
                           aria-label={`View ${image.name}`}
                           aria-current={isActive ? "true" : undefined}
                           className={`
-                          group
-                          relative
-                          w-full
-                          shrink-0
-                          overflow-hidden
-                          rounded-xl
-                          border-2
-                          text-left
-                          transition-all
-                          duration-300
-                          ${
-                            isActive
+                              group
+                              relative
+                              w-full
+                              shrink-0
+                              overflow-hidden
+                              rounded-xl
+                              border-2
+                              text-left
+                              transition-all
+                              duration-300
+                              ${isActive
                               ? "border-[#A054A0] shadow-md"
                               : "border-transparent bg-slate-50 hover:border-slate-300"
-                          }
-                        `}
+                            }
+                            `}
                         >
                           <div className="relative aspect-[16/9] w-full">
                             <Image
@@ -753,15 +1034,14 @@ export default function PropertyDetailClient({ propertyId }) {
 
                             <div
                               className={`
-                              absolute
-                              inset-0
-                              transition
-                              ${
-                                isActive
+                                  absolute
+                                  inset-0
+                                  transition
+                                  ${isActive
                                   ? "bg-[#A054A0]/10"
                                   : "bg-black/0 group-hover:bg-black/10"
-                              }
-                            `}
+                                }
+                                `}
                             />
                           </div>
 
@@ -775,7 +1055,8 @@ export default function PropertyDetailClient({ propertyId }) {
                     })}
                   </div>
 
-                  {/* Mobile */}
+                  {/* MOBILE */}
+
                   <div className="md:hidden">
                     <div
                       ref={thumbnailContainerRef}
@@ -795,20 +1076,19 @@ export default function PropertyDetailClient({ propertyId }) {
                             aria-label={`View ${image.name}`}
                             aria-current={isActive ? "true" : undefined}
                             className={`
-                            relative
-                            h-20
-                            w-28
-                            shrink-0
-                            overflow-hidden
-                            rounded-xl
-                            border-2
-                            transition-all
-                            ${
-                              isActive
+                                relative
+                                h-20
+                                w-28
+                                shrink-0
+                                overflow-hidden
+                                rounded-xl
+                                border-2
+                                transition-all
+                                ${isActive
                                 ? "border-[#A054A0] shadow-md"
                                 : "border-transparent opacity-75"
-                            }
-                          `}
+                              }
+                              `}
                           >
                             <Image
                               src={image.url}
@@ -832,9 +1112,10 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
           </section>
 
-          {/* =======================================================
-            PROPERTY DETAILS
-        ======================================================== */}
+          {/* =====================================================
+              PROPERTY DETAILS
+          ===================================================== */}
+
           <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:rounded-3xl sm:p-7 lg:p-8">
             <DetailSection title="Property details">
               {propertyDetails.isCoworking ? (
@@ -863,7 +1144,7 @@ export default function PropertyDetailClient({ propertyId }) {
                     label="Area offered"
                     value={
                       propertyDetails.areaOffered !== "-" &&
-                      !isNaN(Number(propertyDetails.areaOffered))
+                        !isNaN(Number(propertyDetails.areaOffered))
                         ? formatArea(Number(propertyDetails.areaOffered), unit)
                         : propertyDetails.areaOffered
                     }
@@ -934,15 +1215,11 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
           </section>
         </div>
-        {/* =========================================================
-          END STICKY PROPERTY CONTENT
-          Sticky header stops here.
-      ========================================================== */}
 
         {/* =========================================================
-          SUGGESTED / SIMILAR PROPERTIES
-          Header is no longer sticky from this point.
-      ========================================================== */}
+            SIMILAR PROPERTIES
+        ========================================================= */}
+
         {related.length > 0 && (
           <section className="mt-12 sm:mt-14">
             <div className="mb-5 flex items-end justify-between gap-4">
@@ -961,22 +1238,13 @@ export default function PropertyDetailClient({ propertyId }) {
                 aria-label="View all properties"
                 className="inline-flex items-center justify-center"
               >
-                <ArrowUpRight
-                  className="
-                  h-5
-                  w-5
-                  text-slate-400
-                  transition-transform
-                  duration-200
-                  hover:translate-x-0.5
-                  hover:-translate-y-0.5
-                "
-                />
+                <ArrowUpRight className="h-5 w-5 text-slate-400 transition-transform duration-200 hover:translate-x-0.5 hover:-translate-y-0.5" />
               </Link>
             </div>
 
             <div className="space-y-6">
               {/* ROW 1 */}
+
               {row1.length > 0 && (
                 <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
                   {row1.map((item) => (
@@ -984,13 +1252,61 @@ export default function PropertyDetailClient({ propertyId }) {
                       key={getPropertyId(item)}
                       className="w-[280px] shrink-0 snap-start sm:w-[320px] lg:w-[350px]"
                     >
-                      <PropertyCard property={item} />
+                      <PropertyCard
+                        property={item}
+                        isCompared={compareSelection.some(
+                          (selected) =>
+                            getPropertyId(selected) === getPropertyId(item),
+                        )}
+                        onCompareToggle={(selectedProperty) => {
+                          if (!selectedProperty) return;
+
+                          const selectedId = getPropertyId(selectedProperty);
+
+                          if (!selectedId) return;
+
+                          setCompareSelection((previousSelection) => {
+                            const alreadySelected = previousSelection.some(
+                              (selected) =>
+                                getPropertyId(selected) === selectedId,
+                            );
+
+                            const updatedSelection = alreadySelected
+                              ? previousSelection.filter(
+                                (selected) =>
+                                  getPropertyId(selected) !== selectedId,
+                              )
+                              : [...previousSelection, selectedProperty].slice(
+                                -MAX_COMPARE_PROPERTIES,
+                              );
+
+                            try {
+                              localStorage.setItem(
+                                COMPARE_STORAGE_KEY,
+                                JSON.stringify(updatedSelection),
+                              );
+
+                              window.dispatchEvent(
+                                new Event("compare-updated"),
+                              );
+                            } catch (error) {
+                              console.error(
+                                "Failed to update compare selection:",
+                                error,
+                              );
+                            }
+
+                            return updatedSelection;
+                          });
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
               )}
 
               {/* ROW 2 */}
+
               {row2.length > 0 && (
                 <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
                   {row2.map((item) => (
@@ -998,7 +1314,54 @@ export default function PropertyDetailClient({ propertyId }) {
                       key={getPropertyId(item)}
                       className="w-[280px] shrink-0 snap-start sm:w-[320px] lg:w-[350px]"
                     >
-                      <PropertyCard property={item} />
+                      <PropertyCard
+                        property={item}
+                        isCompared={compareSelection.some(
+                          (selected) =>
+                            getPropertyId(selected) === getPropertyId(item),
+                        )}
+                        onCompareToggle={(selectedProperty) => {
+                          if (!selectedProperty) return;
+
+                          const selectedId = getPropertyId(selectedProperty);
+
+                          if (!selectedId) return;
+
+                          setCompareSelection((previousSelection) => {
+                            const alreadySelected = previousSelection.some(
+                              (selected) =>
+                                getPropertyId(selected) === selectedId,
+                            );
+
+                            const updatedSelection = alreadySelected
+                              ? previousSelection.filter(
+                                (selected) =>
+                                  getPropertyId(selected) !== selectedId,
+                              )
+                              : [...previousSelection, selectedProperty].slice(
+                                -MAX_COMPARE_PROPERTIES,
+                              );
+
+                            try {
+                              localStorage.setItem(
+                                COMPARE_STORAGE_KEY,
+                                JSON.stringify(updatedSelection),
+                              );
+
+                              window.dispatchEvent(
+                                new Event("compare-updated"),
+                              );
+                            } catch (error) {
+                              console.error(
+                                "Failed to update compare selection:",
+                                error,
+                              );
+                            }
+
+                            return updatedSelection;
+                          });
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -1007,6 +1370,62 @@ export default function PropertyDetailClient({ propertyId }) {
           </section>
         )}
       </div>
+
+      {/* =========================================================
+          COMPARE TRAY
+      ========================================================= */}
+
+      {compareSelection.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-[150] border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:px-4">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {/* SELECTION INFO */}
+
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-900">
+                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties
+                selected
+              </p>
+
+              <p className="mt-0.5 text-xs text-slate-500">
+                {compareSelection.length >= MIN_COMPARE_PROPERTIES
+                  ? "Ready to compare your selected properties."
+                  : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length
+                  } more property${MIN_COMPARE_PROPERTIES - compareSelection.length === 1
+                    ? ""
+                    : "ies"
+                  } to compare.`}
+              </p>
+            </div>
+
+            {/* ACTIONS */}
+
+            <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+              <button
+                type="button"
+                onClick={clearCompareSelection}
+                className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none"
+              >
+                Clear
+              </button>
+
+              <button
+                type="button"
+                onClick={openComparePage}
+                disabled={
+                  compareSelection.length < MIN_COMPARE_PROPERTIES ||
+                  compareSelection.length > MAX_COMPARE_PROPERTIES
+                }
+                className="flex-1 rounded-lg bg-[#A054A0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8d438d] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <GitCompare className="h-4 w-4" />
+                  Compare Properties
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

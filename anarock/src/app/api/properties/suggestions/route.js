@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-
 import { getAllProperties } from "@/lib/propertiesCache";
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 function normalize(value) {
@@ -23,11 +21,9 @@ function parseNumber(value) {
     if (value === null || value === undefined || value === "") {
         return null;
     }
-
     if (typeof value === "number") {
         return Number.isFinite(value) ? value : null;
     }
-
     const cleaned = String(value)
         .replace(/,/g, "")
         .replace(/[₹$€£]/g, "")
@@ -36,23 +32,20 @@ function parseNumber(value) {
     if (!cleaned) {
         return null;
     }
-
     const number = Number(cleaned);
-
     return Number.isFinite(number) ? number : null;
 }
 
 function getFirstValue(property, fields) {
     for (const field of fields) {
         const value = property?.[field];
-
         if (value !== undefined && value !== null && String(value).trim() !== "") {
             return value;
         }
     }
-
     return null;
 }
+
 function getPropertyId(property) {
     return String(
         property?.id ?? property?.rowId ?? property?.ROWID ?? property?.ID ?? "",
@@ -60,133 +53,51 @@ function getPropertyId(property) {
 }
 
 function getPropertyType(property) {
-    return normalizeMatch(
-        getFirstValue(property, [
-            "type",
-            "Type",
-            "propertyType",
-            "PropertyType",
-            "officeType",
-            "OfficeType",
-        ]),
-    );
+    return normalizeMatch(getFirstValue(property, ["officeType"]));
 }
 
 function getPropertyCity(property) {
-    return normalizeMatch(
-        getFirstValue(property, ["city", "City", "cityName", "CityName"]),
-    );
+    return normalizeMatch(getFirstValue(property, ["city"]));
 }
 
 function getPropertyMicromarket(property) {
-    return normalizeMatch(
-        getFirstValue(property, [
-            "micromarket",
-            "Micromarket",
-            "microMarket",
-            "MicroMarket",
-            "micromarketName",
-            "MicromarketName",
-        ]),
-    );
+    return normalizeMatch(getFirstValue(property, ["micromarket"]));
+    console.log("PARTHHHHHHHHHHHHHHHHHHHH", property);
 }
 
 function getPropertyArea(property) {
     return parseNumber(
         getFirstValue(property, [
             "areaSqft",
-            "AreaSqft",
-            "area",
-            "Area",
-            "superArea",
-            "SuperArea",
-            "superBuiltUpArea",
-            "SuperBuiltUpArea",
+            "offeredSuperArea",
+            "builtupArea",
             "carpetArea",
-            "CarpetArea",
-            "builtUpArea",
-            "BuiltUpArea",
+            "totalLeasableAreaAvailable",
+            "centerArea",
             "floorPlate",
-            "FloorPlate",
-            "Floor_Plate",
-            "size",
-            "Size",
+            "totalDevelopmentSize",
         ]),
     );
 }
 
 function getPropertySeats(property) {
-    return parseNumber(
-        getFirstValue(property, [
-            "seatsOffered",
-            "SeatsOffered",
-            "noofseatsoffered",
-            "NoOfSeatsOffered",
-            "NoofSeatsOffered",
-            "noOfSeatsOffered",
-            "seatsAvailable",
-            "SeatsAvailable",
-            "availableSeats",
-            "AvailableSeats",
-            "seatCapacity",
-            "SeatCapacity",
-            "totalSeats",
-            "TotalSeats",
-        ]),
-    );
+    return parseNumber(getFirstValue(property, ["NoOfSeatsOffered"]));
 }
 
 function getPropertyPrice(property) {
     const type = getPropertyType(property);
-
     const managedOffice = type === "managedofficecoworking";
-
     if (managedOffice) {
-        return parseNumber(
-            getFirstValue(property, [
-                "monthlyCostPerSeat",
-                "MonthlyCostPerSeat",
-                "monthlyCostPerSeatInr",
-                "MonthlyCostPerSeatInr",
-                "pricePerSeat",
-                "PricePerSeat",
-                "costPerSeat",
-                "CostPerSeat",
-                "rentPerSeat",
-                "RentPerSeat",
-            ]),
-        );
+        return parseNumber(getFirstValue(property, ["monthlyCostPerSeat"]));
     }
-
-    return parseNumber(
-        getFirstValue(property, [
-            "quotedRent",
-            "QuotedRent",
-            "monthlyRent",
-            "MonthlyRent",
-            "rent",
-            "Rent",
-            "monthlyCost",
-            "MonthlyCost",
-            "budget",
-            "Budget",
-            "price",
-            "Price",
-        ]),
-    );
+    return parseNumber(getFirstValue(property, ["quotedRent"]));
 }
-
-/* -------------------------------------------------------------------------- */
-/* Pagination                                                                 */
-/* -------------------------------------------------------------------------- */
 
 function parsePage(value) {
     const parsed = Number(value);
-
     if (!Number.isFinite(parsed) || parsed < 1) {
         return 1;
     }
-
     return Math.floor(parsed);
 }
 
@@ -199,101 +110,95 @@ function parsePageSize(value) {
 
     return Math.min(Math.floor(parsed), 50);
 }
-function getFilteredProperties(
-    properties,
-    { city, type, micromarket, minBudget, area, seats },
-) {
-    let filtered = properties;
-    if (city) {
-        const normalizedCity = normalizeMatch(city);
 
-        filtered = filtered.filter(
-            (property) => getPropertyCity(property) === normalizedCity,
-        );
-    } if (type && normalize(type) !== "ai") {
-        const normalizedType = normalizeMatch(type);
+function prepareFilters({ city, type, micromarket, minBudget, area, seats }) {
+    const normalizedCity = normalizeMatch(city);
+    const normalizedType = normalize(type) !== "ai" ? normalizeMatch(type) : "";
+    const requestedMicromarkets = micromarket
+        .split(",")
+        .map((item) => normalizeMatch(item))
+        .filter(Boolean);
+    const requestedMicromarket = requestedMicromarkets[0] || "";
+    const requestedBudget = minBudget !== "" ? parseNumber(minBudget) : null;
+    const requestedArea = area !== "" ? parseNumber(area) : null;
+    const requestedSeats = seats !== "" ? parseNumber(seats) : null;
 
-        filtered = filtered.filter(
-            (property) => getPropertyType(property) === normalizedType,
-        );
-    }
-    if (micromarket) {
-        const selectedMicromarkets = micromarket
-            .split(",")
-            .map((item) => normalizeMatch(item))
-            .filter(Boolean);
-
-        if (selectedMicromarkets.length) {
-            filtered = filtered.filter((property) => {
-                const propertyMicromarket = getPropertyMicromarket(property);
-
-                return selectedMicromarkets.some(
-                    (selected) =>
-                        propertyMicromarket === selected ||
-                        propertyMicromarket.includes(selected),
-                );
-            });
-        }
-    }
-    if (minBudget !== "") {
-        const minimum = parseNumber(minBudget);
-
-        if (minimum !== null && minimum >= 0) {
-            filtered = filtered.filter((property) => {
-                const propertyPrice = getPropertyPrice(property);
-
-                return propertyPrice !== null && propertyPrice >= minimum;
-            });
-        }
-    }
-    if (area !== "") {
-        const minimumArea = parseNumber(area);
-
-        if (minimumArea !== null && minimumArea >= 0) {
-            filtered = filtered.filter((property) => {
-                const propertyArea = getPropertyArea(property);
-
-                return propertyArea !== null && propertyArea >= minimumArea;
-            });
-        }
-    }
-
-    if (seats !== "") {
-        const requiredSeats = parseNumber(seats);
-
-        if (requiredSeats !== null && requiredSeats >= 0) {
-            filtered = filtered.filter((property) => {
-                const seatsOffered = getPropertySeats(property);
-
-                return seatsOffered !== null && seatsOffered >= requiredSeats;
-            });
-        }
-    }
-
-    return filtered;
-}
-
-function scoreSuggestion(
-    property,
-    {
-        requestedCity,
+    return {
+        normalizedCity,
+        normalizedType,
+        requestedMicromarkets,
         requestedMicromarket,
-        requestedType,
         requestedBudget,
         requestedArea,
         requestedSeats,
-    },
-) {
+    };
+}
+
+function matchesFilters(property, filters) {
+    const {
+        normalizedCity,
+        normalizedType,
+        requestedMicromarkets,
+        requestedBudget,
+        requestedArea,
+        requestedSeats,
+    } = filters;
+
+    if (normalizedCity && getPropertyCity(property) !== normalizedCity) {
+        return false;
+    }
+    if (normalizedType && getPropertyType(property) !== normalizedType) {
+        return false;
+    }
+    if (requestedMicromarkets.length) {
+        const propertyMicromarket = getPropertyMicromarket(property);
+
+        const matchesMicromarket = requestedMicromarkets.some(
+            (selected) =>
+                propertyMicromarket === selected ||
+                propertyMicromarket.includes(selected),
+        );
+        if (!matchesMicromarket) {
+            return false;
+        }
+    }
+    if (requestedBudget !== null) {
+        const propertyPrice = getPropertyPrice(property);
+
+        if (propertyPrice === null || propertyPrice < requestedBudget) {
+            return false;
+        }
+    }
+    if (requestedArea !== null) {
+        const propertyArea = getPropertyArea(property);
+        if (propertyArea === null || propertyArea < requestedArea) {
+            return false;
+        }
+    }
+    if (requestedSeats !== null) {
+        const propertySeats = getPropertySeats(property);
+        if (propertySeats === null || propertySeats < requestedSeats) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function scoreSuggestion(property, filters) {
+    const {
+        normalizedCity: requestedCity,
+        requestedMicromarket,
+        normalizedType: requestedType,
+        requestedBudget,
+        requestedArea,
+        requestedSeats,
+    } = filters;
     const propertyCity = getPropertyCity(property);
-
     const propertyMicromarket = getPropertyMicromarket(property);
-
     const propertyType = getPropertyType(property);
-
     const propertyPrice = getPropertyPrice(property);
-
     const propertyArea = getPropertyArea(property);
-
     const propertySeats = getPropertySeats(property);
     const sameCity = Boolean(requestedCity && propertyCity === requestedCity);
     const sameMicromarket = Boolean(
@@ -310,7 +215,6 @@ function scoreSuggestion(
     if (requestedBudget !== null && propertyPrice !== null) {
         if (propertyPrice <= requestedBudget) {
             budgetMatch = 0;
-
             budgetDistance = requestedBudget - propertyPrice;
         } else {
             budgetMatch = 1;
@@ -322,15 +226,14 @@ function scoreSuggestion(
     }
     let capacityMatch = 1;
     let capacityDistance = Number.MAX_SAFE_INTEGER;
+
     if (requestedSeats !== null) {
         if (propertySeats !== null) {
             if (propertySeats >= requestedSeats) {
                 capacityMatch = 0;
-
                 capacityDistance = propertySeats - requestedSeats;
             } else {
                 capacityMatch = 1;
-
                 capacityDistance = requestedSeats - propertySeats;
             }
         }
@@ -338,11 +241,9 @@ function scoreSuggestion(
         if (propertyArea !== null) {
             if (propertyArea >= requestedArea) {
                 capacityMatch = 0;
-
                 capacityDistance = propertyArea - requestedArea;
             } else {
                 capacityMatch = 1;
-
                 capacityDistance = requestedArea - propertyArea;
             }
         }
@@ -363,21 +264,21 @@ function scoreSuggestion(
         capacityDistance,
     };
 }
+
 export async function GET(request) {
     const requestStartedAt = Date.now();
-
     try {
         const { searchParams } = new URL(request.url);
         const city = searchParams.get("city") || "";
         const type = searchParams.get("type") || "";
         const micromarket = searchParams.get("micromarket") || "";
-        const minBudget = searchParams.get("minBudget") || ""
+        const minBudget = searchParams.get("minBudget") || "";
         const area = searchParams.get("area") || "";
         const seats = searchParams.get("seats") || "";
         const page = parsePage(searchParams.get("page"));
         const pageSize = parsePageSize(searchParams.get("pageSize"));
         const properties = await getAllProperties();
-        const filteredProperties = getFilteredProperties(properties, {
+        const filters = prepareFilters({
             city,
             type,
             micromarket,
@@ -386,57 +287,42 @@ export async function GET(request) {
             seats,
         });
         const filteredPropertyIds = new Set();
-
-        for (const property of filteredProperties) {
-            const id = getPropertyId(property);
-
-            if (id) {
-                filteredPropertyIds.add(id);
-            }
-        }
         const suggestionCandidates = [];
-
         for (const property of properties) {
+            if (matchesFilters(property, filters)) {
+                const id = getPropertyId(property);
+                if (id) {
+                    filteredPropertyIds.add(id);
+                }
+                continue;
+            }
             const id = getPropertyId(property);
             if (!id) {
                 continue;
             }
+            suggestionCandidates.push(property);
+        }
+        const scored = new Array(suggestionCandidates.length);
+        let scoredCount = 0;
+        for (let index = 0; index < suggestionCandidates.length; index++) {
+            const property = suggestionCandidates[index];
+            const id = getPropertyId(property);
             if (filteredPropertyIds.has(id)) {
                 continue;
             }
-
-            suggestionCandidates.push(property);
-        }
-        const requestedCity = normalizeMatch(city);
-        const requestedType = normalizeMatch(type);
-        const requestedMicromarkets = micromarket
-            .split(",")
-            .map((item) => normalizeMatch(item))
-            .filter(Boolean);
-        const requestedMicromarket = requestedMicromarkets[0] || "";
-        const requestedBudget = minBudget !== "" ? parseNumber(minBudget) : null;
-        const requestedArea = area !== "" ? parseNumber(area) : null;
-        const requestedSeats = seats !== "" ? parseNumber(seats) : null;
-        const scored = suggestionCandidates.map((property) => {
-            const score = scoreSuggestion(property, {
-                requestedCity,
-                requestedMicromarket,
-                requestedType,
-                requestedBudget,
-                requestedArea,
-                requestedSeats,
-            });
-
-            return {
+            const score = scoreSuggestion(property, filters);
+            scored[scoredCount++] = {
                 property,
-                id: getPropertyId(property),
+                id,
                 ...score,
             };
-        });
+        }
+        scored.length = scoredCount;
         scored.sort((a, b) => {
             if (a.priorityScore !== b.priorityScore) {
                 return a.priorityScore - b.priorityScore;
             }
+
             if (a.budgetDistance !== b.budgetDistance) {
                 return a.budgetDistance - b.budgetDistance;
             }
@@ -448,7 +334,6 @@ export async function GET(request) {
                 sensitivity: "base",
             });
         });
-
         const total = scored.length;
         const totalPages = total > 0 ? Math.ceil(total / pageSize) : 0;
         const start = (page - 1) * pageSize;
@@ -464,8 +349,7 @@ export async function GET(request) {
                 pageSize,
                 totalPages,
                 hasMore,
-
-                filteredResultCount: filteredProperties.length,
+                filteredResultCount: filteredPropertyIds.size,
                 suggestionPoolCount: suggestionCandidates.length,
                 cachedAt: Date.now(),
                 processingTime: Date.now() - requestStartedAt,
@@ -474,22 +358,14 @@ export async function GET(request) {
                 headers: {
                     "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
                     "X-Suggestions-Total": String(total),
-                    "X-Filtered-Result-Count": String(filteredProperties.length),
+                    "X-Filtered-Result-Count": String(filteredPropertyIds.size),
                     "X-Suggestions-Has-More": String(hasMore),
                 },
             },
         );
     } catch (error) {
-        console.error("========================================");
-
         console.error("[Suggestions API] ERROR:", error);
-
         console.error("[Suggestions API] MESSAGE:", error?.message);
-
-        console.error("[Suggestions API] STACK:", error?.stack);
-
-        console.error("========================================");
-
         return NextResponse.json(
             {
                 success: false,

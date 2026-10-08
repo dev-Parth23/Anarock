@@ -83,17 +83,17 @@ function PropertyCard({
 
   const propertyName = String(
     property?.name ||
-      property?.Property_Name ||
-      property?.propertyName ||
-      property?.Name ||
-      "Property",
+    property?.Property_Name ||
+    property?.propertyName ||
+    property?.Name ||
+    "Property",
   );
 
   const propertySlug = createSlug(propertyName);
   const propertyUrl = propertyId
     ? `/properties/${encodeURIComponent(propertyId)}/${encodeURIComponent(
-        propertySlug,
-      )}`
+      propertySlug,
+    )}`
     : "/properties";
 
   const imageUrl = getStratusImageUrl(
@@ -174,7 +174,7 @@ function PropertyCard({
 
   return (
     <article className="group relative z-0 flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8E3DC] bg-white shadow-[0_4px_20px_rgba(39,29,23,0.04)] transition-all duration-500 ease-out hover:z-20 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(39,29,23,0.10)]">
-      <div className="relative overflow-hidden bg-[#F8F7F5] p-2.5 sm:p-3">
+      <div className="relative overflow-hidden p-2.5 sm:p-3">
         <div className="relative aspect-[3/2] w-full overflow-hidden rounded-xl bg-[#F3F1EE]">
           <Link
             href={propertyUrl}
@@ -196,9 +196,8 @@ function PropertyCard({
                 unoptimized
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageError(true)}
-                className={`object-cover transition-all duration-500 ease-out group-hover:scale-[1.035] ${
-                  imageLoaded ? "opacity-100" : "opacity-0"
-                }`}
+                className={`object-cover transition-all duration-500 ease-out group-hover:scale-[1.035] ${imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             ) : (
@@ -237,18 +236,16 @@ function PropertyCard({
                 e.stopPropagation();
               }}
               onClick={handleCompareClick}
-              className={`flex min-h-[34px] items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold tracking-wide shadow-md backdrop-blur-md transition-all duration-200 ${
-                isCompared
-                  ? "border-[#A054A0] bg-[#A054A0] text-white"
-                  : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:text-[#A054A0]"
-              }`}
+              className={`flex min-h-[34px] items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold tracking-wide shadow-md backdrop-blur-md transition-all duration-200 ${isCompared
+                ? "border-[#A054A0] bg-[#A054A0] text-white"
+                : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:text-[#A054A0]"
+                }`}
             >
               <span
-                className={`flex h-3.5 w-3.5 items-center justify-center rounded-[3px] border text-[9px] leading-none ${
-                  isCompared
-                    ? "border-white bg-white text-[#A054A0]"
-                    : "border-[#A054A0] bg-white"
-                }`}
+                className={`flex h-3.5 w-3.5 items-center justify-center rounded-[3px] border text-[9px] leading-none ${isCompared
+                  ? "border-white bg-white text-[#A054A0]"
+                  : "border-[#A054A0] bg-white"
+                  }`}
               >
                 {isCompared ? "✓" : ""}
               </span>
@@ -268,11 +265,10 @@ function PropertyCard({
               e.stopPropagation();
             }}
             onClick={handleShortlistClick}
-            className={`absolute right-3 top-3 z-[50] flex h-9 w-9 items-center justify-center rounded-lg border shadow-md backdrop-blur-md transition-all duration-200 ${
-              isWishlisted
-                ? "border-[#A054A0] bg-[#A054A0] text-white"
-                : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
-            }`}
+            className={`absolute right-3 top-3 z-[50] flex h-9 w-9 items-center justify-center rounded-lg border shadow-md backdrop-blur-md transition-all duration-200 ${isWishlisted
+              ? "border-[#A054A0] bg-[#A054A0] text-white"
+              : "border-white/70 bg-white/95 text-[#403744] hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
+              }`}
           >
             <Heart
               className="h-[17px] w-[17px]"
@@ -286,9 +282,9 @@ function PropertyCard({
       <Link
         href={propertyUrl}
         aria-label={`View details of ${propertyName}`}
-        className="flex flex-1 flex-col px-4 pb-4 pt-4 sm:px-5 sm:pb-5"
+        className="flex flex-col px-4 pb-3 pt-2 sm:px-5 sm:pb-5"
       >
-        <div className="mb-2.5 flex items-center justify-between gap-2">
+        <div className="mb-2.5 flex items-center justify-between gap-[1.2rem]">
           <span className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A054A0]">
             {isCoworking
               ? "Managed Office/Co-working Property"
@@ -297,7 +293,7 @@ function PropertyCard({
         </div>
 
         <h3
-          className="line-clamp-2 min-h-[50px] text-[21px] font-bold leading-[1.2] tracking-[-0.025em] text-[#241B2B] transition-colors duration-300 group-hover:text-[#A054A0] sm:text-[23px]"
+          className="line-clamp-2 min-h-[35px] text-[18px] font-bold leading-none tracking-[-0.025em] text-[#241B2B] transition-colors duration-300 group-hover:text-[#A054A0] sm:text-[20px]"
           title={propertyName}
         >
           {propertyName}
@@ -305,15 +301,15 @@ function PropertyCard({
 
         <div className="flex min-w-0 items-center gap-1.5">
           <MapPin
-            className="h-3.5 w-3.5 shrink-0 text-[#A054A0]"
+            className="h-3 w-3 shrink-0 text-[#A054A0]"
             strokeWidth={1.7}
           />
-          <p className="line-clamp-2 min-w-0 text-[11px] leading-[1.65] text-[#7D7482] sm:text-base">
+          <p className="line-clamp-2 min-w-0 text-[10px] leading-tight text-[#7D7482] sm:text-base">
             {location || "Location unavailable"}
           </p>
         </div>
 
-        <div className="my-4 h-px bg-[#EEE9E4]" />
+        <div className="my-3 h-px bg-[#EEE9E4]" />
 
         <div className="grid grid-cols-2 gap-3">
           {isCoworking ? (

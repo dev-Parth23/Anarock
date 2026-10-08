@@ -2130,7 +2130,7 @@ export default function HomePage() {
                           />
 
                           <GlassField
-                            label="Budget"
+                            label="Rent/sq.ft/Month"
                             name="requirementRent"
                             type="number"
                             placeholder="Enter rent budget per sq.ft/month"
@@ -2197,7 +2197,7 @@ export default function HomePage() {
               <div>
                 <p className="text-xl text-center font-medium leading-relaxed tracking-tight text-slate-800 sm:text-2xl md:text-3xl">
                   Redefining real estate through intelligence, integrity and
-                  impact
+                  impact.
                 </p>
 
                 <p className="mt-7 text-center text-lg leading-7 text-slate-500 sm:text-lg sm:leading-8">
@@ -2228,6 +2228,132 @@ export default function HomePage() {
         </section>
       </div>
 
+      {/* FORM SUBMISSION POPUP */}
+      {submitMessage && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/40 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="submission-popup-title"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.96 }}
+            transition={{
+              duration: 0.3,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="relative w-full max-w-md overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/95 p-7 shadow-[0_30px_100px_rgba(15,23,42,0.22)] backdrop-blur-2xl sm:p-8"
+          >
+            {/* Decorative glow */}
+            <div
+              className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl ${submitMessageType === "success"
+                ? "bg-[#A054A0]/15"
+                : "bg-red-400/10"
+                }`}
+            />
+
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setSubmitMessage("")}
+              aria-label="Close"
+              className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-all duration-200 hover:bg-slate-200 hover:text-slate-800"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
+
+            <div className="relative z-10 text-center">
+              {/* Status icon */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{
+                  delay: 0.1,
+                  duration: 0.4,
+                  type: "spring",
+                  stiffness: 220,
+                  damping: 15,
+                }}
+                className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${submitMessageType === "success"
+                  ? "bg-[#A054A0]/10 text-[#A054A0]"
+                  : "bg-red-50 text-red-500"
+                  }`}
+              >
+                {submitMessageType === "success" ? (
+                  <svg
+                    width="30"
+                    height="30"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m5 12 4 4L19 6" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="30"
+                    height="30"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 8v4" />
+                    <path d="M12 16h.01" />
+                  </svg>
+                )}
+              </motion.div>
+
+              {/* Title */}
+              <h3
+                id="submission-popup-title"
+                className="mt-6 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl"
+              >
+                {submitMessageType === "success"
+                  ? "Requirement Submitted"
+                  : "Submission Unsuccessful"}
+              </h3>
+
+              {/* Message */}
+              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">
+                {submitMessage}
+              </p>
+
+              {/* Action */}
+              <button
+                type="button"
+                onClick={() => setSubmitMessage("")}
+                className={`mt-7 inline-flex items-center justify-center rounded-full px-7 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 ${submitMessageType === "success"
+                  ? "bg-[#A054A0] shadow-[#A054A0]/20 hover:bg-[#873D87]"
+                  : "bg-slate-900 shadow-slate-900/15 hover:bg-slate-800"
+                  }`}
+              >
+                {submitMessageType === "success" ? "Done" : "Try Again"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
       <CookieConsent
         onConsentGiven={() => {
           setConsentGranted(true);

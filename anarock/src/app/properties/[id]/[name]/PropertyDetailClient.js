@@ -6,11 +6,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PropertyCard from "@/components/properties/PropertyCard";
-
 import {
   ChevronLeft,
-  ChevronRight,
   MapPin,
+  X,
+  GitCompare,
+  ChevronRight,
   Building2,
   Users,
   Layers3,
@@ -19,13 +20,9 @@ import {
   BusFront,
   Plane,
   ArrowUpRight,
-  GitCompare,
-  X,
 } from "lucide-react";
-
 const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
 const AUTO_SCROLL_INTERVAL = 25000;
-
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
@@ -91,7 +88,6 @@ const IMAGE_FILES = [
     filename: "Property_Photo_10.jpg",
   },
 ];
-
 const getValue = (property, keys, fallback = "-") => {
   for (const key of keys) {
     const value = property?.[key];
@@ -103,14 +99,12 @@ const getValue = (property, keys, fallback = "-") => {
 
   return fallback;
 };
-
 const normalizeType = (value) => {
   return String(value || "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
 };
-
 const isCoworkingProperty = (property) => {
   const type = normalizeType(
     property?.officeType ||
@@ -126,7 +120,6 @@ const isCoworkingProperty = (property) => {
     type.includes("managed office")
   );
 };
-
 const formatDisplayValue = (value) => {
   if (value === null || value === undefined || value === "") {
     return "-";
@@ -142,11 +135,6 @@ const formatDisplayValue = (value) => {
 
   return String(value);
 };
-
-/* =========================================================
-   PROPERTY ID
-========================================================= */
-
 const getPropertyId = (item) => {
   return String(
     item?.id ||
@@ -161,11 +149,6 @@ const getPropertyId = (item) => {
     "",
   ).trim();
 };
-
-/* =========================================================
-   UI SUB-COMPONENTS
-========================================================= */
-
 function DetailField({ label, value, icon: Icon }) {
   return (
     <div className="min-w-0">
@@ -183,7 +166,6 @@ function DetailField({ label, value, icon: Icon }) {
     </div>
   );
 }
-
 function DetailSection({ title, children }) {
   return (
     <section className="border-t border-slate-200 pt-6 first:border-t-0 first:pt-0">
@@ -195,11 +177,6 @@ function DetailSection({ title, children }) {
     </section>
   );
 }
-
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
-
 export default function PropertyDetailClient({ propertyId }) {
   const [property, setProperty] = useState(null);
   const [gallery, setGallery] = useState([]);
@@ -210,33 +187,18 @@ export default function PropertyDetailClient({ propertyId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [, setIsContactModalOpen] = useState(false);
-
   const [isWishlisted, setIsWishlisted] = useState(false);
-
-  /* =========================================================
-     COMPARE STATE
-  ========================================================= */
-
   const [compareSelection, setCompareSelection] = useState([]);
-
   const thumbnailContainerRef = useRef(null);
   const thumbnailRefs = useRef({});
   const autoScrollTimeoutRef = useRef(null);
-
-  /* =========================================================
-     FETCH PROPERTY & RELATED PROPERTIES
-  ========================================================= */
-
   useEffect(() => {
     if (!propertyId) return;
-
     const controller = new AbortController();
-
     async function loadProperty() {
       try {
         setLoading(true);
         setError("");
-
         const response = await fetch(
           `/api/properties/${encodeURIComponent(propertyId)}`,
           {
@@ -246,36 +208,26 @@ export default function PropertyDetailClient({ propertyId }) {
         );
 
         const data = await response.json();
-
         if (!response.ok || !data.success) {
           throw new Error(data.error || "Failed to load property");
         }
-
         const propertyData = data.data;
-
         const imageFolderPath = String(
           propertyData.imageFolderPath || "",
         ).replace(/^\/+|\/+$/g, "");
-
         const images = imageFolderPath
           ? IMAGE_FILES.map((image) => ({
             ...image,
             url: `${IMAGE_BASE_URL}/${imageFolderPath}/${image.filename}`,
           }))
           : [];
-
         setProperty({
           ...propertyData,
           image: images.find((image) => image.key === "project")?.url || "",
         });
-
         setGallery(images);
         setActiveImg("project");
         setFailedImages(new Set());
-
-        /*
-         * Related properties
-         */
         if (propertyData.city) {
           try {
             const relatedResponse = await fetch(
@@ -285,12 +237,9 @@ export default function PropertyDetailClient({ propertyId }) {
                 signal: controller.signal,
               },
             );
-
             const relatedData = await relatedResponse.json();
-
             if (relatedData.success) {
               const currentId = getPropertyId(propertyData);
-
               const relatedProperties = (relatedData.data || []).filter(
                 (item) => getPropertyId(item) !== currentId,
               );
@@ -315,22 +264,14 @@ export default function PropertyDetailClient({ propertyId }) {
         }
       }
     }
-
     loadProperty();
-
     return () => {
       controller.abort();
     };
   }, [propertyId]);
-
-  /* =========================================================
-     RELATED PROPERTIES → TWO ROWS
-  ========================================================= */
-
   const { row1, row2 } = useMemo(() => {
     const r1 = [];
     const r2 = [];
-
     related.forEach((item, index) => {
       if (index % 2 === 0) {
         r1.push(item);
@@ -344,11 +285,6 @@ export default function PropertyDetailClient({ propertyId }) {
       row2: r2,
     };
   }, [related]);
-
-  /* =========================================================
-     WISHLIST SYNC
-  ========================================================= */
-
   useEffect(() => {
     if (!property) return;
 
@@ -357,48 +293,31 @@ export default function PropertyDetailClient({ propertyId }) {
         const wishlist = JSON.parse(
           localStorage.getItem("anarock_wishlist_properties") || "[]",
         );
-
         const currentId = getPropertyId(property);
-
         setIsWishlisted(
           wishlist.some((item) => getPropertyId(item) === currentId),
         );
       } catch (err) {
         console.error("Wishlist sync failed:", err);
-
         setIsWishlisted(false);
       }
     };
-
     syncWishlist();
-
     window.addEventListener("wishlist-updated", syncWishlist);
-
     window.addEventListener("storage", syncWishlist);
-
     return () => {
       window.removeEventListener("wishlist-updated", syncWishlist);
-
       window.removeEventListener("storage", syncWishlist);
     };
   }, [property]);
-
-  /* =========================================================
-     WISHLIST
-  ========================================================= */
-
   const handleWishlist = (item) => {
     if (!item) return;
 
     try {
       const storageKey = "anarock_wishlist_properties";
-
       const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
-
       const currentId = getPropertyId(item);
-
       if (!currentId) return;
-
       const exists = existing.some(
         (wishlistItem) => getPropertyId(wishlistItem) === currentId,
       );
@@ -418,11 +337,6 @@ export default function PropertyDetailClient({ propertyId }) {
       console.error("Wishlist update failed:", err);
     }
   };
-
-  /* =========================================================
-     COMPARE — LOAD FROM LOCAL STORAGE
-  ========================================================= */
-
   useEffect(() => {
     const loadCompareSelection = () => {
       try {
@@ -439,11 +353,6 @@ export default function PropertyDetailClient({ propertyId }) {
           setCompareSelection([]);
           return;
         }
-
-        /*
-         * Remove invalid items, remove duplicates,
-         * and keep only the latest 3.
-         */
         const unique = [];
         const seenIds = new Set();
 
@@ -467,15 +376,7 @@ export default function PropertyDetailClient({ propertyId }) {
     };
 
     loadCompareSelection();
-
-    /*
-     * Same-tab updates.
-     */
     window.addEventListener("compare-updated", loadCompareSelection);
-
-    /*
-     * Cross-tab updates.
-     */
     window.addEventListener("storage", loadCompareSelection);
 
     return () => {
@@ -484,15 +385,9 @@ export default function PropertyDetailClient({ propertyId }) {
       window.removeEventListener("storage", loadCompareSelection);
     };
   }, []);
-
-  /* =========================================================
-     COMPARE — CURRENT PROPERTY STATUS
-  ========================================================= */
-
   const currentPropertyId = useMemo(() => {
     return getPropertyId(property);
   }, [property]);
-
   const isCompared = useMemo(() => {
     if (!currentPropertyId) return false;
 
@@ -500,11 +395,6 @@ export default function PropertyDetailClient({ propertyId }) {
       (item) => getPropertyId(item) === currentPropertyId,
     );
   }, [compareSelection, currentPropertyId]);
-
-  /* =========================================================
-     COMPARE — TOGGLE
-  ========================================================= */
-
   const handleCompareToggle = useCallback(() => {
     if (!property) return;
 
@@ -523,20 +413,10 @@ export default function PropertyDetailClient({ propertyId }) {
       let updatedSelection;
 
       if (alreadySelected) {
-        /*
-         * Remove current property.
-         */
         updatedSelection = previousSelection.filter(
           (item) => getPropertyId(item) !== propertyId,
         );
       } else {
-        /*
-         * Add current property.
-         *
-         * Maximum 3 properties.
-         * If a fourth property is added,
-         * the oldest one is removed.
-         */
         updatedSelection = [...previousSelection, property].slice(
           -MAX_COMPARE_PROPERTIES,
         );
@@ -547,10 +427,6 @@ export default function PropertyDetailClient({ propertyId }) {
           COMPARE_STORAGE_KEY,
           JSON.stringify(updatedSelection),
         );
-
-        /*
-         * Notify other components in the same tab.
-         */
         window.dispatchEvent(new Event("compare-updated"));
       } catch (err) {
         console.error("Failed to save compare selection:", err);
@@ -559,27 +435,16 @@ export default function PropertyDetailClient({ propertyId }) {
       return updatedSelection;
     });
   }, [property]);
-
-  /* =========================================================
-     COMPARE — CLEAR
-  ========================================================= */
-
   const clearCompareSelection = useCallback(() => {
     setCompareSelection([]);
 
     try {
       localStorage.removeItem(COMPARE_STORAGE_KEY);
-
       window.dispatchEvent(new Event("compare-updated"));
     } catch (err) {
       console.error("Failed to clear compare selection:", err);
     }
   }, []);
-
-  /* =========================================================
-     COMPARE — OPEN PAGE
-  ========================================================= */
-
   const openComparePage = useCallback(() => {
     if (
       compareSelection.length < MIN_COMPARE_PROPERTIES ||
@@ -599,59 +464,39 @@ export default function PropertyDetailClient({ propertyId }) {
       console.error("Failed to open compare page:", err);
     }
   }, [compareSelection]);
-
-  /* =========================================================
-     GALLERY
-  ========================================================= */
-
   const availableGallery = useMemo(() => {
     return gallery.filter((image) => !failedImages.has(image.key));
   }, [gallery, failedImages]);
-
-  const activeImage =
-    availableGallery.find((image) => image.key === activeImg)?.url ||
-    property?.image ||
-    "";
-
+  const activeImage = availableGallery.find((image) => image.key === activeImg)?.url || property?.image || "";
   const activeIndex = Math.max(
     0,
     availableGallery.findIndex((image) => image.key === activeImg),
   );
-
   const handleImageError = (imageKey) => {
     setFailedImages((previous) => {
       const next = new Set(previous);
       next.add(imageKey);
       return next;
     });
-
     if (activeImg === imageKey) {
       const currentIndex = availableGallery.findIndex(
         (img) => img.key === imageKey,
       );
-
-      const nextImage =
-        availableGallery[currentIndex + 1] ||
-        availableGallery[currentIndex - 1];
-
+      const nextImage = availableGallery[currentIndex + 1] || availableGallery[currentIndex - 1];
       if (nextImage) {
         setActiveImg(nextImage.key);
       }
     }
   };
-
   const scrollThumbnailToTop = useCallback((imageKey) => {
     const container = thumbnailContainerRef.current;
-
     const thumbnail = thumbnailRefs.current[imageKey];
-
     if (!container || !thumbnail) {
       return;
     }
 
     if (window.innerWidth >= 768) {
       const targetTop = thumbnail.offsetTop - container.offsetTop;
-
       container.scrollTo({
         top: Math.max(0, targetTop),
         behavior: "smooth",
@@ -664,85 +509,62 @@ export default function PropertyDetailClient({ propertyId }) {
       });
     }
   }, []);
-
   const selectImage = useCallback(
     (imageKey) => {
       setActiveImg(imageKey);
-
       requestAnimationFrame(() => {
         scrollThumbnailToTop(imageKey);
       });
     },
     [scrollThumbnailToTop],
   );
-
   const goToNextImage = useCallback(() => {
     if (!availableGallery.length) return;
-
     const nextIndex = (activeIndex + 1) % availableGallery.length;
-
     const nextImage = availableGallery[nextIndex];
-
     if (nextImage) {
       selectImage(nextImage.key);
     }
   }, [activeIndex, availableGallery, selectImage]);
-
   const goToPreviousImage = useCallback(() => {
     if (!availableGallery.length) return;
-
     const previousIndex =
       (activeIndex - 1 + availableGallery.length) % availableGallery.length;
-
     const previousImage = availableGallery[previousIndex];
-
     if (previousImage) {
       selectImage(previousImage.key);
     }
   }, [activeIndex, availableGallery, selectImage]);
-
   useEffect(() => {
     if (availableGallery.length <= 1) {
       return;
     }
-
     autoScrollTimeoutRef.current = setTimeout(
       goToNextImage,
       AUTO_SCROLL_INTERVAL,
     );
-
     return () => {
       if (autoScrollTimeoutRef.current) {
         clearTimeout(autoScrollTimeoutRef.current);
       }
     };
   }, [activeImg, availableGallery.length, goToNextImage]);
-
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "ArrowRight") {
         goToNextImage();
       }
-
       if (event.key === "ArrowLeft") {
         goToPreviousImage();
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [goToNextImage, goToPreviousImage]);
-
-  /* =========================================================
-     PROPERTY DETAILS
-  ========================================================= */
-
   const propertyDetails = useMemo(() => {
     if (!property) return {};
-
     return {
       isCoworking: isCoworkingProperty(property),
       propertyType: getValue(property, ["officeType"], "Conventional"),
@@ -766,11 +588,6 @@ export default function PropertyDetailClient({ propertyId }) {
       ]),
     };
   }, [property]);
-
-  /* =========================================================
-     LOADING
-  ========================================================= */
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -778,11 +595,6 @@ export default function PropertyDetailClient({ propertyId }) {
       </div>
     );
   }
-
-  /* =========================================================
-     ERROR
-  ========================================================= */
-
   if (error || !property) {
     const isAuthError =
       error?.toLowerCase().includes("oauth") ||
@@ -804,31 +616,20 @@ export default function PropertyDetailClient({ propertyId }) {
       </div>
     );
   }
-
-  /* =========================================================
-     MAIN UI
-  ========================================================= */
-
+  /* MAIN UI */
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto w-full max-w-[85vw] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div className="mx-auto w-full max-w-[85vw] px-4 pb-6 sm:pb-6 sm:px-8 lg:px-8">
+        {/* PROPERTY DETAILS */}
         <div className="relative">
-          {/* =====================================================
-              STICKY PROPERTY HEADER
-          ===================================================== */}
-
-          <div className="sticky top-[72px] z-40 mb-6 border-b border-slate-200 bg-slate-50 px-4 py-4 shadow-[0_4px_18px_rgba(15,23,42,0.06)] sm:px-6 sm:py-5 lg:px-8">
+          <div className="sticky top-[72px] z-40 mb-6 border rounded-b-xl border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6 sm:py-5 lg:px-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              {/* PROPERTY INFO */}
-
               <div className="min-w-0 flex-1">
-                <div className="mb-1.5 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm">
+                <div className="mb-1.5 flex flex-wrap items-center gap-2 text-xs font-normal text-slate-500 sm:text-sm">
                   {property.city && <span>{property.city}</span>}
-
                   {property.micromarket && (
                     <>
                       <span className="text-slate-300">•</span>
-
                       <span>{property.micromarket}</span>
                     </>
                   )}
@@ -836,13 +637,11 @@ export default function PropertyDetailClient({ propertyId }) {
                   {propertyDetails.propertyType && (
                     <>
                       <span className="text-slate-300">•</span>
-
                       <span>{propertyDetails.propertyType}</span>
                     </>
                   )}
                 </div>
-
-                <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">
+                <h1 className="truncate text-lg font-bold tracking-tight text-slate-900 sm:text-2xl md:text-2xl">
                   {property.name}
                 </h1>
 
@@ -854,51 +653,24 @@ export default function PropertyDetailClient({ propertyId }) {
                   </div>
                 )}
               </div>
-
-              {/* ACTION BUTTONS */}
-
               <div className="flex w-full shrink-0 items-center gap-2 sm:gap-3 lg:w-auto">
-                {/* COMPARE */}
-
-                <button
-                  type="button"
-                  onClick={handleCompareToggle}
-                  className={`inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isCompared
+                <button type="button" onClick={handleCompareToggle}
+                  className={`inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isCompared
                     ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
                     : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
-                    }`}
-                  aria-pressed={isCompared}
-                >
-                  {isCompared ? (
-                    <X className="h-4 w-4" />
-                  ) : (
-                    <GitCompare className="h-4 w-4" />
-                  )}
-
+                    }`} aria-pressed={isCompared}>
+                  {isCompared ? (<X className="h-4 w-4" />) : (<GitCompare className="h-4 w-4" />)}
                   {isCompared ? "Compared" : "Compare"}
                 </button>
-
-                {/* SHORTLIST */}
-
-                <button
-                  type="button"
-                  onClick={() => handleWishlist(property)}
-                  className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
+                <button type="button" onClick={() => handleWishlist(property)}
+                  className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
                     ? "bg-[#A054A0] text-white hover:bg-[#A054A0]"
                     : "bg-gray-900 text-white hover:bg-gray-800"
-                    }`}
-                >
-                  {isWishlisted ? "Shortlisted" : "Shortlist"}
-                </button>
+                    }`}>{isWishlisted ? "Shortlisted" : "Shortlist"}</button>
               </div>
             </div>
           </div>
-
-          {/* =====================================================
-              MEDIA GALLERY
-          ===================================================== */}
-
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:rounded-3xl">
+          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:rounded-xl">
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6">
               <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-900 sm:text-base">
                 Property Media Gallery
@@ -912,10 +684,9 @@ export default function PropertyDetailClient({ propertyId }) {
 
             <div className="p-3 sm:p-5">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px]">
-                {/* MAIN IMAGE */}
 
                 <div
-                  className="group relative overflow-hidden rounded-2xl bg-slate-100"
+                  className="group relative overflow-hidden rounded-xl bg-slate-100"
                   onMouseEnter={() => {
                     if (autoScrollTimeoutRef.current) {
                       clearTimeout(autoScrollTimeoutRef.current);
@@ -983,11 +754,8 @@ export default function PropertyDetailClient({ propertyId }) {
                   </div>
                 </div>
 
-                {/* THUMBNAILS */}
 
                 <div className="min-w-0">
-                  {/* DESKTOP */}
-
                   <div
                     ref={thumbnailContainerRef}
                     className="hidden h-full max-h-[620px] flex-col gap-3 overflow-y-auto pr-1 md:flex"
@@ -1055,8 +823,6 @@ export default function PropertyDetailClient({ propertyId }) {
                     })}
                   </div>
 
-                  {/* MOBILE */}
-
                   <div className="md:hidden">
                     <div
                       ref={thumbnailContainerRef}
@@ -1112,11 +878,7 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
           </section>
 
-          {/* =====================================================
-              PROPERTY DETAILS
-          ===================================================== */}
-
-          <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:rounded-3xl sm:p-7 lg:p-8">
+          <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:rounded-xl sm:p-7 lg:p-8">
             <DetailSection title="Property details">
               {propertyDetails.isCoworking ? (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -1216,10 +978,7 @@ export default function PropertyDetailClient({ propertyId }) {
           </section>
         </div>
 
-        {/* =========================================================
-            SIMILAR PROPERTIES
-        ========================================================= */}
-
+        {/* SIMILAR PROPERTIES */}
         {related.length > 0 && (
           <section className="mt-12 sm:mt-14">
             <div className="mb-5 flex items-end justify-between gap-4">
@@ -1243,8 +1002,6 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
 
             <div className="space-y-6">
-              {/* ROW 1 */}
-
               {row1.length > 0 && (
                 <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
                   {row1.map((item) => (
@@ -1304,9 +1061,6 @@ export default function PropertyDetailClient({ propertyId }) {
                   ))}
                 </div>
               )}
-
-              {/* ROW 2 */}
-
               {row2.length > 0 && (
                 <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
                   {row2.map((item) => (
@@ -1371,15 +1125,9 @@ export default function PropertyDetailClient({ propertyId }) {
         )}
       </div>
 
-      {/* =========================================================
-          COMPARE TRAY
-      ========================================================= */}
-
       {compareSelection.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-[150] border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:px-4">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            {/* SELECTION INFO */}
-
             <div className="min-w-0">
               <p className="text-sm font-semibold text-slate-900">
                 {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties
@@ -1396,27 +1144,11 @@ export default function PropertyDetailClient({ propertyId }) {
                   } to compare.`}
               </p>
             </div>
-
-            {/* ACTIONS */}
-
             <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-              <button
-                type="button"
-                onClick={clearCompareSelection}
-                className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none"
-              >
+              <button type="button" onClick={clearCompareSelection} className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none">
                 Clear
               </button>
-
-              <button
-                type="button"
-                onClick={openComparePage}
-                disabled={
-                  compareSelection.length < MIN_COMPARE_PROPERTIES ||
-                  compareSelection.length > MAX_COMPARE_PROPERTIES
-                }
-                className="flex-1 rounded-lg bg-[#A054A0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8d438d] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
-              >
+              <button type="button" onClick={openComparePage} disabled={compareSelection.length < MIN_COMPARE_PROPERTIES || compareSelection.length > MAX_COMPARE_PROPERTIES} className="flex-1 rounded-lg bg-[#A054A0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8d438d] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none">
                 <span className="inline-flex items-center gap-2">
                   <GitCompare className="h-4 w-4" />
                   Compare Properties
@@ -1426,6 +1158,6 @@ export default function PropertyDetailClient({ propertyId }) {
           </div>
         </div>
       )}
-    </main>
+    </main >
   );
 }

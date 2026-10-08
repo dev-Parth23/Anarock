@@ -1,8 +1,5 @@
 "use client";
-
 import Link from "next/link";
-
-import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="w-full overflow-hidden bg-[#0b0b0b] text-white">
@@ -10,7 +7,7 @@ export default function Footer() {
         <div className="flex flex-col gap-8 py-9 min-[480px]:py-10 sm:gap-9 sm:py-12 md:gap-10 md:py-14 lg:flex-row lg:items-start lg:justify-between lg:gap-16 lg:py-16 xl:gap-24 xl:py-18">
           <div className="min-w-0 max-w-2xl max-lg:text-center">
             <Link href="/" aria-label="Anarock Commercial Listing Platform" className="group inline-flex items-center transition-transform duration-200 active:scale-95 ">
-              <Image src="/Anarock(W).svg" alt="Anarock" priority className=" block h-auto w-[100px] object-contain transition-transform duration-300 group-hover:scale-105 min-[480px]:w-[110px] sm:w-[120px] lg:w-[130px]" />
+              <img src="/Anarock(W).svg" alt="Anarock" className=" block h-auto w-[100px] object-contain transition-transform duration-300 group-hover:scale-105 min-[480px]:w-[110px] sm:w-[120px] lg:w-[130px]" />
             </Link>
             <p className=" mt-5 max-w-2xl text-[13px] leading-6 text-[#bcbcbc] min-[400px]:text-[14px] min-[400px]:leading-6 sm:mt-6 sm:text-[15px] sm:leading-7 lg:max-w-[680px]">
               Leading real estate services company that delivers integrated

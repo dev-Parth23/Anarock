@@ -15,6 +15,7 @@ import {
   Heart,
 } from "lucide-react";
 
+import Image from "next/image";
 import { useWishlist } from "@/lib/wishlist";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -708,9 +709,9 @@ export default function Navbar() {
               className="group flex min-w-0 shrink-0 items-center transition-transform duration-200 active:scale-90"
             >
               <div className="flex min-w-0 items-center gap-2 sm:gap-3 md:gap-3.5 min-[1920px]:gap-5">
-                <img
+                <Image
                   src="/Anarock.svg"
-                  alt="Anarock"
+                  alt="Anarock" priority
                   className="block h-auto w-[90px] object-contain transition-transform duration-300 group-hover:scale-105 sm:w-[102px] md:w-[112px] lg:w-[120px] min-[1280px]:w-[122px] min-[1920px]:w-[150px]"
                 />
 

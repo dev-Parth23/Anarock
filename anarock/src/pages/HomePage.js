@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CookieConsent from "@/components/common/CookieConsent";
 import HeroSection from "@/components/home/HeroSection";
+import Image from "next/image";
 import MarketStats from "@/components/home/MarketStats";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
@@ -1376,10 +1377,12 @@ export default function HomePage() {
     lg:aspect-square
             "
                   >
-                    <img
+                    <Image
                       src={city.url}
                       alt={`${city.name} commercial real estate`}
                       decoding="async"
+                      fill
+                      priority
                       loading="lazy"
                       className="
                 h-full

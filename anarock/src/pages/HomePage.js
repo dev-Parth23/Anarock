@@ -1,5 +1,4 @@
 "use client";
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CookieConsent from "@/components/common/CookieConsent";
 import HeroSection from "@/components/home/HeroSection";
@@ -24,10 +23,31 @@ import {
 } from "lucide-react";
 const phoneCountries = [
   { name: "India", code: "IN", dial: "+91", flag: "🇮🇳", min: 10, max: 10 },
-  { name: "United States", code: "US", dial: "+1", flag: "🇺🇸", min: 10, max: 10 },
+  {
+    name: "United States",
+    code: "US",
+    dial: "+1",
+    flag: "🇺🇸",
+    min: 10,
+    max: 10,
+  },
   { name: "Canada", code: "CA", dial: "+1", flag: "🇨🇦", min: 10, max: 10 },
-  { name: "United Kingdom", code: "GB", dial: "+44", flag: "🇬🇧", min: 10, max: 10 },
-  { name: "United Arab Emirates", code: "AE", dial: "+971", flag: "🇦🇪", min: 9, max: 9, },
+  {
+    name: "United Kingdom",
+    code: "GB",
+    dial: "+44",
+    flag: "🇬🇧",
+    min: 10,
+    max: 10,
+  },
+  {
+    name: "United Arab Emirates",
+    code: "AE",
+    dial: "+971",
+    flag: "🇦🇪",
+    min: 9,
+    max: 9,
+  },
   { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺", min: 9, max: 9 },
   { name: "Singapore", code: "SG", dial: "+65", flag: "🇸🇬", min: 8, max: 8 },
   { name: "Germany", code: "DE", dial: "+49", flag: "🇩🇪", min: 10, max: 11 },
@@ -46,16 +66,37 @@ const phoneCountries = [
   { name: "Thailand", code: "TH", dial: "+66", flag: "🇹🇭", min: 9, max: 9 },
   { name: "Israel", code: "IL", dial: "+972", flag: "🇮🇱", min: 9, max: 9 },
   { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩", min: 9, max: 12 },
-  { name: "Philippines", code: "PH", dial: "+63", flag: "🇵🇭", min: 10, max: 10 },
+  {
+    name: "Philippines",
+    code: "PH",
+    dial: "+63",
+    flag: "🇵🇭",
+    min: 10,
+    max: 10,
+  },
   { name: "Vietnam", code: "VN", dial: "+84", flag: "🇻🇳", min: 9, max: 10 },
   { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦", min: 9, max: 9 },
-  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", min: 9, max: 9, },
+  {
+    name: "Saudi Arabia",
+    code: "SA",
+    dial: "+966",
+    flag: "🇸🇦",
+    min: 9,
+    max: 9,
+  },
   { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦", min: 8, max: 8 },
   { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼", min: 8, max: 8 },
   { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲", min: 8, max: 8 },
   { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭", min: 8, max: 8 },
   { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", min: 10, max: 10 },
-  { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", min: 10, max: 10 },
+  {
+    name: "Bangladesh",
+    code: "BD",
+    dial: "+880",
+    flag: "🇧🇩",
+    min: 10,
+    max: 10,
+  },
   { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", min: 10, max: 10 },
   { name: "Sri Lanka", code: "LK", dial: "+94", flag: "🇱🇰", min: 9, max: 9 },
   { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", min: 10, max: 10 },
@@ -355,16 +396,17 @@ function JourneyCard({ item, index }) {
   const cardVariants = {
     hidden: {
       opacity: 0,
-      y: shouldReduceMotion ? 0 : 90,
-      scale: shouldReduceMotion ? 1 : 0.96,
+      y: shouldReduceMotion ? 0 : 50,
+      scale: shouldReduceMotion ? 1 : 0.985,
     },
+
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        duration: shouldReduceMotion ? 0 : 0.9,
-        delay: shouldReduceMotion ? 0 : index * 0.14,
+        duration: shouldReduceMotion ? 0 : 0.7,
+        delay: shouldReduceMotion ? 0 : index * 0.1,
         ease: [0.22, 1, 0.36, 1],
       },
     },
@@ -377,8 +419,8 @@ function JourneyCard({ item, index }) {
       whileInView="visible"
       viewport={{
         once: true,
-        amount: 0.2,
-        margin: "0px 0px -50px 0px",
+        amount: 0.12,
+        margin: "0px 0px -30px 0px",
       }}
       className="group relative h-full min-w-0"
     >
@@ -387,92 +429,287 @@ function JourneyCard({ item, index }) {
           shouldReduceMotion
             ? undefined
             : {
-              y: -8,
+              y: -6,
               transition: {
                 duration: 0.35,
                 ease: [0.22, 1, 0.36, 1],
               },
             }
         }
-        className="relative flex h-full min-h-[clamp(18rem,30vw,27rem)] flex-col overflow-hidden rounded-[clamp(1.25rem,2vw,2rem)] border border-slate-200/80 bg-white/85 p-[clamp(1.25rem,2.5vw,2.25rem)] shadow-[0_8px_40px_rgba(15,23,42,0.025)] backdrop-blur-xl transition-[border-color,box-shadow] duration-500 hover:border-[#A054A0]/40 hover:shadow-[0_20px_60px_rgba(160,84,160,0.12)]"
+        className="
+          relative
+          flex
+          h-full
+          min-h-[300px]
+          flex-col
+          overflow-hidden
+          rounded-[1.25rem]
+          border
+          border-slate-200/80
+          bg-white/85
+          p-5
+          shadow-[0_8px_35px_rgba(15,23,42,0.025)]
+          backdrop-blur-xl
+          transition-[border-color,box-shadow]
+          duration-500
+
+          hover:border-[#A054A0]/40
+          hover:shadow-[0_20px_55px_rgba(160,84,160,0.12)]
+
+          /* Small phones */
+          min-[400px]:min-h-[310px]
+
+          /* Small tablets / 2-column */
+          min-[600px]:min-h-[320px]
+          min-[600px]:rounded-[1.4rem]
+          min-[600px]:p-5
+
+          /* Tablet / 3-column */
+          md:min-h-[340px]
+          md:p-6
+
+          /* Large desktop */
+          xl:min-h-[370px]
+          xl:rounded-[1.6rem]
+          xl:p-7
+
+          /* Very large desktop */
+          2xl:min-h-[390px]
+          2xl:p-8
+        "
       >
+        {/* Hover background */}
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#A054A0]/[0.045] via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            bg-gradient-to-br
+            from-[#A054A0]/[0.045]
+            via-transparent
+            to-transparent
+            opacity-0
+            transition-opacity
+            duration-700
+            group-hover:opacity-100
+          "
           aria-hidden="true"
         />
-        <div className="relative z-10 flex items-start justify-between gap-4">
+
+        {/* Top */}
+        <div className="relative z-10 flex items-start justify-between">
+          {/* Icon */}
           <motion.div
             whileHover={
               shouldReduceMotion
                 ? undefined
                 : {
                   rotate: 6,
-                  scale: 1.08,
+                  scale: 1.06,
                 }
             }
             transition={{
               duration: 0.3,
               ease: "easeOut",
             }}
-            className="flex h-[clamp(2.75rem,4vw,3.75rem)] w-[clamp(2.75rem,4vw,3.75rem)] shrink-0 items-center justify-center rounded-[clamp(0.75rem,1.2vw,1.15rem)] border border-[#A054A0]/10 bg-[#A054A0]/[0.07] text-[#A054A0] transition-colors duration-500 group-hover:bg-[#A054A0] group-hover:text-white"
-          >
-            <item.icon className="h-[clamp(1.1rem,1.7vw,1.5rem)] w-[clamp(1.1rem,1.7vw,1.5rem)]" />
-          </motion.div>
+            className="
+              flex
+              h-11
+              w-11
+              shrink-0
+              items-center
+              justify-center
+              rounded-[0.8rem]
+              border
+              border-[#A054A0]/10
+              bg-[#A054A0]/[0.07]
+              text-[#A054A0]
+              transition-colors
+              duration-500
 
-          <span className="pointer-events-none absolute -right-4 -top-8 select-none text-[clamp(6rem,9vw,9rem)] font-extrabold leading-none tracking-[-0.05em] text-slate-900/[0.04] transition-all duration-700 group-hover:scale-105 group-hover:text-[#A054A0]/[0.10]">
+              group-hover:bg-[#A054A0]
+              group-hover:text-white
+
+              min-[400px]:h-12
+              min-[400px]:w-12
+
+              min-[600px]:h-12
+              min-[600px]:w-12
+
+              md:h-12
+              md:w-12
+
+              xl:h-14
+              xl:w-14
+
+              2xl:h-15
+              2xl:w-15
+            "
+          >
+            <item.icon
+              className="
+                h-[1.15rem]
+                w-[1.15rem]
+
+                min-[600px]:h-5
+                min-[600px]:w-5
+
+                xl:h-[1.35rem]
+                xl:w-[1.35rem]
+              "
+            />
+          </motion.div>
+          <span
+            className="
+              pointer-events-none
+              absolute
+              -right-2
+              -top-3
+              select-none
+              text-[4.5rem]
+              font-extrabold
+              leading-none
+              tracking-[-0.07em]
+              text-slate-900/[0.035]
+              transition-all
+              duration-700
+
+              group-hover:scale-105
+              group-hover:text-[#A054A0]/[0.09]
+
+              min-[400px]:text-[5rem]
+
+              min-[600px]:-right-3
+              min-[600px]:-top-4
+              min-[600px]:text-[5rem]
+
+              md:text-[5rem]
+
+              lg:text-[5.5rem]
+
+              xl:-right-4
+              xl:-top-5
+              xl:text-[5rem]
+
+              2xl:text-[5.5rem]
+            "
+          >
             0{index + 1}
           </span>
         </div>
 
-        <div className="relative z-10 mt-auto pt-12 sm:pt-16">
-          <h3 className="max-w-[18rem] pb-5 text-[clamp(1.6rem,2.2vw,2rem)] font-semibold leading-[1.12] tracking-[-0.045em] text-slate-900">
+        {/* Content */}
+        <div
+          className="
+            relative
+            z-10
+            mt-8
+           min-[400px]:mt-9
+            min-[600px]:mt-9
+           md:mt-10
+            xl:mt-12
+            2xl:mt-14
+         "
+        >
+          <h3
+            className="
+             max-w-full
+            pb-1
+              text-[1.35rem]
+              font-semibold
+             leading-[1.1]
+             tracking-[-0.04em]
+             text-slate-900
+             min-[400px]:text-[1.45rem]
+             min-[600px]:text-[1.5rem]
+              md:text-[1.55rem]
+              xl:text-[1.7rem]
+              2xl:text-[1.85rem]
+           "
+          >
             {item.title}
           </h3>
-          <p className="mt-4 max-w-[22rem] text-[clamp(0.8rem,1vw,0.95rem)] leading-[1.75] tracking-[-0.01em] text-slate-500">
+
+          <p
+            className="
+              mt-3
+              max-w-full
+              text-[0.84rem]
+              leading-[1.65]
+              tracking-[-0.005em]
+              text-slate-500
+
+              min-[400px]:text-[0.87rem]
+
+              min-[600px]:text-[0.88rem]
+
+              md:text-[0.9rem]
+
+              xl:mt-4
+              xl:text-[0.93rem]
+
+              2xl:text-[0.95rem]
+            "
+          >
             {item.desc}
           </p>
         </div>
 
-        <div className="relative z-10 mt-8 flex items-center justify-between">
-          <div className="h-px w-10 bg-slate-200 transition-all duration-500 group-hover:w-20 group-hover:bg-[#A054A0]" />
-          <motion.div
-            initial={{ opacity: 0, x: -5 }}
-            whileHover={{ opacity: 1, x: 0 }}
-            className="text-[#A054A0]"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-              <path d="m13 6 6 6-6 6" />
-            </svg>
-          </motion.div>
+        {/* Bottom accent */}
+        <div
+          className="
+            relative
+            z-10
+            mt-auto
+            pt-6
+
+            min-[600px]:pt-7
+
+            xl:pt-8
+          "
+        >
+          <div
+            className="
+              h-px
+              w-9
+              bg-slate-200
+              transition-all
+              duration-500
+
+              group-hover:w-16
+              group-hover:bg-[#A054A0]
+
+              xl:w-10
+              xl:group-hover:w-20
+            "
+          />
         </div>
 
+        {/* Bottom hover line */}
         <div
-          className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2px] origin-left scale-x-0 bg-gradient-to-r from-[#A054A0] to-[#DFA2DF] transition-transform duration-700 group-hover:scale-x-100"
+          className="
+            pointer-events-none
+            absolute
+            bottom-0
+            left-0
+            right-0
+            h-[2px]
+            origin-left
+            scale-x-0
+            bg-gradient-to-r
+            from-[#A054A0]
+            to-[#DFA2DF]
+            transition-transform
+            duration-700
+            group-hover:scale-x-100
+          "
           aria-hidden="true"
         />
       </motion.div>
     </motion.div>
   );
 }
-function PremiumDropdown({
-  id,
-  name,
-  value,
-  placeholder,
-  options,
-  onChange,
-}) {
+function PremiumDropdown({ id, name, value, placeholder, options, onChange }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -489,22 +726,12 @@ function PremiumDropdown({
     };
   }, [id]);
 
-  const selectedOption = options.find(
-    (option) => option.value === value
-  );
+  const selectedOption = options.find((option) => option.value === value);
 
   return (
-    <div
-      className="relative w-full"
-      data-dropdown={id}
-    >
+    <div className="relative w-full" data-dropdown={id}>
       {/* Hidden native field keeps form submission unchanged */}
-      <input
-        type="hidden"
-        id={id}
-        name={name}
-        value={value}
-      />
+      <input type="hidden" id={id} name={name} value={value} />
 
       {/* Trigger */}
       <button
@@ -517,13 +744,7 @@ function PremiumDropdown({
           : "border-white/80 bg-white/55 hover:border-[#A054A0]/25 hover:bg-white/75"
           }`}
       >
-        <span
-          className={
-            selectedOption
-              ? "text-slate-800"
-              : "text-slate-400"
-          }
-        >
+        <span className={selectedOption ? "text-slate-800" : "text-slate-400"}>
           {selectedOption?.label || placeholder}
         </span>
 
@@ -621,7 +842,6 @@ export default function HomePage() {
     postalCode: "",
     country: "",
   });
-
   const filteredCountries = useMemo(() => {
     const query = countrySearch.trim().toLowerCase();
     if (!query) return phoneCountries;
@@ -631,7 +851,6 @@ export default function HomePage() {
         .includes(query),
     );
   }, [countrySearch]);
-
   const validatePhone = useCallback(
     (value = phone, country = selectedCountry) => {
       const digits = String(value || "").replace(/\D/g, "");
@@ -651,7 +870,6 @@ export default function HomePage() {
     },
     [phone, selectedCountry],
   );
-
   const handlePhoneChange = (event) => {
     const digits = event.target.value.replace(/\D/g, "");
     if (digits.length > selectedCountry.max) {
@@ -664,7 +882,6 @@ export default function HomePage() {
     }
     validatePhone(digits, selectedCountry);
   };
-
   const handleCountrySelect = (country) => {
     setSelectedCountry(country);
     setCountryOpen(false);
@@ -686,7 +903,6 @@ export default function HomePage() {
       );
     }
   };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const isPhoneValid = validatePhone(phone, selectedCountry);
@@ -846,9 +1062,7 @@ export default function HomePage() {
       setIsSubmitting(false);
     }
   };
-
   const locationRequestStartedRef = useRef(false);
-
   const requestLocationPermission = useCallback(() => {
     if (locationRequestStartedRef.current) {
       return;
@@ -949,7 +1163,6 @@ export default function HomePage() {
       },
     );
   }, []);
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -991,7 +1204,6 @@ export default function HomePage() {
       window.removeEventListener("anarock-location-updated", loadLocationData);
     };
   }, []);
-
   function loadLocationData() {
     try {
       const savedLocation = sessionStorage.getItem("anarock_user_location");
@@ -1028,70 +1240,228 @@ export default function HomePage() {
       });
     }
   }
-
   return (
     <>
       <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 font-sans text-slate-800 selection:bg-[#A054A0] selection:text-white">
         <HeroSection locationData={locationData} />
 
         {/* POPULAR CITIES */}
-        <section className="relative overflow-hidden py-20 sm:py-24 md:py-28 lg:py-24">
+        <section className="relative overflow-hidden py-14 sm:py-16 md:py-20 lg:py-24">
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.06] blur-3xl" />
-            <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
+            <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
+            <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.04] blur-3xl" />
           </div>
-          <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,2.4vw,4rem)]">
-            <div className="mb-12 flex flex-col gap-6 sm:mb-16 lg:mb-20 lg:flex-row lg:items-center lg:justify-center">
-              <h2 className="max-w-3xl  text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                Explore{" "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  India&apos;s Key{" "}
-                </span>{" "}
-                Cities
+
+          <div
+            className=" relative
+      z-10
+      mx-auto
+      w-full
+      max-w-[1500px]
+      px-5
+      sm:px-8
+      lg:px-10
+      xl:px-12
+    "
+          >
+            {/* Heading */}
+            <div
+              className="
+        mb-10
+        flex
+        flex-col
+        gap-5
+
+        sm:mb-12
+
+        lg:mb-14
+        lg:flex-row
+        lg:items-center
+        lg:justify-between
+        lg:gap-12
+      "
+            >
+              <h2
+                className="
+          max-w-3xl
+          text-[clamp(2rem,4.2vw,4.5rem)]
+          font-bold
+          leading-[0.98]
+          tracking-[-0.055em]
+          text-[#A054A0]
+        "
+              >
+                Explore India&apos;s Key Cities
               </h2>
 
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base lg:text-lg">
+              <p
+                className="
+          mt-0
+          max-w-2xl
+          text-sm
+          leading-6
+          text-slate-500
+
+          sm:text-base
+          sm:leading-7
+
+          lg:max-w-xl
+          lg:text-lg
+          lg:leading-8
+        "
+              >
                 Discover premium commercial real estate opportunities across
                 India&apos;s leading business destinations.
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
+
+            {/* City Cards */}
+            <div
+              className="
+        flex
+        flex-wrap
+        justify-center
+        gap-4
+
+        min-[600px]:gap-5
+        sm:gap-5
+      "
+            >
               {popularCities.map((city) => (
                 <Link
                   key={city.slug}
                   href={`/kyc/city/${city.slug}`}
-                  className="group relative isolate w-full overflow-hidden  rounded-[1.5rem] border border-[#A054A0]/15
-            bg-white shadow-[0_10px_35px_rgba(86,42,91,0.05)] transition-all duration-500 ease-out
-            hover:-translate-y-2 hover:border-[#A054A0]/35
-           hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
-            sm:w-[calc(50%-0.625rem)] sm:rounded-[1.75rem] md:w-[calc(33.333%-0.9rem)]
-            lg:w-[calc(20%-1rem)]"
+                  className="
+            group
+            relative
+            isolate
+            w-full
+            overflow-hidden
+            rounded-[1.25rem]
+            border
+            border-[#A054A0]/15
+            bg-white
+            shadow-[0_10px_35px_rgba(86,42,91,0.05)]
+            transition-all
+            duration-500
+            ease-out
+
+            hover:-translate-y-2
+            hover:border-[#A054A0]/35
+            hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
+
+            /* Small phones / large phones */
+            min-[600px]:w-[calc(50%-0.625rem)]
+
+            /* Tablets */
+            md:w-[calc(33.333%-0.85rem)]
+
+            /* Desktop */
+            lg:w-[calc(25%-0.9375rem)]
+
+            /* Large desktop */
+            xl:w-[calc(20%-1rem)]
+
+            sm:rounded-[1.5rem]
+          "
                 >
-                  <div className="relative aspect-square overflow-hidden bg-[#A054A0]/5">
+                  {/* Image */}
+                  <div
+                    className="
+              relative
+              aspect-[16/4]
+              overflow-hidden
+              bg-[#A054A0]/5
+   min-[600px]:aspect-[4/3]
+    lg:aspect-square
+            "
+                  >
                     <img
                       src={city.url}
                       alt={`${city.name} commercial real estate`}
                       decoding="async"
                       loading="lazy"
-                      className=" h-full w-full
+                      className="
+                h-full
+                w-full
                 object-cover
-                object-top transition-transform duration-700 ease-out group-hover:scale-110
+                object-center
+                transition-transform
+                duration-700
+                ease-out
+                group-hover:scale-110
               "
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                      <div className="mb-4 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-16" />
-                      <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+
+                    {/* Image Overlay */}
+                    <div
+                      className="
+                absolute
+                inset-0
+                bg-gradient-to-t
+                from-slate-950/75
+                via-slate-950/5
+                to-transparent
+              "
+                    />
+
+                    {/* Card Content */}
+                    <div
+                      className="
+                absolute
+                inset-x-0
+                bottom-0
+                p-4
+
+                sm:p-5
+                lg:p-5
+              "
+                    >
+                      <div
+                        className="
+                  mb-3
+                  h-px
+                  w-8
+                  bg-[#DCA9DD]
+                  transition-all
+                  duration-500
+                  group-hover:w-14
+                "
+                      />
+
+                      <h3
+                        className="
+                  text-lg
+                  font-bold
+                  tracking-tight
+                  text-white
+
+                  sm:text-xl
+                  lg:text-xl
+                "
+                      >
                         {city.name}
                       </h3>
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
+
+                      <div className="mt-2.5 flex items-center justify-between gap-3">
+                        <p
+                          className="
+                    text-[9px]
+                    font-medium
+                    uppercase
+                    tracking-[0.12em]
+                    text-white/65
+
+                    sm:text-[10px]
+                  "
+                        >
                           Explore
                         </p>
+
                         <ArrowRight
                           className="
-                  h-4
-                   w-4
+                    h-4
+                    w-4
                     shrink-0
                     text-white/70
                     transition-all
@@ -1103,7 +1473,18 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
+
+                  {/* Bottom hover line */}
+                  <div
+                    className="
+              h-1
+              w-0
+              bg-[#A054A0]
+              transition-all
+              duration-500
+              group-hover:w-full
+            "
+                  />
                 </Link>
               ))}
             </div>
@@ -1111,7 +1492,7 @@ export default function HomePage() {
         </section>
 
         {/* MARKET AT A GLANCE */}
-        <section
+        {/* <section
           id="market-glance"
           className="relative flex w-full items-center border-t border-slate-200/80"
         >
@@ -1130,58 +1511,324 @@ export default function HomePage() {
             </div>
             <MarketStats />
           </div>
-        </section>
+        </section> */}
 
         {/* WHY CHOOSE ANAROCK */}
-        <section className="py-16 px-4 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-              Why Choose{" "}
-              <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                Anarock
-              </span>
-            </h2>
-            <p className="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">
-              Your trusted partner in real estate, combining deep industry
-              expertise with market data.
-            </p>
+        <section
+          className="
+    relative
+    overflow-hidden
+    py-12
+    sm:py-14
+    md:py-16
+    lg:py-20
+    xl:py-24
+  "
+        >
+          {/* Background decoration */}
+          <div className="pointer-events-none absolute inset-0">
+            <div
+              className="
+        absolute
+        -left-40
+        top-20
+        h-80
+        w-80
+        rounded-full
+        bg-[#A054A0]/[0.035]
+        blur-3xl
+        sm:h-96
+        sm:w-96
+      "
+            />
+
+            <div
+              className="
+        absolute
+        -right-40
+        bottom-0
+        h-80
+        w-80
+        rounded-full
+        bg-[#A054A0]/[0.03]
+        blur-3xl
+        sm:h-96
+        sm:w-96
+      "
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-            {features.map((feature, idx) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={idx}
-                  className="group relative flex flex-col justify-between p-6 bg-white/80 rounded-2xl border border-slate-200/80 shadow-sm backdrop-blur-xl transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 hover:border-[#A054A0]/40 overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#A054A0]/[0.05] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div
+            className="
+      relative
+      z-10
+      mx-auto
+      w-full
+      max-w-[1500px]
+      px-5
+      sm:px-8
+      lg:px-10
+      xl:px-12
+    "
+          >
+            {/* Heading */}
+            <div
+              className="
+        mx-auto
+        mb-10
+        max-w-4xl
+        text-center
 
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-12 h-12 rounded-xl bg-[#A054A0]/10 text-[#A054A0] flex items-center justify-center mb-5 transition-all duration-300 ease-out group-hover:scale-110 group-hover:bg-[#A054A0] group-hover:text-white">
-                      <Icon className="w-6 h-6" />
+        sm:mb-12
+        md:mb-14
+        lg:mb-16
+      "
+            >
+              <h2
+                className="
+          text-[clamp(2rem,3.8vw,4rem)]
+          font-bold
+          leading-[0.98]
+          tracking-[-0.055em]
+          text-[#A054A0]
+        "
+              >
+                Why Choose Anarock{" "}
+              </h2>
+
+              <p
+                className="
+          mx-auto
+          mt-4
+          max-w-2xl
+          text-sm
+          leading-6
+          text-slate-600
+
+          sm:mt-5
+          sm:text-base
+          sm:leading-7
+
+          lg:text-lg
+          lg:leading-8
+        "
+              >
+                Your trusted partner in real estate, combining deep industry
+                expertise with market data.
+              </p>
+            </div>
+
+            {/* Feature Cards */}
+            <div
+              className="
+        flex
+        flex-wrap
+        justify-center
+        gap-5
+
+        sm:gap-6
+      "
+            >
+              {features.map((feature, idx) => {
+                const Icon = feature.icon;
+
+                return (
+                  <div
+                    key={idx}
+                    className="
+              group
+              relative
+              flex
+              w-full
+              flex-col
+              overflow-hidden
+              rounded-[1.35rem]
+              border
+              border-slate-200/80
+              bg-white/80
+              p-5
+              shadow-[0_8px_30px_rgba(15,23,42,0.035)]
+              backdrop-blur-xl
+              transition-all
+              duration-500
+              ease-out
+
+              hover:-translate-y-1.5
+              hover:border-[#A054A0]/40
+              hover:shadow-[0_20px_50px_rgba(160,84,160,0.11)]
+
+              min-[600px]:w-[calc(50%-0.75rem)]
+
+              lg:w-[calc(33.333%-1rem)]
+
+              lg:p-6
+              lg:rounded-[1.5rem]
+            "
+                  >
+                    {/* Hover gradient */}
+                    <div
+                      className="
+                pointer-events-none
+                absolute
+                inset-0
+                bg-gradient-to-br
+                from-[#A054A0]/[0.05]
+                via-transparent
+                to-transparent
+                opacity-0
+                transition-opacity
+                duration-500
+                group-hover:opacity-100
+              "
+                    />
+
+                    <div className="relative z-10 flex h-full flex-col">
+                      {/* Icon */}
+                      <div
+                        className="
+                  mb-5
+                  flex
+                  h-11
+                  w-11
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-xl
+                  bg-[#A054A0]/10
+                  text-[#A054A0]
+                  transition-all
+                  duration-300
+                  ease-out
+
+                  group-hover:scale-110
+                  group-hover:bg-[#A054A0]
+                  group-hover:text-white
+
+                  sm:h-12
+                  sm:w-12
+                "
+                      >
+                        <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                      </div>
+
+                      {/* Title */}
+                      <h3
+                        className="
+                  mb-2
+                  text-lg
+                  font-semibold
+                  leading-tight
+                  tracking-[-0.02em]
+                  text-slate-900
+                  transition-colors
+                  duration-200
+
+                  group-hover:text-[#A054A0]
+
+                  sm:text-xl
+                "
+                      >
+                        {feature.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p
+                        className="
+                  flex-grow
+                  text-sm
+                  leading-6
+                  text-slate-600
+
+                  sm:leading-7
+                "
+                      >
+                        {feature.desc}
+                      </p>
                     </div>
-
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2 group-hover:text-[#A054A0] transition-colors duration-200">
-                      {feature.title}
-                    </h3>
-
-                    <p className="text-slate-600 text-sm leading-relaxed flex-grow">
-                      {feature.desc}
-                    </p>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </section>
 
         {/* CLIENT JOURNEY */}
         <section
           id="client-journey"
-          className="relative isolate overflow-hidden py-8 sm:py-10 lg:py-14"
+          className="
+    relative
+    isolate
+    overflow-hidden
+    py-7
+    min-[400px]:py-8
+    sm:py-14
+    md:py-16
+    lg:py-20
+    xl:py-24
+  "
         >
-          <div className="relative mx-auto w-full px-[clamp(1rem,3vw,4rem)]">
+          {/* Background decoration */}
+          <div className="pointer-events-none absolute inset-0">
+            <div
+              className="
+        absolute
+        -left-32
+        top-16
+        h-64
+        w-64
+        rounded-full
+        bg-[#A054A0]/[0.035]
+        blur-3xl
+
+        min-[400px]:h-72
+        min-[400px]:w-72
+
+        sm:-left-40
+        sm:top-20
+        sm:h-96
+        sm:w-96
+      "
+            />
+
+            <div
+              className="
+        absolute
+        -right-32
+        bottom-0
+        h-64
+        w-64
+        rounded-full
+        bg-[#A054A0]/[0.03]
+        blur-3xl
+
+        min-[400px]:h-72
+        min-[400px]:w-72
+
+        sm:-right-40
+        sm:h-96
+        sm:w-96
+      "
+            />
+          </div>
+
+          <div
+            className="
+      relative
+      z-10
+      mx-auto
+      w-full
+      max-w-[1700px]
+
+      px-4
+      min-[400px]:px-5
+
+      sm:px-8
+      lg:px-10
+      xl:px-12
+      2xl:px-14
+    "
+          >
+            {/* Heading */}
             <motion.div
               initial={{ y: 40 }}
               whileInView={{ y: 0 }}
@@ -1190,32 +1837,90 @@ export default function HomePage() {
                 duration: 0.8,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="mx-auto mb-[clamp(3rem,7vw,6rem)] max-w-3xl text-center"
+              className="
+        mx-auto
+        mb-5
+        w-full
+        max-w-6xl
+        text-center
+
+        min-[400px]:mb-6
+
+        sm:mb-12
+        md:mb-14
+        lg:mb-16
+        xl:mb-20
+      "
             >
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                Find Your{" "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  Next Office{" "}
-                </span>
-                in{" "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  5 Simple Steps{" "}
-                </span>
+              <h2
+                className="
+          mx-auto
+          max-w-[1100px]
+
+          text-[1.8rem]
+          font-bold
+          leading-[1.02]
+          tracking-[-0.045em]
+          text-[#A054A0]
+          min-[400px]:text-[2rem]
+          sm:text-[clamp(2.2rem,5vw,3.25rem)]
+          lg:text-[clamp(2.5rem,3.8vw,4rem)]
+        "
+              >
+                Find Your Next Office in 5 Simple Steps
               </h2>
-              {/* <p className="mx-auto mt-6 max-w-2xl text-[clamp(0.875rem,1.3vw,1.125rem)] leading-[1.8] tracking-[-0.01em] text-slate-500">
-                A seamless, insight-led process to help you find, evaluate, and
-                secure the right commercial space.
-              </p> */}
             </motion.div>
 
             <div className="relative">
+              {/* Connecting line — desktop only */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute left-0 right-0 top-1/2 hidden h-px bg-gradient-to-r from-transparent via-[#A054A0]/20 to-transparent lg:block"
+                className="
+          pointer-events-none
+          absolute
+          left-[8%]
+          right-[8%]
+          top-1/2
+          hidden
+          h-px
+          bg-gradient-to-r
+          from-transparent
+          via-[#A054A0]/20
+          to-transparent
+
+          min-[1800px]:block
+        "
               />
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-5 lg:gap-4 xl:gap-5">
+
+              <div
+                className="
+          flex
+          flex-wrap
+          justify-center
+
+          gap-3
+          min-[400px]:gap-4
+
+          sm:gap-6
+        "
+              >
                 {journey.map((item, index) => (
-                  <JourneyCard key={item.title} item={item} index={index} />
+                  <div
+                    key={item.title}
+                    className={`
+    w-[calc(50%-0.5rem)]
+
+    min-[600px]:w-[calc(50%-0.625rem)]
+
+    md:w-[calc((100%-3rem)/3)]
+
+    min-[1800px]:w-[calc((100%-6rem)/5)]
+
+    ${index === journey.length - 1 ? "max-[599px]:mx-auto" : ""}
+  `}
+                  >
+                    <JourneyCard item={item} index={index} />
+                  </div>
                 ))}
               </div>
             </div>
@@ -1223,7 +1928,10 @@ export default function HomePage() {
         </section>
 
         {/* POST A REQUIREMENT */}
-        <section id="enquiry" className="relative isolate overflow-hidden py-[clamp(3.5rem,8vw,7.5rem)]">
+        <section
+          id="enquiry"
+          className="relative isolate overflow-hidden py-[clamp(3.5rem,8vw,7.5rem)]"
+        >
           <div className="pointer-events-none absolute inset-0 -z-10">
             <div className="absolute inset-0 opacity-[0.035]" />
             <motion.div
@@ -1264,11 +1972,8 @@ export default function HomePage() {
                 }}
                 className="flex flex-col lg:sticky lg:top-28"
               >
-                <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                  Find your {"  "}
-                  <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                    Perfect Space
-                  </span>
+                <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-[#A054A0]">
+                  Find your Perfect Space
                 </h2>
 
                 <p className="mt-7 max-w-[32rem] text-[clamp(0.9rem,1.3vw,1.125rem)] leading-[1.8] tracking-[-0.01em] text-slate-500">
@@ -1352,33 +2057,6 @@ export default function HomePage() {
                         name="company"
                         placeholder="Enter your company name"
                       />
-
-                      {/* REQUIREMENT TYPE */}
-
-                      {/* <div className="space-y-2">
-                        <label
-                          htmlFor="requirementType"
-                          className="text-xs font-semibold text-slate-600"
-                        >
-                          Requirement Type{" "}
-                        </label>
-
-                        <select
-                          id="requirementType"
-                          name="requirementType"
-                          value={requirementType}
-                          onChange={(e) => setRequirementType(e.target.value)}
-                          className="glass-input w-full appearance-none rounded-xl border border-white/80 bg-white/55 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all duration-300 focus:border-[#A054A0]/50 focus:bg-white/90 focus:ring-4 focus:ring-[#A054A0]/10"
-                        >
-                          <option value="" disabled>
-                            Select requirement type
-                          </option>
-                          <option value="Conventional">Conventional</option>
-                          <option value="Managed Office/Co-working">
-                            Managed Office/Co-working
-                          </option>
-                        </select>
-                      </div> */}
                       <div className="space-y-2">
                         <label
                           htmlFor="requirementType"
@@ -1405,34 +2083,6 @@ export default function HomePage() {
                           ]}
                         />
                       </div>
-
-
-                      {/* <div className="space-y-2">
-                        <label
-                          htmlFor="requirementCity"
-                          className="text-xs font-semibold text-slate-600"
-                        >
-                          Preffered City
-                        </label>
-
-                        <select
-                          id="requirementCity"
-                          name="requirementCity"
-                          value={requirementCity}
-                          onChange={(e) => setRequirementCity(e.target.value)}
-                          className="glass-input w-full appearance-none rounded-xl border border-white/80 bg-white/55 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all duration-300 focus:border-[#A054A0]/50 focus:bg-white/90 focus:ring-4 focus:ring-[#A054A0]/10"
-                        >
-                          <option value="" disabled>
-                            - Select your preferred city -
-                          </option>
-
-                          {requirementCityOptions.map((city) => (
-                            <option key={city} value={city}>
-                              {city}
-                            </option>
-                          ))}
-                        </select>
-                      </div> */}
                       <div className="space-y-2">
                         <label
                           htmlFor="requirementCity"
@@ -1453,7 +2103,6 @@ export default function HomePage() {
                           }))}
                         />
                       </div>
-
 
                       {requirementType === "Managed Office/Co-working" ? (
                         <>
@@ -1507,7 +2156,7 @@ export default function HomePage() {
                       />
                     </div>
 
-                    <div className="flex flex-col gap-5 border-t border-slate-200/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 border-slate-200/60 sm:flex-row sm:items-center sm:justify-between">
                       <p className="max-w-[22rem] text-center text-[11px] leading-relaxed text-slate-400 sm:text-left">
                         By submitting this form, you agree to be contacted by
                         our team regarding your requirement.
@@ -1533,11 +2182,14 @@ export default function HomePage() {
         </section>
 
         {/* ABOUT US */}
-        <section id="aboutus" className="relative isolate overflow-hidden py-20 sm:py-24 md:py-20 lg:py-20">
+        <section
+          id="aboutus"
+          className="relative isolate overflow-hidden py-20 sm:py-24 md:py-20 lg:py-20"
+        >
           <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,4vw,5rem)]">
             <div className="mb-14 lg:mb-20 text-center">
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">About {"  "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">Anarock</span>
+              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-[#A054A0]">
+                About Anarock
               </h2>
             </div>
 
@@ -1557,7 +2209,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="mt-10 sm:mt-14 text-center">
+              {/* <div className="mt-10 sm:mt-14 text-center">
                 <Link
                   href="https://www.anarock.com/"
                   target="_blank"
@@ -1570,7 +2222,7 @@ export default function HomePage() {
                     <ArrowUpRight className="h-4 w-4" />
                   </span>
                 </Link>
-              </div>
+              </div> */}
             </div>
           </div>
         </section>
@@ -1585,4 +2237,3 @@ export default function HomePage() {
     </>
   );
 }
-

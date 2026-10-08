@@ -128,7 +128,7 @@ const phoneCountries = [
 const navigation = [
   { label: "Properties", href: "/properties", type: "link" },
   { label: "Services", href: "/services", type: "link" },
-  { label: "About Us", href: "/#aboutus", type: "link" },
+  { label: "About Us", href: "/aboutus", type: "link" },
   { label: "Post a Requirement", href: "/#enquiry", type: "link" },
   { label: "List your Property", href: "/list-your-property", type: "link" },
 ];
@@ -726,16 +726,11 @@ export default function Navbar() {
                   </span>
 
                   <span className="min-w-0 leading-tight">
-                    <span className="hidden text-[12px] font-bold uppercase tracking-wider text-[#A054A0] sm:block min-[1920px]:text-[15px]">
+                    <span className="hidden text-[10px] font-bold uppercase tracking-wider text-[#A054A0] sm:block min-[1920px]:text-[12px]">
                       Your location
                     </span>
 
-                    <span className="block truncate text-[12px] font-semibold text-slate-800 sm:text-[12px] md:text-[13px] lg:text-[13px] min-[1920px]:text-[15px]">
-                      {/* {userLocation?.city
-                        ? `${userLocation.city}${userLocation?.state ? `, ${userLocation.state}` : ""
-                        }`
-                        : userLocation?.state || "Detecting location..."} */}
-
+                    <span className="block truncate text-[10px] font-semibold text-slate-800 sm:text-[13px] md:text-[14px] lg:text-[13px] min-[1920px]:text-[14px]">
                       {userLocation?.city
                         ? `${userLocation.city}${userLocation?.state ? `, ${userLocation.state}` : ""}`
                         : userLocation?.state || "Select location"}
@@ -753,7 +748,7 @@ export default function Navbar() {
                       key={item.label}
                       type="button"
                       onClick={() => handleScrollNavigation(item.href)}
-                      className="group relative cursor-pointer whitespace-nowrap rounded-lg border-0 bg-transparent px-3 py-1.5 text-[14px] font-medium text-slate-700 transition-all duration-200 hover:bg-[#A054A0] hover:text-white hover:shadow-md min-[1366px]:px-1.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[20px]"
+                      className="group relative cursor-pointer whitespace-nowrap rounded-lg border-0 bg-transparent px-3 py-1.5 text-[14px] font-medium text-slate-700 transition-all duration-200 hover:text-[#A054A0] hover:shadow-md min-[1366px]:px-1.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[16px]"
                     >
                       <span>{item.label}</span>
                     </button>
@@ -765,7 +760,7 @@ export default function Navbar() {
                     key={item.href}
                     href={item.href}
                     onClick={closeMenu}
-                    className="group relative whitespace-nowrap rounded-lg px-3 py-1.5 text-[14px] font-medium text-slate-900 transition-all duration-200 hover:bg-[#A054A0] hover:text-white hover:shadow-md min-[1366px]:px-1.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[17px]"
+                    className="group relative whitespace-nowrap rounded-lg px-3 py-1.5 text-[14px] font-medium text-slate-900 transition-all duration-200 hover:bg-[#A054A0] hover:text-white hover:shadow-md min-[1366px]:px-1.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[16px]"
                   >
                     <span>{item.label}</span>
                   </Link>
@@ -779,18 +774,17 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setCurrencyOpen((prev) => !prev)}
-                    className="flex h-9 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/90 px-3 text-[11px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[13px]"
+                    className="flex h-9 items-center text-nowrap rounded-lg border border-[#A054A0]/20 bg-white/90 px-3 text-[12px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[13px]"
                   >
                     {currencyLabel}
 
                     <ChevronDown
-                      size={13}
+                      size={12}
                       strokeWidth={2}
-                      className={`transition-transform duration-300 ${
-                        currencyOpen
-                          ? "rotate-180 text-[#A054A0]"
-                          : "text-slate-500"
-                      }`}
+                      className={`transition-transform duration-300 ${currencyOpen
+                        ? "rotate-180 text-[#A054A0]"
+                        : "text-slate-500"
+                        }`}
                     />
                   </button>
 
@@ -801,11 +795,10 @@ export default function Navbar() {
                           key={code}
                           type="button"
                           onClick={() => handleCurrencySelect(code)}
-                          className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 min-[1920px]:py-2.5 min-[1920px]:text-[14px] ${
-                            currencyCode === code
-                              ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
-                          }`}
+                          className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 min-[1920px]:py-2.5 min-[1920px]:text-[14px] ${currencyCode === code
+                            ? "bg-[#A054A0] font-bold text-white shadow-sm"
+                            : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                            }`}
                         >
                           {label}
                         </button>
@@ -818,11 +811,10 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => handleUnitSelect("sq.ft")}
-                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${
-                      unit === "sqft"
-                        ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
-                    }`}
+                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqft"
+                      ? "bg-[#A054A0] text-white shadow-sm"
+                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                      }`}
                   >
                     sq.ft
                   </button>
@@ -830,11 +822,10 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => handleUnitSelect("sq.m")}
-                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${
-                      unit === "sqm"
-                        ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
-                    }`}
+                    className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqm"
+                      ? "bg-[#A054A0] text-white shadow-sm"
+                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                      }`}
                   >
                     sq.m
                   </button>
@@ -843,7 +834,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={openEnquiry}
-                  className="group inline-flex h-9 items-center justify-between gap-2 rounded-lg bg-[#A054A0] px-3.5 text-[14px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 min-[1366px]:gap-1 min-[1366px]:px-3 min-[1920px]:h-10 min-[1920px]:px-5 min-[1920px]:text-[16px]"
+                  className="group inline-flex h-9 items-center justify-between gap-2 rounded-lg bg-[#A054A0] px-3.5 text-[14px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 min-[1366px]:gap-1 min-[1366px]:px-3 min-[1366px]:text-[12px] min-[1920px]:h-10 min-[1920px]:px-5 min-[1920px]:text-[16px]"
                 >
                   <span className="relative z-10">Request Callback</span>
 
@@ -856,27 +847,25 @@ export default function Navbar() {
 
                 <Link
                   href="/shortlist"
-                  aria-label={`Shortlist${
-                    wishlistCount > 0
-                      ? `, ${wishlistCount} saved properties`
-                      : ""
-                  }`}
-                  className="group relative hidden h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
+                  aria-label={`Shortlist${wishlistCount > 0
+                    ? `, ${wishlistCount} saved properties`
+                    : ""
+                    }`}
+                  className="group relative hidden h-9 shrink-0 items-center gap-1 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
                 >
                   <Heart
                     size={16}
                     strokeWidth={1.8}
-                    className={`transition-all duration-200 min-[1920px]:h-5 min-[1920px]:w-5 ${
-                      wishlistCount > 0
-                        ? "fill-[#A054A0] text-[#A054A0]"
-                        : "text-slate-500 group-hover:text-[#A054A0]"
-                    }`}
+                    className={`transition-all duration-200 min-[1920px]:h-5 min-[1920px]:w-5 ${wishlistCount > 0
+                      ? "fill-[#A054A0] text-[#A054A0]"
+                      : "text-slate-500 group-hover:text-[#A054A0]"
+                      }`}
                   />
 
                   <span>Shortlisted</span>
 
                   {wishlistCount > 0 && (
-                    <span className="ml-1">
+                    <span>
                       ({wishlistCount > 99 ? "99+" : wishlistCount})
                     </span>
                   )}
@@ -900,11 +889,10 @@ export default function Navbar() {
           </div>
 
           <div
-            className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${
-              mobileOpen
-                ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
-                : "pointer-events-none max-h-0 opacity-0"
-            }`}
+            className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${mobileOpen
+              ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
+              : "pointer-events-none max-h-0 opacity-0"
+              }`}
           >
             <div className="flex max-h-[calc(100dvh-100px)] flex-col justify-between overflow-y-auto px-3 pb-5 pt-3 sm:px-5 sm:pb-7 sm:pt-4">
               <nav className="flex flex-col space-y-1.5">
@@ -920,11 +908,10 @@ export default function Navbar() {
                             ? `${index * 30}ms`
                             : "0ms",
                         }}
-                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${
-                          mobileOpen
-                            ? "translate-x-0 opacity-100"
-                            : "-translate-x-4 opacity-0"
-                        }`}
+                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
+                          ? "translate-x-0 opacity-100"
+                          : "-translate-x-4 opacity-0"
+                          }`}
                       >
                         <span>{item.label}</span>
                         <ArrowUpRight
@@ -944,11 +931,10 @@ export default function Navbar() {
                       style={{
                         transitionDelay: mobileOpen ? `${index * 30}ms` : "0ms",
                       }}
-                      className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${
-                        mobileOpen
-                          ? "translate-x-0 opacity-100"
-                          : "-translate-x-4 opacity-0"
-                      }`}
+                      className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-[#A054A0] hover:text-white active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
+                        ? "translate-x-0 opacity-100"
+                        : "-translate-x-4 opacity-0"
+                        }`}
                     >
                       <span>{item.label}</span>
                       <ArrowUpRight
@@ -992,11 +978,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => handleUnitSelect("sq.ft")}
-                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${
-                        unit === "sqft"
-                          ? "bg-[#A054A0] text-white shadow-sm"
-                          : "text-slate-600 hover:bg-white/80"
-                      }`}
+                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqft"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80"
+                        }`}
                     >
                       sq.ft
                     </button>
@@ -1004,11 +989,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => handleUnitSelect("sq.m")}
-                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${
-                        unit === "sqm"
-                          ? "bg-[#A054A0] text-white shadow-sm"
-                          : "text-slate-600 hover:bg-white/80"
-                      }`}
+                      className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqm"
+                        ? "bg-[#A054A0] text-white shadow-sm"
+                        : "text-slate-600 hover:bg-white/80"
+                        }`}
                     >
                       sq.m
                     </button>
@@ -1018,14 +1002,13 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => setCurrencyOpen((prev) => !prev)}
-                      className="flex h-8 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white px-2.5 text-[11px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 active:scale-95 sm:px-3"
+                      className="flex h-8 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white px-2.5 text-[12px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 active:scale-95 sm:px-3"
                     >
                       {currencyLabel}
                       <ChevronDown
                         size={13}
-                        className={`transition-transform duration-200 ${
-                          currencyOpen ? "rotate-180 text-[#A054A0]" : ""
-                        }`}
+                        className={`transition-transform duration-200 ${currencyOpen ? "rotate-180 text-[#A054A0]" : ""
+                          }`}
                       />
                     </button>
 
@@ -1036,11 +1019,10 @@ export default function Navbar() {
                             key={code}
                             type="button"
                             onClick={() => handleCurrencySelect(code)}
-                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
-                              currencyCode === code
-                                ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                                : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
-                            }`}
+                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${currencyCode === code
+                              ? "bg-[#A054A0] font-bold text-white shadow-sm"
+                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                              }`}
                           >
                             <span>{label}</span>
                             {currencyCode === code && (
@@ -1059,7 +1041,7 @@ export default function Navbar() {
                     closeMenu();
                     setTimeout(() => openEnquiry(), 200);
                   }}
-                  className="group relative flex h-[48px] w-full items-center justify-between overflow-hidden rounded-lg bg-[#A054A0] px-5 text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 sm:text-[15px]"
+                  className="group relative flex h-[48px] w-full items-center justify-between overflow-hidden rounded-lg bg-[#A054A0] px-5 text-[15px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 sm:text-[15px]"
                 >
                   <span className="relative z-10">Request a Callback</span>
                   <ArrowUpRight
@@ -1112,23 +1094,23 @@ export default function Navbar() {
                   />
                 </div>
 
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#A054A0] sm:text-[12px] 2xl:text-[14px]">
+                <p className="mb-2 text-[12px] font-extrabold uppercase tracking-[0.18em] text-[#A054A0] sm:text-[13px] 2xl:text-[14px]">
                   Thank you
                 </p>
 
-                <h2 className="max-w-[440px] text-[23px] font-bold tracking-[-0.02em] text-slate-900 sm:text-[27px] lg:text-[29px] 2xl:text-[34px]">
+                <h2 className="max-w-[440px] text-[24px] font-bold tracking-[-0.02em] text-slate-900 sm:text-[27px] lg:text-[30px] 2xl:text-[32px]">
                   {isPriorityLead
                     ? "Your enquiry has been received and put on priority"
                     : "Your enquiry has been received"}
                 </h2>
 
-                <p className="mt-3 text-[14px] leading-6 text-slate-600 sm:text-[15px] 2xl:text-[17px]">
+                <p className="mt-3 text-[14px] leading-6 text-slate-600 sm:text-[15px] 2xl:text-[16px]">
                   {isPriorityLead
                     ? "We have updated your information and placed your enquiry on priority. Our team will get back to you shortly."
                     : "Our team will get back to you shortly."}
                 </p>
 
-                <p className="mt-7 rounded-lg border border-[#A054A0]/20 bg-white/80 px-4 py-2 text-[11px] font-medium text-slate-500 shadow-sm backdrop-blur-md sm:text-[12px] 2xl:text-[14px]">
+                <p className="mt-7 rounded-lg border border-[#A054A0]/20 bg-white/80 px-4 py-2 text-[12px] font-medium text-slate-500 shadow-sm backdrop-blur-md sm:text-[13px] 2xl:text-[14px]">
                   This window will close automatically.
                 </p>
               </div>
@@ -1137,12 +1119,12 @@ export default function Navbar() {
                 <div className="relative shrink-0 border-b border-[#A054A0]/10 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
                   <h2
                     id="enquiry-title"
-                    className="pr-10 text-[20px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[27px] 2xl:text-[32px]"
+                    className="pr-10 text-[21px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[28px] 2xl:text-[32px]"
                   >
                     Tell us what you’re looking for
                   </h2>
 
-                  <p className="mt-1.5 max-w-[480px] text-[11px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
+                  <p className="mt-1.5 max-w-[480px] text-[12px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
                     Share your contact info and our team will get back to you.
                   </p>
                 </div>
@@ -1156,7 +1138,7 @@ export default function Navbar() {
                       <div>
                         <label
                           htmlFor="enquiry-name"
-                          className="mb-1.5 block text-[12px] font-bold text-slate-700 sm:text-[13px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
                         >
                           Full Name<span className="text-red-500">*</span>
                         </label>
@@ -1168,25 +1150,24 @@ export default function Navbar() {
                           placeholder="Enter your name"
                           required
                           autoComplete="name"
-                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[14px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[17px] 2xl:px-5"
+                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[15px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[16px] 2xl:px-5"
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="enquiry-phone"
-                          className="mb-1.5 block text-[12px] font-bold text-slate-700 sm:text-[13px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
                         >
                           Phone Number <span className="text-red-500">*</span>
                         </label>
 
                         <div className="relative w-full">
                           <div
-                            className={`flex h-10 w-full rounded-lg border bg-white/70 shadow-sm backdrop-blur-md transition-all duration-200 sm:h-[46px] 2xl:h-[54px] ${
-                              phoneError
-                                ? "border-red-400 ring-2 ring-red-500/10"
-                                : "border-[#A054A0]/20 focus-within:border-[#A054A0] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A054A0]/20"
-                            }`}
+                            className={`flex h-10 w-full rounded-lg border bg-white/70 shadow-sm backdrop-blur-md transition-all duration-200 sm:h-[46px] 2xl:h-[54px] ${phoneError
+                              ? "border-red-400 ring-2 ring-red-500/10"
+                              : "border-[#A054A0]/20 focus-within:border-[#A054A0] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A054A0]/20"
+                              }`}
                           >
                             <div className="relative shrink-0">
                               <button
@@ -1195,7 +1176,7 @@ export default function Navbar() {
                                 onClick={() => setCountryOpen((prev) => !prev)}
                                 aria-expanded={countryOpen}
                                 aria-haspopup="listbox"
-                                className="flex h-full items-center gap-1.5 rounded-l-lg border-r border-[#A054A0]/20 bg-slate-50/60 px-3 text-[13px] font-semibold text-slate-800 outline-none transition-all duration-150 hover:bg-white active:scale-95 sm:px-3 sm:text-[14px] 2xl:px-4.5 2xl:text-[16px]"
+                                className="flex h-full items-center gap-1.5 rounded-l-lg border-r border-[#A054A0]/20 bg-slate-50/60 px-3 text-[14px] font-semibold text-slate-800 outline-none transition-all duration-150 hover:bg-white active:scale-95 sm:px-3 sm:text-[14px] 2xl:px-4.5 2xl:text-[15px]"
                               >
                                 <span className="text-[18px] leading-none 2xl:text-[22px]">
                                   {selectedCountry.flag}
@@ -1206,11 +1187,10 @@ export default function Navbar() {
                                 <ChevronDown
                                   size={14}
                                   strokeWidth={2}
-                                  className={`transition-transform duration-200 ${
-                                    countryOpen
-                                      ? "rotate-180 text-[#A054A0]"
-                                      : "text-slate-500"
-                                  }`}
+                                  className={`transition-transform duration-200 ${countryOpen
+                                    ? "rotate-180 text-[#A054A0]"
+                                    : "text-slate-500"
+                                    }`}
                                 />
                               </button>
 
@@ -1241,15 +1221,15 @@ export default function Navbar() {
                                           return spaceBelow < height &&
                                             rect.top > height
                                             ? Math.max(
-                                                12,
-                                                rect.top - height - 8,
-                                              )
+                                              12,
+                                              rect.top - height - 8,
+                                            )
                                             : Math.min(
-                                                rect.bottom + 8,
-                                                window.innerHeight -
-                                                  height -
-                                                  12,
-                                              );
+                                              rect.bottom + 8,
+                                              window.innerHeight -
+                                              height -
+                                              12,
+                                            );
                                         })(),
                                         left: (() => {
                                           const rect =
@@ -1278,7 +1258,7 @@ export default function Navbar() {
                                               setCountrySearch(e.target.value)
                                             }
                                             placeholder="Search country..."
-                                            className="h-9 min-w-0 flex-1 bg-transparent text-[13px] font-medium text-slate-800 outline-none placeholder:text-slate-400"
+                                            className="h-9 min-w-0 flex-1 bg-transparent text-[14px] font-medium text-slate-800 outline-none placeholder:text-slate-400"
                                           />
 
                                           {countrySearch && (
@@ -1300,9 +1280,9 @@ export default function Navbar() {
                                           filteredCountries.map((country) => {
                                             const isSelected =
                                               country.code ===
-                                                selectedCountry.code &&
+                                              selectedCountry.code &&
                                               country.dial ===
-                                                selectedCountry.dial;
+                                              selectedCountry.dial;
 
                                             return (
                                               <button
@@ -1311,26 +1291,24 @@ export default function Navbar() {
                                                 onClick={() =>
                                                   handleCountrySelect(country)
                                                 }
-                                                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all duration-150 ${
-                                                  isSelected
-                                                    ? "bg-[#A054A0] font-semibold text-white"
-                                                    : "text-slate-800 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
-                                                }`}
+                                                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all duration-150 ${isSelected
+                                                  ? "bg-[#A054A0] font-semibold text-white"
+                                                  : "text-slate-800 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                                                  }`}
                                               >
                                                 <span className="text-[18px] leading-none">
                                                   {country.flag}
                                                 </span>
 
-                                                <span className="min-w-0 flex-1 truncate text-[13px]">
+                                                <span className="min-w-0 flex-1 truncate text-[14px]">
                                                   {country.name}
                                                 </span>
 
                                                 <span
-                                                  className={`text-[12px] font-medium ${
-                                                    isSelected
-                                                      ? "text-white/80"
-                                                      : "text-slate-500"
-                                                  }`}
+                                                  className={`text-[13px] font-medium ${isSelected
+                                                    ? "text-white/80"
+                                                    : "text-slate-500"
+                                                    }`}
                                                 >
                                                   {country.dial}
                                                 </span>
@@ -1378,11 +1356,11 @@ export default function Navbar() {
                         </div>
 
                         {phoneError ? (
-                          <p className="mt-1.5 text-[11px] font-medium leading-4 text-red-600 2xl:text-[13px]">
+                          <p className="mt-1.5 text-[12px] font-medium leading-4 text-red-600 2xl:text-[13px]">
                             {phoneError}
                           </p>
                         ) : phone ? (
-                          <p className="mt-1.5 text-[10px] text-slate-400 2xl:text-[12px]">
+                          <p className="mt-1.5 text-[11px] text-slate-400 2xl:text-[12px]">
                             {selectedCountry.min === selectedCountry.max
                               ? `${selectedCountry.min} digits required`
                               : `${selectedCountry.min}-${selectedCountry.max} digits required`}
@@ -1394,7 +1372,7 @@ export default function Navbar() {
                     {submitError && (
                       <div
                         role="alert"
-                        className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[12px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
+                        className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[13px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
                       >
                         {submitError}
                       </div>
@@ -1402,7 +1380,7 @@ export default function Navbar() {
 
                     <button
                       type="submit"
-                      className="group relative mt-6 flex h-[48px] w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                      className="group relative mt-6 flex h-[48px] w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[15px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[17px]"
                     >
                       <span className="relative z-10">Next</span>
                       <ArrowUpRight
@@ -1419,12 +1397,12 @@ export default function Navbar() {
                 <div className="relative shrink-0 border-b border-[#A054A0]/10 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
                   <h2
                     id="enquiry-title"
-                    className="pr-10 text-[20px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[27px] 2xl:text-[32px]"
+                    className="pr-10 text-[21px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[28px] 2xl:text-[32px]"
                   >
                     Almost done!
                   </h2>
 
-                  <p className="mt-1.5 max-w-[480px] text-[11px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
+                  <p className="mt-1.5 max-w-[480px] text-[12px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
                     Provide your email and company name to help us serve you
                     better.
                   </p>
@@ -1439,7 +1417,7 @@ export default function Navbar() {
                       <div>
                         <label
                           htmlFor="enquiry-email"
-                          className="mb-1.5 block text-[12px] font-bold text-slate-700 sm:text-[13px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
                         >
                           Email Address
                         </label>
@@ -1457,14 +1435,13 @@ export default function Navbar() {
                               setEmailError("");
                             }
                           }}
-                          className={`h-10 w-full rounded-lg border bg-white/70 px-4 text-[14px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:bg-white sm:h-[46px] sm:text-[15px] ${
-                            emailError
-                              ? "border-red-400 ring-2 ring-red-500/10"
-                              : "border-[#A054A0]/20 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
-                          }`}
+                          className={`h-10 w-full rounded-lg border bg-white/70 px-4 text-[15px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:bg-white sm:h-[46px] sm:text-[15px] ${emailError
+                            ? "border-red-400 ring-2 ring-red-500/10"
+                            : "border-[#A054A0]/20 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                            }`}
                         />
                         {emailError && (
-                          <p className="mt-1.5 text-[11px] font-medium leading-4 text-red-600 2xl:text-[13px]">
+                          <p className="mt-1.5 text-[12px] font-medium leading-4 text-red-600 2xl:text-[13px]">
                             {emailError}
                           </p>
                         )}
@@ -1472,7 +1449,7 @@ export default function Navbar() {
                       <div>
                         <label
                           htmlFor="enquiry-company"
-                          className="mb-1.5 block text-[12px] font-bold text-slate-700 sm:text-[13px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
                         >
                           Company Name
                         </label>
@@ -1484,7 +1461,7 @@ export default function Navbar() {
                           autoComplete="organization"
                           value={company ?? ""}
                           onChange={(event) => setCompany(event.target.value)}
-                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[14px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[17px] 2xl:px-5"
+                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[15px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[16px] 2xl:px-5"
                         />
                       </div>
                     </div>
@@ -1492,7 +1469,7 @@ export default function Navbar() {
                     {submitError && (
                       <div
                         role="alert"
-                        className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[12px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
+                        className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[13px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
                       >
                         {" "}
                         {submitError}
@@ -1503,7 +1480,7 @@ export default function Navbar() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="group relative w-full flex h-[48px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[14px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 disabled:cursor-not-allowed disabled:opacity-70 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                        className="group relative w-full flex h-[48px] flex-1 items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#A054A0] text-[15px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] hover:shadow-lg active:scale-98 disabled:cursor-not-allowed disabled:opacity-70 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[17px]"
                       >
                         {isSubmitting ? (
                           <>
@@ -1531,7 +1508,7 @@ export default function Navbar() {
                         type="button"
                         onClick={handleSkipFormTwo}
                         disabled={isSubmitting}
-                        className="flex h-[48px] w-full items-center justify-center rounded-lg border px-6 text-[10px] font-semibold text-[#000] transition-all duration-200 hover:text-[#A054A0] active:scale-98 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[18px]"
+                        className="flex h-[48px] w-full items-center justify-center rounded-lg border px-6 text-[13px] font-semibold text-[#000] transition-all duration-200 hover:text-[#A054A0] active:scale-98 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[17px]"
                       >
                         - Skip -
                       </button>
@@ -1615,3 +1592,5 @@ export default function Navbar() {
     </>
   );
 }
+
+

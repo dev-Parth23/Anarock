@@ -28,9 +28,8 @@ const SAMPLE_PROMPTS = [
   "Plug-and-play HQ in Cyber City Gurgaon under ₹15 Lakhs/month",
 ];
 
-const CONTROL_H = "h-[50px] sm:h-[52px] lg:h-[54px]";
-const inputBase = `w-full ${CONTROL_H} rounded-[14px] bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10`;
-
+const CONTROL_H = "h-[46px] min-[400px]:h-[48px] sm:h-[52px] lg:h-[54px]";
+const inputBase = `w-full ${CONTROL_H} rounded-[12px] sm:rounded-[14px] bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[12px] min-[400px]:text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10`;
 export default function HeroSection({ consentGranted, locationData }) {
   const router = useRouter();
   const [tab, setTab] = useState("filters");
@@ -44,7 +43,7 @@ export default function HeroSection({ consentGranted, locationData }) {
   const [officeTypeOpen, setOfficeTypeOpen] = useState(false);
 
   const [micromarkets, setMicromarkets] = useState([]);
-  const [selectedMicromarket, setSelectedMicromarket] = useState("");
+  const [selectedMicromarkets, setSelectedMicromarkets] = useState([]);
   const [micromarketOpen, setMicromarketOpen] = useState(false);
   const [micromarketSearch, setMicromarketSearch] = useState("");
   const [loadingMicromarkets, setLoadingMicromarkets] = useState(false);
@@ -90,7 +89,20 @@ export default function HeroSection({ consentGranted, locationData }) {
     setArea("");
     setSeats("");
   };
+  const toggleMicromarket = (micromarketName) => {
+    setSelectedMicromarkets((current) => {
+      if (current.includes(micromarketName)) {
+        return current.filter((name) => name !== micromarketName);
+      }
 
+      return [...current, micromarketName];
+    });
+  };
+
+  const clearMicromarkets = () => {
+    setSelectedMicromarkets([]);
+    setMicromarketSearch("");
+  };
   useEffect(() => {
     const controller = new AbortController();
     const fetchCities = async () => {
@@ -108,7 +120,7 @@ export default function HeroSection({ consentGranted, locationData }) {
             if (errorData?.message) {
               errorMessage = errorData.message;
             }
-          } catch {}
+          } catch { }
           throw new Error(errorMessage);
         }
         const data = await response.json();
@@ -177,7 +189,7 @@ export default function HeroSection({ consentGranted, locationData }) {
   useEffect(() => {
     if (!city) {
       setMicromarkets([]);
-      setSelectedMicromarket("");
+      setSelectedMicromarkets([]);
       setMicromarketOpen(false);
       setMicromarketSearch("");
       return;
@@ -238,7 +250,7 @@ export default function HeroSection({ consentGranted, locationData }) {
       if (tab === "filters" && city) {
         const searchLocationObj = {
           city: city.trim(),
-          micromarket: selectedMicromarket || "",
+          micromarkets: selectedMicromarkets,
           propertyType: officeType || "",
           searchedAt: Date.now(),
         };
@@ -274,8 +286,11 @@ export default function HeroSection({ consentGranted, locationData }) {
       if (city?.trim()) {
         params.set("city", toUrlValue(city));
       }
-      if (selectedMicromarket?.trim()) {
-        params.set("micromarket", toUrlValue(selectedMicromarket));
+      if (selectedMicromarkets.length) {
+        params.set(
+          "micromarket",
+          selectedMicromarkets.map(toUrlValue).join(",")
+        );
       }
       if (officeType?.trim()) {
         params.set("type", toUrlValue(officeType));
@@ -346,8 +361,25 @@ export default function HeroSection({ consentGranted, locationData }) {
   };
 
   return (
-    <main className="relative w-full overflow-hidden bg-[#160B17]">
-      <section className="relative flex min-h-[100svh] w-full items-start justify-center overflow-visible pb-10 pt-[76px] sm:pb-14 sm:pt-[88px] lg:min-h-[760px] lg:pt-[108px]">
+    <main className="relative w-full  overflow-x-hidden overflow-y-visible bg-[#160B17]">
+      <section
+        className="
+    relative
+    flex
+    w-full
+    items-start
+    justify-center
+    pt-[64px]
+    pb-4
+    min-[380px]:pt-[68px]
+   min-[380px]:pb-5
+    sm:pt-[84px]
+    sm:pb-10
+    lg:pt-[108px]
+    lg:pb-14
+  "
+      >
+        {" "}
         <div className="absolute inset-0 z-0">
           <Image
             src="/main.jpg"
@@ -371,10 +403,20 @@ export default function HeroSection({ consentGranted, locationData }) {
             }}
           />
         </div>
-
         <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-10">
-          <div className="mx-auto mb-8 max-w-[980px] text-center sm:mb-10 lg:mb-12">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,.12)] backdrop-blur-xl sm:mb-6 sm:px-4 sm:py-2">
+          <div
+            className="
+    mx-auto
+    mb-4
+    max-w-[980px]
+    text-center
+
+    min-[380px]:mb-5
+
+    sm:mb-10
+    lg:mb-12
+  "
+          >            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,.12)] backdrop-blur-xl sm:mb-6 sm:px-4 sm:py-2">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#A054A0] shadow-[0_0_24px_rgba(160,84,160,.45)]">
                 <Sparkles className="h-3.5 w-3.5 text-white" />
               </span>
@@ -384,15 +426,50 @@ export default function HeroSection({ consentGranted, locationData }) {
               </span>
             </div>
 
-            <h1 className="mx-auto max-w-[920px] text-[clamp(2.35rem,7vw,5.35rem)] font-bold leading-[0.98] tracking-[-0.045em] text-white drop-shadow-[0_4px_28px_rgba(0,0,0,.2)]">
-              Describe the Need.
+            <h1
+              className="
+    mx-auto
+    max-w-[920px]
+    text-[2rem]
+    font-bold
+    leading-[0.94]
+    tracking-[-0.045em]
+    text-white
+    drop-shadow-[0_4px_28px_rgba(0,0,0,.2)]
+
+    min-[380px]:text-[2.2rem]
+    min-[430px]:text-[2.45rem]
+
+    sm:text-[clamp(3rem,7vw,5.35rem)]
+  "
+            >              Describe the Need.
               <span className="mt-1 block text-nowrap bg-clip-text sm:mt-2">
                 Discover the Space.
               </span>
             </h1>
 
-            <p className="mx-auto mt-5 max-w-[760px] text-[14px] leading-6 tracking-wide text-white/70 sm:mt-6 sm:text-base sm:leading-7 lg:text-lg">
-              An AI-enabled, data-driven approach to discovering commercial
+            <p
+              className="
+    mx-auto
+    mt-3
+    max-w-[650px]
+    px-3
+    text-[11px]
+    leading-[1.4]
+    tracking-wide
+    text-white/70
+
+    min-[380px]:mt-3.5
+    min-[380px]:text-[12px]
+
+    sm:mt-6
+    sm:px-0
+    sm:text-base
+    sm:leading-7
+
+    lg:text-lg
+  "
+            >              An AI-enabled, data-driven approach to discovering commercial
               workspaces aligned with your business requirements.
             </p>
           </div>
@@ -404,16 +481,14 @@ export default function HeroSection({ consentGranted, locationData }) {
                   <button
                     type="button"
                     onClick={() => setTab("filters")}
-                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${
-                      tab === "filters"
-                        ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
-                        : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
-                    }`}
+                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${tab === "filters"
+                      ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
+                      : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
+                      }`}
                   >
                     <SlidersHorizontal
-                      className={`h-4 w-4 ${
-                        tab === "filters" ? "text-[#A054A0]" : "text-[#9A939A]"
-                      }`}
+                      className={`h-4 w-4 ${tab === "filters" ? "text-[#A054A0]" : "text-[#9A939A]"
+                        }`}
                     />
                     Filter Properties
                   </button>
@@ -421,16 +496,14 @@ export default function HeroSection({ consentGranted, locationData }) {
                   <button
                     type="button"
                     onClick={() => setTab("ai")}
-                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${
-                      tab === "ai"
-                        ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
-                        : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
-                    }`}
+                    className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${tab === "ai"
+                      ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
+                      : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
+                      }`}
                   >
                     <Sparkles
-                      className={`h-4 w-4 ${
-                        tab === "ai" ? "text-[#A054A0]" : "text-[#9A939A]"
-                      }`}
+                      className={`h-4 w-4 ${tab === "ai" ? "text-[#A054A0]" : "text-[#9A939A]"
+                        }`}
                     />
                     AI Search
                   </button>
@@ -450,11 +523,10 @@ export default function HeroSection({ consentGranted, locationData }) {
                           <button
                             type="button"
                             onClick={() => setCityOpen(!cityOpen)}
-                            className={`${inputBase} flex items-center justify-between px-3.5 text-left ${
-                              cityOpen
-                                ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
-                                : ""
-                            }`}
+                            className={`${inputBase} flex items-center justify-between px-3.5 text-left ${cityOpen
+                              ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
+                              : ""
+                              }`}
                           >
                             <span className="flex min-w-0 items-center gap-2.5">
                               <span className="flex h-8 w-8 shrink-0 items-center justify-center">
@@ -462,11 +534,10 @@ export default function HeroSection({ consentGranted, locationData }) {
                               </span>
 
                               <span
-                                className={`truncate ${
-                                  city
-                                    ? "font-semibold text-[#211A21]/85"
-                                    : "text-black/35"
-                                }`}
+                                className={`truncate ${city
+                                  ? "font-semibold text-[#211A21]/85"
+                                  : "text-black/35"
+                                  }`}
                               >
                                 {loadingCities
                                   ? "Loading cities..."
@@ -478,15 +549,14 @@ export default function HeroSection({ consentGranted, locationData }) {
                               <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
                             ) : (
                               <ChevronDown
-                                className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
-                                  cityOpen ? "rotate-180 text-[#A054A0]" : ""
-                                }`}
+                                className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${cityOpen ? "rotate-180 text-[#A054A0]" : ""
+                                  }`}
                               />
                             )}
                           </button>
 
                           {cityOpen && (
-                            <div className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]">
+                            <div className="absolute left-0 right-0 z-[9999] top-full mt-2 overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]">
                               <div className="border-b border-[#EEE7EE] bg-[#FBF9FB] p-3">
                                 <div className="relative">
                                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30" />
@@ -536,7 +606,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         </div>
 
                         <div className="relative" ref={micromarketDropdownRef}>
-                          <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
+                          <label className="mb-1.5 ml-1 block text-[11px] font-bold uppercase tracking-[0.14em] text-black/65 sm:mb-2 sm:text-[16px] sm:tracking-[0.15em]">
                             Micromarket
                           </label>
 
@@ -544,11 +614,10 @@ export default function HeroSection({ consentGranted, locationData }) {
                             type="button"
                             disabled={!city || loadingMicromarkets}
                             onClick={() => setMicromarketOpen(!micromarketOpen)}
-                            className={`${inputBase} flex items-center justify-between px-3.5 text-left disabled:cursor-not-allowed disabled:opacity-50 ${
-                              micromarketOpen
-                                ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
-                                : ""
-                            }`}
+                            className={`${inputBase} flex items-center justify-between px-3.5 text-left disabled:cursor-not-allowed disabled:opacity-50 ${micromarketOpen
+                              ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
+                              : ""
+                              }`}
                           >
                             <span className="flex min-w-0 items-center gap-2.5">
                               <span className="flex h-8 w-8 shrink-0 items-center justify-center">
@@ -556,16 +625,25 @@ export default function HeroSection({ consentGranted, locationData }) {
                               </span>
 
                               <span
-                                className={`truncate ${
-                                  selectedMicromarket
+                                className={`
+    min-w-0
+    truncate
+    text-[11px]
+    sm:text-sm
+    ${selectedMicromarkets.length
                                     ? "font-semibold text-[#211A21]/85"
                                     : "text-black/35"
-                                }`}
+                                  }
+  `}
                               >
                                 {loadingMicromarkets
                                   ? "Loading..."
                                   : city
-                                    ? selectedMicromarket || "All Micromarkets"
+                                    ? selectedMicromarkets.length === 0
+                                      ? "All Micromarkets"
+                                      : selectedMicromarkets.length === 1
+                                        ? selectedMicromarkets[0]
+                                        : `${selectedMicromarkets.length} Micromarkets Selected`
                                     : "Select City First"}
                               </span>
                             </span>
@@ -574,81 +652,179 @@ export default function HeroSection({ consentGranted, locationData }) {
                               <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
                             ) : (
                               <ChevronDown
-                                className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
-                                  micromarketOpen
-                                    ? "rotate-180 text-[#A054A0]"
-                                    : ""
-                                }`}
+                                className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${micromarketOpen
+                                  ? "rotate-180 text-[#A054A0]"
+                                  : ""
+                                  }`}
                               />
                             )}
                           </button>
 
                           {micromarketOpen && !loadingMicromarkets && city && (
-                            <div className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]">
+                            <div
+                              className="
+    absolute
+    left-0
+    right-0
+    top-full
+    z-[9999]
+    mt-2
+    flex
+    flex-col
+    overflow-hidden
+    rounded-[18px]
+    border
+    border-[#E6DDE6]
+    bg-white
+    shadow-[0_20px_50px_rgba(35,10,38,.18)]
+    sm:rounded-2xl
+  "
+                            >
+
+                              {/* Search */}
                               {micromarkets.length > 5 && (
-                                <div className="border-b border-[#EEE7EE] bg-[#FBF9FB] p-3">
+                                <div className="shrink-0 border-b border-[#EEE7EE] bg-[#FBF9FB] p-2.5 sm:p-3">
                                   <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30" />
+                                    <Search
+                                      className="
+              absolute
+              left-3
+              top-1/2
+              h-4
+              w-4
+              -translate-y-1/2
+              text-black/30
+            "
+                                    />
 
                                     <input
                                       value={micromarketSearch}
-                                      onChange={(e) =>
-                                        setMicromarketSearch(e.target.value)
-                                      }
+                                      onChange={(e) => setMicromarketSearch(e.target.value)}
                                       placeholder="Search micromarket..."
                                       autoFocus
-                                      className="h-10 w-full rounded-xl border border-[#E7DFE7] bg-white pl-9 pr-3 text-sm text-[#211A21] outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                                      className="
+              h-10
+              w-full
+              rounded-xl
+              border
+              border-[#E7DFE7]
+              bg-white
+              pl-9
+              pr-3
+              text-[12px]
+              font-medium
+              text-[#211A21]
+              outline-none
+              transition
+              placeholder:text-black/30
+              focus:border-[#A054A0]
+              focus:ring-2
+              focus:ring-[#A054A0]/10
+              sm:text-sm
+            "
                                     />
                                   </div>
                                 </div>
                               )}
 
-                              <div className="max-h-60 overflow-y-auto p-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedMicromarket("");
-                                    setMicromarketOpen(false);
-                                    setMicromarketSearch("");
-                                  }}
-                                  className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
-                                >
-                                  <span>All Micromarkets</span>
+                              <div
+                                className="
+    max-h-[240px]
+    overflow-y-auto
+    overscroll-contain
+    p-1.5
+    sm:max-h-[280px]
+    sm:p-2
+  "
+                              >  <button
+                                type="button"
+                                onClick={() => {
+                                  clearMicromarkets();
+                                  setMicromarketOpen(false);
+                                }}
+                                className={`
+          flex
+          min-h-[42px]
+          w-full
+          items-center
+          justify-between
+          rounded-xl
+          px-3
+          py-2
+          text-left
+          text-[12px]
+          transition-colors
+          sm:min-h-[44px]
+          sm:px-3.5
+          sm:text-sm
+          ${selectedMicromarkets.length === 0
+                                    ? "bg-[#A054A0]/[.07] font-semibold text-[#A054A0]"
+                                    : "text-[#393039] hover:bg-[#A054A0]/[.05] hover:text-[#A054A0]"
+                                  }
+        `}
+                              >
+                                  <span className="truncate">
+                                    All Micromarkets
+                                  </span>
 
-                                  {!selectedMicromarket && (
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
-                                      <Check className="h-3.5 w-3.5 text-[#A054A0]" />
+                                  {selectedMicromarkets.length === 0 && (
+                                    <span className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10 sm:h-6 sm:w-6">
+                                      <Check className="h-3 w-3 text-[#A054A0] sm:h-3.5 sm:w-3.5" />
                                     </span>
                                   )}
                                 </button>
 
-                                {filteredMicromarkets.map((m) => (
-                                  <button
-                                    type="button"
-                                    key={m.id || m.name}
-                                    onClick={() => {
-                                      setSelectedMicromarket(m.name);
-                                      setMicromarketOpen(false);
-                                      setMicromarketSearch("");
-                                    }}
-                                    className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
-                                  >
-                                    <span>{m.name}</span>
+                                {/* Individual Micromarkets */}
+                                {filteredMicromarkets.map((m) => {
+                                  const isSelected = selectedMicromarkets.includes(m.name);
 
-                                    {selectedMicromarket === m.name && (
-                                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
-                                        <Check className="h-3.5 w-3.5 text-[#A054A0]" />
+                                  return (
+                                    <button
+                                      type="button"
+                                      key={m.id || m.name}
+                                      onClick={() => {
+                                        toggleMicromarket(m.name);
+                                        setMicromarketSearch("");
+                                      }}
+                                      className={`
+              flex
+              min-h-[42px]
+              w-full
+              items-center
+              justify-between
+              rounded-xl
+              px-3
+              py-2
+              text-left
+              text-[12px]
+              transition-all
+              sm:min-h-[44px]
+              sm:px-3.5
+              sm:text-sm
+              ${isSelected
+                                          ? "bg-[#A054A0]/[.08] font-semibold text-[#A054A0]"
+                                          : "text-[#393039] hover:bg-[#A054A0]/[.05] hover:text-[#A054A0]"
+                                        }
+            `}
+                                    >
+                                      <span className="min-w-0 truncate pr-3">
+                                        {m.name}
                                       </span>
-                                    )}
-                                  </button>
-                                ))}
 
-                                {micromarkets.length > 5 &&
-                                  !filteredMicromarkets.length && (
-                                    <div className="px-4 py-8 text-center text-xs text-black/35">
-                                      No micromarkets found
-                                    </div>
-                                  )}
+                                      {isSelected && (
+                                        <span className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10 sm:h-6 sm:w-6">
+                                          <Check className="h-3 w-3 text-[#A054A0] sm:h-3.5 sm:w-3.5" />
+                                        </span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+
+                                {!filteredMicromarkets.length && (
+                                  <div className="flex min-h-[120px] items-center justify-center px-4 text-center text-[11px] text-black/35 sm:text-xs">
+                                    No micromarkets found
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
@@ -664,11 +840,10 @@ export default function HeroSection({ consentGranted, locationData }) {
                           <button
                             type="button"
                             onClick={() => setOfficeTypeOpen(!officeTypeOpen)}
-                            className={`${inputBase} flex items-center justify-between px-3.5 text-left ${
-                              officeTypeOpen
-                                ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
-                                : ""
-                            }`}
+                            className={`${inputBase} flex items-center justify-between px-3.5 text-left ${officeTypeOpen
+                              ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
+                              : ""
+                              }`}
                           >
                             <span className="flex min-w-0 items-center gap-2.5">
                               <span className="flex h-8 w-8 shrink-0 items-center justify-center">
@@ -676,22 +851,20 @@ export default function HeroSection({ consentGranted, locationData }) {
                               </span>
 
                               <span
-                                className={`truncate ${
-                                  officeType
-                                    ? "font-semibold text-[#211A21]/85"
-                                    : "text-black/35"
-                                }`}
+                                className={`truncate ${officeType
+                                  ? "font-semibold text-[#211A21]/85"
+                                  : "text-black/35"
+                                  }`}
                               >
                                 {officeType || "All Office Types"}
                               </span>
                             </span>
 
                             <ChevronDown
-                              className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${
-                                officeTypeOpen
-                                  ? "rotate-180 text-[#A054A0]"
-                                  : ""
-                              }`}
+                              className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${officeTypeOpen
+                                ? "rotate-180 text-[#A054A0]"
+                                : ""
+                                }`}
                             />
                           </button>
 

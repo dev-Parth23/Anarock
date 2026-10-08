@@ -884,7 +884,7 @@ export default function PropertyDetailClient({ propertyId }) {
                   type="button"
                   onClick={() => handleWishlist(property)}
                   className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
-                    ? "bg-pink-600 text-white hover:bg-pink-700"
+                    ? "bg-[#A054A0] text-white hover:bg-[#A054A0]"
                     : "bg-gray-900 text-white hover:bg-gray-800"
                     }`}
                 >

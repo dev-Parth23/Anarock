@@ -729,7 +729,7 @@ export default function WishlistClient() {
             </div>
 
             <h2 className="mt-5 text-xl font-semibold text-slate-900">
-              No shortlisted properties yet
+              No properties shortlisted yet
             </h2>
 
             <Link

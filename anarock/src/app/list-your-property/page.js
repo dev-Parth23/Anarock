@@ -238,83 +238,57 @@ export default function ListYourPropertyPage() {
 
     return (
         <main className="min-h-screen bg-[#f7f7f8] text-[#171717]">
-            {/* HEADER */}
-            <header className="sticky top-0 z-50 border-b border-black/[0.06] bg-white/90 backdrop-blur-xl">
-                <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between px-5 sm:px-8 lg:px-12">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#18181b] text-white">
-                            <Building2 size={20} />
-                        </div>
 
-                        <div>
-                            <p className="text-[15px] font-semibold tracking-tight">
-                                List Your Property
-                            </p>
-                            <p className="hidden text-[11px] text-black/45 sm:block">
-                                Add your commercial property to our platform
-                            </p>
-                        </div>
-                    </div>
+            {
+                !submitted && (
+                    <div className="border-b border-black/[0.06] bg-white">
+                        <div className="mx-auto max-w-[1100px] px-5 py-5 sm:px-8">
+                            <div className="flex items-center justify-between">
+                                {STEPS.map((item, index) => {
+                                    const active = index === step;
+                                    const complete = index < step;
 
-                    <button
-                        onClick={() => window.history.back()}
-                        className="hidden items-center gap-2 rounded-xl border border-black/[0.08] bg-white px-4 py-2 text-sm font-medium transition hover:bg-black/[0.03] sm:flex"
-                    >
-                        <X size={15} />
-                        Close
-                    </button>
-                </div>
-            </header>
+                                    return (
+                                        <div key={item} className="flex flex-1 items-center">
+                                            <div className="flex items-center gap-2">
+                                                <div
+                                                    className={[
+                                                        "flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all",
+                                                        complete
+                                                            ? "bg-[#18181b] text-white"
+                                                            : active
+                                                                ? "bg-[#f3d5b5] text-[#18181b] ring-4 ring-[#f3d5b5]/30"
+                                                                : "bg-black/[0.05] text-black/40",
+                                                    ].join(" ")}
+                                                >
+                                                    {complete ? <Check size={14} /> : index + 1}
+                                                </div>
 
-            {/* PROGRESS */}
-            {!submitted && (
-                <div className="border-b border-black/[0.06] bg-white">
-                    <div className="mx-auto max-w-[1100px] px-5 py-5 sm:px-8">
-                        <div className="flex items-center justify-between">
-                            {STEPS.map((item, index) => {
-                                const active = index === step;
-                                const complete = index < step;
-
-                                return (
-                                    <div key={item} className="flex flex-1 items-center">
-                                        <div className="flex items-center gap-2">
-                                            <div
-                                                className={[
-                                                    "flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all",
-                                                    complete
-                                                        ? "bg-[#18181b] text-white"
-                                                        : active
-                                                            ? "bg-[#f3d5b5] text-[#18181b] ring-4 ring-[#f3d5b5]/30"
-                                                            : "bg-black/[0.05] text-black/40",
-                                                ].join(" ")}
-                                            >
-                                                {complete ? <Check size={14} /> : index + 1}
+                                                <span
+                                                    className={[
+                                                        "hidden text-xs font-medium sm:block",
+                                                        active
+                                                            ? "text-black"
+                                                            : complete
+                                                                ? "text-black/65"
+                                                                : "text-black/35",
+                                                    ].join(" ")}
+                                                >
+                                                    {item}
+                                                </span>
                                             </div>
 
-                                            <span
-                                                className={[
-                                                    "hidden text-xs font-medium sm:block",
-                                                    active
-                                                        ? "text-black"
-                                                        : complete
-                                                            ? "text-black/65"
-                                                            : "text-black/35",
-                                                ].join(" ")}
-                                            >
-                                                {item}
-                                            </span>
+                                            {index < STEPS.length - 1 && (
+                                                <div className="mx-3 h-px flex-1 bg-black/[0.08]" />
+                                            )}
                                         </div>
-
-                                        {index < STEPS.length - 1 && (
-                                            <div className="mx-3 h-px flex-1 bg-black/[0.08]" />
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <section className="mx-auto max-w-[1100px] px-5 py-10 sm:px-8 lg:py-14">
                 <AnimatePresence mode="wait">
@@ -395,7 +369,7 @@ export default function ListYourPropertyPage() {
                     )}
                 </AnimatePresence>
             </section>
-        </main>
+        </main >
     );
 }
 
@@ -990,7 +964,7 @@ function ListingForm({
                             </p>
 
                             <p className="mt-1 text-xs leading-5 text-black/50">
-                                I agree to the platform's privacy policy and understand
+                                I agree to the platform&apos;s privacy policy and understand
                                 that the information may be reviewed by the property
                                 administration team before publication.
                             </p>

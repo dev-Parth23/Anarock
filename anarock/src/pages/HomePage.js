@@ -685,22 +685,8 @@ function JourneyCard({ item, index }) {
           />
         </div>
 
-        {/* Bottom hover line */}
         <div
-          className="
-            pointer-events-none
-            absolute
-            bottom-0
-            left-0
-            right-0
-            h-[2px]
-            origin-left
-            scale-x-0
-            bg-gradient-to-r
-            from-[#A054A0]
-            to-[#DFA2DF]
-            transition-transform
-            duration-700
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2px] z-0 origin-left scale-x-0 bg-gradient-to-r from-[#A054A0] to-[#DFA2DF] transition-transform duration-700
             group-hover:scale-x-100
           "
           aria-hidden="true"
@@ -1252,100 +1238,25 @@ export default function HomePage() {
             <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.04] blur-3xl" />
           </div>
 
-          <div
-            className=" relative
-      z-10
-      mx-auto
-      w-full
-      max-w-[1500px]
-      px-5
-      sm:px-8
-      lg:px-10
-      xl:px-12
-    "
-          >
-            {/* Heading */}
-            <div
-              className="
-        mb-10
-        flex
-        flex-col
-        gap-5
-
-        sm:mb-12
-
-        lg:mb-14
-        lg:flex-row
-        lg:items-center
-        lg:justify-between
-        lg:gap-12
-      "
-            >
-              <h2
-                className="
-          max-w-3xl
-          text-[clamp(2rem,4.2vw,4.5rem)]
-          font-bold
-          leading-[0.98]
-          tracking-[-0.055em]
-          text-[#A054A0]
-        "
-              >
+          <div className=" relative z-10 mx-auto w-full max-w-[1500px] px-5 sm:px-8 lg:px-10 xl:px-12">
+            <div className="mb-10 flex flex-col gap-5 sm:mb-12 lg:mb-14 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+              <h2 className="max-w-3xl text-[clamp(2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-[#A054A0]">
                 Explore India&apos;s Key Cities
               </h2>
-
-              <p
-                className="
-          mt-0
-          max-w-2xl
-          text-sm
-          leading-6
-          text-slate-500
-
-          sm:text-base
-          sm:leading-7
-
-          lg:max-w-xl
-          lg:text-lg
-          lg:leading-8
-        "
-              >
+              <p className="mt-0 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base sm:leading-7 lg:max-w-xl lg:text-lg lg:leading-8">
                 Discover premium commercial real estate opportunities across
                 India&apos;s leading business destinations.
               </p>
             </div>
-
-            {/* City Cards */}
-            <div
-              className="
-        flex
-        flex-wrap
-        justify-center
-        gap-4
-
-        min-[600px]:gap-5
-        sm:gap-5
-      "
-            >
+            <div className="flex flex-wrap justify-center gap-4 min-[600px]:gap-5 sm:gap-5">
               {popularCities.map((city) => (
-                <Link
-                  key={city.slug}
-                  href={`/kyc/city/${city.slug}`}
-                  className="
-            group
-            relative
-            isolate
-            w-full
-            overflow-hidden
-            rounded-[1.25rem]
-            border
-            border-[#A054A0]/15
+                <Link key={city.slug} href={`/kyc/city/${city.slug}`}
+                  className=" group relative             isolate w-full overflow-hidden rounded-[1.25rem] border border-[#A054A0]/15
             bg-white
             shadow-[0_10px_35px_rgba(86,42,91,0.05)]
             transition-all
             duration-500
             ease-out
-
             hover:-translate-y-2
             hover:border-[#A054A0]/35
             hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
@@ -1365,124 +1276,21 @@ export default function HomePage() {
             sm:rounded-[1.5rem]
           "
                 >
-                  {/* Image */}
-                  <div
-                    className="
-              relative
-              aspect-[16/4]
-              overflow-hidden
-              bg-[#A054A0]/5
-   min-[600px]:aspect-[4/3]
-    lg:aspect-square
-            "
-                  >
-                    <img
-                      src={city.url}
-                      alt={`${city.name} commercial real estate`}
-                      decoding="async"
-                      className="
-                h-full
-                w-full
-                object-cover
-                object-center
-                transition-transform
-                duration-700
-                ease-out
-                group-hover:scale-110
-              "
-                    />
-
-                    <div
-                      className="
-                absolute
-                inset-0
-                bg-gradient-to-t
-                from-slate-950/75
-                via-slate-950/5
-                to-transparent
-              "
-                    />
-
-                    {/* Card Content */}
-                    <div
-                      className="
-                absolute
-                inset-x-0
-                bottom-0
-                p-4
-
-                sm:p-5
-                lg:p-5
-              "
-                    >
-                      <div
-                        className="
-                  mb-3
-                  h-px
-                  w-8
-                  bg-[#DCA9DD]
-                  transition-all
-                  duration-500
-                  group-hover:w-14
-                "
-                      />
-
-                      <h3
-                        className="
-                  text-lg
-                  font-bold
-                  tracking-tight
-                  text-white
-
-                  sm:text-xl
-                  lg:text-xl
-                "
-                      >
+                  <div className=" relative aspect-[16/4] overflow-hidden bg-[#A054A0]/5 min-[600px]:aspect-[4/3] lg:aspect-square" >
+                    <img src={city.url} alt={`${city.name} commercial real estate`} decoding="async" className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110" />
+                    <div className=" absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
+                    <div className=" absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-5" >
+                      <div className="mb-3 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-14" />
+                      <h3 className=" text-lg font-bold tracking-tight text-white sm:text-xl lg:text-xl">
                         {city.name}
                       </h3>
-
                       <div className="mt-2.5 flex items-center justify-between gap-3">
-                        <p
-                          className="
-                    text-[9px]
-                    font-medium
-                    uppercase
-                    tracking-[0.12em]
-                    text-white/65
-
-                    sm:text-[10px]
-                  "
-                        >
-                          Explore
-                        </p>
-
-                        <ArrowRight
-                          className="
-                    h-4
-                    w-4
-                    shrink-0
-                    text-white/70
-                    transition-all
-                    duration-300
-                    group-hover:translate-x-1
-                    group-hover:text-white
-                  "
-                        />
+                        <p className=" text-[9px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[10px]" >Explore</p>
+                        <ArrowRight className=" h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
                       </div>
                     </div>
                   </div>
-
-                  {/* Bottom hover line */}
-                  <div
-                    className="
-              h-1
-              w-0
-              bg-[#A054A0]
-              transition-all
-              duration-500
-              group-hover:w-full
-            "
-                  />
+                  <div className=" h-1 w-0 bg-[#A054A0] transition-all duration-500 group-hover:w-full" />
                 </Link>
               ))}
             </div>

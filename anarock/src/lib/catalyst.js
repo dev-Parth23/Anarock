@@ -353,19 +353,6 @@ const TOKEN_REFRESH_BUFFER_MS = 2 * 60 * 1000;
 const MAX_AUTH_RETRIES = 1;
 
 const DEFAULT_TIMEOUT_MS = 15_000;
-
-/*
-|--------------------------------------------------------------------------
-| Process-level state
-|--------------------------------------------------------------------------
-|
-| The Catalyst access token is cached only inside the
-| current Next.js server process.
-|
-| It is NEVER exposed to the browser.
-|
-*/
-
 const globalState = globalThis;
 
 if (!globalState.__anarockCatalyst) {

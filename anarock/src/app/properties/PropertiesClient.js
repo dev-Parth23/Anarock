@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { Suspense, useEffect, useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import PropertyCard from "@/components/properties/PropertyCard";
@@ -264,32 +264,25 @@ const getSqftPrice = (property) => {
   return null;
 };
 
-export default function PropertiesClient() {
+function PropertiesClientContent() {
   const { currency, unit, exchangeRates } = usePreferences();
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
-
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const [compareSelection, setCompareSelection] = useState([]);
   const [suggestedProperties, setSuggestedProperties] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
-
   const [totalProperties, setTotalProperties] = useState(0);
   const [totalPagesFromApi, setTotalPagesFromApi] = useState(1);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [cities, setCities] = useState([]);
   const [micromarkets, setMicromarkets] = useState([]);
   const [micromarketsLoading, setMicromarketsLoading] = useState(false);
-
   const [showFilters, setShowFilters] = useState(false);
   const [showMicromarkets, setShowMicromarkets] = useState(false);
   const [sidebarTab, setSidebarTab] = useState("filters");
-
   useEffect(() => {
     if (!showFilters) {
       return;
@@ -2752,5 +2745,12 @@ export default function PropertiesClient() {
           )}
       </div>
     </div>
+  );
+}
+export default function PropertiesClient() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <PropertiesClientContent />
+    </Suspense>
   );
 }

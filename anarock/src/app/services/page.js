@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import {
@@ -448,7 +448,7 @@ function LocalImage({
   );
 }
 
-export default function CommercialLeasingAndAdvisoryPage() {
+function CommercialLeasingAndAdvisoryPageContent() {
   const searchParams = useSearchParams();
 
   const serviceSlugToIndex = {
@@ -918,5 +918,12 @@ export default function CommercialLeasingAndAdvisoryPage() {
         </div>
       </section>
     </main>
+  );
+}
+export default function CommercialLeasingAndAdvisoryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <CommercialLeasingAndAdvisoryPageContent />
+    </Suspense>
   );
 }

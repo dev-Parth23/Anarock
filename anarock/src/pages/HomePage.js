@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CookieConsent from "@/components/common/CookieConsent";
 import HeroSection from "@/components/home/HeroSection";
-// import MarketStats from "@/components/home/MarketStats";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {

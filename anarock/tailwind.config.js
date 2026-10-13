@@ -7,26 +7,10 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        primary: ["var(--font-primary)"],
-        sans: [
-          '"Century Gothic"',
-          "CenturyGothic",
-          "AppleGothic",
-          "sans-serif",
-        ],
-      },
-
-      colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-      },
-      screens: {
-        "3xl": "1800px",
-        1920: "1920px",
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
   },

@@ -2,7 +2,7 @@ const globalState = globalThis;
 
 const TOKEN_REFRESH_BUFFER_MS = 2 * 60 * 1000;
 const MAX_AUTH_RETRIES = 1;
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = 15000;
 
 if (!globalState.__anarockZoho) {
   globalState.__anarockZoho = {
@@ -103,8 +103,8 @@ async function refreshZohoAccessToken() {
     if (!response.ok || !data?.access_token) {
       const error = new Error(
         data?.error_description ||
-          data?.error ||
-          `Zoho OAuth refresh failed (${response.status})`,
+        data?.error ||
+        `Zoho OAuth refresh failed (${response.status})`,
       );
 
       error.status = response.status;
@@ -191,20 +191,12 @@ export async function zohoFetch(url, options = {}, retryCount = 0) {
 
     signal: getTimeoutSignal(
       options.signal,
-
       Number(process.env.ZOHO_REQUEST_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
     ),
 
     cache: "no-store",
   });
 
-  /*
-   * If Zoho says the token is invalid:
-   *
-   * 1. Clear only the token we actually used.
-   * 2. Refresh.
-   * 3. Retry exactly once.
-   */
   if (response.status === 401 && retryCount < MAX_AUTH_RETRIES) {
     if (state.accessToken === tokenInfo.accessToken) {
       clearAccessToken();

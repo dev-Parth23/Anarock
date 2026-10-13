@@ -795,6 +795,16 @@ export default function WishlistClient() {
                     Clear
                   </button>
                 )}
+                {compareSelection.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={openComparePage}
+                    disabled={!canCompare}
+                    className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
+                  >
+                    Compare Properties
+                  </button>
+                )}
                 {getSelectionKey(items) !== enquirySubmittedSelectionKey && (
                   <button
                     type="button"
@@ -804,16 +814,6 @@ export default function WishlistClient() {
                   >
                     <MessageSquare className="h-4 w-4" />
                     Raise Enquiry
-                  </button>
-                )}
-                {compareSelection.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={openComparePage}
-                    disabled={!canCompare}
-                    className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
-                  >
-                    Compare Properties
                   </button>
                 )}
               </div>

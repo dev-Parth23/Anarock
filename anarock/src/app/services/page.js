@@ -1,9 +1,8 @@
 "use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import {
   ArrowUpRight,
@@ -16,7 +15,6 @@ import {
   Mail,
   Linkedin,
 } from "lucide-react";
-
 
 const PURPLE = "#A054A0";
 
@@ -223,12 +221,13 @@ const businessSegments = [
   {
     title: "Built-to-Suit Campuses",
     image: "/services/Campuses.avif",
-    description: "Tailored corporate campus development, site evaluation and commercial structuring.",
+    description:
+      "Tailored corporate campus development, site evaluation and commercial structuring.",
     href: "/services/built-to-suit",
   },
   {
     title: "Data Centres",
-    image: "/images/datacentre.avif",
+    image: "/services/datacenter.avif",
     description:
       "Strategic real estate advisory for high-power, secure digital infrastructure.",
     href: "/services/data-centres",
@@ -244,11 +243,9 @@ const researchItems = [
     href: "/insights",
   },
   {
-    title:
-      "Why U.S. Retailers are Turning to India for Next-Generation GCCs",
+    title: "Why U.S. Retailers are Turning to India for Next-Generation GCCs",
     date: "Feb'26",
     image: "/services/research/OfficeMarket.avif",
-
     href: "/insights",
   },
   {
@@ -307,53 +304,52 @@ const faqs = [
   {
     question: "What is commercial leasing?",
     answer:
-      "Commercial leasing is the process of renting office or commercial space for business operations under agreed lease terms. Professional leasing advisory helps businesses evaluate locations, compare properties, negotiate commercial terms and make informed occupancy decisions.",
+      "Commercial leasing is the process through which businesses secure office or commercial real estate through structured lease agreements. It includes market analysis, property selection, lease negotiations and transaction execution. At Anarock, we help occupiers identify the right workplace solutions through data-driven market intelligence and advisory. Our commercial leasing services enable businesses to secure strategic locations while supporting long-term growth and operational flexibility.",
   },
   {
     question: "How does office leasing work in India?",
     answer:
-      "Office leasing generally involves defining business requirements, identifying suitable locations, shortlisting properties, evaluating commercial proposals, negotiating lease terms and completing documentation before possession.",
+      "Office leasing in India begins with understanding business requirements, workforce needs and location preferences. The process involves market research, property evaluation, lease negotiations and transaction management. At Anarock, we guide occupiers through every stage of the office leasing lifecycle, helping them make informed decisions. Our advisory-led approach ensures businesses secure office spaces aligned with their operational and growth objectives.",
   },
   {
-    question:
-      "What services do commercial leasing companies in India offer?",
+    question: "What services do commercial leasing companies in India offer?",
     answer:
-      "Services can include market intelligence, property sourcing, workplace planning, property evaluation, lease negotiations, transaction management, portfolio optimisation and lease documentation support.",
+      "Commercial leasing companies provide market intelligence, tenant representation, property sourcing, workplace strategy, lease negotiations and portfolio optimisation services. These solutions help occupiers make informed real estate decisions while reducing transaction risks. At Anarock, we offer commercial leasing advisory backed by deep market expertise and occupier-focused solutions. Our services are designed to optimise workplace performance and business outcomes.",
   },
   {
     question: "What is the average lease tenure in India?",
     answer:
-      "Lease tenure depends on the location, property type, business requirements and commercial terms. Businesses should evaluate the lock-in period, renewal options, escalation clauses, exit conditions and expansion flexibility before committing.",
+      "Commercial office lease tenures in India typically range between three and nine years, depending on asset type, location and occupier requirements. Large enterprises often prefer longer tenures for stability and commercial advantages, while flexible workspaces offer shorter commitments. At Anarock, we advise occupiers on selecting lease structures that align with their business strategy and future expansion plans.",
   },
   {
     question:
       "What is the difference between leasing and renting commercial property?",
     answer:
-      "The terms are often used interchangeably. Commercial leasing commonly refers to a formal agreement covering a defined period and detailed commercial conditions, while rental arrangements may vary in duration and structure.",
+      "Leasing generally involves longer-term agreements with customised commercial terms, while renting is often shorter-term and more standardised. Commercial leases offer greater flexibility around workplace planning, expansion rights and fit-out provisions. At Anarock, we help businesses evaluate leasing versus renting options based on operational requirements, financial goals and long-term growth plans.",
   },
   {
     question:
       "Can you assist start-ups and SMEs with commercial leasing services?",
     answer:
-      "Yes. Advisory can help start-ups and SMEs identify suitable office options based on budget, team size, accessibility, flexibility and expected growth.",
+      "Yes. Start-ups and SMEs often require flexible, cost-efficient office solutions that support growth without creating unnecessary financial burden. At Anarock, we help emerging businesses identify suitable office spaces, evaluate flexible workspace options and negotiate favourable lease terms. Our advisory services enable growing companies to scale efficiently while managing occupancy costs.",
   },
   {
     question:
       "What factors should businesses consider when leasing office space?",
     answer:
-      "Key considerations include location, employee commute, total occupancy cost, building quality, available infrastructure, space efficiency, lease flexibility, future expansion and the landlord's commercial terms.",
+      "Businesses should evaluate location, accessibility, workforce convenience, rental costs, infrastructure quality and future scalability before selecting office space. Occupancy costs, lease flexibility and employee experience are equally important considerations. At Anarock, we use data-led analysis and workplace strategy insights to help occupiers identify locations that support both immediate needs and long-term business objectives.",
   },
   {
     question:
       "What types of properties do commercial property leasing companies handle?",
     answer:
-      "Depending on their service scope, commercial property advisors may support traditional offices, managed offices, coworking spaces, corporate campuses, built-to-suit facilities and specialised properties such as data centres.",
+      "Commercial leasing firms typically manage Grade A office buildings, business parks, IT campuses, coworking spaces, managed offices, built-to-suit facilities and data centres. The right property type depends on business goals, workforce requirements and operational priorities. At Anarock, we help occupiers evaluate and select workplace solutions that align with their growth strategy and portfolio objectives.",
   },
   {
     question:
       "What are the benefits of leasing versus buying commercial property?",
     answer:
-      "Leasing can preserve capital, offer location flexibility and reduce the need to own and manage real estate assets. Buying may suit organisations with long-term ownership objectives. The right option depends on financial, operational and strategic considerations.",
+      "Leasing requires lower upfront capital investment and provides greater flexibility compared to ownership. It allows businesses to preserve capital, adapt to changing workforce requirements and optimise their real estate portfolios. At Anarock, we help occupiers conduct lease-versus-buy evaluations to determine the most effective solution based on business priorities and long-term financial goals.",
   },
   {
     question:
@@ -364,34 +360,36 @@ const faqs = [
   {
     question: "How do I choose the right office space for my business?",
     answer:
-      "Start by defining your headcount, budget, location preferences, infrastructure requirements and growth plans. Compare shortlisted properties against these criteria, including total occupancy costs and lease flexibility, before making a decision.",
+      "The right office space should align with your workforce strategy, budget, operational needs and future growth plans. Businesses should assess accessibility, amenities, scalability and workplace experience before making a decision. At Anarock, we combine market intelligence, workplace strategy and occupier advisory to help clients identify office solutions that drive productivity and business performance.",
   },
   {
     question:
       "How do commercial leasing consultants help with lease negotiations?",
     answer:
-      "Consultants help benchmark rentals, evaluate competing proposals and negotiate terms such as rent escalation, deposits, fit-out periods, lock-ins, renewal rights and exit clauses.",
+      "Commercial leasing consultants benchmark market rentals, analyse lease structures and negotiate favourable commercial terms on behalf of occupiers. They assist with rent escalations, lock-in periods, fit-out contributions, security deposits and exit clauses. At Anarock, our negotiation expertise helps clients secure competitive lease agreements while reducing financial and operational risks.",
   },
   {
     question: "What should I consider before leasing out commercial property?",
     answer:
-      "Property owners should evaluate market rentals, tenant suitability, lease duration, maintenance responsibilities, deposits, escalation clauses, compliance requirements and the terms governing renewal or termination.",
+      "Property owners should evaluate market demand, tenant quality, rental benchmarks, lease tenure and maintenance obligations before leasing out an asset. A well-structured lease agreement helps protect long-term asset value and occupancy stability. At Anarock, we advise landlords on positioning, leasing strategy and transaction structuring to maximise occupancy and returns.",
   },
   {
     question: "What is tenant representation in commercial leasing?",
     answer:
-      "Tenant representation is an advisory service that supports occupiers through property search, market comparison, negotiations and lease execution while prioritising their business requirements.",
+      "Tenant representation ensures occupiers have a dedicated advisor acting solely in their interests during property selection and lease negotiations. This approach helps secure favourable commercial terms and reduce transaction risks. At Anarock, our tenant representation services combine market intelligence, workplace strategy and negotiation expertise to support informed decision-making and better leasing outcomes.",
   },
   {
     question: "What is workplace strategy and why is it important?",
     answer:
-      "Workplace strategy aligns office location, space planning, utilisation and workplace experience with business objectives. It can help organisations manage occupancy costs, support employee productivity and plan for future growth.",
+      "Workplace strategy aligns office design, occupancy planning and real estate decisions with business objectives. It improves employee experience, space utilisation, productivity and talent retention while supporting hybrid work models. At Anarock, we help organisations develop workplace strategies that optimise real estate investments and create future-ready work environments aligned with long-term business goals.",
   },
 ];
 
 function SectionHeading({ children, subtitle, className = "" }) {
   return (
-    <div className={`mx - auto mb - 10 max - w - 4xl text - center ${className} `}>
+    <div
+      className={`mx-auto mb-10 max-w-4xl text-center ${className}`}
+    >
       <h2 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl">
         {children}
       </h2>
@@ -405,7 +403,7 @@ function SectionHeading({ children, subtitle, className = "" }) {
 function ServicePattern({ children, className = "" }) {
   return (
     <section
-      className={`relative overflow - hidden bg - [#F7F7F7] ${className} `}
+      className={`relative overflow-hidden bg-[#F7F7F7] ${className}`}
       style={{
         backgroundImage:
           "repeating-linear-gradient(132deg, transparent 0px, transparent 63px, rgba(160,84,160,0.055) 64px, transparent 67px)",
@@ -423,14 +421,27 @@ function LocalImage({
   sizes = "100vw",
   priority = false,
 }) {
+  const [imageSrc, setImageSrc] = useState(src);
+  const [hasFailed, setHasFailed] = useState(false);
+
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80";
+
   return (
-    <div className={`relative overflow - hidden ${className} `}>
+    <div className={`relative overflow-hidden ${className}`}>
       <Image
-        src={src}
+        src={imageSrc}
         alt={alt}
         fill
         sizes={sizes}
         priority={priority}
+        unoptimized={hasFailed}
+        onError={() => {
+          if (!hasFailed) {
+            setHasFailed(true);
+            setImageSrc(fallbackImage);
+          }
+        }}
         className="object-cover"
       />
     </div>
@@ -438,7 +449,24 @@ function LocalImage({
 }
 
 export default function CommercialLeasingAndAdvisoryPage() {
-  const [activeService, setActiveService] = useState(0);
+  const searchParams = useSearchParams();
+
+  const serviceSlugToIndex = {
+    "leasing-services": 0,
+    "transaction-management": 1,
+    "advisory-services": 2,
+    "enterprise-advisory-solutions": 3,
+  };
+
+  const requestedService = searchParams.get("service");
+
+  const [activeService, setActiveService] = useState(
+    () => serviceSlugToIndex[requestedService] ?? 0
+  );
+
+  useEffect(() => {
+    setActiveService(serviceSlugToIndex[requestedService] ?? 0);
+  }, [requestedService]);
   const [openFaq, setOpenFaq] = useState(null);
   const [businessOffset, setBusinessOffset] = useState(0);
   const [researchOffset, setResearchOffset] = useState(0);
@@ -447,43 +475,36 @@ export default function CommercialLeasingAndAdvisoryPage() {
 
   const moveBusiness = (direction) => {
     setBusinessOffset((current) =>
-      Math.max(
-        0,
-        Math.min(
-          businessSegments.length - 3,
-          current + direction
-        )
-      )
+      Math.max(0, Math.min(businessSegments.length - 3, current + direction)),
     );
   };
 
   const moveResearch = (direction) => {
     setResearchOffset((current) =>
-      Math.max(
-        0,
-        Math.min(
-          researchItems.length - 3,
-          current + direction
-        )
-      )
+      Math.max(0, Math.min(researchItems.length - 3, current + direction)),
     );
   };
 
   return (
     <main className="min-h-screen overflow-hidden bg-white text-black">
       {/* HERO */}
-      <section className="relative isolate flex min-h-[320px] w-full items-center overflow-hidden bg-[#250B25] px-6 py-14 text-white sm:min-h-[400px] sm:px-10 md:px-16 lg:min-h-[495px] lg:px-[7.8%]">
+      <section className="relative isolate flex min-h-[320px] w-full items-center overflow-hidden px-6 py-14 text-white sm:min-h-[400px] sm:px-10 md:px-16 lg:min-h-[495px] lg:px-[7.8%]">
         <Image
           src="/services/Service.avif"
           alt="Modern commercial office workspace"
           fill
           priority
           sizes="100vw"
+          unoptimized
+          onError={(event) => {
+            event.currentTarget.src =
+              "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1920&q=85";
+          }}
           className="object-cover object-center"
         />
 
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#2B0A29]/95 via-[#2B0A29]/75 via-[37%] to-transparent" />
-        <div className="absolute inset-0 z-10 bg-black/10" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#2B0A29]/95 via-[#2B0A29]/10 via-[50%] to-transparent" />
+        <div className="absolute inset-0 z-10" />
 
         <div className="relative z-20 mx-auto w-full max-w-[1728px]">
           <div className="max-w-[570px]">
@@ -502,23 +523,12 @@ export default function CommercialLeasingAndAdvisoryPage() {
       </section>
 
       {/* BREADCRUMB */}
-      <nav
-        aria-label="Breadcrumb"
-        className="mx-auto flex max-w-[1728px] flex-wrap items-center gap-2 px-6 py-6 text-[11px] text-slate-700 sm:px-10 md:px-16 lg:px-[7.8%]"
-      >
-        <Link href="/" className="hover:text-[#A054A0]">
-          Home
-        </Link>
+      <nav aria-label="Breadcrumb" className="mx-auto flex max-w-[1728px] flex-wrap items-center gap-2 px-6 py-6 text-[11px] text-slate-700 sm:px-10 md:px-16 lg:px-[7.8%]">
+        <Link href="/" className="hover:text-[#A054A0]">Home</Link>
         <ChevronRight size={12} className="text-[#A054A0]" />
-        <Link href="/services" className="hover:text-[#A054A0]">
-          Services
-        </Link>
+        <Link href="/services" className="hover:text-[#A054A0]">Services</Link>
         <ChevronRight size={12} className="text-[#A054A0]" />
-        <span>Leasing And Investment Advisory</span>
-        <ChevronRight size={12} className="text-[#A054A0]" />
-        <span className="text-slate-900">
-          Commercial Leasing And Advisory
-        </span>
+        <span className="text-slate-900">Commercial Leasing And Advisory</span>
       </nav>
 
       {/* INTRODUCTION AND STATISTICS */}
@@ -535,13 +545,8 @@ export default function CommercialLeasingAndAdvisoryPage() {
             ["3.5mn+ sq ft", "Office Space Advised"],
             ["30+", "Years of Experience"],
           ].map(([value, label]) => (
-            <div
-              key={label}
-              className="min-h-[120px] rounded-md bg-[#FFF5F0] p-5 sm:p-6"
-            >
-              <div className="text-3xl font-medium tracking-tight sm:text-4xl">
-                {value}
-              </div>
+            <div key={label} className="min-h-[120px] rounded-md bg-[#FFF5F0] p-5 sm:p-6">
+              <div className="text-3xl font-medium tracking-tight sm:text-4xl">{value}</div>
               <p className="mt-3 text-sm text-slate-600">{label}</p>
             </div>
           ))}
@@ -552,7 +557,6 @@ export default function CommercialLeasingAndAdvisoryPage() {
       <ServicePattern className="py-12 sm:py-14 lg:py-12">
         <div className="relative z-10 mx-auto max-w-[1728px] px-5 sm:px-8 lg:px-[7%]">
           <SectionHeading>Our Services</SectionHeading>
-
           <div className="mb-9 flex flex-wrap justify-center gap-2">
             {serviceCategories.map((service, index) => (
               <button
@@ -560,10 +564,10 @@ export default function CommercialLeasingAndAdvisoryPage() {
                 type="button"
                 onClick={() => setActiveService(index)}
                 aria-pressed={activeService === index}
-                className={`border px - 4 py - 2 text - xs transition - colors sm: text - sm ${activeService === index
+                className={`border px-4 py-2 text-xs transition-colors sm:text-sm ${activeService === index
                   ? "border-[#A054A0] bg-[#A054A0] font-semibold text-white"
                   : "border-white bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
-                  } `}
+                  }`}
               >
                 {service.title}
               </button>
@@ -572,16 +576,9 @@ export default function CommercialLeasingAndAdvisoryPage() {
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[0.85fr_1.65fr] lg:gap-10">
             <div className="pt-1">
-              <h3 className="mb-5 text-3xl font-medium leading-tight text-[#A054A0] sm:text-4xl">
-                {selectedService.title}
-              </h3>
-              <p className="max-w-xl text-sm leading-[1.65] text-slate-900 sm:text-base">
-                {selectedService.description}
-              </p>
-              <a
-                href="#enquiry"
-                className="mt-8 inline-flex items-center gap-2 border border-[#D5ADD5] px-5 py-3 text-sm font-medium text-[#A054A0] transition-colors hover:bg-[#A054A0] hover:text-white"
-              >
+              <h3 className="mb-5 text-3xl font-medium leading-tight text-[#A054A0] sm:text-4xl">{selectedService.title}</h3>
+              <p className="max-w-xl text-sm leading-[1.65] text-slate-900 sm:text-base">{selectedService.description}</p>
+              <a href="#enquiry" className="mt-8 inline-flex items-center gap-2 border border-[#D5ADD5] px-5 py-3 text-sm font-medium text-[#A054A0] transition-colors hover:bg-[#A054A0] hover:text-white">
                 Enquire <ArrowUpRight size={17} />
               </a>
             </div>
@@ -692,8 +689,8 @@ export default function CommercialLeasingAndAdvisoryPage() {
                 .map((item) => (
                   <article
                     key={item.title}
-                    className={`flex min - w - 0 flex - col border border - slate - 100 bg - white ${item.featured ? "shadow-md" : ""
-                      } `}
+                    className={`flex min-w-0 flex-col border border-slate-100 bg-white ${item.featured ? "shadow-md" : ""
+                      }`}
                   >
                     <LocalImage
                       src={item.image}
@@ -718,7 +715,11 @@ export default function CommercialLeasingAndAdvisoryPage() {
                             View Report <ArrowUpRight size={16} />
                           </Link>
                           <div className="flex gap-3">
-                            <a href={item.image} download aria-label="Download report">
+                            <a
+                              href={item.image}
+                              download
+                              aria-label="Download report"
+                            >
                               <Download size={17} />
                             </a>
                             <button
@@ -726,10 +727,12 @@ export default function CommercialLeasingAndAdvisoryPage() {
                               aria-label="Share report"
                               onClick={() => {
                                 if (navigator.share) {
-                                  navigator.share({
-                                    title: item.title,
-                                    url: window.location.href,
-                                  }).catch(() => { });
+                                  navigator
+                                    .share({
+                                      title: item.title,
+                                      url: window.location.href,
+                                    })
+                                    .catch(() => { });
                                 }
                               }}
                             >
@@ -825,10 +828,11 @@ export default function CommercialLeasingAndAdvisoryPage() {
                       aria-label={`${leader.name} LinkedIn`}
                       className="hover:text-[#7D397D]"
                     >
-                      <ArrowUpRight size={15} />                    </a>
+                      <ArrowUpRight size={15} />{" "}
+                    </a>
                     <a
                       href="#enquiry"
-                      aria-label={`Email ${leader.name} `}
+                      aria-label={`Email ${leader.name}`}
                       className="hover:text-[#7D397D]"
                     >
                       <Mail size={15} />
@@ -888,21 +892,15 @@ export default function CommercialLeasingAndAdvisoryPage() {
                   >
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#A054A0]" />
                     <span
-                      className={`flex - 1 text - sm font - semibold leading - 6 sm: text - base ${isOpen ? "text-[#A054A0]" : "text-black"
-                        } `}
+                      className={`flex-1 text-sm font-semibold leading-6 sm:text-base ${isOpen ? "text-[#A054A0]" : "text-black"
+                        }`}
                     >
                       {faq.question}
                     </span>
                     {isOpen ? (
-                      <Minus
-                        size={18}
-                        className="shrink-0 text-[#A054A0]"
-                      />
+                      <Minus size={18} className="shrink-0 text-[#A054A0]" />
                     ) : (
-                      <Plus
-                        size={18}
-                        className="shrink-0 text-[#A054A0]"
-                      />
+                      <Plus size={18} className="shrink-0 text-[#A054A0]" />
                     )}
                   </button>
 

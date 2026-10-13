@@ -1,977 +1,4 @@
-// "use client";
-
-// import { useState, useEffect, useRef } from "react";
-// import Image from "next/image";
-// import { usePreferences } from "@/lib/preferences";
-// import { useRouter } from "next/navigation";
-// import {
-//   Search,
-//   Sparkles,
-//   ChevronDown,
-//   MapPin,
-//   Loader2,
-//   Building2,
-//   IndianRupee,
-//   Maximize2,
-//   SlidersHorizontal,
-//   Check,
-//   Users,
-//   DollarSign,
-//   Euro,
-// } from "lucide-react";
-
-// const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
-
-// const SAMPLE_PROMPTS = [
-//   "5,000 sq ft managed office in Whitefield with 80+ desks & boardrooms",
-//   "A-grade bare shell commercial space in BKC with panoramic views",
-//   "Plug-and-play HQ in Cyber City Gurgaon under ₹15 Lakhs/month",
-// ];
-
-// const CONTROL_H =
-//   "h-[44px] min-[400px]:h-[46px] sm:h-[48px] lg:h-[50px]"; const inputBase = `w-full ${CONTROL_H} rounded-[12px] sm:rounded-[14px] bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[12px] min-[400px]:text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10`;
-// export default function HeroSection({ consentGranted, locationData }) {
-//   const router = useRouter();
-//   const [tab, setTab] = useState("filters");
-//   const [city, setCity] = useState("");
-//   const [cityOpen, setCityOpen] = useState(false);
-//   const [citySearch, setCitySearch] = useState("");
-//   const [cityOptions, setCityOptions] = useState([]);
-//   const [loadingCities, setLoadingCities] = useState(false);
-
-//   const [officeType, setOfficeType] = useState("");
-//   const [officeTypeOpen, setOfficeTypeOpen] = useState(false);
-
-//   const [micromarkets, setMicromarkets] = useState([]);
-//   const [selectedMicromarkets, setSelectedMicromarkets] = useState([]);
-//   const [micromarketOpen, setMicromarketOpen] = useState(false);
-//   const [micromarketSearch, setMicromarketSearch] = useState("");
-//   const [loadingMicromarkets, setLoadingMicromarkets] = useState(false);
-
-//   const [minBudget, setMinBudget] = useState("");
-//   const { currency, unit: areaUnit } = usePreferences();
-//   const [area, setArea] = useState("");
-//   const [seats, setSeats] = useState("");
-//   const [prompt, setPrompt] = useState("");
-//   const [loading, setLoading] = useState(false);
-
-//   const cityDropdownRef = useRef(null);
-//   const micromarketDropdownRef = useRef(null);
-//   const officeTypeDropdownRef = useRef(null);
-//   const locationAutoSelectedRef = useRef(false);
-
-//   const formatNumberWithCommas = (value) => {
-//     const rawValue = String(value || "").replace(/\D/g, "");
-//     if (!rawValue) return "";
-//     return new Intl.NumberFormat("en-IN").format(rawValue);
-//   };
-
-//   const handleMinBudgetChange = (e) => {
-//     setMinBudget(formatNumberWithCommas(e.target.value));
-//   };
-
-//   const handleAreaChange = (e) => {
-//     setArea(formatNumberWithCommas(e.target.value));
-//   };
-
-//   const handleSeatsChange = (e) => {
-//     setSeats(formatNumberWithCommas(e.target.value));
-//   };
-
-//   const normalizedOfficeType = officeType.trim().toLowerCase();
-//   const isCoworking = normalizedOfficeType === "managed office/co-working";
-//   const isRentBased = !isCoworking;
-
-//   const handleOfficeTypeChange = (val) => {
-//     const newType = typeof val === "string" ? val : val?.target?.value || "";
-//     setOfficeType(newType);
-//     setMinBudget("");
-//     setArea("");
-//     setSeats("");
-//   };
-//   const toggleMicromarket = (micromarketName) => {
-//     setSelectedMicromarkets((current) => {
-//       if (current.includes(micromarketName)) {
-//         return current.filter((name) => name !== micromarketName);
-//       }
-
-//       return [...current, micromarketName];
-//     });
-//   };
-
-//   const clearMicromarkets = () => {
-//     setSelectedMicromarkets([]);
-//     setMicromarketSearch("");
-//   };
-//   useEffect(() => {
-//     const controller = new AbortController();
-//     const fetchCities = async () => {
-//       try {
-//         setLoadingCities(true);
-//         const response = await fetch("/api/cities", {
-//           method: "GET",
-//           cache: "no-store",
-//           signal: controller.signal,
-//         });
-//         if (!response.ok) {
-//           let errorMessage = `Cities API failed with status ${response.status}`;
-//           try {
-//             const errorData = await response.json();
-//             if (errorData?.message) {
-//               errorMessage = errorData.message;
-//             }
-//           } catch { }
-//           throw new Error(errorMessage);
-//         }
-//         const data = await response.json();
-//         if (controller.signal.aborted) {
-//           return;
-//         }
-//         if (data?.success && Array.isArray(data?.cities)) {
-//           const cities = [
-//             ...new Set(
-//               data.cities
-//                 .map((city) => String(city || "").trim())
-//                 .filter(Boolean),
-//             ),
-//           ].sort((a, b) => a.localeCompare(b));
-//           setCityOptions(cities);
-//         } else {
-//           console.error("Invalid cities API response:", data);
-//           setCityOptions([]);
-//         }
-//       } catch (error) {
-//         if (error?.name === "AbortError") {
-//           return;
-//         }
-//         console.error("Failed to fetch cities:", error);
-//         if (!controller.signal.aborted) {
-//           setCityOptions([]);
-//         }
-//       } finally {
-//         if (!controller.signal.aborted) {
-//           setLoadingCities(false);
-//         }
-//       }
-//     };
-//     fetchCities();
-//     return () => {
-//       controller.abort();
-//     };
-//   }, []);
-
-//   useEffect(() => {
-//     if (locationAutoSelectedRef.current) {
-//       return;
-//     }
-//     if (!locationData?.city) {
-//       return;
-//     }
-//     if (!cityOptions.length) {
-//       return;
-//     }
-//     const normalizeCity = (value) =>
-//       String(value || "")
-//         .trim()
-//         .toLowerCase()
-//         .replace(/\s+/g, " ");
-
-//     const detectedCity = normalizeCity(locationData.city);
-//     const matchedCity = cityOptions.find(
-//       (option) => normalizeCity(option) === detectedCity,
-//     );
-//     if (matchedCity) {
-//       setCity(matchedCity);
-//       locationAutoSelectedRef.current = true;
-//     }
-//   }, [locationData?.city, cityOptions]);
-
-//   useEffect(() => {
-//     if (!city) {
-//       setMicromarkets([]);
-//       setSelectedMicromarkets([]);
-//       setMicromarketOpen(false);
-//       setMicromarketSearch("");
-//       return;
-//     }
-//     setLoadingMicromarkets(true);
-//     fetch(`/api/micromarkets?city=${encodeURIComponent(city)}`)
-//       .then((res) => res.json())
-//       .then((data) => {
-//         if (data.success && data.micromarkets) {
-//           setMicromarkets(data.micromarkets);
-//         } else {
-//           setMicromarkets([]);
-//         }
-//       })
-//       .catch(() => {
-//         setMicromarkets([]);
-//       })
-//       .finally(() => {
-//         setLoadingMicromarkets(false);
-//       });
-//   }, [city]);
-
-//   useEffect(() => {
-//     const handler = (e) => {
-//       if (
-//         cityDropdownRef.current &&
-//         !cityDropdownRef.current.contains(e.target)
-//       ) {
-//         setCityOpen(false);
-//       }
-//       if (
-//         micromarketDropdownRef.current &&
-//         !micromarketDropdownRef.current.contains(e.target)
-//       ) {
-//         setMicromarketOpen(false);
-//       }
-//       if (
-//         officeTypeDropdownRef.current &&
-//         !officeTypeDropdownRef.current.contains(e.target)
-//       ) {
-//         setOfficeTypeOpen(false);
-//       }
-//     };
-
-//     document.addEventListener("mousedown", handler);
-
-//     return () => {
-//       document.removeEventListener("mousedown", handler);
-//     };
-//   }, []);
-
-//   const handleSearch = (e) => {
-//     e.preventDefault();
-
-//     setLoading(true);
-
-//     if (typeof window !== "undefined") {
-//       if (tab === "filters" && city) {
-//         const searchLocationObj = {
-//           city: city.trim(),
-//           micromarkets: selectedMicromarkets,
-//           propertyType: officeType || "",
-//           searchedAt: Date.now(),
-//         };
-
-//         localStorage.setItem(
-//           "anarock_last_searched_location",
-//           JSON.stringify(searchLocationObj),
-//         );
-//       } else {
-//         localStorage.removeItem("anarock_last_searched_location");
-//       }
-//     }
-
-//     const toUrlValue = (value) => {
-//       return String(value || "")
-//         .trim()
-//         .toLowerCase()
-//         .replace(/&/g, "and")
-//         .replace(/[\/\\]+/g, "-")
-//         .replace(/[^a-z0-9]+/g, "-")
-//         .replace(/^-+|-+$/g, "");
-//     };
-
-//     const cleanNumber = (value) => {
-//       return String(value || "")
-//         .replace(/,/g, "")
-//         .trim();
-//     };
-
-//     const params = new URLSearchParams();
-
-//     if (tab === "filters") {
-//       if (city?.trim()) {
-//         params.set("city", toUrlValue(city));
-//       }
-//       if (selectedMicromarkets.length) {
-//         params.set(
-//           "micromarket",
-//           selectedMicromarkets.map(toUrlValue).join(",")
-//         );
-//       }
-//       if (officeType?.trim()) {
-//         params.set("type", toUrlValue(officeType));
-//       }
-
-//       const cleanedMinBudget = cleanNumber(minBudget);
-//       if (cleanedMinBudget) {
-//         params.set("minBudget", cleanedMinBudget);
-//       }
-//       params.delete("maxBudget");
-
-//       if (isCoworking) {
-//         const cleanedSeats = cleanNumber(seats);
-//         if (cleanedSeats) {
-//           params.set("seats", cleanedSeats);
-//         }
-//         params.delete("area");
-//       } else {
-//         const cleanedArea = cleanNumber(area);
-
-//         if (cleanedArea) {
-//           params.set("area", cleanedArea);
-//         }
-//         params.delete("seats");
-//       }
-
-//       if (currency) {
-//         params.set("currency", String(currency).trim().toUpperCase());
-//       }
-
-//       if (areaUnit) {
-//         params.set("areaUnit", toUrlValue(areaUnit));
-//       }
-//     } else {
-//       params.set("type", "ai");
-//       if (prompt.trim()) {
-//         params.set("prompt", prompt.trim());
-//       }
-//     }
-
-//     const queryString = params.toString();
-//     const searchUrl = queryString
-//       ? `/properties?${queryString}`
-//       : "/properties";
-//     router.push(searchUrl);
-//   };
-
-//   const filteredCities = cityOptions.filter((c) =>
-//     c.toLowerCase().includes(citySearch.toLowerCase()),
-//   );
-
-//   const filteredMicromarkets = micromarkets.filter((m) =>
-//     (m.name || "").toLowerCase().includes(micromarketSearch.toLowerCase()),
-//   );
-
-//   const renderCurrencyIcon = () => {
-//     switch (currency.toUpperCase()) {
-//       case "USD":
-//       case "SGD":
-//         return <DollarSign className="h-4 w-4 text-[#A054A0]" />;
-//       case "EUR":
-//         return <Euro className="h-4 w-4 text-[#A054A0]" />;
-//       case "AED":
-//         return <span className="text-xs font-bold text-[#A054A0]">د.إ</span>;
-//       default:
-//         return <IndianRupee className="h-4 w-4 text-[#A054A0]" />;
-//     }
-//   };
-
-//   return (
-//     <main className="relative h-dvh max-h-dvh w-full overflow-hidden bg-[#160B17]">
-//       <section className="relative h-full max-h-full w-full overflow-hidden">
-//         <div className="absolute inset-0 z-0">
-//           <Image src="/main.jpg" alt="Luxury Commercial Architecture" fill priority sizes="100vw" className="absolute inset-0 h-full w-full object-cover object-center lg:object-top" />
-//           <div className="absolute inset-0 bg-[#4E2352]/35 mix-blend-multiply" />
-//           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(160,84,160,.30),transparent_38%)]" />
-//           <div className="absolute inset-0 bg-gradient-to-b from-[#100912]/55 via-[#170D19]/25 to-[#160B17]" />
-//           <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-[#160B17] via-[#160B17]/80 to-transparent" />
-//           <div className="pointer-events-none absolute left-1/2 top-[10%] h-[260px] w-[260px] -translate-x-1/2 rounded-full bg-[#A054A0]/20 blur-[100px] sm:h-[420px] sm:w-[420px] lg:h-[620px] lg:w-[620px]" />
-//           <div className="pointer-events-none absolute inset-0 opacity-[0.045]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)", backgroundSize: "72px 72px" }} />
-//         </div>
-//         <div className="relative z-10 flex h-full min-h-0 w-full max-w-[1440px] flex-col px-4 sm:px-6 lg:px-8 xl:px-10">
-//           <div className="mx-auto w-full max-w-[980px] shrink-0 text-center mb-4 min-[380px]:mb-5 sm:mb-6 lg:mb-7">
-//             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,.12)] backdrop-blur-xl sm:mb-6 sm:px-4 sm:py-2">
-//               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#A054A0] shadow-[0_0_24px_rgba(160,84,160,.45)]">
-//                 <Sparkles className="h-3.5 w-3.5 text-white" />
-//               </span>
-//               <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/90 sm:text-[10px] sm:tracking-[0.22em]">
-//                 Describe · Discover · Decide
-//               </span>
-//             </div>
-//             <h1 className="mx-auto max-w-[920px] text-[2rem] font-bold leading-[0.94] tracking-[-0.045em] text-white drop-shadow-[0_4px_28px_rgba(0,0,0,.2)] min-[380px]:text-[2.2rem] min-[430px]:text-[2.45rem] sm:text-[clamp(3rem,7vw,5.35rem)]">
-//               Describe the Need.
-//               <span className="mt-1 block text-nowrap bg-clip-text sm:mt-2">
-//                 Discover the Space.
-//               </span>
-//             </h1>
-//             <p className=" mx-auto mt-2 max-w-[650px] px-3 text-[10px] leading-[1.4] tracking-wide text-white/70 min-[380px]:mt-2.5 min-[380px]:text-[11px] sm:mt-3 sm:px-0 sm:text-sm sm:leading-6 lg:text-base">
-//               An AI-enabled, data-driven approach to discovering commercial
-//               workspaces aligned with your business requirements.
-//             </p>
-//           </div>
-
-//           <div className="relative z-30 mx-auto flex min-h-0 w-full max-w-[1240px] flex-1 flex-col">
-//             <div className="flex min-h-0 flex-1 flex-col overflow-visible rounded-[24px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(20,5,25,.34)] sm:rounded-[28px] lg:rounded-[32px]">
-//               <div className="flex shrink-0 items-center px-4 pt-3 sm:px-6 sm:pt-4 lg:px-7 lg:pt-4">
-//                 <div className="grid w-full max-w-[430px] grid-cols-2 rounded-2xl border border-[#ECE7EC] bg-[#F7F5F7] p-1 shadow-[inset_0_1px_2px_rgba(30,15,30,.04)] sm:inline-flex sm:w-auto sm:max-w-none sm:grid-cols-none sm:rounded-full">
-//                   <button type="button" onClick={() => setTab("filters")} className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${tab === "filters" ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]" : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"}`}  >
-//                     <SlidersHorizontal className={`h-4 w-4 ${tab === "filters" ? "text-[#A054A0]" : "text-[#9A939A]"}`} />
-//                     Filter Properties
-//                   </button>
-//                   <button type="button" onClick={() => setTab("ai")} className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:h-12 sm:min-w-[160px] sm:rounded-full sm:px-6 sm:text-xs ${tab === "ai" ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]" : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"}`}  >
-//                     <Sparkles className={`h-4 w-4 ${tab === "ai" ? "text-[#A054A0]" : "text-[#9A939A]"}`} />
-//                     AI Search
-//                   </button>
-//                 </div>
-//               </div>
-
-//               <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6 xl:p-7">                <form onSubmit={handleSearch}>
-//                 {tab === "filters" ? (
-//                   <div className="space-y-3">
-//                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3">
-//                       <div className="relative" ref={cityDropdownRef}>
-//                         <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
-//                           City
-//                         </label>
-
-//                         <button
-//                           type="button"
-//                           onClick={() => setCityOpen(!cityOpen)}
-//                           className={`${inputBase} flex items-center justify-between px-3.5 text-left ${cityOpen
-//                             ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
-//                             : ""
-//                             }`}
-//                         >
-//                           <span className="flex min-w-0 items-center gap-2.5">
-//                             <span className="flex h-8 w-8 shrink-0 items-center justify-center">
-//                               <MapPin className="h-4 w-4 text-[#A054A0]" />
-//                             </span>
-
-//                             <span
-//                               className={`truncate ${city
-//                                 ? "font-semibold text-[#211A21]/85"
-//                                 : "text-black/35"
-//                                 }`}
-//                             >
-//                               {loadingCities
-//                                 ? "Loading cities..."
-//                                 : city || "Select City"}
-//                             </span>
-//                           </span>
-
-//                           {loadingCities ? (
-//                             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
-//                           ) : (
-//                             <ChevronDown
-//                               className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${cityOpen ? "rotate-180 text-[#A054A0]" : ""
-//                                 }`}
-//                             />
-//                           )}
-//                         </button>
-
-//                         {cityOpen && (
-//                           <div className="absolute left-0 right-0 z-[9999] top-full mt-2 overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]">
-//                             <div className="border-b border-[#EEE7EE] bg-[#FBF9FB] p-3">
-//                               <div className="relative">
-//                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30" />
-
-//                                 <input
-//                                   value={citySearch}
-//                                   onChange={(e) =>
-//                                     setCitySearch(e.target.value)
-//                                   }
-//                                   placeholder="Search city..."
-//                                   autoFocus
-//                                   className="h-10 w-full rounded-xl border border-[#E7DFE7] bg-white pl-9 pr-3 text-sm text-[#211A21] outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
-//                                 />
-//                               </div>
-//                             </div>
-
-//                             <div className="max-h-60 overflow-y-auto p-1.5">
-//                               {filteredCities.map((c) => (
-//                                 <button
-//                                   type="button"
-//                                   key={c}
-//                                   onClick={() => {
-//                                     setCity(c);
-//                                     setCityOpen(false);
-//                                     setCitySearch("");
-//                                   }}
-//                                   className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-base text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
-//                                 >
-//                                   <span>{c}</span>
-
-//                                   {city === c && (
-//                                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
-//                                       <Check className="h-3.5 w-3.5 text-[#A054A0]" />
-//                                     </span>
-//                                   )}
-//                                 </button>
-//                               ))}
-
-//                               {!filteredCities.length && (
-//                                 <div className="px-4 py-8 text-center text-xs text-black/35">
-//                                   No cities found
-//                                 </div>
-//                               )}
-//                             </div>
-//                           </div>
-//                         )}
-//                       </div>
-
-//                       <div className="relative" ref={micromarketDropdownRef}>
-//                         <label className="mb-1.5 ml-1 block text-[11px] font-bold uppercase tracking-[0.14em] text-black/65 sm:mb-2 sm:text-[16px] sm:tracking-[0.15em]">
-//                           Micromarket
-//                         </label>
-
-//                         <button
-//                           type="button"
-//                           disabled={!city || loadingMicromarkets}
-//                           onClick={() => setMicromarketOpen(!micromarketOpen)}
-//                           className={`${inputBase} flex items-center justify-between px-3.5 text-left disabled:cursor-not-allowed disabled:opacity-50 ${micromarketOpen
-//                             ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
-//                             : ""
-//                             }`}
-//                         >
-//                           <span className="flex min-w-0 items-center gap-2.5">
-//                             <span className="flex h-8 w-8 shrink-0 items-center justify-center">
-//                               <MapPin className="h-4 w-4 text-[#A054A0]" />
-//                             </span>
-
-//                             <span
-//                               className={`
-//     min-w-0
-//     truncate
-//     text-[11px]
-//     sm:text-sm
-//     ${selectedMicromarkets.length
-//                                   ? "font-semibold text-[#211A21]/85"
-//                                   : "text-black/35"
-//                                 }
-//   `}
-//                             >
-//                               {loadingMicromarkets
-//                                 ? "Loading..."
-//                                 : city
-//                                   ? selectedMicromarkets.length === 0
-//                                     ? "All Micromarkets"
-//                                     : selectedMicromarkets.length === 1
-//                                       ? selectedMicromarkets[0]
-//                                       : `${selectedMicromarkets.length} Micromarkets Selected`
-//                                   : "Select City First"}
-//                             </span>
-//                           </span>
-
-//                           {loadingMicromarkets ? (
-//                             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
-//                           ) : (
-//                             <ChevronDown
-//                               className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${micromarketOpen
-//                                 ? "rotate-180 text-[#A054A0]"
-//                                 : ""
-//                                 }`}
-//                             />
-//                           )}
-//                         </button>
-
-//                         {micromarketOpen && !loadingMicromarkets && city && (
-//                           <div
-//                             className="
-//     absolute
-//     left-0
-//     right-0
-//     top-full
-//     z-[9999]
-//     mt-2
-//     flex
-//     flex-col
-//     overflow-hidden
-//     rounded-[18px]
-//     border
-//     border-[#E6DDE6]
-//     bg-white
-//     shadow-[0_20px_50px_rgba(35,10,38,.18)]
-//     sm:rounded-2xl
-//   "
-//                           >
-
-//                             {/* Search */}
-//                             {micromarkets.length > 5 && (
-//                               <div className="shrink-0 border-b border-[#EEE7EE] bg-[#FBF9FB] p-2.5 sm:p-3">
-//                                 <div className="relative">
-//                                   <Search
-//                                     className="
-//               absolute
-//               left-3
-//               top-1/2
-//               h-4
-//               w-4
-//               -translate-y-1/2
-//               text-black/30
-//             "
-//                                   />
-
-//                                   <input
-//                                     value={micromarketSearch}
-//                                     onChange={(e) => setMicromarketSearch(e.target.value)}
-//                                     placeholder="Search micromarket..."
-//                                     autoFocus
-//                                     className="
-//               h-10
-//               w-full
-//               rounded-xl
-//               border
-//               border-[#E7DFE7]
-//               bg-white
-//               pl-9
-//               pr-3
-//               text-[12px]
-//               font-medium
-//               text-[#211A21]
-//               outline-none
-//               transition
-//               placeholder:text-black/30
-//               focus:border-[#A054A0]
-//               focus:ring-2
-//               focus:ring-[#A054A0]/10
-//               sm:text-sm
-//             "
-//                                   />
-//                                 </div>
-//                               </div>
-//                             )}
-
-//                             <div
-//                               className="
-//     max-h-[240px]
-//     overflow-y-auto
-//     overscroll-contain
-//     p-1.5
-//     sm:max-h-[280px]
-//     sm:p-2
-//   "
-//                             >  <button
-//                               type="button"
-//                               onClick={() => {
-//                                 clearMicromarkets();
-//                                 setMicromarketOpen(false);
-//                               }}
-//                               className={`
-//           flex
-//           min-h-[42px]
-//           w-full
-//           items-center
-//           justify-between
-//           rounded-xl
-//           px-3
-//           py-2
-//           text-left
-//           text-[12px]
-//           transition-colors
-//           sm:min-h-[44px]
-//           sm:px-3.5
-//           sm:text-sm
-//           ${selectedMicromarkets.length === 0
-//                                   ? "bg-[#A054A0]/[.07] font-semibold text-[#A054A0]"
-//                                   : "text-[#393039] hover:bg-[#A054A0]/[.05] hover:text-[#A054A0]"
-//                                 }
-//         `}
-//                             >
-//                                 <span className="truncate">
-//                                   All Micromarkets
-//                                 </span>
-
-//                                 {selectedMicromarkets.length === 0 && (
-//                                   <span className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10 sm:h-6 sm:w-6">
-//                                     <Check className="h-3 w-3 text-[#A054A0] sm:h-3.5 sm:w-3.5" />
-//                                   </span>
-//                                 )}
-//                               </button>
-
-//                               {/* Individual Micromarkets */}
-//                               {filteredMicromarkets.map((m) => {
-//                                 const isSelected = selectedMicromarkets.includes(m.name);
-
-//                                 return (
-//                                   <button
-//                                     type="button"
-//                                     key={m.id || m.name}
-//                                     onClick={() => {
-//                                       toggleMicromarket(m.name);
-//                                       setMicromarketSearch("");
-//                                     }}
-//                                     className={`
-//               flex
-//               min-h-[42px]
-//               w-full
-//               items-center
-//               justify-between
-//               rounded-xl
-//               px-3
-//               py-2
-//               text-left
-//               text-[12px]
-//               transition-all
-//               sm:min-h-[44px]
-//               sm:px-3.5
-//               sm:text-sm
-//               ${isSelected
-//                                         ? "bg-[#A054A0]/[.08] font-semibold text-[#A054A0]"
-//                                         : "text-[#393039] hover:bg-[#A054A0]/[.05] hover:text-[#A054A0]"
-//                                       }
-//             `}
-//                                   >
-//                                     <span className="min-w-0 truncate pr-3">
-//                                       {m.name}
-//                                     </span>
-
-//                                     {isSelected && (
-//                                       <span className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10 sm:h-6 sm:w-6">
-//                                         <Check className="h-3 w-3 text-[#A054A0] sm:h-3.5 sm:w-3.5" />
-//                                       </span>
-//                                     )}
-//                                   </button>
-//                                 );
-//                               })}
-
-//                               {!filteredMicromarkets.length && (
-//                                 <div className="flex min-h-[120px] items-center justify-center px-4 text-center text-[11px] text-black/35 sm:text-xs">
-//                                   No micromarkets found
-//                                 </div>
-//                               )}
-//                             </div>
-//                           </div>
-//                         )}
-//                       </div>
-//                     </div>
-
-//                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-//                       <div className="relative" ref={officeTypeDropdownRef}>
-//                         <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
-//                           Property Type
-//                         </label>
-
-//                         <button
-//                           type="button"
-//                           onClick={() => setOfficeTypeOpen(!officeTypeOpen)}
-//                           className={`${inputBase} flex items-center justify-between px-3.5 text-left ${officeTypeOpen
-//                             ? "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10"
-//                             : ""
-//                             }`}
-//                         >
-//                           <span className="flex min-w-0 items-center gap-2.5">
-//                             <span className="flex h-8 w-8 shrink-0 items-center justify-center">
-//                               <Building2 className="h-4 w-4 text-[#A054A0]" />
-//                             </span>
-
-//                             <span
-//                               className={`truncate ${officeType
-//                                 ? "font-semibold text-[#211A21]/85"
-//                                 : "text-black/35"
-//                                 }`}
-//                             >
-//                               {officeType || "All Office Types"}
-//                             </span>
-//                           </span>
-
-//                           <ChevronDown
-//                             className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${officeTypeOpen
-//                               ? "rotate-180 text-[#A054A0]"
-//                               : ""
-//                               }`}
-//                           />
-//                         </button>
-
-//                         {officeTypeOpen && (
-//                           <div className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]">
-//                             <div className="max-h-60 overflow-y-auto p-1.5">
-//                               <button
-//                                 type="button"
-//                                 onClick={() => {
-//                                   handleOfficeTypeChange("");
-//                                   setOfficeTypeOpen(false);
-//                                 }}
-//                                 className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
-//                               >
-//                                 <span>All Office Types</span>
-
-//                                 {!officeType && (
-//                                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
-//                                     <Check className="h-3.5 w-3.5 text-[#A054A0]" />
-//                                   </span>
-//                                 )}
-//                               </button>
-
-//                               {OFFICE_TYPES.map((t) => (
-//                                 <button
-//                                   type="button"
-//                                   key={t}
-//                                   onClick={() => {
-//                                     handleOfficeTypeChange(t);
-//                                     setOfficeTypeOpen(false);
-//                                   }}
-//                                   className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm text-[#393039] transition-colors hover:bg-[#A054A0]/[.06] hover:text-[#A054A0]"
-//                                 >
-//                                   <span>{t}</span>
-
-//                                   {officeType === t && (
-//                                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#A054A0]/10">
-//                                       <Check className="h-3.5 w-3.5 text-[#A054A0]" />
-//                                     </span>
-//                                   )}
-//                                 </button>
-//                               ))}
-//                             </div>
-//                           </div>
-//                         )}
-//                       </div>
-
-//                       <div>
-//                         {isCoworking ? (
-//                           <>
-//                             <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
-//                               Seats Required
-//                             </label>
-
-//                             <div className="relative">
-//                               <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center">
-//                                 <Users className="h-4 w-4  text-[#A054A0]" />
-//                               </span>
-
-//                               <input
-//                                 type="text"
-//                                 inputMode="numeric"
-//                                 value={seats}
-//                                 onChange={handleSeatsChange}
-//                                 placeholder="e.g. 50"
-//                                 className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
-//                               />
-//                             </div>
-//                           </>
-//                         ) : (
-//                           <>
-//                             <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
-//                               Min Area Required ({areaUnit})
-//                             </label>
-
-//                             <div className="relative">
-//                               <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center">
-//                                 <Maximize2 className="h-4 w-4 text-[#A054A0]" />
-//                               </span>
-
-//                               <input
-//                                 type="text"
-//                                 inputMode="numeric"
-//                                 value={area}
-//                                 onChange={handleAreaChange}
-//                                 placeholder="e.g. 2,500"
-//                                 className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
-//                               />
-//                             </div>
-//                           </>
-//                         )}
-//                       </div>
-//                     </div>
-
-//                     {isRentBased && (
-//                       <div>
-//                         <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
-//                           Rent/{areaUnit}/month
-//                         </label>
-
-//                         <div className="relative">
-//                           <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg">
-//                             {renderCurrencyIcon()}
-//                           </span>
-
-//                           <input
-//                             type="text"
-//                             inputMode="numeric"
-//                             value={minBudget}
-//                             onChange={handleMinBudgetChange}
-//                             placeholder="Rent/month"
-//                             className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
-//                           />
-//                         </div>
-//                       </div>
-//                     )}
-
-//                     {isCoworking && (
-//                       <div>
-//                         <label className="mb-2 ml-1 block text-[16px] font-bold uppercase tracking-[0.15em] text-black/75 sm:text-[16px]">
-//                           Seat Price/month
-//                         </label>
-
-//                         <div className="relative">
-//                           <span className="absolute left-3.5 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg">
-//                             {renderCurrencyIcon()}
-//                           </span>
-//                           <input
-//                             type="text"
-//                             inputMode="numeric"
-//                             value={minBudget}
-//                             onChange={handleMinBudgetChange}
-//                             placeholder="Seat Price/month"
-//                             className={`${inputBase} pl-14 pr-4 text-[#211A21]/85 font-semibold placeholder:text-black/25`}
-//                           />
-//                         </div>
-//                       </div>
-//                     )}
-//                   </div>
-//                 ) : (
-//                   <div className="space-y-4">
-//                     <div className="relative">
-//                       <div className="pointer-events-none absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-xl">
-//                         <Sparkles className="h-4 w-4 text-[#A054A0]" />
-//                       </div>
-
-//                       <textarea
-//                         value={prompt}
-//                         onChange={(e) => setPrompt(e.target.value)}
-//                         placeholder="Describe the workspace you're looking for..."
-//                         rows={4}
-//                         className="min-h-[150px] w-full resize-none rounded-2xl border border-[#E8E0E8] bg-[#FAF8FA] p-4 pl-16 text-sm font-medium leading-6 text-[#211A21] outline-none transition-all duration-200 placeholder:text-black/30 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10 sm:min-h-[160px]"
-//                       />
-
-//                       <span className="pointer-events-none absolute bottom-3.5 right-4 text-[10px] font-medium uppercase tracking-wider text-black/25">
-//                         AI powered
-//                       </span>
-//                     </div>
-
-//                     <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-//                       <span className="shrink-0 text-[11px] font-semibold text-black/35">
-//                         Try asking
-//                       </span>
-
-//                       {SAMPLE_PROMPTS.map((samplePrompt, idx) => (
-//                         <button
-//                           type="button"
-//                           key={idx}
-//                           onClick={() => setPrompt(samplePrompt)}
-//                           className="max-w-[300px] shrink-0 truncate rounded-full border border-[#E8E0E8] bg-[#FAF8FA] px-3.5 py-2 text-[11px] text-[#514751] transition-all hover:border-[#A054A0]/30 hover:bg-[#A054A0]/[.06] hover:text-[#A054A0] sm:text-xs"
-//                         >
-//                           {samplePrompt}
-//                         </button>
-//                       ))}
-//                     </div>
-//                   </div>
-//                 )}
-//                 <div className="mt-5 flex items-center justify-center border-t border-[#EEE7EE] pt-4 sm:mt-6 sm:pt-5">
-//                   <button
-//                     type="submit"
-//                     disabled={loading}
-//                     className="group inline-flex h-[48px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-[#A054A0] px-7 text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_10px_28px_rgba(160,84,160,.28)] transition-all duration-200 hover:bg-[#914891] hover:shadow-[0_14px_34px_rgba(160,84,160,.38)] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2 sm:w-auto sm:min-w-[220px]"                  >
-//                     {loading ? (
-//                       <>
-//                         <Loader2 className="h-4 w-4 animate-spin" />
-//                         Searching...
-//                       </>
-//                     ) : (
-//                       <>
-//                         <Search className="h-4 w-4 transition-transform group-hover:scale-110" />
-//                         Search Workspaces
-//                       </>
-//                     )}
-//                   </button>
-//                 </div>
-//               </form>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </section>
-//     </main>
-//   );
-// }
-
-
-
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { usePreferences } from "@/lib/preferences";
@@ -991,45 +18,24 @@ import {
   DollarSign,
   Euro,
 } from "lucide-react";
-
-/* -------------------------------------------------------------------------- */
-/*  Constants                                                                 */
-/* -------------------------------------------------------------------------- */
-
 const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
-
 const SAMPLE_PROMPTS = [
   "5,000 sq ft managed office in Whitefield with 80+ desks & boardrooms",
   "A-grade bare shell commercial space in BKC with panoramic views",
   "Plug-and-play HQ in Cyber City Gurgaon under ₹15 Lakhs/month",
 ];
 
-/* -------------------------------------------------------------------------- */
-/*  Design tokens (Tailwind class strings, colour theme unchanged)            */
-/* -------------------------------------------------------------------------- */
-
 const CONTROL_H = "h-[clamp(2.75rem,5vh,3.5rem)]";
-
 const INPUT_BASE = `w-full ${CONTROL_H} rounded-xl bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10 disabled:cursor-not-allowed disabled:opacity-50`;
-
 const INPUT_OPEN = "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10";
-
 const LABEL =
-  "mb-1.5 ml-0.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-black/70 sm:text-xs";
-
+  "mb-1.5 ml-0.5 block text-[11px] font-bold tracking-[0.14em] text-black/70 sm:text-xs";
 const MENU =
   "absolute left-0 right-0 top-full z-[100] mt-2 flex flex-col overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]";
-
 const MENU_LIST =
   "max-h-[clamp(160px,30vh,260px)] overflow-y-auto overscroll-contain p-1.5";
-
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2";
-
-/* -------------------------------------------------------------------------- */
-/*  Small presentational building blocks                                      */
-/* -------------------------------------------------------------------------- */
-
 function CheckBadge() {
   return (
     <span className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10">
@@ -1037,8 +43,6 @@ function CheckBadge() {
     </span>
   );
 }
-
-/** Field wrapper: label + control. `innerRef` is used for outside-click handling. */
 function Field({ label, innerRef, className = "", children }) {
   return (
     <div className={`relative min-w-0 ${className}`} ref={innerRef}>
@@ -1047,8 +51,6 @@ function Field({ label, innerRef, className = "", children }) {
     </div>
   );
 }
-
-/** Dropdown trigger button used by City / Micromarket / Property Type. */
 function SelectTrigger({
   icon: Icon,
   open,
@@ -1120,8 +122,6 @@ function Option({ active, onClick, children }) {
     </button>
   );
 }
-
-/** Text input with a leading icon (Seats / Area / Rent / Seat Price). */
 function IconInput({ icon, value, onChange, placeholder }) {
   return (
     <div className="relative">
@@ -1152,15 +152,13 @@ function TabButton({ active, onClick, icon: Icon, children }) {
         : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
         }`}
     >
-      <Icon className={`h-4 w-4 ${active ? "text-[#A054A0]" : "text-[#9A939A]"}`} />
+      <Icon
+        className={`h-4 w-4 ${active ? "text-[#A054A0]" : "text-[#9A939A]"}`}
+      />
       {children}
     </button>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/*  Component                                                                 */
-/* -------------------------------------------------------------------------- */
 
 export default function HeroSection({ consentGranted, locationData }) {
   const router = useRouter();
@@ -1170,28 +168,23 @@ export default function HeroSection({ consentGranted, locationData }) {
   const [citySearch, setCitySearch] = useState("");
   const [cityOptions, setCityOptions] = useState([]);
   const [loadingCities, setLoadingCities] = useState(false);
-
   const [officeType, setOfficeType] = useState("");
   const [officeTypeOpen, setOfficeTypeOpen] = useState(false);
-
   const [micromarkets, setMicromarkets] = useState([]);
   const [selectedMicromarkets, setSelectedMicromarkets] = useState([]);
   const [micromarketOpen, setMicromarketOpen] = useState(false);
   const [micromarketSearch, setMicromarketSearch] = useState("");
   const [loadingMicromarkets, setLoadingMicromarkets] = useState(false);
-
   const [minBudget, setMinBudget] = useState("");
   const { currency, unit: areaUnit } = usePreferences();
   const [area, setArea] = useState("");
   const [seats, setSeats] = useState("");
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-
   const cityDropdownRef = useRef(null);
   const micromarketDropdownRef = useRef(null);
   const officeTypeDropdownRef = useRef(null);
   const locationAutoSelectedRef = useRef(false);
-
   const formatNumberWithCommas = (value) => {
     const rawValue = String(value || "").replace(/\D/g, "");
     if (!rawValue) return "";
@@ -1423,7 +416,7 @@ export default function HeroSection({ consentGranted, locationData }) {
       if (selectedMicromarkets.length) {
         params.set(
           "micromarket",
-          selectedMicromarkets.map(toUrlValue).join(",")
+          selectedMicromarkets.map(toUrlValue).join(","),
         );
       }
       if (officeType?.trim()) {
@@ -1621,7 +614,9 @@ export default function HeroSection({ consentGranted, locationData }) {
                     filled={!!city}
                     onClick={() => setCityOpen(!cityOpen)}
                   >
-                    {loadingCities ? "Loading cities..." : city || "Select city"}
+                    {loadingCities
+                      ? "Loading cities..."
+                      : city || "Select city"}
                   </SelectTrigger>
 
                   {cityOpen && (
@@ -1679,7 +674,11 @@ export default function HeroSection({ consentGranted, locationData }) {
                         />
                       )}
 
-                      <div role="listbox" aria-multiselectable="true" className={MENU_LIST}>
+                      <div
+                        role="listbox"
+                        aria-multiselectable="true"
+                        className={MENU_LIST}
+                      >
                         <Option
                           active={selectedMicromarkets.length === 0}
                           onClick={() => {
@@ -1783,13 +782,17 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                 {/* Rent / Seat Price */}
                 <Field
-                  label={isRentBased ? `Rent/${areaUnit}/month` : "Seat Price/month"}
+                  label={
+                    isRentBased ? `Rent/${areaUnit}/month` : "Seat Price/month"
+                  }
                 >
                   <IconInput
                     icon={renderCurrencyIcon()}
                     value={minBudget}
                     onChange={handleMinBudgetChange}
-                    placeholder={isRentBased ? "Rent/month" : "Seat Price/month"}
+                    placeholder={
+                      isRentBased ? "Rent/month" : "Seat Price/month"
+                    }
                   />
                 </Field>
 

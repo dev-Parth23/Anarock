@@ -79,12 +79,7 @@ const callbackTimes = [
     "5:00 PM – 7:00 PM",
 ];
 
-/*
- * Your /route page may store the city under any of these keys.
- * The component checks them in order.
- *
- * If you know the exact key, keep it first.
- */
+
 const ROUTE_CITY_STORAGE_KEYS = [
     "routeCity",
     "selectedCity",
@@ -135,14 +130,6 @@ function getStorageCity() {
             if (!raw) {
                 continue;
             }
-
-            /*
-             * First try JSON because /route may store:
-             *
-             * {
-             *   city: "Gurugram"
-             * }
-             */
             try {
                 const parsed = JSON.parse(raw);
 
@@ -245,17 +232,6 @@ export default function ListYourPropertyPage() {
     const isCoworking =
         form.propertyType === "coworking";
 
-    /* =====================================================
-       LOAD CITIES
-
-       Priority:
-       1. localStorage city
-       2. CRM cities
-
-       The city list itself still comes from CRM.
-       If localStorage has a matching CRM city, it is
-       automatically selected.
-    ===================================================== */
 
     useEffect(() => {
         let cancelled = false;
@@ -297,9 +273,7 @@ export default function ListYourPropertyPage() {
 
                 setCities(crmCities);
 
-                /*
-                 * If /route stored a city, select it.
-                 */
+
                 if (storedCity) {
                     const matchedCity =
                         crmCities.find(
@@ -317,11 +291,7 @@ export default function ListYourPropertyPage() {
                     } else if (
                         crmCities.length === 0
                     ) {
-                        /*
-                         * If CRM couldn't return cities,
-                         * still preserve the city from
-                         * localStorage.
-                         */
+
                         setForm((previous) => ({
                             ...previous,
                             city: storedCity,
@@ -334,10 +304,6 @@ export default function ListYourPropertyPage() {
                     return;
                 }
 
-                /*
-                 * CRM failed.
-                 * We can still use the city from localStorage.
-                 */
                 if (storedCity) {
                     setForm((previous) => ({
                         ...previous,
@@ -368,12 +334,6 @@ export default function ListYourPropertyPage() {
             cancelled = true;
         };
     }, []);
-
-    /* =====================================================
-       LOAD MICROMARKETS WHEN CITY CHANGES
-
-       Only the selected city's micromarkets are requested.
-    ===================================================== */
 
     useEffect(() => {
         let cancelled = false;
@@ -423,11 +383,6 @@ export default function ListYourPropertyPage() {
                 );
 
                 setMicromarkets(values);
-
-                /*
-                 * If the current micromarket no longer belongs
-                 * to the selected city, clear it.
-                 */
                 setForm((previous) => {
                     const current =
                         previous.micromarket;
@@ -542,20 +497,20 @@ export default function ListYourPropertyPage() {
     const validateContact = () => {
         const nextErrors = {};
 
-        if (!form.contactName.trim()) {
-            nextErrors.contactName =
-                "Contact name is required";
-        }
+        // if (!form.contactName.trim()) {
+        //     nextErrors.contactName =
+        //         "Contact name is required";
+        // }
 
-        if (!form.phone.trim()) {
-            nextErrors.phone =
-                "Phone number is required";
-        }
+        // if (!form.phone.trim()) {
+        //     nextErrors.phone =
+        //         "Phone number is required";
+        // }
 
-        if (!form.email.trim()) {
-            nextErrors.email =
-                "Email address is required";
-        }
+        // if (!form.email.trim()) {
+        //     nextErrors.email =
+        //         "Email address is required";
+        // }
 
         setErrors(nextErrors);
 
@@ -580,32 +535,32 @@ export default function ListYourPropertyPage() {
                 "Please select a micromarket";
         }
 
-        if (isCoworking) {
-            if (!form.seats) {
-                nextErrors.seats =
-                    "Seat count is required";
-            }
+        // if (isCoworking) {
+        //     if (!form.seats) {
+        //         nextErrors.seats =
+        //             "Seat count is required";
+        //     }
 
-            if (!form.seatPriceMin) {
-                nextErrors.seatPriceMin =
-                    "Minimum seat price is required";
-            }
-        } else {
-            if (!form.area) {
-                nextErrors.area =
-                    "Area is required";
-            }
+        //     if (!form.seatPriceMin) {
+        //         nextErrors.seatPriceMin =
+        //             "Minimum seat price is required";
+        //     }
+        // } else {
+        //     if (!form.area) {
+        //         nextErrors.area =
+        //             "Area is required";
+        //     }
 
-            if (!form.rentMin) {
-                nextErrors.rentMin =
-                    "Minimum rent is required";
-            }
-        }
+        //     if (!form.rentMin) {
+        //         nextErrors.rentMin =
+        //             "Minimum rent is required";
+        //     }
+        // }
 
-        if (!formConsent) {
-            nextErrors.consent =
-                "Please accept the declaration";
-        }
+        // if (!formConsent) {
+        //     nextErrors.consent =
+        //         "Please accept the declaration";
+        // }
 
         setErrors(nextErrors);
 
@@ -1142,7 +1097,6 @@ function BasicDetails({
             <div className="grid gap-5 md:grid-cols-2">
                 <Field
                     label="Building name"
-                    required
                     value={
                         form.buildingName
                     }
@@ -1270,7 +1224,6 @@ function BasicDetails({
                 <div className="md:col-span-2">
                     <Field
                         label="Property address"
-                        required
                         value={form.address}
                         placeholder="Enter complete building address"
                         error={errors.address}
@@ -1370,7 +1323,7 @@ function ContactDetails({
             <div className="grid gap-5 md:grid-cols-2">
                 <Field
                     label="Contact name"
-                    required
+
                     value={
                         form.contactName
                     }
@@ -1388,7 +1341,6 @@ function ContactDetails({
 
                 <Field
                     label="Phone number"
-                    required
                     value={form.phone}
                     placeholder="+91 98765 43210"
                     error={errors.phone}
@@ -1407,7 +1359,7 @@ function ContactDetails({
 
                 <Field
                     label="Email address"
-                    required
+
                     value={form.email}
                     placeholder="you@company.com"
                     error={errors.email}
@@ -1915,7 +1867,7 @@ function ListingForm({
                             <>
                                 <Field
                                     label="Seats offered"
-                                    required
+
                                     type="number"
                                     value={
                                         form.seats
@@ -1952,7 +1904,6 @@ function ListingForm({
 
                                 <Field
                                     label="Minimum seat price / month"
-                                    required
                                     type="number"
                                     value={
                                         form.seatPriceMin
@@ -1992,7 +1943,7 @@ function ListingForm({
                             <>
                                 <Field
                                     label="Area"
-                                    required
+
                                     type="number"
                                     value={
                                         form.area
@@ -2014,7 +1965,6 @@ function ListingForm({
 
                                 <Field
                                     label="Minimum rent / month"
-                                    required
                                     type="number"
                                     value={
                                         form.rentMin

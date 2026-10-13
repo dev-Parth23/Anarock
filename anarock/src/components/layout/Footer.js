@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="w-full overflow-hidden bg-[#0b0b0b] text-white">
-      <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 md:px-10 lg:px-14 xl:px-16 2xl:px-20">
+      <div className="mx-auto w-full max-w-[1800px] px-5 sm:px-8 md:px-10 lg:px-14 xl:px-16 2xl:px-20">
         <div className="flex flex-col gap-8 py-9 min-[480px]:py-10 sm:gap-9 sm:py-12 md:gap-10 md:py-14 lg:flex-row lg:items-start lg:justify-between lg:gap-16 lg:py-16 xl:gap-24 xl:py-18">
           <div className="min-w-0 max-w-2xl max-lg:text-center">
             <Link href="/" aria-label="Anarock Commercial Listing Platform" className="group inline-flex items-center transition-transform duration-200 active:scale-95 ">
@@ -59,57 +59,10 @@ export default function Footer() {
             </SocialLink>
           </div>
         </div>
-
-        {/* =========================================================
-            DIVIDER
-        ========================================================= */}
         <div className="h-px w-full bg-[#7f3f80]/80" />
-
-        {/* =========================================================
-            DISCLAIMER
-        ========================================================= */}
-        <div
-          className="
-            py-8
-
-            sm:py-9
-
-            md:py-10
-
-            lg:py-11
-          "
-        >
-          <h3
-            className="
-              text-[14px]
-              font-semibold
-              uppercase
-              tracking-[0.08em]
-              text-white
-
-              sm:text-[15px]
-            "
-          >
-            Disclaimer
-          </h3>
-
-          <p
-            className="
-              mt-3
-              max-w-[1450px]
-              text-[12px]
-              leading-[1.7]
-              text-[#8f8f8f]
-
-              min-[400px]:text-[13px]
-
-              sm:mt-4
-              sm:text-[14px]
-              sm:leading-[1.75]
-            "
-          >
-            The site and its contents is provided on an &quot;as is&quot; basis.
-            Anarock Property Consultants Private Limited, its associate or
+        <div className=" py-8 sm:py-9 md:py-10 lg:py-11">
+          <h3 className="text-[14px] font-semibold uppercase tracking-[0.08em] text-white sm:text-[15px]">Disclaimer</h3>
+          <p className="mt-3 max-w-[1450px] text-[12px] leading-[1.7] text-[#8f8f8f] min-[400px]:text-[13px] sm:mt-4 sm:text-[14px] sm:leading-[1.75]">The site and its contents is provided on an &quot;as is&quot; basis. Anarock Property Consultants Private Limited, its associate or
             subsidiary companies (collectively &quot;Anarock&quot;) expressly
             disclaims all warranties, including the warranties of
             merchantability, fitness for a particular purpose and
@@ -124,55 +77,10 @@ export default function Footer() {
             thereof, (iv) use of this site by you or (v) use of any equipment or
             software in connection with the site by you.
           </p>
-        </div>
-
-        {/* =========================================================
-            BOTTOM DIVIDER
-        ========================================================= */}
-        <div className="h-px w-full bg-[#7f3f80]/80" />
-
-        {/* =========================================================
-            COPYRIGHT + LEGAL LINKS
-        ========================================================= */}
-        <div
-          className="
-            flex
-            flex-col
-            items-center
-            gap-4
-            py-5
-            text-center
-
-            min-[480px]:py-6
-
-            sm:flex-row
-            sm:items-center
-            sm:justify-between
-            sm:gap-6
-            sm:py-6
-            sm:text-left
-          "
-        >
-          <p
-            className="
-              text-[11px]
-              leading-5
-              text-[#d0d0d0]
-
-              min-[400px]:text-[12px]
-
-              sm:text-[12px]
-            "
-          >
-            © {new Date().getFullYear()} Anarock Property Consultants Pvt Ltd.
-            All Rights Reserved.
-          </p>
-
-          <nav
-            aria-label="Legal"
-            className="
-              flex
-              flex-wrap
+        </div>  <div className="h-px w-full bg-[#7f3f80]/80" />
+        <div className="flex flex-col items-center gap-4 py-5 text-center min-[480px]:py-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-6 sm:text-left">
+          <p className="text-[11px] leading-5 text-[#d0d0d0] min-[400px]:text-[12px] sm:text-[12px]">© {new Date().getFullYear()} Anarock Property Consultants Pvt Ltd. All Rights Reserved.</p>
+          <nav aria-label="Legal" className="flex flex-wrap
               items-center
               justify-center
               gap-x-4
@@ -202,49 +110,10 @@ export default function Footer() {
   );
 }
 
-/* =========================================================
-   SOCIAL LINK
-========================================================= */
-
 function SocialLink({ href, label, children }) {
   return (
-    <Link
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
-      className="
-        group
-        flex
-        h-9
-        w-9
-        items-center
-        justify-center
-        rounded-full
-        text-[#bdbdbd]
-        transition-all
-        duration-200
-
-        hover:bg-white/[0.07]
-        hover:text-white
-        active:scale-95
-
-        sm:h-10
-        sm:w-10
-      "
-    >
-      <span
-        className="
-          flex
-          items-center
-          justify-center
-          transition-transform
-          duration-200
-          group-hover:scale-110
-        "
-      >
-        {children}
-      </span>
+    <Link href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="group flex h-9 w-9 items-center justify-center rounded-full text-[#bdbdbd] transition-all duration-200 hover:bg-white/[0.07] hover:text-white active:scale-95 sm:h-10 sm:w-10">
+      <span className="flex items-center justify-center transition-transform duration-200 group-hover:scale-110">{children}</span>
     </Link>
   );
 }

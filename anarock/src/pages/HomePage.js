@@ -220,7 +220,7 @@ function GlassField({
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={name} className="text-xs font-semibold text-slate-600">
+      <label htmlFor={name} className="text-xs font-semibold text-black">
         {label} {required && <span className="text-[#A054A0]">*</span>}
       </label>
       <input
@@ -248,19 +248,21 @@ function PhoneInput({
   countrySearchRef,
 }) {
   return (
-    <div className="min-w-0 space-y-2">
+    <div className={`min-w-0 space-y-2 relative ${countryOpen ? "z-50" : "z-10"}`}>
       <label
         htmlFor="requirement-phone"
-        className="text-xs font-semibold text-slate-600"
+        className="text-xs font-semibold text-black"
       >
         Contact Number <span className="ml-1 text-[#A054A0]">*</span>
       </label>
 
       <div className="relative">
         <div
-          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border bg-white/55 backdrop-blur-xl transition-all duration-300 ${phoneError
-            ? "border-red-400 ring-2 ring-red-500/10"
-            : "border-white/80 focus-within:border-[#A054A0]/50 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
+          className={`flex min-h-[52px] w-full min-w-0 overflow-visible rounded-xl border backdrop-blur-xl transition-all duration-300 ${phoneError
+            ? "border-red-400 bg-white/55 ring-2 ring-red-500/10"
+            : countryOpen
+              ? "border-[#A054A0]/50 bg-white/95 shadow-[0_12px_35px_rgba(160,84,160,0.12)] ring-4 ring-[#A054A0]/10"
+              : "border-white/80 bg-white/55 focus-within:border-[#A054A0]/50 focus-within:bg-white/90 focus-within:ring-4 focus-within:ring-[#A054A0]/10"
             }`}
         >
           <div className="relative shrink-0">
@@ -269,27 +271,36 @@ function PhoneInput({
               onClick={() => setCountryOpen((prev) => !prev)}
               aria-expanded={countryOpen}
               aria-haspopup="listbox"
-              className="flex h-full min-h-[52px] items-center gap-1.5 rounded-l-xl border-r border-white/80 bg-white/35 px-3 text-[13px] font-medium text-slate-700 outline-none transition-all duration-200 hover:bg-white/75"
+              className={`flex h-full min-h-[52px] items-center gap-1.5 rounded-l-xl border-r border-white/80 px-3 text-[13px] font-medium text-slate-800 outline-none transition-all duration-300 ${countryOpen
+                ? "bg-white/95 text-slate-900"
+                : "bg-transparent hover:bg-white/40"
+                }`}
             >
               <span className="text-[18px] leading-none">
                 {selectedCountry.flag}
               </span>
               <span className="whitespace-nowrap">{selectedCountry.dial}</span>
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className={`transition-transform duration-200 ${countryOpen ? "rotate-180" : ""}`}
+              <span
+                className={`ml-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#A054A0]/[0.07] text-[#A054A0] transition-transform duration-300 ${countryOpen ? "rotate-180" : ""
+                  }`}
               >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </span>
             </button>
 
             {countryOpen && (
-              <div className="absolute left-0 top-[calc(100%+8px)] z-[300] w-[min(300px,calc(100vw-48px))] overflow-hidden rounded-2xl border border-white/80 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.14)] backdrop-blur-2xl animate-[countryDrop_180ms_ease-out]">
+              <div className="absolute left-0 top-[calc(100%+0.5rem)] z-[9999] w-[min(300px,calc(100vw-48px))] overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-[countryDrop_180ms_ease-out]">
                 <div className="border-b border-slate-200/60 p-2.5">
                   <div className="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-slate-50/80 px-3">
                     <svg
@@ -336,26 +347,45 @@ function PhoneInput({
                           key={`${country.code}-${country.dial}`}
                           type="button"
                           onClick={() => handleCountrySelect(country)}
-                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${isSelected ? "bg-[#A054A0]/10" : "hover:bg-slate-50"
+                          className={`group flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left transition-all duration-150 ${isSelected
+                            ? "bg-[#A054A0]/[0.09] font-semibold text-[#8B438B]"
+                            : "text-slate-600 hover:bg-[#A054A0]/[0.055] hover:text-slate-900"
                             }`}
                         >
-                          <span className="text-[20px] leading-none">
-                            {country.flag}
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-[12px] font-medium text-slate-800">
-                              {country.name}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="text-[18px] leading-none">
+                              {country.flag}
                             </span>
-                            <span className="block text-[10px] text-slate-400">
-                              {country.code}
+                            <span className="min-w-0">
+                              <span className="block truncate text-[12px] font-medium text-slate-800">
+                                {country.name}
+                              </span>
+                              <span className="block text-[10px] text-slate-400">
+                                {country.code}
+                              </span>
                             </span>
-                          </span>
-                          <span className="text-[12px] font-medium text-slate-500">
-                            {country.dial}
-                          </span>
-                          {isSelected && (
-                            <span className="text-[#A054A0]">✓</span>
-                          )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[12px] font-medium text-slate-500">
+                              {country.dial}
+                            </span>
+                            {isSelected && (
+                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#A054A0] text-white shadow-sm">
+                                <svg
+                                  width="11"
+                                  height="11"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="3"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="m5 12 4 4L19 6" />
+                                </svg>
+                              </span>
+                            )}
+                          </div>
                         </button>
                       );
                     })
@@ -619,7 +649,7 @@ function JourneyCard({ item, index }) {
               font-semibold
              leading-[1.1]
              tracking-[-0.04em]
-             text-slate-900
+             text-black
              min-[400px]:text-[1.45rem]
              min-[600px]:text-[1.5rem]
               md:text-[1.55rem]
@@ -634,51 +664,29 @@ function JourneyCard({ item, index }) {
             className="
               mt-3
               max-w-full
-              text-[0.84rem]
+              text-[0.80rem]
               leading-[1.65]
               tracking-[-0.005em]
-              text-slate-500
-
+              text-black/95
               min-[400px]:text-[0.87rem]
-
               min-[600px]:text-[0.88rem]
-
-              md:text-[0.9rem]
-
+             md:text-[0.9rem]
               xl:mt-4
               xl:text-[0.93rem]
-
               2xl:text-[0.95rem]
             "
           >
             {item.desc}
           </p>
         </div>
-
-        {/* Bottom accent */}
-        <div
-          className="
-            relative
-            z-10
-            mt-auto
-            pt-6
-
-            min-[600px]:pt-7
-
-            xl:pt-8
-          "
-        >
-          <div
-            className="
-              h-px
+        <div className="relative z-10 mt-auto pt-6 min-[600px]:pt-7 xl:pt-8">
+          <div className=" h-px
               w-9
               bg-slate-200
               transition-all
               duration-500
-
               group-hover:w-16
               group-hover:bg-[#A054A0]
-
               xl:w-10
               xl:group-hover:w-20
             "
@@ -715,11 +723,8 @@ function PremiumDropdown({ id, name, value, placeholder, options, onChange }) {
   const selectedOption = options.find((option) => option.value === value);
 
   return (
-    <div className="relative w-full" data-dropdown={id}>
-      {/* Hidden native field keeps form submission unchanged */}
+    <div className={`relative w-full ${open ? "z-50" : "z-10"}`} data-dropdown={id}>
       <input type="hidden" id={id} name={name} value={value} />
-
-      {/* Trigger */}
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -755,12 +760,12 @@ function PremiumDropdown({ id, name, value, placeholder, options, onChange }) {
 
       {/* Options */}
       <div
-        className={`absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[80] origin-top transition-all duration-200 ${open
+        className={`absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[100] origin-top transition-all duration-200 ${open
           ? "pointer-events-auto scale-100 opacity-100"
           : "pointer-events-none scale-[0.98] opacity-0"
           }`}
       >
-        <div className="overflow-hidden rounded-2xl border border-white/90 bg-white/95 p-1.5 shadow-[0_20px_50px_rgba(40,20,50,0.14)] backdrop-blur-2xl">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
           <div className="max-h-64 overflow-y-auto pr-1">
             {options.map((option) => {
               const isSelected = value === option.value;
@@ -1053,15 +1058,11 @@ export default function HomePage() {
     if (locationRequestStartedRef.current) {
       return;
     }
-
     locationRequestStartedRef.current = true;
-
     try {
       const savedLocation = sessionStorage.getItem("anarock_user_location");
-
       if (savedLocation) {
         const location = JSON.parse(savedLocation);
-
         setLocationData({
           street: location.area || "",
           city: location.city || "",
@@ -1069,23 +1070,17 @@ export default function HomePage() {
           postalCode: location.pincode || "",
           country: location.country || "",
         });
-
         window.dispatchEvent(new Event("anarock-location-updated"));
-
         return;
       }
     } catch (error) {
       console.warn("Failed to read saved location:", error);
-
       sessionStorage.removeItem("anarock_user_location");
     }
-
     if (!navigator.geolocation) {
       console.warn("Geolocation is not supported by this browser.");
-
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
@@ -1243,7 +1238,7 @@ export default function HomePage() {
               <h2 className="max-w-3xl text-[clamp(2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-[#A054A0]">
                 Explore India&apos;s Key Cities
               </h2>
-              <p className="mt-0 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base sm:leading-7 lg:max-w-xl lg:text-lg lg:leading-8">
+              <p className="mt-0 max-w-2xl text-sm leading-6 text-black sm:text-base sm:leading-7 lg:max-w-xl lg:text-lg lg:leading-8">
                 Discover premium commercial real estate opportunities across
                 India&apos;s leading business destinations.
               </p>
@@ -1296,28 +1291,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* MARKET AT A GLANCE */}
-        {/* <section
-          id="market-glance"
-          className="relative flex w-full items-center border-t border-slate-200/80"
-        >
-          <div className="relative z-10 mx-auto w-full max-w-[1920px] px-20 py-14">
-            <div className="mb-12 text-left md:mb-16">
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-slate-900">
-                Key {"  "}
-                <span className="bg-gradient-to-r from-[#A054A0] via-[#B14DB1] to-[#7A377A] bg-clip-text text-transparent">
-                  Metrics
-                </span>
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base md:text-lg">
-                Your expert guide to navigate through India&apos;s commerical
-                real estate.
-              </p>
-            </div>
-            <MarketStats />
-          </div>
-        </section> */}
 
         {/* WHY CHOOSE ANAROCK */}
         <section
@@ -1409,7 +1382,7 @@ export default function HomePage() {
           max-w-2xl
           text-sm
           leading-6
-          text-slate-600
+          text-black
 
           sm:mt-5
           sm:text-base
@@ -1525,7 +1498,7 @@ export default function HomePage() {
                   font-semibold
                   leading-tight
                   tracking-[-0.02em]
-                  text-slate-900
+                  text-black
                   transition-colors
                   duration-200
 
@@ -1537,13 +1510,12 @@ export default function HomePage() {
                         {feature.title}
                       </h3>
 
-                      {/* Description */}
                       <p
                         className="
                   flex-grow
                   text-sm
                   leading-6
-                  text-slate-600
+                  text-black
 
                   sm:leading-7
                 "
@@ -1678,7 +1650,6 @@ export default function HomePage() {
             </motion.div>
 
             <div className="relative">
-              {/* Connecting line — desktop only */}
               <div
                 aria-hidden="true"
                 className="
@@ -1703,28 +1674,13 @@ export default function HomePage() {
           flex
           flex-wrap
           justify-center
-
           gap-3
           min-[400px]:gap-4
-
           sm:gap-6
         "
               >
                 {journey.map((item, index) => (
-                  <div
-                    key={item.title}
-                    className={`
-    w-[calc(50%-0.5rem)]
-
-    min-[600px]:w-[calc(50%-0.625rem)]
-
-    md:w-[calc((100%-3rem)/3)]
-
-    min-[1800px]:w-[calc((100%-6rem)/5)]
-
-    ${index === journey.length - 1 ? "max-[599px]:mx-auto" : ""}
-  `}
-                  >
+                  <div key={item.title} className={`w-[calc(50%-0.5rem)] min-[600px]:w-[calc(50%-0.625rem)] md:w-[calc((100%-3rem)/3)] min-[1800px]:w-[calc((100%-6rem)/5)] ${index === journey.length - 1 ? "max-[599px]:mx-auto" : ""}`} >
                     <JourneyCard item={item} index={index} />
                   </div>
                 ))}
@@ -1782,7 +1738,7 @@ export default function HomePage() {
                   Find your Perfect Space
                 </h2>
 
-                <p className="mt-7 max-w-[32rem] text-[clamp(0.9rem,1.3vw,1.125rem)] leading-[1.8] tracking-[-0.01em] text-slate-500">
+                <p className="mt-7 max-w-[32rem] text-[clamp(0.9rem,1.3vw,1.125rem)] leading-[1.8] tracking-[-0.01em] text-black">
                   Tell us what you&apos;re looking for, and our experts will
                   help you discover the right commercial real estate
                   opportunity.
@@ -1808,23 +1764,9 @@ export default function HomePage() {
 
                   <div className="relative z-10 mb-8 flex items-center justify-between gap-4">
                     <div>
-                      <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+                      <h3 className="mt-2 text-xl font-semibold tracking-tight text-black sm:text-2xl">
                         Tell us what you need
                       </h3>
-                    </div>
-
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#A054A0]/15 bg-[#A054A0]/[0.07] text-[#A054A0]">
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      >
-                        <path d="M4 4h16v16H4z" />
-                        <path d="M8 9h8M8 13h6" />
-                      </svg>
                     </div>
                   </div>
 
@@ -1866,7 +1808,7 @@ export default function HomePage() {
                       <div className="space-y-2">
                         <label
                           htmlFor="requirementType"
-                          className="text-xs font-semibold text-slate-600"
+                          className="text-xs font-semibold text-black"
                         >
                           Requirement Type
                         </label>
@@ -1892,7 +1834,7 @@ export default function HomePage() {
                       <div className="space-y-2">
                         <label
                           htmlFor="requirementCity"
-                          className="text-xs font-semibold text-slate-600"
+                          className="text-xs font-semibold text-black"
                         >
                           Preferred City
                         </label>
@@ -1948,7 +1890,7 @@ export default function HomePage() {
                     <div className="space-y-2">
                       <label
                         htmlFor="message"
-                        className="text-xs font-semibold text-slate-600"
+                        className="text-xs font-semibold text-black"
                       >
                         Describe your Requirement
                       </label>
@@ -1958,12 +1900,12 @@ export default function HomePage() {
                         name="message"
                         rows={4}
                         placeholder="Tell us more about your requirements..."
-                        className="glass-input w-full resize-none rounded-xl border border-white/80 bg-white/55 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all duration-300 placeholder:text-slate-400 focus:border-[#A054A0]/50 focus:bg-white/90 focus:ring-4 focus:ring-[#A054A0]/10"
+                        className="glass-input w-full resize-none rounded-xl border border-white/80 bg-white/55 px-4 py-3.5 text-sm text-black outline-none transition-all duration-300 placeholder:text-slate-400 focus:border-[#A054A0]/50 focus:bg-white/90 focus:ring-4 focus:ring-[#A054A0]/10"
                       />
                     </div>
 
                     <div className="flex flex-col gap-3 border-slate-200/60 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="max-w-[22rem] text-center text-[11px] leading-relaxed text-slate-400 sm:text-left">
+                      <p className="max-w-[22rem] text-center text-[11px] leading-relaxed text-black/60 sm:text-left">
                         By submitting this form, you agree to be contacted by
                         our team regarding your requirement.
                       </p>
@@ -1983,52 +1925,6 @@ export default function HomePage() {
                   </form>
                 </div>
               </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* ABOUT US */}
-        <section
-          id="aboutus"
-          className="relative isolate overflow-hidden py-20 sm:py-24 md:py-20 lg:py-20"
-        >
-          <div className="relative z-10 mx-auto w-full max-w-[1920px] px-[clamp(1rem,4vw,5rem)]">
-            <div className="mb-14 lg:mb-20 text-center">
-              <h2 className="text-[clamp(1.2rem,4.2vw,4.5rem)] font-bold leading-[0.98] tracking-[-0.055em] text-[#A054A0]">
-                About Anarock
-              </h2>
-            </div>
-
-            <div className="flex flex-col justify-between">
-              <div>
-                <p className="text-xl text-center font-medium leading-relaxed tracking-tight text-slate-800 sm:text-2xl md:text-3xl">
-                  Redefining real estate through intelligence, integrity and
-                  impact.
-                </p>
-
-                <p className="mt-7 text-center text-lg leading-7 text-slate-500 sm:text-lg sm:leading-8">
-                  Anarock combines 30+ years of institutional real estate
-                  expertise with data-led intelligence, technology-driven
-                  solutions and deep market relationships to deliver
-                  comprehensive advisory and execution capabilities across India
-                  and the Middle East.
-                </p>
-              </div>
-
-              {/* <div className="mt-10 sm:mt-14 text-center">
-                <Link
-                  href="https://www.anarock.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-5 rounded-full bg-[#A054A0] px-6 py-4 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(160,84,160,0.25)] transition-all duration-500 hover:-translate-y-1 hover:bg-[#873D87] hover:shadow-[0_18px_45px_rgba(160,84,160,0.35)] sm:px-7 sm:py-5"
-                >
-                  <span>Know More</span>
-
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition-transform duration-500 group-hover:rotate-[-45deg]">
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
-                </Link>
-              </div> */}
             </div>
           </div>
         </section>

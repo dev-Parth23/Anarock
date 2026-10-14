@@ -1,8 +1,8 @@
-# Anarock
+Anarock
 
 AI-powered commercial real estate search platform for India, built on **Zoho Catalyst**. The project pairs a Next.js storefront with a Catalyst serverless backend, and integrates with **Zoho CRM** (lead capture, city/micromarket lookups) and **Zoho Catalyst Data Store & Stratus** (property listings and images).
 
-> Marketing copy from the app: *"Anarock — Premium Commercial Real Estate in India"*, *"India's leading commercial real estate advisory."*
+> Marketing copy from the app: _"Anarock — Premium Commercial Real Estate in India"_, _"India's leading commercial real estate advisory."_
 
 ## Repository Layout
 
@@ -53,14 +53,14 @@ AI-powered commercial real estate search platform for India, built on **Zoho Cat
 
 Create `anarock/.env.local` with the credentials the app needs at runtime:
 
-| Variable | Used for |
-| --- | --- |
-| `CATALYST_CLIENT_ID` / `CATALYST_CLIENT_SECRET` / `CATALYST_REFRESH_TOKEN` | Catalyst SDK auth (Data Store + Stratus access) |
-| `CATALYST_PROJECT_ID` / `CATALYST_PROJECT_KEY` / `CATALYST_PROJECT_DOMAIN` / `CATALYST_ENVIRONMENT` | Catalyst project identifiers (fall back to `.catalystrc` if omitted) |
-| `CATALYST_PROPERTIES_TABLE_ID` | Data Store table ID for property listings (defaults to a hard-coded ID) |
-| `CATALYST_ACCOUNTS_URL` | Zoho accounts domain for token refresh (defaults to `https://accounts.zoho.in`) |
-| `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` / `ZOHO_REFRESH_TOKEN` | Zoho CRM OAuth credentials (Leads, City, micromarket APIs) |
-| `ZOHO_ACCOUNTS_URL` / `ZOHO_API_URL` | Zoho accounts/API domains (default to the `.in` data center) |
+| Variable                                                                                            | Used for                                                                        |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `CATALYST_CLIENT_ID` / `CATALYST_CLIENT_SECRET` / `CATALYST_REFRESH_TOKEN`                          | Catalyst SDK auth (Data Store + Stratus access)                                 |
+| `CATALYST_PROJECT_ID` / `CATALYST_PROJECT_KEY` / `CATALYST_PROJECT_DOMAIN` / `CATALYST_ENVIRONMENT` | Catalyst project identifiers (fall back to `.catalystrc` if omitted)            |
+| `CATALYST_PROPERTIES_TABLE_ID`                                                                      | Data Store table ID for property listings (defaults to a hard-coded ID)         |
+| `CATALYST_ACCOUNTS_URL`                                                                             | Zoho accounts domain for token refresh (defaults to `https://accounts.zoho.in`) |
+| `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` / `ZOHO_REFRESH_TOKEN`                                      | Zoho CRM OAuth credentials (Leads, City, micromarket APIs)                      |
+| `ZOHO_ACCOUNTS_URL` / `ZOHO_API_URL`                                                                | Zoho accounts/API domains (default to the `.in` data center)                    |
 
 > No `.env.example` ships in the repo — populate the variables above based on your own Catalyst project and Zoho CRM OAuth client.
 
@@ -109,12 +109,12 @@ This deploys both the `anarock` Slate (Next.js) app and the `anarock_function` A
 
 ## Scripts (`anarock/`)
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the Next.js dev server |
-| `npm run build` | Production build |
-| `npm run start` | Start the production server |
-| `npm run lint` | Run ESLint |
+| Command         | Description                  |
+| --------------- | ---------------------------- |
+| `npm run dev`   | Start the Next.js dev server |
+| `npm run build` | Production build             |
+| `npm run start` | Start the production server  |
+| `npm run lint`  | Run ESLint                   |
 
 ## Notes
 

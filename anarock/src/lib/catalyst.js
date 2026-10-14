@@ -10,7 +10,7 @@ const DEFAULT_CATALYST_API_URL = "https://api.catalyst.zoho.in";
 const DEFAULT_ZOHO_ACCOUNTS_URL = "https://accounts.zoho.in";
 const TOKEN_REFRESH_BUFFER_MS = 2 * 60 * 1000;
 const MAX_AUTH_RETRIES = 1;
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = 15000;
 const globalState = globalThis;
 if (!globalState.__anarockCatalyst) {
   globalState.__anarockCatalyst = {
@@ -32,7 +32,7 @@ function required(name) {
 }
 
 function getCatalystApiUrl() {
-  return (process.env.CATALYST_API_URL || DEFAULT_CATALYST_API_URL)
+  return (DEFAULT_CATALYST_API_URL)
     .trim()
     .replace(/\/+$/, "");
 }
@@ -48,7 +48,7 @@ function getEnvironment() {
 }
 
 function getRequestTimeout() {
-  return Number(process.env.CATALYST_REQUEST_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS;
+  return DEFAULT_TIMEOUT_MS;
 }
 
 function clearAccessToken() {
@@ -62,17 +62,6 @@ function hasValidAccessToken() {
     state.accessTokenExpiresAt > Date.now() + TOKEN_REFRESH_BUFFER_MS,
   );
 }
-
-/*
-|--------------------------------------------------------------------------
-| Catalyst OAuth
-|--------------------------------------------------------------------------
-|
-| The Next.js server now refreshes the Catalyst OAuth token directly.
-|
-| There is NO anarock_backend dependency.
-|
-*/
 
 async function refreshCatalystAccessToken() {
   if (state.accessTokenPromise) {
@@ -139,20 +128,9 @@ async function refreshCatalystAccessToken() {
 
       throw error;
     }
-
-    /*
-     * Zoho normally returns expires_in in seconds.
-     *
-     * Keep at least 60 seconds and maintain a
-     * safety buffer before actual expiration.
-     */
-
     const expiresInSeconds = Math.max(60, Number(data.expires_in) || 3600);
-
     state.accessToken = data.access_token;
-
     state.accessTokenExpiresAt = Date.now() + expiresInSeconds * 1000;
-
     console.log("[Catalyst Auth] Access token refreshed.", {
       expiresInSeconds,
       expiresAt: new Date(state.accessTokenExpiresAt).toISOString(),
@@ -162,12 +140,7 @@ async function refreshCatalystAccessToken() {
   })()
     .catch((error) => {
       clearAccessToken();
-
-      console.error(
-        "[Catalyst Auth] Token refresh failed:",
-        error?.message || error,
-      );
-
+      console.error("[Catalyst Auth] Token refresh failed:", error?.message || error);
       throw error;
     })
     .finally(() => {

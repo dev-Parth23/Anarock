@@ -1,12 +1,11 @@
 import "server-only";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-export const PROPERTIES_TABLE_ID =
-  process.env.PROPERTIES_TABLE_ID || "53125000000038011";
+export const projectId = process.env.PROJECT_ID || "53125000000013053";
+export const PROPERTIES_TABLE_ID = process.env.PROPERTIES_TABLE_ID || "53125000000038011";
 export const STATS_TABLE_ID = process.env.STATS_TABLE_ID || "Stats";
 export const KYC_TABLE_ID = process.env.KYC_TABLE_ID || "KYC";
-export const PROPERTY_IMAGES_BUCKET =
-  process.env.PROPERTY_IMAGES_BUCKET || "property-images";
+export const PROPERTY_IMAGES_BUCKET = process.env.PROPERTY_IMAGES_BUCKET || "property-images";
 const DEFAULT_CATALYST_API_URL = "https://api.catalyst.zoho.in";
 const DEFAULT_ZOHO_ACCOUNTS_URL = "https://accounts.zoho.in";
 const TOKEN_REFRESH_BUFFER_MS = 2 * 60 * 1000;
@@ -308,7 +307,6 @@ export async function catalystFetch(url, options = {}, retryCount = 0) {
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function getDataStorePage(tableId, options = {}) {
-  const projectId = required("PROJECT_ID");
   const maxRows = Math.min(
     Math.max(Number(options.maxRows || 100), 1),
     100,

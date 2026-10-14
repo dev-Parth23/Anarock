@@ -6,6 +6,7 @@ const g = globalThis;
 if (!g.__anarockPropertiesCache) {
   g.__anarockPropertiesCache = {
     data: null,
+    nextRefreshAllowedAt: 0,
     timestamp: 0,
     fetchPromise: null,
     byId: new Map(),
@@ -20,9 +21,14 @@ if (!g.__anarockPropertiesCache) {
 }
 
 const state = g.__anarockPropertiesCache;
-const parsedTtl = Number(process.env.PROPERTIES_CACHE_TTL || "300");
-const CACHE_TTL = Number.isFinite(parsedTtl) && parsedTtl > 0 ? parsedTtl * 1000 : 300 * 1000;
+const parsedTtl = Number(process.env.PROPERTIES_CACHE_TTL || "900");
 
+const CACHE_TTL =
+  Number.isFinite(parsedTtl) && parsedTtl > 0
+    ? parsedTtl * 1000
+    : 900 * 1000;
+
+const REFRESH_RETRY_COOLDOWN_MS = 60 * 1000;
 function normalize(value) {
   if (value === null || value === undefined) {
     return "";
@@ -109,6 +115,7 @@ async function fetchAllFromCatalyst() {
       break;
     }
     nextToken = newToken;
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
   console.log(`[PropertiesCache] Catalyst returned ${rows.length} rows.`);
@@ -169,6 +176,7 @@ function buildIndexes(properties) {
     },
   };
 }
+
 function startRefresh() {
   if (state.fetchPromise) {
     return state.fetchPromise;
@@ -177,31 +185,33 @@ function startRefresh() {
   state.fetchPromise = fetchAllFromCatalyst()
     .then((properties) => {
       const built = buildIndexes(properties);
+
       state.data = properties;
-
       state.byId = built.byId;
-
       state.indexes = built.indexes;
-
       state.timestamp = Date.now();
 
       state.lastRefreshError = null;
-
       state.lastRefreshErrorAt = 0;
+      state.nextRefreshAllowedAt = 0;
 
-      console.log(`[PropertiesCache] Cached ${properties.length} properties.`);
+      console.log(
+        `[PropertiesCache] Cached ${properties.length} properties.`,
+      );
 
       return properties;
     })
     .catch((error) => {
       state.lastRefreshError = error?.message || String(error);
-
       state.lastRefreshErrorAt = Date.now();
+      state.nextRefreshAllowedAt =
+        Date.now() + REFRESH_RETRY_COOLDOWN_MS;
 
       console.error(
         "[PropertiesCache] Refresh failed:",
-        error?.message || error,
+        state.lastRefreshError,
       );
+
       throw error;
     })
     .finally(() => {
@@ -210,16 +220,42 @@ function startRefresh() {
 
   return state.fetchPromise;
 }
+
 export async function getAllProperties() {
   const now = Date.now();
+
+  // Return fresh cached data immediately.
   if (state.data && now - state.timestamp < CACHE_TTL) {
     return state.data;
   }
+
+  // If stale data exists, serve it while refreshing in the background.
   if (state.data) {
-    if (!state.fetchPromise) {
+    if (
+      !state.fetchPromise &&
+      now >= (state.nextRefreshAllowedAt || 0)
+    ) {
       startRefresh().catch(() => { });
     }
+
     return state.data;
+  }
+
+  // Share the initial fetch between concurrent requests.
+  if (state.fetchPromise) {
+    return state.fetchPromise;
+  }
+
+  // Avoid repeatedly hitting Catalyst after a failed initial fetch.
+  if (now < (state.nextRefreshAllowedAt || 0)) {
+    const secondsRemaining = Math.ceil(
+      (state.nextRefreshAllowedAt - now) / 1000,
+    );
+
+    throw new Error(
+      `Properties data is temporarily unavailable. ` +
+      `Retry after ${secondsRemaining} seconds.`,
+    );
   }
 
   return startRefresh();

@@ -247,7 +247,9 @@ function PhoneInput({
   countrySearchRef,
 }) {
   return (
-    <div className={`min-w-0 space-y-2 relative ${countryOpen ? "z-50" : "z-10"}`}>
+    <div
+      className={`min-w-0 space-y-2 relative ${countryOpen ? "z-50" : "z-10"}`}
+    >
       <label
         htmlFor="requirement-phone"
         className="text-xs font-semibold text-black"
@@ -679,7 +681,8 @@ function JourneyCard({ item, index }) {
           </p>
         </div>
         <div className="relative z-10 mt-auto pt-6 min-[600px]:pt-7 xl:pt-8">
-          <div className=" h-px
+          <div
+            className=" h-px
               w-9
               bg-slate-200
               transition-all
@@ -722,7 +725,10 @@ function PremiumDropdown({ id, name, value, placeholder, options, onChange }) {
   const selectedOption = options.find((option) => option.value === value);
 
   return (
-    <div className={`relative w-full ${open ? "z-50" : "z-10"}`} data-dropdown={id}>
+    <div
+      className={`relative w-full ${open ? "z-50" : "z-10"}`}
+      data-dropdown={id}
+    >
       <input type="hidden" id={id} name={name} value={value} />
       <button
         type="button"
@@ -1224,7 +1230,6 @@ export default function HomePage() {
     <>
       <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 font-sans text-slate-800 selection:bg-[#A054A0] selection:text-white">
         <HeroSection locationData={locationData} />
-
         {/* POPULAR CITIES */}
         <section className="relative overflow-hidden py-14 sm:py-16 md:py-20 lg:py-24">
           <div className="pointer-events-none absolute inset-0">
@@ -1242,44 +1247,47 @@ export default function HomePage() {
                 India&apos;s leading business destinations.
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 min-[600px]:gap-5 sm:gap-5">
+            <div className="grid grid-cols-2 gap-3 min-[600px]:flex min-[600px]:flex-wrap min-[600px]:justify-center min-[600px]:gap-5">
               {popularCities.map((city) => (
-                <Link key={city.slug} href={`/kyc/city/${city.slug}`}
-                  className=" group relative             isolate w-full overflow-hidden rounded-[1.25rem] border border-[#A054A0]/15
-            bg-white
-            shadow-[0_10px_35px_rgba(86,42,91,0.05)]
-            transition-all
-            duration-500
-            ease-out
-            hover:-translate-y-2
-            hover:border-[#A054A0]/35
-            hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
+                <Link
+                  key={city.slug}
+                  href={`/kyc/city/${city.slug}`}
+                  className="
+  group relative isolate w-full min-w-0 overflow-hidden
+  rounded-xl border border-[#A054A0]/15 bg-white
+  shadow-[0_10px_35px_rgba(86,42,91,0.05)]
+  transition-all duration-500 ease-out
+  hover:-translate-y-2
+  hover:border-[#A054A0]/35
+  hover:shadow-[0_24px_65px_rgba(86,42,91,0.14)]
 
-            /* Small phones / large phones */
-            min-[600px]:w-[calc(50%-0.625rem)]
-
-            /* Tablets */
-            md:w-[calc(33.333%-0.85rem)]
-
-            /* Desktop */
-            lg:w-[calc(25%-0.9375rem)]
-
-            /* Large desktop */
-            xl:w-[calc(20%-1rem)]
-
-            sm:rounded-[1.5rem]
-          "
+  aspect-square
+  min-[600px]:aspect-auto
+  min-[600px]:w-[calc(50%-0.625rem)]
+  min-[600px]:rounded-[1.5rem]
+  min-[600px]:aspect-auto
+  md:w-[calc(33.333%-0.85rem)]
+  lg:w-[calc(25%-0.9375rem)]
+  xl:w-[calc(20%-1rem)]
+"
                 >
-                  <div className=" relative aspect-[16/4] overflow-hidden bg-[#A054A0]/5 min-[600px]:aspect-[4/3] lg:aspect-square" >
-                    <img src={city.url} alt={`${city.name} commercial real estate`} decoding="async" className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110" />
+                  <div className="relative h-full aspect-square overflow-hidden bg-[#A054A0]/5 min-[600px]:h-auto min-[600px]:aspect-[4/3] lg:aspect-square">
+                    <img
+                      src={city.url}
+                      alt={`${city.name} commercial real estate`}
+                      decoding="async"
+                      className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
                     <div className=" absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
-                    <div className=" absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-5" >
+                    <div className=" absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-5">
                       <div className="mb-3 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-14" />
                       <h3 className=" text-lg font-bold tracking-tight text-white sm:text-xl lg:text-xl">
                         {city.name}
                       </h3>
                       <div className="mt-2.5 flex items-center justify-between gap-3">
-                        <p className=" text-[9px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[10px]" >Explore</p>
+                        <p className=" text-[9px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[10px]">
+                          Explore
+                        </p>
                         <ArrowRight className=" h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
                       </div>
                     </div>
@@ -1532,79 +1540,15 @@ export default function HomePage() {
         {/* CLIENT JOURNEY */}
         <section
           id="client-journey"
-          className="
-    relative
-    isolate
-    overflow-hidden
-    py-7
-    min-[400px]:py-8
-    sm:py-14
-    md:py-16
-    lg:py-20
-    xl:py-24
-  "
+          className="relative isolate overflow-hidden py-6 sm:py-12 md:py-16 lg:py-20 xl:py-24"
         >
           {/* Background decoration */}
           <div className="pointer-events-none absolute inset-0">
-            <div
-              className="
-        absolute
-        -left-32
-        top-16
-        h-64
-        w-64
-        rounded-full
-        bg-[#A054A0]/[0.035]
-        blur-3xl
-
-        min-[400px]:h-72
-        min-[400px]:w-72
-
-        sm:-left-40
-        sm:top-20
-        sm:h-96
-        sm:w-96
-      "
-            />
-
-            <div
-              className="
-        absolute
-        -right-32
-        bottom-0
-        h-64
-        w-64
-        rounded-full
-        bg-[#A054A0]/[0.03]
-        blur-3xl
-
-        min-[400px]:h-72
-        min-[400px]:w-72
-
-        sm:-right-40
-        sm:h-96
-        sm:w-96
-      "
-            />
+            <div className="absolute -left-32 top-16 h-64 w-64 rounded-full bg-[#A054A0]/[0.035] blur-3xl sm:-left-40 sm:top-20 sm:h-96 sm:w-96" />
+            <div className="absolute -right-32 bottom-0 h-64 w-64 rounded-full bg-[#A054A0]/[0.03] blur-3xl sm:-right-40 sm:h-96 sm:w-96" />
           </div>
 
-          <div
-            className="
-      relative
-      z-10
-      mx-auto
-      w-full
-      max-w-[1700px]
-
-      px-4
-      min-[400px]:px-5
-
-      sm:px-8
-      lg:px-10
-      xl:px-12
-      2xl:px-14
-    "
-          >
+          <div className="relative z-10 mx-auto w-full max-w-[1700px] px-4 min-[400px]:px-5 sm:px-8 lg:px-10 xl:px-12 2xl:px-14">
             {/* Heading */}
             <motion.div
               initial={{ y: 40 }}
@@ -1614,75 +1558,46 @@ export default function HomePage() {
                 duration: 0.8,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="
-        mx-auto
-        mb-5
-        w-full
-        max-w-6xl
-        text-center
-
-        min-[400px]:mb-6
-
-        sm:mb-12
-        md:mb-14
-        lg:mb-16
-        xl:mb-20
-      "
+              className="mx-auto mb-5 w-full max-w-6xl text-center min-[400px]:mb-6 sm:mb-10 md:mb-14 lg:mb-16 xl:mb-20"
             >
-              <h2
-                className="
-          mx-auto
-          max-w-[1100px]
-
-          text-[1.8rem]
-          font-bold
-          leading-[1.02]
-          tracking-[-0.045em]
-          text-[#A054A0]
-          min-[400px]:text-[2rem]
-          sm:text-[clamp(2.2rem,5vw,3.25rem)]
-          lg:text-[clamp(2.5rem,3.8vw,4rem)]
-        "
-              >
+              <h2 className="mx-auto max-w-[1100px] text-[1.7rem] font-bold leading-[1.05] tracking-[-0.045em] text-[#A054A0] min-[400px]:text-[2rem] sm:text-[clamp(2.2rem,5vw,3.25rem)] lg:text-[clamp(2.5rem,3.8vw,4rem)]">
                 Find Your Next Office in 5 Simple Steps
               </h2>
             </motion.div>
 
+            {/* Journey Cards */}
             <div className="relative">
               <div
                 aria-hidden="true"
-                className="
-          pointer-events-none
-          absolute
-          left-[8%]
-          right-[8%]
-          top-1/2
-          hidden
-          h-px
-          bg-gradient-to-r
-          from-transparent
-          via-[#A054A0]/20
-          to-transparent
-
-          min-[1800px]:block
-        "
+                className="pointer-events-none absolute left-[8%] right-[8%] top-1/2 hidden h-px bg-gradient-to-r from-transparent via-[#A054A0]/20 to-transparent min-[1800px]:block"
               />
 
-              <div
-                className="
-          flex
-          flex-wrap
-          justify-center
-          gap-3
-          min-[400px]:gap-4
-          sm:gap-6
-        "
-              >
-                {journey.map((item, index) => (
-                  <div key={item.title} className={`w-[calc(50%-0.5rem)] min-[600px]:w-[calc(50%-0.625rem)] md:w-[calc((100%-3rem)/3)] min-[1800px]:w-[calc((100%-6rem)/5)] ${index === journey.length - 1 ? "max-[599px]:mx-auto" : ""}`} >
-                    <JourneyCard item={item} index={index} />
-                  </div>
-                ))}
+              <div className="flex flex-wrap items-stretch justify-center gap-3 min-[400px]:gap-4 sm:gap-6">
+                {journey.map((item, index) => {
+                  const isLastOddStep =
+                    journey.length % 2 !== 0 && index === journey.length - 1;
+
+                  return (
+                    <div
+                      key={item.title}
+                      className={`
+                w-[calc(50%-0.375rem)]
+                min-w-0
+
+                ${isLastOddStep
+                          ? "max-[599px]:w-[calc(50%-0.375rem)] max-[599px]:mx-auto"
+                          : ""
+                        }
+
+                min-[600px]:w-[calc(50%-0.625rem)]
+                md:w-[calc((100%-3rem)/3)]
+                min-[1800px]:w-[calc((100%-6rem)/5)]
+              `}
+                    >
+                      <JourneyCard item={item} index={index} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1928,8 +1843,6 @@ export default function HomePage() {
           </div>
         </section>
       </div>
-
-      {/* FORM SUBMISSION POPUP */}
       {submitMessage && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/40 px-4 backdrop-blur-sm"
@@ -2055,11 +1968,10 @@ export default function HomePage() {
           </motion.div>
         </div>
       )}
-      <CookieConsent
-        onConsentGiven={() => {
-          setConsentGranted(true);
-          requestLocationPermission();
-        }}
+      <CookieConsent onConsentGiven={() => {
+        setConsentGranted(true);
+        requestLocationPermission();
+      }}
       />
     </>
   );

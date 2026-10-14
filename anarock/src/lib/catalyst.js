@@ -150,25 +150,12 @@ async function refreshCatalystAccessToken() {
   return state.accessTokenPromise;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Get Catalyst access token
-|--------------------------------------------------------------------------
-*/
-
 async function getAccessToken(forceRefresh = false) {
   if (!forceRefresh && hasValidAccessToken()) {
     return state.accessToken;
   }
-
   return refreshCatalystAccessToken();
 }
-
-/*
-|--------------------------------------------------------------------------
-| Timeout helper
-|--------------------------------------------------------------------------
-*/
 
 function getTimeoutSignal(existingSignal, timeoutMs) {
   if (existingSignal) {
@@ -399,7 +386,6 @@ async function getDataStorePage(tableId, options = {}) {
 
   throw lastError || new Error("Catalyst DataStore request failed");
 }
-
 
 function createDataStoreTable(tableId) {
   return {

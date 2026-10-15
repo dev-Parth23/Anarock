@@ -300,29 +300,6 @@ function PropertiesClientContent() {
 
   const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1);
 
-  // const filters = useMemo(() => {
-  //   const rawType = searchParams.get("type") || "";
-
-  //   const type =
-  //     rawType === "ai" ? "ai" : getOfficeTypeFromUrl(rawType);
-
-  //   return {
-  //     city: searchParams.get("city") || "",
-  //     micromarket: searchParams.get("micromarket") || "",
-  //     type,
-  //     minBudget: searchParams.get("minBudget") || "",
-  //     area: searchParams.get("area") || "",
-  //     seats: searchParams.get("seats") || "",
-  //     sort: searchParams.get("sort") || "",
-  //     currency: searchParams.get("currency") || currency,
-  //     areaUnit: searchParams.get("areaUnit") || unit,
-  //     prompt: searchParams.get("prompt") || "",
-  //     isAi:
-  //       rawType === "ai" ||
-  //       searchParams.has("prompt"),
-  //   };
-  // }, [searchParams, currency, unit]);
-
   const filters = useMemo(() => {
     const rawType = searchParams.get("type") || "";
     const type = rawType === "ai" ? "ai" : getOfficeTypeFromUrl(rawType);
@@ -341,6 +318,7 @@ function PropertiesClientContent() {
       isAi: rawType === "ai" || searchParams.has("prompt"),
     };
   }, [searchParams, currency, unit]);
+
   const openEnquiryForm = () => {
     if (!Array.isArray(wishlistItems) || wishlistItems.length === 0) {
       return;
@@ -1135,8 +1113,8 @@ function PropertiesClientContent() {
 
     filters.micromarket && {
       label: `Micromarkets: ${selectedMicromarketNames.length
-          ? selectedMicromarketNames.join(", ")
-          : filters.micromarket
+        ? selectedMicromarketNames.join(", ")
+        : filters.micromarket
         }`,
       key: "micromarket",
     },
@@ -1413,8 +1391,8 @@ function PropertiesClientContent() {
           >
             <div
               className={`border border-slate-200 bg-white p-4 ${showFilters
-                  ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
-                  : "rounded-xl lg:sticky lg:top-24"
+                ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
+                : "rounded-xl lg:sticky lg:top-24"
                 }`}
             >
               <div className="mb-4 flex items-center gap-3">
@@ -1424,8 +1402,8 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => setSidebarTab("filters")}
                       className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${sidebarTab === "filters"
-                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                          : "text-slate-500 hover:text-slate-800"
+                        ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                        : "text-slate-500 hover:text-slate-800"
                         }`}
                     >
                       <SlidersHorizontal className="h-4 w-4 shrink-0" />
@@ -1437,8 +1415,8 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => setSidebarTab("sort")}
                       className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${sidebarTab === "sort"
-                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                          : "text-slate-500 hover:text-slate-800"
+                        ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                        : "text-slate-500 hover:text-slate-800"
                         }`}
                     >
                       <ArrowUpDown className="h-4 w-4 shrink-0" />
@@ -1475,14 +1453,14 @@ function PropertiesClientContent() {
                           onClick={() => handleCategoryClick(cat)}
                           aria-pressed={isSelected}
                           className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all duration-200 ${isSelected
-                              ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#7B3D7B] shadow-sm"
-                              : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
+                            ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#7B3D7B] shadow-sm"
+                            : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
                             }`}
                         >
                           <span
                             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${isSelected
-                                ? "border-[#A054A0]/20 bg-[#A054A0]/10 text-[#A054A0]"
-                                : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
+                              ? "border-[#A054A0]/20 bg-[#A054A0]/10 text-[#A054A0]"
+                              : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
                               }`}
                           >
                             {cat.id === "recommended" ? (
@@ -1518,8 +1496,8 @@ function PropertiesClientContent() {
 
                           <span
                             className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${isSelected
-                                ? "border-[#A054A0]"
-                                : "border-slate-300 group-hover:border-slate-400"
+                              ? "border-[#A054A0]"
+                              : "border-slate-300 group-hover:border-slate-400"
                               }`}
                           >
                             {isSelected && (
@@ -1573,8 +1551,8 @@ function PropertiesClientContent() {
                       disabled={!resolvedCity || micromarketsLoading}
                       onClick={() => setShowMicromarkets(!showMicromarkets)}
                       className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${!resolvedCity
-                          ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                          : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
+                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                        : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
                         }`}
                     >
                       <span className="truncate">
@@ -1602,8 +1580,8 @@ function PropertiesClientContent() {
                           >
                             <span
                               className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
-                                  ? "border-[#A054A0] bg-[#A054A0]"
-                                  : "border-slate-300"
+                                ? "border-[#A054A0] bg-[#A054A0]"
+                                : "border-slate-300"
                                 }`}
                             >
                               {selectedMicromarkets.length === 0 && (
@@ -1637,8 +1615,8 @@ function PropertiesClientContent() {
                                   >
                                     <span
                                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
-                                          ? "border-[#A054A0] bg-[#A054A0]"
-                                          : "border-slate-300"
+                                        ? "border-[#A054A0] bg-[#A054A0]"
+                                        : "border-slate-300"
                                         }`}
                                     >
                                       {selected && (
@@ -1648,8 +1626,8 @@ function PropertiesClientContent() {
 
                                     <span
                                       className={`truncate ${selected
-                                          ? "font-medium text-slate-900"
-                                          : "text-slate-700"
+                                        ? "font-medium text-slate-900"
+                                        : "text-slate-700"
                                         }`}
                                     >
                                       {market.name}
@@ -1966,8 +1944,8 @@ function PropertiesClientContent() {
                             page === safeCurrentPage ? "page" : undefined
                           }
                           className={`min-w-10 rounded-lg px-3 py-2 text-sm font-medium transition ${page === safeCurrentPage
-                              ? "bg-[#A054A0] text-white shadow-sm"
-                              : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
+                            ? "bg-[#A054A0] text-white shadow-sm"
+                            : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
                             }`}
                         >
                           {page}

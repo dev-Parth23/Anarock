@@ -132,8 +132,8 @@ This deploys the `anarock` Slate (Next.js) app declared in `catalyst.json`. Note
 
 ## Scope Status (vs. *Anarock CLA Online Listing Platform Scope*)
 
-- **Implemented:** SSR listing and detail pages, sitemap/robots, currency switching (INR, AED, USD, EUR, SGD), CRM lead capture, city/micromarket data, KYC city pages, compare, client-side wishlist, list-your-property page, cookie consent.
-- **Not yet in the repository:** Gemini AI attribute generation, CRM-to-Stratus image sync, Catalyst Search / AI semantic search, Zoho SalesIQ chatbot, Zoho PageSense, GA4, property view-count scoring to CRM, unit-of-measure switching (ft/m/sq ft/sq m), on-demand revalidation, listing JSON-LD.
+- **Implemented:** listing and detail pages (client-rendered; server-side rendering for SEO is still pending), static sitemap/robots (need fixes), currency switching (INR, AED, USD, EUR, SGD), area-unit switching (sq ft / sq m), CRM lead capture, city/micromarket data, KYC city pages, compare, client-side wishlist, list-your-property page, cookie consent.
+- **Not yet in the repository:** Gemini AI attribute generation, CRM-to-Stratus image sync, Catalyst Search / AI semantic search, Zoho SalesIQ chatbot, Zoho PageSense, GA4, property view-count scoring to CRM, linear unit switching (feet/metre; area units are done), on-demand revalidation, listing JSON-LD.
 
 ## Assessment Reports
 

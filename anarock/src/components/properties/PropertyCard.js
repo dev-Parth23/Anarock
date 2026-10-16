@@ -68,6 +68,8 @@ function PropertyCard({
   isShortlisted = false,
   onShortlistToggle,
 }) {
+  console.log("PARTHproperty");
+  console.log(property);
   const { unit } = usePreferences();
   const { ids, toggle } = useWishlist();
 
@@ -83,9 +85,6 @@ function PropertyCard({
 
   const propertyName = String(
     property?.name ||
-    property?.Property_Name ||
-    property?.propertyName ||
-    property?.Name ||
     "Property",
   );
 
@@ -104,8 +103,7 @@ function PropertyCard({
   const city = property?.city || property?.City || "";
   const micromarket =
     property?.micromarket ||
-    property?.Micromarket ||
-    property?.microMarket ||
+    property?.area ||
     "";
 
   const location = [city, micromarket].filter(Boolean).join(" • ");
@@ -113,7 +111,7 @@ function PropertyCard({
   const propertyType = String(
     getFirstValue(
       property,
-      ["officeType", "OfficeType", "type", "propertyType", "PropertyType"],
+      ["officeType", "type"],
       "",
     ),
   )
@@ -125,31 +123,26 @@ function PropertyCard({
 
   const developer = getFirstValue(
     property,
-    ["developer", "Developer", "developerName", "Developer Name"],
+    ["developer"],
     "-",
   );
 
   const areaValue = Number(
-    property?.areaSqft ?? property?.AreaSqft ?? property?.area,
+    property?.totalLeasableAreaAvailable,
   );
   const hasArea = Number.isFinite(areaValue) && areaValue > 0;
 
   const seatsOffered = getFirstValue(
     property,
     [
-      "seatsOffered",
       "NoOfSeatsOffered",
-      "noOfSeatsOffered",
-      "noofseatsoffered",
-      "seats",
-      "Seats",
     ],
     "-",
   );
 
   const operator = getFirstValue(
     property,
-    ["operator", "Operator", "operatorName", "OperatorName", "Operator Name"],
+    ["operator"],
     "-",
   );
 

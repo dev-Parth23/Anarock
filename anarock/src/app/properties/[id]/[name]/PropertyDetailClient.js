@@ -20,6 +20,7 @@ import {
   BusFront,
   Plane,
   ArrowUpRight,
+  CloudCog,
 } from "lucide-react";
 const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
 const AUTO_SCROLL_INTERVAL = 25000;
@@ -564,14 +565,17 @@ export default function PropertyDetailClient({ propertyId }) {
     };
   }, [goToNextImage, goToPreviousImage]);
   const propertyDetails = useMemo(() => {
+    console.log("TESTING PARth");
+
+    console.log(property);
     if (!property) return {};
     return {
       isCoworking: isCoworkingProperty(property),
       propertyType: getValue(property, ["officeType"], "Conventional"),
-      managedBy: getValue(property, ["operator"]),
+      managedBy: getValue(property, ["OperatorName"]),
       offeredSeats: getValue(property, ["NoOfSeatsOffered"]),
       towerFloor: getValue(property, ["floor"]),
-      areaOffered: getValue(property, ["offeredSuperArea"]),
+      areaOffered: getValue(property, ["totalLeasableAreaAvailable"]),
       availability: getValue(property, ["availability"]),
       buildingCertification: getValue(property, ["buildingCertifications"]),
       numberOfElevators: getValue(property, ["elevators"]),
@@ -883,7 +887,7 @@ export default function PropertyDetailClient({ propertyId }) {
               {propertyDetails.isCoworking ? (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   <DetailField
-                    label="Managed By"
+                    label="Operator Name"
                     value={propertyDetails.managedBy}
                     icon={Building2}
                   />

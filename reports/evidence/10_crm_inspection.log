@@ -1,0 +1,46 @@
+### Zoho CRM evidence (AnarockCRM connector, READ-ONLY calls) - session of 2026-10-16
+Calls made: getOrganization; getModules(status=visible); getFields(Leads, used); getFields(Properties, used); getRecordCount(Properties); getRecordCount(Properties, Push_to_Website=true); getRecordCount(Leads, Lead_Source=Listing Platform); COQL select on Leads/Properties. No create/update/upsert calls were made.
+Org: Anarock Property Consultants Pvt. Ltd (production, professional edition, 100 licences, paid to 2026-12-22, TZ Asia/Kolkata)
+Counts: Properties total = 7279 | Properties with Push_to_Website=true = 293 | Leads with Lead_Source='Listing Platform' = 7
+COQL sample (Leads, Lead_Source='Listing Platform'): sub-sources observed: 'Request a Callback' x4, 'Post a Requirement' x1 (first 5 rows shown)
+Modules present: Leads, Properties, City, Micromarkets, Interested_Properties (subform), Property_Options, Visits, Verifications, Accounts, Contacts, Deals ...
+
+-- Fields written by the app on Leads vs CRM metadata (this run: leads/lead2/lead3 routes)
+  First_Name               exists  type=text       mandatory=False  picklist=-
+  Last_Name                exists  type=text       mandatory=True  picklist=-
+  Mobile                   exists  type=phone      mandatory=False  picklist=-
+  Company                  exists  type=text       mandatory=False  picklist=-
+  Street                   exists  type=text       mandatory=False  picklist=-
+  City                     exists  type=text       mandatory=False  picklist=-
+  State                    exists  type=text       mandatory=False  picklist=-
+  Country                  exists  type=text       mandatory=False  picklist=-
+  Zip_Code                 exists  type=text       mandatory=False  picklist=-
+  Lead_Source              exists  type=picklist   mandatory=False  picklist=['-None-', 'Advertisement', 'Inter-City CLA Referral', 'Cross Vertical Referral', 'Employee Referral', 'External Referral', 'OnlineStore', 'Seminar/Expo', 'Cold Call1', 'Client Referral', 'RFP', 'Others', 'Website', 'Referral given by us to external team', 'Expansion', 'Renewal']
+  Lead_Status              exists  type=picklist   mandatory=False  picklist=['-None-', 'Not Contacted', 'Attempted to Contact', 'Contacted', 'Contact in Future', 'Junk Lead', 'Not Required', 'Lost Lead', 'Qualified', 'Not Qualified', 'Pre-Qualified', 'Schedula e Meeting']
+  Sublead_Source           exists  type=picklist   mandatory=False  picklist=['-None-', 'Poster Requirement', 'Request a callback', 'Interested Properties']
+  Lead_Owner_Team          exists  type=picklist   mandatory=False  picklist=['-None-', 'Bengaluru', 'Chennai', 'Hyderabad', 'Kolkata', 'North', 'Pune', 'West', 'Mumbai', 'Platform']
+  Requirement_Type         exists  type=picklist   mandatory=False  picklist=['-None-', 'Conventional', 'Coworking', 'Consulting', 'Others']
+  Requirement_City         exists  type=lookup     mandatory=False  picklist=-
+  Email                    exists  type=email      mandatory=False  picklist=-
+  Requirement_Details      exists  type=textarea   mandatory=False  picklist=-
+  Requirement_Seats        exists  type=integer    mandatory=False  picklist=-
+  Requirement_Seat_Price   exists  type=currency   mandatory=False  picklist=-
+  Description              standard Leads field, populated by lead3 from descriptionParts (not listed by getFields(used))
+  Interested_Properties    exists  type=subform    mandatory=False  picklist=-
+
+-- Values the app writes vs picklist
+  Lead_Source='Listing Platform'        -> NOT in picklist; CRM accepts it (7 leads exist)
+  Sublead_Source='Request a Callback'   -> picklist has 'Request a callback' (case differs); 'Post a Requirement' -> picklist has 'Poster Requirement'
+  Lead_Status (lead2 takes client value)-> picklist includes Qualified, Junk Lead ... i.e. a public caller could set any
+
+-- Properties module: website-readiness fields
+  Push_to_Website                present
+  Has_Images                     present
+  AI_Attributes_from_Images      present
+  SPOC_Name                      present
+  SPOC_Number                    present
+  Achievable_Rent_INR_SF_Month   present
+  Quoted_Rent_INR_SF_Month       present
+  Latitude                       present
+  Longitude                      present
+  view-count / view-score field: ABSENT (searched field names for 'view' and 'score')

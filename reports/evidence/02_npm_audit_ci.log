@@ -1,0 +1,25 @@
+### npm audit
+summary: {"info": 0, "low": 0, "moderate": 2, "high": 10, "critical": 1, "total": 13}
+ - @next/eslint-plugin-next high 14.0.5-canary.0 - 15.0.0-rc.1 (transitive)
+ - braces high * (transitive)
+ - chokidar high 2.0.0 - 3.6.0 (transitive)
+ - eslint-config-next high 14.0.5-canary.0 - 15.0.0-rc.1 (direct)
+ - fast-glob high * (transitive)
+ - glob high 10.2.0 - 10.4.5 (transitive)
+ - micromatch high >=0.2.0 (transitive)
+ - next critical 9.3.4-canary.0 - 16.3.0-preview.10 (direct)
+ - postcss high <=8.5.22 (transitive)
+ - postcss-nested moderate 2.0.3 - 6.2.0 (transitive)
+ - postcss-selector-parser moderate <7.1.6 (transitive)
+ - source-map-js high 1.0.0 - 1.2.1 (transitive)
+ - tailwindcss high <=0.0.0-oxide-insiders.ff2c25f || 0.5.0 - 3.4.19 (direct)
+
+### npm ci
+npm error code EUSAGE
+npm error
+npm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.
+npm error
+npm error Missing: @emnapi/core@1.11.3 from lock file
+npm error Missing: @emnapi/runtime@1.11.3 from lock file
+npm error
+npm error Clean install a project

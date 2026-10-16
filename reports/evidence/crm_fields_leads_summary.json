@@ -1,0 +1,362 @@
+[
+{
+"api_name": "Owner",
+"data_type": "ownerlookup",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Company",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "First_Name",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Last_Name",
+"data_type": "text",
+"custom": false,
+"system_mandatory": true
+},
+{
+"api_name": "Designation",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Email",
+"data_type": "email",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Phone",
+"data_type": "phone",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Mobile",
+"data_type": "phone",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Website",
+"data_type": "website",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Lead_Source",
+"data_type": "picklist",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Lead_Status",
+"data_type": "picklist",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Industry",
+"data_type": "picklist",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Created_By",
+"data_type": "ownerlookup",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Modified_By",
+"data_type": "ownerlookup",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Created_Time",
+"data_type": "datetime",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Modified_Time",
+"data_type": "datetime",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Full_Name",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Street",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "City",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "State",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Zip_Code",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Country",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Salutation",
+"data_type": "picklist",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Last_Activity_Time",
+"data_type": "datetime",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Tag",
+"data_type": "text",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Converted_Date_Time",
+"data_type": "datetime",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Lead_Conversion_Time",
+"data_type": "integer",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Unsubscribed_Mode",
+"data_type": "picklist",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Unsubscribed_Time",
+"data_type": "datetime",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Converted_Account",
+"data_type": "lookup",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Converted_Contact",
+"data_type": "lookup",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Converted_Deal",
+"data_type": "lookup",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "id",
+"data_type": "bigint",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Change_Log_Time__s",
+"data_type": "datetime",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Converted__s",
+"data_type": "boolean",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Locked__s",
+"data_type": "boolean",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Last_Enriched_Time__s",
+"data_type": "datetime",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Enrich_Status__s",
+"data_type": "picklist",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Record_Status__s",
+"data_type": "picklist",
+"custom": false,
+"system_mandatory": false
+},
+{
+"api_name": "Requirement_Details",
+"data_type": "textarea",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Referrer_Name",
+"data_type": "text",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Referrer_Email",
+"data_type": "email",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Requirement_City",
+"data_type": "lookup",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Requirement_Type",
+"data_type": "picklist",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Referrer_Contact_No",
+"data_type": "phone",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Referral_Share1",
+"data_type": "picklist",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Requirement_Area",
+"data_type": "double",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Requirement_Rent",
+"data_type": "currency",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Requirement_Seats",
+"data_type": "integer",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Requirement_Seat_Price",
+"data_type": "currency",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Domain",
+"data_type": "text",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Future_Contact_Date",
+"data_type": "date",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Is_this_a_referral_given_to_other_vertical",
+"data_type": "boolean",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Referral_Share_Amount",
+"data_type": "currency",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Referral_Vertical",
+"data_type": "picklist",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Summary",
+"data_type": "textarea",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Lead_Owner_Team",
+"data_type": "picklist",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Prompt",
+"data_type": "textarea",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Sublead_Source",
+"data_type": "picklist",
+"custom": true,
+"system_mandatory": false
+},
+{
+"api_name": "Interested_Properties",
+"data_type": "subform",
+"custom": true,
+"system_mandatory": false
+}
+]

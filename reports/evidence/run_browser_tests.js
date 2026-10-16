@@ -1,5 +1,5 @@
 // FusionHawk browser test runner (Playwright + axe-core). Usage: NODE_PATH=<dir with playwright-core, axe-core> node run_browser_tests.js http://localhost:3111
-const { chromium } = require('playwright-core'); const fs = require('fs'); const axeSrc = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
+const { chromium } = require('playwright-core'); console.log('# tools: playwright-core', require('playwright-core/package.json').version, 'axe-core', require('axe-core/package.json').version, '(pin: playwright-core@1.56.1, axe-core@4.10.2)'); const fs = require('fs'); const axeSrc = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const B = process.argv[2] || 'http://localhost:3111'; let pass = 0, fail = 0;
 const chk = (id, d, ok, actual) => { ok ? pass++ : fail++; console.log(`${ok ? 'PASS' : 'FAIL'}  ${id.padEnd(6)} ${d}${actual !== undefined ? '  -> ' + actual : ''}`); };
 (async () => {

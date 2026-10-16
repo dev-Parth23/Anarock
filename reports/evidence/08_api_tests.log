@@ -1,4 +1,4 @@
-# API/runtime tests 2026-10-16T15:33:41Z target=http://localhost:3111
+# API/runtime tests 2026-10-16T18:37:12Z target=http://localhost:3111 curl=8.5.0
 ## Pages & routing
 PASS  PG     GET /                                                                    expected=200 actual=200
 PASS  PG     GET /properties                                                          expected=200 actual=200
@@ -23,7 +23,7 @@ PASS  SEO    sitemap URL resolves: /properties                                  
 FAIL  SEO    sitemap URL resolves: /services&tools                                    expected=200 actual=404
 FAIL  SEO    sitemap URL resolves: /list-property                                     expected=200 actual=404
 FAIL  SEO    sitemap contains property/detail URLs                                    expected=yes actual=no
-FAIL  SEO    sitemap domain equals request host (NEXT_PUBLIC_BASE_URL set)            expected=yes actual=no
+PASS  SEO    sitemap domain equals request host (NEXT_PUBLIC_BASE_URL set)            expected=yes actual=yes
 PASS  SEO    robots.txt references sitemap                                            expected=yes actual=yes
 FAIL  SEO    robots.txt disallow paths exist as routes (/wishlist)                    expected=200 actual=404
 PASS  SEO    home has <title>                                                         expected=yes actual=yes
@@ -36,15 +36,15 @@ FAIL  SEO    /properties HTML is server-rendered with listings (not 'Loading pro
 FAIL  SEO    property detail has its own meta description (differs from home)         expected=yes actual=no
 FAIL  SEO    property detail JSON-LD is a listing type (RealEstateListing/Product/Offer) expected=yes actual=no
 FAIL  SEO    canonical of /properties points to itself (not homepage)                 expected=yes actual=no
-      canonical=https://anarock.com
+      canonical=http://localhost:3111
 FAIL  SEO    canonical of /properties/1/test-property points to itself (not homepage) expected=yes actual=no
-      canonical=https://anarock.com
+      canonical=http://localhost:3111
 FAIL  SEO    canonical of /services points to itself (not homepage)                   expected=yes actual=no
-      canonical=https://anarock.com
+      canonical=http://localhost:3111
 FAIL  SEO    canonical of /kyc/city/delhi points to itself (not homepage)             expected=yes actual=no
-      canonical=https://anarock.com
+      canonical=http://localhost:3111
 FAIL  SEO    canonical of /list-your-property points to itself (not homepage)         expected=yes actual=no
-      canonical=https://anarock.com
+      canonical=http://localhost:3111
 ## Security headers (GET /)
 FAIL  HDR    header present: content-security-policy                                  expected=yes actual=no
 FAIL  HDR    header present: strict-transport-security                                expected=yes actual=no
@@ -77,11 +77,11 @@ FAIL  LEAD2  cross-origin text/plain POST (no CORS preflight) rejected          
 PASS  LEAD3  invalid phone rejected (lead3)                                           expected=400 actual=400
 ## Rate limiting (10 req/min expected)
 PASS  RATE   /api/leads same client: 11th request is 429                              expected=429 actual=429
-      429 429 429 429 429 429 429 429 429 429 429 429 
+      400 400 400 400 400 400 400 400 400 400 429 429 
 FAIL  RATE   /api/leads rotating X-Forwarded-For still limited                        expected=yes actual=no
       400 400 400 400 400 400 400 400 400 400 400 400 
 PASS  RATE   /api/lead3 same client: 11th request is 429                              expected=429 actual=429
-      429 429 429 429 429 429 429 429 429 429 429 429 
+      400 400 400 400 400 400 400 400 400 400 429 429 
 FAIL  RATE   /api/lead3 rotating X-Forwarded-For still limited                        expected=yes actual=no
       400 400 400 400 400 400 400 400 400 400 400 400 
 FAIL  RATE   /api/lead2 same client: limited                                          expected=yes actual=no
@@ -97,5 +97,11 @@ PASS  API    location valid coordinates (New Delhi) -> success:true city        
 FAIL  API    micromarkets upstream failure is not reported as success                 expected=no actual=yes
 FAIL  API    /api/properties error body must not disclose env var names               expected=no actual=yes
 FAIL  API    /api/cities error body must not disclose env var names                   expected=no actual=yes
+## CORS and error handling (added run 4)
+PASS  CORS   cross-origin GET to /api/properties does not echo Access-Control-Allow-Origin: * expected=no actual=no
+PASS  CORS   OPTIONS /api/leads does not allow arbitrary origin                       expected=no actual=no
+FAIL  ERR    /api/properties/{id} error body must not disclose env var names          expected=no actual=yes
+FAIL  ERR    /api/kyc?city=delhi error body must not disclose env var names           expected=no actual=yes
+PASS  ERR    path traversal in slug does not 500                                      expected=200 actual=200
 
-# SUMMARY: PASS=45 FAIL=34 TOTAL=79
+# SUMMARY: PASS=49 FAIL=35 TOTAL=84

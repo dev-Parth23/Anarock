@@ -12,7 +12,7 @@ N=0
 code(){ # each lead-endpoint request gets a unique client IP unless the test sets its own, so the rate limiter does not mask other results
   local extra=""; case "$*" in *"/api/lead"*) case "$*" in *X-Forwarded-For*) ;; *) N=$((N+1)); extra="-H X-Forwarded-For:172.20.$((N/250)).$((N%250+1))";; esac;; esac
   curl -s -o /dev/null -w "%{http_code}" $extra "$@"; }
-echo "# API/runtime tests $(date -u +%FT%TZ) target=$B"
+echo "# API/runtime tests $(date -u +%FT%TZ) target=$B curl=$(curl --version | head -1 | cut -d" " -f2)"
 echo "## Pages & routing"
 for p in / /properties /compare /shortlist /services /list-your-property /kyc/city/delhi /kyc/city/mumbai /kyc/city/bengaluru /kyc/city/pune /kyc/city/chennai /kyc/city/hyderabad /kyc/city/kolkata /kyc/city/noida /kyc/city/gurugram; do chk "PG" "GET $p" 200 "$(code $B$p)"; done
 chk PG "GET /unknown-route" 404 "$(code $B/unknown-route)"
@@ -73,4 +73,10 @@ chk API "location valid coordinates (New Delhi) -> success:true city" yes "$(cur
 chk API "micromarkets upstream failure is not reported as success" no "$(curl -s $B/api/micromarkets | python3 -c "import sys,json;print('yes' if json.load(sys.stdin).get('success') else 'no')")"
 chk API "/api/properties error body must not disclose env var names" no "$(curl -s $B/api/properties | grep -q 'CATALYST_' && echo yes || echo no)"
 chk API "/api/cities error body must not disclose env var names" no "$(curl -s $B/api/cities | grep -q 'ZOHO_' && echo yes || echo no)"
+echo "## CORS and error handling (added run 4)"
+chk CORS "cross-origin GET to /api/properties does not echo Access-Control-Allow-Origin: *" no "$(curl -sI -H 'Origin: https://evil.example' $B/api/properties | grep -qi '^access-control-allow-origin: \*' && echo yes || echo no)"
+chk CORS "OPTIONS /api/leads does not allow arbitrary origin" no "$(curl -sI -X OPTIONS -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' $B/api/leads | grep -qi 'access-control-allow-origin: https://evil.example' && echo yes || echo no)"
+chk ERR "/api/properties/{id} error body must not disclose env var names" no "$(curl -s $B/api/properties/1 | grep -q 'CATALYST_' && echo yes || echo no)"
+chk ERR "/api/kyc?city=delhi error body must not disclose env var names" no "$(curl -s "$B/api/kyc?city=delhi" | grep -q 'CATALYST_' && echo yes || echo no)"
+chk ERR "path traversal in slug does not 500" 200 "$(code "$B/properties/1/..%2f..%2fetc%2fpasswd")"
 echo; echo "# SUMMARY: PASS=$PASS FAIL=$FAIL TOTAL=$((PASS+FAIL))"

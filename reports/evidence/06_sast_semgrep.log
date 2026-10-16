@@ -1,4 +1,11 @@
-### Semgrep 1.181.0 - rule packs: p/javascript, p/nextjs, p/owasp-top-ten, p/secrets
-Scanner self-test (known-bad canary file with eval/exec/XSS/md5/AWS-key): 4 findings detected -> rules load and fire.
-Project scan: Targets scanned: 105 files (git-tracked, anarock/src), Rules run: 108, Findings: 0, Errors: 0
-Note: SAST finds no injection/XSS/eval-class issues; the High findings in the report are logic/design issues (abuse protection, authz of data updates, info disclosure) that pattern-based SAST does not detect.
+== semgrep 1.181.0 2026-10-16T18:31:56Z
+-- canary (known-bad sample, must produce findings)
+canary findings: 3 errors: 0
+  direct-response-write line 5
+  code-string-concat line 5
+  express-open-redirect line 8
+-- project: anarock/src
+project findings: 0 errors: 0 files scanned: 105
+
+If Semgrep missed a finding, please send us feedback to let us know!
+See https://semgrep.dev/docs/reporting-false-negatives/

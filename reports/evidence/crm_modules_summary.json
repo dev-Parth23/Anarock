@@ -1,0 +1,326 @@
+[
+{
+"api_name": "Leads",
+"plural": "Leads",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Home",
+"plural": "Home",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Workqueue__s",
+"plural": "Workqueue",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Accounts",
+"plural": "Accounts",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Deals",
+"plural": "Deals",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Contacts",
+"plural": "Contacts",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Tasks",
+"plural": "Tasks",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Events",
+"plural": "Meetings",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Calls",
+"plural": "Calls",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Reports",
+"plural": "Reports",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Analytics",
+"plural": "Analytics",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Invoicings",
+"plural": "Invoicing",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "Forecasts",
+"plural": "Forecasts",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Documents",
+"plural": "Documents",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Visits",
+"plural": "Visits",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Interested_Properties",
+"plural": "Interested Properties",
+"type": "subform",
+"api_supported": true
+},
+{
+"api_name": "Email_Sentiment",
+"plural": "EmailSentiment",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Email_Analytics",
+"plural": "Email Analytics",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Email_Template_Analytics",
+"plural": "Email Template Analytics",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Google_AdWords",
+"plural": "Google Ads",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Approvals",
+"plural": "My Jobs",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Competition_Tracker",
+"plural": "Competitor Deals",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "Property_Options",
+"plural": "Property Options",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "Properties",
+"plural": "Properties",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "City",
+"plural": "City",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "Micromarkets",
+"plural": "Micromarkets",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "Verifications",
+"plural": "Verifications",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "Emails",
+"plural": "Emails",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Locking_Information__s",
+"plural": "Locking Information",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Functions__s",
+"plural": "Functions",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Email_Template__s",
+"plural": "Email Templates",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Email_Drafts__s",
+"plural": "Email Drafts",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Image_Upload_1__s",
+"plural": "Typical Floor Plan",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_2__s",
+"plural": "Project Picture",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_3__s",
+"plural": "Typical Floor Plan",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_4__s",
+"plural": "Project Picture",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "File_Upload_1__s",
+"plural": "Attachment",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_5__s",
+"plural": "Project Picture",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_6__s",
+"plural": "Typical Floor Plan",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "CalendarBookings__s",
+"plural": "Calendar Bookings",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "Unknown__s",
+"plural": "Unknown",
+"type": "default",
+"api_supported": false
+},
+{
+"api_name": "File_Upload_2__s",
+"plural": "Image Word",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Employee",
+"plural": "Employee",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "IRF",
+"plural": "IRF",
+"type": "custom",
+"api_supported": true
+},
+{
+"api_name": "File_Upload_3__s",
+"plural": "Signed IRF",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "File_Upload_4__s",
+"plural": "Client Confirmation Letter",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "File_Upload_5__s",
+"plural": "Address Proof",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "File_Upload_6__s",
+"plural": "Approver Designation and Visiting Card",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "File_Upload_7__s",
+"plural": "Service Agreement / Fee Letter",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_7__s",
+"plural": "PAN Image",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_8__s",
+"plural": "Proof for Service / Milestone Completio",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_9__s",
+"plural": "GSTIN",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Image_Upload_10__s",
+"plural": "Other Images",
+"type": "default",
+"api_supported": true
+},
+{
+"api_name": "Reaction_Configuration__s",
+"plural": "ReactionConfigurations",
+"type": "default",
+"api_supported": false
+}
+]

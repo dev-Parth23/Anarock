@@ -13,11 +13,11 @@ AI-powered commercial real estate search platform for India, built on **Zoho Cat
 │   ├── src/components/       # UI components (shadcn/ui-based design system + feature components)
 │   ├── src/lib/               # Catalyst SDK wiring, formatting, wishlist & preferences helpers
 │   └── src/pages/HomePage.js  # Main landing page composition
-├── functions/
-│   └── anarock_function/     # Catalyst Advanced I/O serverless function (Node.js 24)
-├── catalyst.json             # Catalyst project manifest (registers the Slate app + function)
+├── reports/                 # Dated FusionHawk assessment PDFs (security, code review, test scenarios)
+├── Anarock-Cla-Online-Listing-Platform Scope (1).docx   # Statement of work / scope document
+├── catalyst.json             # Catalyst project manifest (registers the Slate app)
 ├── .catalystrc                # Local Catalyst CLI project/environment configuration
-└── package.json               # Root-level shared dependencies
+└── package.json               # Root-level package manifest
 ```
 
 ## Tech Stack
@@ -93,19 +93,13 @@ npm run dev            # http://localhost:3000
 npm run dev -- --port 3001
 ```
 
-### 4. Run the Catalyst function locally
-
-```bash
-catalyst serve
-```
-
-### 5. Deploy
+### 4. Deploy
 
 ```bash
 catalyst deploy
 ```
 
-This deploys both the `anarock` Slate (Next.js) app and the `anarock_function` Advanced I/O function, as declared in `catalyst.json`.
+This deploys the `anarock` Slate (Next.js) app declared in `catalyst.json`. Note: `catalyst.json` currently points at a Windows source path (`D:\\Catalyst\\anarock`); adjust it to `anarock` for other machines.
 
 ## Scripts (`anarock/`)
 
@@ -118,6 +112,27 @@ This deploys both the `anarock` Slate (Next.js) app and the `anarock_function` A
 
 ## Notes
 
-- The `anarock_function` Advanced I/O function currently serves a placeholder `"Hello from index.js"` response — it's a starting point for future backend logic beyond the Next.js API routes.
+- The `functions/anarock_function` Advanced I/O function mentioned in earlier versions is **not present in the repository**; backend logic currently lives in the Next.js API routes under `anarock/src/app/api/`.
 - Property images are stored in a Catalyst Stratus bucket named `property-images`.
 - The wishlist API endpoint currently returns an empty item set as a stub.
+
+## API Routes (`anarock/src/app/api/`)
+
+| Route | Purpose |
+| --- | --- |
+| `properties`, `properties/[id]`, `properties/suggestions` | Listing search/filter/sort, property detail, search suggestions (Catalyst Data Store, cached) |
+| `leads`, `lead2`, `lead3` | Lead capture into Zoho CRM (three overlapping variants; `leads` and `lead3` have in-memory rate limiting, `lead2` has none) |
+| `cities`, `micromarkets` | City and micromarket lookups from Zoho CRM (cached) |
+| `market-stats`, `kyc` | Market statistics and city KYC data |
+| `location` | Reverse geocoding (OpenStreetMap Nominatim) |
+| `exchange-rates` | Currency rates (Frankfurter) |
+| `wishlist` | Stub (returns empty set) |
+
+## Scope Status (vs. *Anarock CLA Online Listing Platform Scope*)
+
+- **Implemented:** SSR listing and detail pages, sitemap/robots, currency switching (INR, AED, USD, EUR, SGD), CRM lead capture, city/micromarket data, KYC city pages, compare, client-side wishlist, list-your-property page, cookie consent.
+- **Not yet in the repository:** Gemini AI attribute generation, CRM-to-Stratus image sync, Catalyst Search / AI semantic search, Zoho SalesIQ chatbot, Zoho PageSense, GA4, property view-count scoring to CRM, unit-of-measure switching (ft/m/sq ft/sq m), on-demand revalidation, listing JSON-LD.
+
+## Assessment Reports
+
+Dated PDF reports (security, code review, test scenarios) are stored in [`reports/`](reports/), suffixed with the run date (latest: 2026-10-16). Key open items: upgrade Next.js (npm audit: 1 critical, 10 high), add rate limiting/CAPTCHA to public lead endpoints, consolidate the lead routes, remove commented-out code, and add automated tests.

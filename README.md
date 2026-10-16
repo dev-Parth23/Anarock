@@ -121,7 +121,9 @@ This deploys the `anarock` Slate (Next.js) app declared in `catalyst.json`. Note
 | Route | Purpose |
 | --- | --- |
 | `properties`, `properties/[id]`, `properties/suggestions` | Listing search/filter/sort, property detail, search suggestions (Catalyst Data Store, cached) |
-| `leads`, `lead2`, `lead3` | Lead capture into Zoho CRM (three overlapping variants; `leads` and `lead3` have in-memory rate limiting, `lead2` has none) |
+| `leads` | Navbar "request a callback" lead into Zoho CRM (validation, honeypot, in-memory rate limit) |
+| `lead2` | Home page "post a requirement" lead into Zoho CRM (**no rate limit or input validation**; see security report) |
+| `lead3` | Shortlist enquiry: lead plus `Interested_Properties` subform rows in Zoho CRM |
 | `cities`, `micromarkets` | City and micromarket lookups from Zoho CRM (cached) |
 | `market-stats`, `kyc` | Market statistics and city KYC data |
 | `location` | Reverse geocoding (OpenStreetMap Nominatim) |
@@ -135,4 +137,11 @@ This deploys the `anarock` Slate (Next.js) app declared in `catalyst.json`. Note
 
 ## Assessment Reports
 
-Dated PDF reports (security, code review, test scenarios) are stored in [`reports/`](reports/), suffixed with the run date (latest: 2026-10-16). Key open items: upgrade Next.js (npm audit: 1 critical, 10 high), add rate limiting/CAPTCHA to public lead endpoints, consolidate the lead routes, remove commented-out code, and add automated tests.
+Dated PDF reports (security, code review, test scenarios) are stored in [`reports/`](reports/), suffixed with the run date (latest: 2026-10-16). Findings in the latest run were verified by running the code, not only reading it.
+
+Current state (2026-10-16):
+
+- `npm run build` **fails** on an ESLint error (`react/no-unescaped-entities` in `src/app/list-your-property/page.js`), and `npm ci` fails because `package-lock.json` is out of sync; use `npm install` until the lockfile is regenerated.
+- `npm audit`: 13 advisories (1 critical, 10 high, 2 moderate), mainly Next.js 14.2.35.
+- Listing and detail pages are client-rendered; the sitemap is static and lists two URLs that return 404.
+- Open security items: unprotected `/api/lead2`, bypassable rate limiting (client-supplied `X-Forwarded-For`), no security headers, internal error text returned by APIs.

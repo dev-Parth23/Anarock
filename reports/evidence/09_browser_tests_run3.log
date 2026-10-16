@@ -1,0 +1,117 @@
+# Browser tests 2026-10-16T18:09:00.310Z target=http://localhost:3111
+
+## desktop 1366x800
+PASS  PAGE   / loads (HTTP 200, 2281ms)
+PASS  LAYOUT / no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     / no unexpected console/page errors  -> 
+PASS  UI     / does not show internal env-var errors to the user  -> 
+FAIL  A11Y   / axe: no critical/serious WCAG2.1 A/AA violations  -> aria-required-parent(critical,2), color-contrast(serious,3) | all: aria-required-parent:2,color-contrast:3
+PASS  PAGE   /properties loads (HTTP 200, 1740ms)
+PASS  LAYOUT /properties no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     /properties no unexpected console/page errors  -> 
+FAIL  UI     /properties does not show internal env-var errors to the user  -> visible on page
+FAIL  A11Y   /properties axe: no critical/serious WCAG2.1 A/AA violations  -> select-name(critical,2) | all: select-name:2
+PASS  PAGE   /shortlist loads (HTTP 200, 1238ms)
+PASS  LAYOUT /shortlist no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     /shortlist no unexpected console/page errors  -> 
+PASS  UI     /shortlist does not show internal env-var errors to the user  -> 
+PASS  A11Y   /shortlist axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /compare loads (HTTP 200, 1168ms)
+PASS  LAYOUT /compare no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     /compare no unexpected console/page errors  -> 
+PASS  UI     /compare does not show internal env-var errors to the user  -> 
+PASS  A11Y   /compare axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /list-your-property loads (HTTP 200, 1198ms)
+PASS  LAYOUT /list-your-property no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     /list-your-property no unexpected console/page errors  -> 
+PASS  UI     /list-your-property does not show internal env-var errors to the user  -> 
+FAIL  A11Y   /list-your-property axe: no critical/serious WCAG2.1 A/AA violations  -> color-contrast(serious,10), select-name(critical,1) | all: color-contrast:10,select-name:1
+PASS  PAGE   /services loads (HTTP 200, 1090ms)
+PASS  LAYOUT /services no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     /services no unexpected console/page errors  -> 
+PASS  UI     /services does not show internal env-var errors to the user  -> 
+PASS  A11Y   /services axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /kyc/city/delhi loads (HTTP 200, 1198ms)
+PASS  LAYOUT /kyc/city/delhi no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     /kyc/city/delhi no unexpected console/page errors  -> 
+FAIL  UI     /kyc/city/delhi does not show internal env-var errors to the user  -> visible on page
+FAIL  A11Y   /kyc/city/delhi axe: no critical/serious WCAG2.1 A/AA violations  -> color-contrast(serious,2) | all: color-contrast:2
+PASS  PAGE   /properties/1/test-property loads (HTTP 200, 1896ms)
+PASS  LAYOUT /properties/1/test-property no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+PASS  JS     /properties/1/test-property no unexpected console/page errors  -> 
+FAIL  UI     /properties/1/test-property does not show internal env-var errors to the user  -> visible on page
+PASS  A11Y   /properties/1/test-property axe: no critical/serious WCAG2.1 A/AA violations  -> 
+
+## Internal link crawl (home + header/footer)
+PASS  LINK   GET /  -> 200
+PASS  LINK   GET /properties  -> 200
+PASS  LINK   GET /services  -> 200
+FAIL  LINK   GET /aboutus  -> 404
+PASS  LINK   GET /#enquiry  -> 200
+PASS  LINK   GET /list-your-property  -> 200
+PASS  LINK   GET /shortlist  -> 200
+PASS  LINK   GET /kyc/city/bengaluru  -> 200
+PASS  LINK   GET /kyc/city/chennai  -> 200
+PASS  LINK   GET /kyc/city/delhi  -> 200
+PASS  LINK   GET /kyc/city/gurugram  -> 200
+PASS  LINK   GET /kyc/city/hyderabad  -> 200
+PASS  LINK   GET /kyc/city/kolkata  -> 200
+PASS  LINK   GET /kyc/city/mumbai  -> 200
+PASS  LINK   GET /kyc/city/noida  -> 200
+PASS  LINK   GET /kyc/city/pune  -> 200
+FAIL  LINK   GET /privacy-policy  -> 404
+FAIL  LINK   GET /rera  -> 404
+FAIL  LINK   GET /terms-of-use  -> 404
+      external links: 5
+PASS  SEC    target=_blank links have rel=noopener  -> 0 without
+
+## Cookie consent & storage
+PASS  COOKIE consent banner visible on first visit
+PASS  COOKIE no cookies set before consent  -> 
+
+## Home page UI form (client-side validation only; nothing is submitted)
+PASS  FORM   a lead CTA button exists on home
+
+## mobile 375x740
+PASS  PAGE   / loads (HTTP 200, 1725ms)
+PASS  LAYOUT / no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     / no unexpected console/page errors  -> 
+PASS  UI     / does not show internal env-var errors to the user  -> 
+FAIL  A11Y   / axe: no critical/serious WCAG2.1 A/AA violations  -> aria-required-parent(critical,2), color-contrast(serious,3) | all: aria-required-parent:2,color-contrast:3
+PASS  PAGE   /properties loads (HTTP 200, 1241ms)
+PASS  LAYOUT /properties no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     /properties no unexpected console/page errors  -> 
+FAIL  UI     /properties does not show internal env-var errors to the user  -> visible on page
+PASS  A11Y   /properties axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /shortlist loads (HTTP 200, 1087ms)
+PASS  LAYOUT /shortlist no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     /shortlist no unexpected console/page errors  -> 
+PASS  UI     /shortlist does not show internal env-var errors to the user  -> 
+PASS  A11Y   /shortlist axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /compare loads (HTTP 200, 1091ms)
+PASS  LAYOUT /compare no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     /compare no unexpected console/page errors  -> 
+PASS  UI     /compare does not show internal env-var errors to the user  -> 
+PASS  A11Y   /compare axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /list-your-property loads (HTTP 200, 1128ms)
+PASS  LAYOUT /list-your-property no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     /list-your-property no unexpected console/page errors  -> 
+PASS  UI     /list-your-property does not show internal env-var errors to the user  -> 
+FAIL  A11Y   /list-your-property axe: no critical/serious WCAG2.1 A/AA violations  -> color-contrast(serious,5), select-name(critical,1) | all: color-contrast:5,select-name:1
+PASS  PAGE   /services loads (HTTP 200, 1067ms)
+PASS  LAYOUT /services no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     /services no unexpected console/page errors  -> 
+PASS  UI     /services does not show internal env-var errors to the user  -> 
+PASS  A11Y   /services axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /kyc/city/delhi loads (HTTP 200, 1160ms)
+PASS  LAYOUT /kyc/city/delhi no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     /kyc/city/delhi no unexpected console/page errors  -> 
+FAIL  UI     /kyc/city/delhi does not show internal env-var errors to the user  -> visible on page
+FAIL  A11Y   /kyc/city/delhi axe: no critical/serious WCAG2.1 A/AA violations  -> color-contrast(serious,2) | all: color-contrast:2
+PASS  PAGE   /properties/1/test-property loads (HTTP 200, 1252ms)
+PASS  LAYOUT /properties/1/test-property no horizontal scroll  -> scrollWidth=375 clientWidth=375
+PASS  JS     /properties/1/test-property no unexpected console/page errors  -> 
+FAIL  UI     /properties/1/test-property does not show internal env-var errors to the user  -> visible on page
+PASS  A11Y   /properties/1/test-property axe: no critical/serious WCAG2.1 A/AA violations  -> 
+
+# SUMMARY: PASS=86 FAIL=17 TOTAL=103

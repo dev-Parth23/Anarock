@@ -1,0 +1,101 @@
+# API/runtime tests 2026-10-16T18:08:27Z target=http://localhost:3111
+## Pages & routing
+PASS  PG     GET /                                                                    expected=200 actual=200
+PASS  PG     GET /properties                                                          expected=200 actual=200
+PASS  PG     GET /compare                                                             expected=200 actual=200
+PASS  PG     GET /shortlist                                                           expected=200 actual=200
+PASS  PG     GET /services                                                            expected=200 actual=200
+PASS  PG     GET /list-your-property                                                  expected=200 actual=200
+PASS  PG     GET /kyc/city/delhi                                                      expected=200 actual=200
+PASS  PG     GET /kyc/city/mumbai                                                     expected=200 actual=200
+PASS  PG     GET /kyc/city/bengaluru                                                  expected=200 actual=200
+PASS  PG     GET /kyc/city/pune                                                       expected=200 actual=200
+PASS  PG     GET /kyc/city/chennai                                                    expected=200 actual=200
+PASS  PG     GET /kyc/city/hyderabad                                                  expected=200 actual=200
+PASS  PG     GET /kyc/city/kolkata                                                    expected=200 actual=200
+PASS  PG     GET /kyc/city/noida                                                      expected=200 actual=200
+PASS  PG     GET /kyc/city/gurugram                                                   expected=200 actual=200
+PASS  PG     GET /unknown-route                                                       expected=404 actual=404
+FAIL  PG     GET /properties/abc/xyz (non-existent property) should be 404            expected=404 actual=200
+## SEO
+PASS  SEO    sitemap URL resolves: /                                                  expected=200 actual=200
+PASS  SEO    sitemap URL resolves: /properties                                        expected=200 actual=200
+FAIL  SEO    sitemap URL resolves: /services&tools                                    expected=200 actual=404
+FAIL  SEO    sitemap URL resolves: /list-property                                     expected=200 actual=404
+FAIL  SEO    sitemap contains property/detail URLs                                    expected=yes actual=no
+PASS  SEO    sitemap domain equals request host (NEXT_PUBLIC_BASE_URL set)            expected=yes actual=yes
+PASS  SEO    robots.txt references sitemap                                            expected=yes actual=yes
+FAIL  SEO    robots.txt disallow paths exist as routes (/wishlist)                    expected=200 actual=404
+PASS  SEO    home has <title>                                                         expected=yes actual=yes
+PASS  SEO    home has name="description"                                              expected=yes actual=yes
+PASS  SEO    home has rel="canonical"                                                 expected=yes actual=yes
+PASS  SEO    home has property="og:title"                                             expected=yes actual=yes
+PASS  SEO    home has name="twitter:card"                                             expected=yes actual=yes
+PASS  SEO    home has application/ld+json                                             expected=yes actual=yes
+FAIL  SEO    /properties HTML is server-rendered with listings (not 'Loading properties') expected=yes actual=no
+FAIL  SEO    property detail has its own meta description (differs from home)         expected=yes actual=no
+FAIL  SEO    property detail JSON-LD is a listing type (RealEstateListing/Product/Offer) expected=yes actual=no
+FAIL  SEO    canonical of /properties points to itself (not homepage)                 expected=yes actual=no
+      canonical=http://localhost:3111
+FAIL  SEO    canonical of /properties/1/test-property points to itself (not homepage) expected=yes actual=no
+      canonical=http://localhost:3111
+FAIL  SEO    canonical of /services points to itself (not homepage)                   expected=yes actual=no
+      canonical=http://localhost:3111
+FAIL  SEO    canonical of /kyc/city/delhi points to itself (not homepage)             expected=yes actual=no
+      canonical=http://localhost:3111
+FAIL  SEO    canonical of /list-your-property points to itself (not homepage)         expected=yes actual=no
+      canonical=http://localhost:3111
+## Security headers (GET /)
+FAIL  HDR    header present: content-security-policy                                  expected=yes actual=no
+FAIL  HDR    header present: strict-transport-security                                expected=yes actual=no
+FAIL  HDR    header present: x-frame-options                                          expected=yes actual=no
+FAIL  HDR    header present: x-content-type-options                                   expected=yes actual=no
+FAIL  HDR    header present: referrer-policy                                          expected=yes actual=no
+FAIL  HDR    header present: permissions-policy                                       expected=yes actual=no
+FAIL  HDR    X-Powered-By not exposed                                                 expected=yes actual=no
+## Injection / reflection
+PASS  XSS    slug with HTML is escaped in <title>                                     expected=yes actual=yes
+      title rendered: <title>&lt;img src=x onerror=alert(1)&gt; | Anarock</title>
+PASS  XSS    /api/wishlist reflects sessionId only as JSON                            expected=application/json actual=application/json
+## /api/leads (validation) - invalid inputs only
+PASS  LEAD   missing name                                                             expected=400 actual=400
+PASS  LEAD   invalid phone                                                            expected=400 actual=400
+PASS  LEAD   invalid email                                                            expected=400 actual=400
+PASS  LEAD   wrong content-type                                                       expected=415 actual=415
+FAIL  LEAD   malformed JSON should be 400                                             expected=400 actual=500
+PASS  LEAD   first name > 80 chars rejected                                           expected=400 actual=400
+PASS  LEAD   60KB body with Content-Length rejected                                   expected=413 actual=413
+FAIL  LEAD   60KB chunked body (no Content-Length) should still be rejected           expected=413 actual=400
+PASS  LEAD   honeypot returns 200 (silent) without CRM call                           expected=200 actual=200
+PASS  LEAD   DELETE not allowed                                                       expected=405 actual=405
+## /api/lead2 and /api/lead3 (same abuse inputs)
+FAIL  LEAD2  invalid phone/email rejected with 400 (lead2)                            expected=400 actual=500
+FAIL  LEAD2  text/plain rejected with 415 (lead2)                                     expected=415 actual=500
+FAIL  LEAD2  60KB body (valid name/phone) rejected with 413 (lead2)                   expected=413 actual=500
+PASS  LEAD   60KB body (valid name/phone) rejected with 413 (/api/leads, control)     expected=413 actual=413
+FAIL  LEAD2  cross-origin text/plain POST (no CORS preflight) rejected                expected=415 actual=500
+PASS  LEAD3  invalid phone rejected (lead3)                                           expected=400 actual=400
+## Rate limiting (10 req/min expected)
+PASS  RATE   /api/leads same client: 11th request is 429                              expected=429 actual=429
+      400 400 400 400 400 400 400 400 400 400 429 429 
+FAIL  RATE   /api/leads rotating X-Forwarded-For still limited                        expected=yes actual=no
+      400 400 400 400 400 400 400 400 400 400 400 400 
+PASS  RATE   /api/lead3 same client: 11th request is 429                              expected=429 actual=429
+      400 400 400 400 400 400 400 400 400 400 429 429 
+FAIL  RATE   /api/lead3 rotating X-Forwarded-For still limited                        expected=yes actual=no
+      400 400 400 400 400 400 400 400 400 400 400 400 
+FAIL  RATE   /api/lead2 same client: limited                                          expected=yes actual=no
+      400 400 400 400 400 400 400 400 400 400 400 400 400 400 400 
+## Other APIs
+PASS  API    exchange-rates 200                                                       expected=200 actual=200
+PASS  API    exchange-rates has INR,AED,USD,EUR,SGD                                   expected=yes actual=yes
+PASS  API    kyc without city -> 400                                                  expected=400 actual=400
+PASS  API    wishlist without sessionId -> 400                                        expected=400 actual=400
+PASS  API    location lat out of range -> 400                                         expected=400 actual=400
+FAIL  API    location malformed JSON -> 400                                           expected=400 actual=500
+PASS  API    location valid coordinates (New Delhi) -> success:true city              expected=yes actual=yes
+FAIL  API    micromarkets upstream failure is not reported as success                 expected=no actual=yes
+FAIL  API    /api/properties error body must not disclose env var names               expected=no actual=yes
+FAIL  API    /api/cities error body must not disclose env var names                   expected=no actual=yes
+
+# SUMMARY: PASS=46 FAIL=33 TOTAL=79

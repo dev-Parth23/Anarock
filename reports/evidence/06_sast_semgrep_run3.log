@@ -1,0 +1,5 @@
+1.181.0
+$ canary (known-bad sample)
+canary findings 3 ['code-string-concat', 'raw-html-format', 'direct-response-write']
+$ project anarock/src
+project findings 0 errors 0

@@ -58,7 +58,6 @@ const leaders = [
         ),
     },
 ];
-
 const companyStats = [
     { value: "3000+", label: "Employees" },
     {
@@ -68,7 +67,6 @@ const companyStats = [
     { value: "30%", label: "YoY Growth" },
     { value: "15", label: "Offices across India" },
 ];
-
 const partners = [
     { name: "BINSWANGER", IMG: "/services/research/binswanger.png" },
     { name: "HVS", IMG: "/services/research/hvs.png" },
@@ -77,7 +75,6 @@ const partners = [
     { name: "myHQ", IMG: "/services/research/myhq.svg" },
     { name: "UPFLEX", IMG: "/services/research/upflex.png" },
 ];
-
 const highlights = [
     {
         icon: Rocket,
@@ -105,7 +102,6 @@ const fadeUp = {
         transition: { duration: 0.55, ease: "easeOut" },
     },
 };
-
 function Eyebrow({ children }) {
     return (
         <div className="mb-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#ad4b9e]">

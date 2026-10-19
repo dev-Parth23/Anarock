@@ -12,30 +12,13 @@ const ACCOUNTS_URL =
     process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
 
 const DEFAULT_API_URL = process.env.ZOHO_API_URL || "https://www.zohoapis.in";
-
 const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
-
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
-
 const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
-
 const REQUEST_TIMEOUT_MS = 10000;
-
 const MAX_BODY_SIZE = 50000;
-
-/*
- * Zoho CRM Lead subform
- */
 const INTERESTED_PROPERTIES_SUBFORM = "Interested_Properties";
-
-/*
- * Lookup field inside Interested_Properties
- */
 const PROPERTY_LOOKUP_FIELD = "Property_Name";
-
-/*
- * Length validation
- */
 const MAX_LENGTHS = Object.freeze({
     firstName: 80,
     lastName: 80,
@@ -245,41 +228,28 @@ async function generateZohoAccessToken() {
             }
 
             const tokenUrl = `${ACCOUNTS_URL.replace(/\/$/, "")}/oauth/v2/token`;
-
             const params = new URLSearchParams();
-
             params.set("refresh_token", REFRESH_TOKEN.trim());
-
             params.set("client_id", CLIENT_ID.trim());
-
             params.set("client_secret", CLIENT_SECRET.trim());
-
             params.set("grant_type", "refresh_token");
-
             const response = await fetch(tokenUrl, {
                 method: "POST",
-
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
-
                 body: params.toString(),
-
                 cache: "no-store",
 
                 signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
             });
-
             const responseText = await response.text();
-
             let data = {};
-
             try {
                 data = responseText ? JSON.parse(responseText) : {};
             } catch {
                 throw new Error("Zoho OAuth returned an invalid response.");
             }
-
             if (
                 response.status === 429 ||
                 String(data?.error || data?.error_description || "")
@@ -287,60 +257,42 @@ async function generateZohoAccessToken() {
                     .includes("too many requests")
             ) {
                 globalZohoState.authFailureUntil = Date.now() + 5 * 60 * 1000;
-
                 const error = new Error("Zoho OAuth rate limit reached.");
-
                 error.code = "ZOHO_AUTH_RATE_LIMITED";
-
                 error.httpStatus = 429;
-
                 throw error;
             }
-
             if (!response.ok) {
                 const error = new Error(
                     data?.error_description ||
                     data?.error ||
                     "Unable to authenticate with Zoho CRM.",
                 );
-
                 error.code = "ZOHO_AUTH_FAILED";
 
                 error.httpStatus = response.status;
-
                 throw error;
             }
-
             if (!data?.access_token) {
                 throw new Error("Zoho did not return an access token.");
             }
-
             const accessToken = data.access_token;
-
             const expiresInSeconds = Number(data.expires_in) || 3600;
-
             const refreshAfterMilliseconds = Math.min(
                 59 * 60 * 1000,
                 Math.max(60, expiresInSeconds - 60) * 1000,
             );
-
             const apiDomain = String(data.api_domain || DEFAULT_API_URL).replace(
                 /\/$/,
                 "",
             );
-
             const tokenInfo = {
                 accessToken,
-
                 expiresAt: Date.now() + refreshAfterMilliseconds,
-
                 apiDomain,
             };
-
             globalZohoState.tokenCache = tokenInfo;
-
             globalZohoState.authFailureUntil = 0;
-
             return tokenInfo;
         } finally {
             globalZohoState.refreshPromise = null;
@@ -975,8 +927,8 @@ export async function POST(request) {
 
                     requirementCity:
                         body?.requirementCity || body?.lastSearchedCity || "",
-
                     requirementType: body?.requirementType || "",
+                    requirementDetails: body?.requirementDetails || "",
                 },
                 null,
                 2,
@@ -1016,17 +968,22 @@ export async function POST(request) {
         const email = isValidEmail(rawEmail) ? rawEmail : "";
         const phone = normalizePhone(body?.phone);
         const company = normalizeText(body?.company);
+
         const message = normalizeText(
             body?.message ||
+            body?.Message ||
             body?.Description ||
             body?.description ||
             body?.requirementDetails ||
+            body?.Requirement_Details ||
             "",
         );
 
-        /* ------------------------------------------------------------------ */
-        /* Current User Location                                               */
-        /* ------------------------------------------------------------------ */
+        const rawRequirementDetails =
+            body?.requirementDetails ??
+            body?.Requirement_Details ??
+            body?.RequirementDetails ??
+            message;
 
         const location = body?.location || {};
 
@@ -1125,14 +1082,14 @@ export async function POST(request) {
             body?.last_searched_city ||
             "",
         );
-
         const requirementCity =
             rawRequirementCity === "__NONE__" ? "" : rawRequirementCity;
-
         const requirementType = normalizeText(
             body?.requirementType || body?.Requirement_Type || "",
         );
-
+        const requirementDetails = normalizeText(
+            body?.requirementDetails || body?.Requirement_Details || message || "",
+        );
         validateLength(firstName, MAX_LENGTHS.firstName, "First name");
         validateLength(lastName, MAX_LENGTHS.lastName, "Last name");
         validateLength(email, MAX_LENGTHS.email, "Email");
@@ -1155,6 +1112,11 @@ export async function POST(request) {
         );
 
         validateLength(message, MAX_LENGTHS.message, "Message");
+        validateLength(
+            requirementDetails,
+            MAX_LENGTHS.message,
+            "Requirement details",
+        );
 
         if (!firstName && !lastName) {
             return NextResponse.json(
@@ -1285,6 +1247,7 @@ export async function POST(request) {
                 Country: country || undefined,
                 Zip_Code: pincode || undefined,
                 Requirement_Type: requirementType || undefined,
+                Requirement_Details: requirementDetails || undefined,
                 [INTERESTED_PROPERTIES_SUBFORM]: interestedProperties,
             };
 

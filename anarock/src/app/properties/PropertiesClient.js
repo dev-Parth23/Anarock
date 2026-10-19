@@ -1,5 +1,4 @@
 "use client";
-
 import { Suspense, useEffect, useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
@@ -17,12 +16,19 @@ import {
   Search,
   ChevronDown,
   Check,
+  User,
   Users,
   Maximize2,
   IndianRupee,
   DollarSign,
   Euro,
   MessageSquare,
+  Mail,
+  Phone,
+  Building2,
+  Loader2,
+  CheckCircle2,
+  ArrowRight,
   CloudCog,
 } from "lucide-react";
 
@@ -30,7 +36,6 @@ const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
-
 const SORT_CATEGORIES = [
   {
     id: "recommended",
@@ -62,27 +67,20 @@ const SORT_CATEGORIES = [
     descVal: "name_desc",
   },
 ];
-
 function PropertyCardSkeleton() {
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm">
       <div className="shimmer-effect relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-100" />
-
       <div className="flex flex-1 flex-col px-1 pb-1 pt-3">
         <div className="shimmer-effect h-3 w-1/3 rounded bg-slate-100" />
-
         <div className="shimmer-effect mt-2.5 h-5 w-4/5 rounded bg-slate-100" />
-
         <div className="shimmer-effect mt-2 h-3.5 w-1/2 rounded bg-slate-100" />
-
         <div className="my-3.5 h-px bg-slate-100" />
-
         <div className="grid grid-cols-2 gap-3">
           <div>
             <div className="shimmer-effect h-2.5 w-12 rounded bg-slate-100" />
             <div className="shimmer-effect mt-1.5 h-4 w-20 rounded bg-slate-100" />
           </div>
-
           <div className="border-l border-slate-100 pl-3">
             <div className="shimmer-effect h-2.5 w-12 rounded bg-slate-100" />
             <div className="shimmer-effect mt-1.5 h-4 w-20 rounded bg-slate-100" />
@@ -92,7 +90,6 @@ function PropertyCardSkeleton() {
     </div>
   );
 }
-
 const toUrlValue = (value) => {
   return String(value || "")
     .trim()
@@ -102,54 +99,42 @@ const toUrlValue = (value) => {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 };
-
 const normalizeValue = (value) => {
   return String(value || "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
 };
-
 const getOfficeTypeFromUrl = (value) => {
   if (!value) return "";
-
   const normalized = normalizeValue(value);
-
   const match = OFFICE_TYPES.find(
     (type) =>
       normalizeValue(type) === normalized ||
       toUrlValue(type) === String(value).toLowerCase(),
   );
-
   return match || value;
 };
-
 const getPropertyId = (property) =>
   String(property?.id || property?.rowId || property?.ROWID || "");
-
 const getNumber = (value) => {
   if (value === null || value === undefined || value === "") {
     return null;
   }
-
   const number = Number(
     String(value)
       .replace(/,/g, "")
       .replace(/[^\d.-]/g, ""),
   );
-
   return Number.isFinite(number) ? number : null;
 };
-
 const getFirstNumber = (property, fields = []) => {
   for (const field of fields) {
     const value = getNumber(property?.[field]);
-
     if (value !== null) {
       return value;
     }
   }
-
   return null;
 };
 
@@ -188,13 +173,166 @@ const getSqftPrice = (property) => {
     return rent / area;
   }
   return null;
+
 };
+
+function getCRMPropertyId(property) {
+  if (!property || typeof property !== "object") return "";
+
+  const possibleIds = [
+    property.crmID,
+    property.crmId,
+    property.CRM_ID,
+    property.zohoPropertyId,
+    property.zoho_property_id,
+    property.Property_CRM_ID,
+    property.propertyCRMId,
+  ];
+
+  for (const value of possibleIds) {
+    const id = String(value ?? "").trim();
+    if (id) return id;
+  }
+
+  return "";
+}
+
+function readLocalStorageValue(keys) {
+  if (typeof window === "undefined") return "";
+
+  for (const key of keys) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw || !raw.trim()) continue;
+
+      try {
+        const parsed = JSON.parse(raw);
+
+        if (typeof parsed === "string" || typeof parsed === "number") {
+          return String(parsed).trim();
+        }
+
+        if (parsed && typeof parsed === "object") {
+          const value =
+            parsed.city ||
+            parsed.City ||
+            parsed.name ||
+            parsed.Name ||
+            parsed.value;
+
+          if (value) return String(value).trim();
+        }
+      } catch {
+        return raw.trim();
+      }
+
+      return raw.trim();
+    } catch (error) {
+      console.error("Unable to read storage key:", key, error);
+    }
+  }
+
+  return "";
+}
+
+function getLastSearchedCityFromStorage() {
+  return readLocalStorageValue([
+    "anarock_last_searched_city",
+    "lastSearchedCity",
+    "last_searched_city",
+    "requirementCity",
+    "requirement_city",
+    "selectedCity",
+    "selected_city",
+    "propertyCity",
+    "property_city",
+    "searchCity",
+    "search_city",
+  ]);
+}
+
+function getRequirementTypeFromStorage() {
+  return readLocalStorageValue([
+    "anarock_requirement_type",
+    "requirementType",
+    "requirement_type",
+    "propertyType",
+    "property_type",
+    "selectedPropertyType",
+    "selected_property_type",
+    "searchPropertyType",
+    "search_property_type",
+  ]);
+}
+
+function getEnquiryPropertyCity(property) {
+  return String(
+    property?.city ??
+    property?.City ??
+    property?.cityName ??
+    property?.City_Name ??
+    property?.micromarketCity ??
+    ""
+  ).trim();
+}
+
+function getEnquiryPropertyType(property) {
+  return String(
+    property?.propertyType ??
+    property?.Property_Type ??
+    property?.property_type ??
+    property?.type ??
+    property?.Type ??
+    property?.officeType ??
+    ""
+  ).trim();
+}
+
+function getStoredUserLocation() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = sessionStorage.getItem("anarock_user_location");
+    if (!raw) return null;
+
+    const location = JSON.parse(raw);
+
+    return {
+      street: String(
+        location?.area ||
+        location?.street ||
+        location?.address ||
+        ""
+      ).trim(),
+      city: String(location?.city || "").trim(),
+      state: String(
+        location?.state ||
+        location?.province ||
+        ""
+      ).trim(),
+      country: String(location?.country || "").trim(),
+      postalCode: String(
+        location?.pincode ||
+        location?.postalCode ||
+        location?.postal_code ||
+        ""
+      ).trim(),
+      latitude: location?.latitude ?? null,
+      longitude: location?.longitude ?? null,
+    };
+  } catch (error) {
+    console.error("Unable to read saved user location:", error);
+    return null;
+  }
+}
 
 function PropertiesClientContent() {
   const { currency, unit, exchangeRates } = usePreferences();
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
+  const [enquirySelection, setEnquirySelection] = useState([]);
   const [compareSelection, setCompareSelection] = useState([]);
   const [suggestedProperties, setSuggestedProperties] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
@@ -209,6 +347,18 @@ function PropertiesClientContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [showMicromarkets, setShowMicromarkets] = useState(false);
   const [sidebarTab, setSidebarTab] = useState("filters");
+  const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState(false);
+  const [enquiryError, setEnquiryError] = useState("");
+  const [enquirySuccess, setEnquirySuccess] = useState(false);
+
+  const [enquiryForm, setEnquiryForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    company: "",
+    message: "",
+  });
   useEffect(() => {
     if (!showFilters) {
       return;
@@ -246,12 +396,32 @@ function PropertiesClientContent() {
     };
   }, [searchParams, currency, unit]);
 
+  // const openEnquiryForm = () => {
+  //   if (!Array.isArray(wishlistItems) || wishlistItems.length === 0) {
+  //     return;
+  //   }
+
+  //   setEnquirySelection([...wishlistItems]);
+  //   setEnquiryError("");
+  //   setEnquirySuccess(false);
+  //   setIsEnquiryOpen(true);
+  // };
+
+  // const closeEnquiryForm = () => {
+  //   if (isSubmittingEnquiry) return;
+
+  //   setIsEnquiryOpen(false);
+  //   setEnquiryError("");
+  //   setEnquirySuccess(false);
+  // };
+
   const openEnquiryForm = () => {
-    if (!Array.isArray(wishlistItems) || wishlistItems.length === 0) {
+    if (!compareSelection.length) {
+      setEnquiryError("Please select at least one property.");
       return;
     }
 
-    setEnquirySelection([...wishlistItems]);
+    setEnquirySelection([...compareSelection]);
     setEnquiryError("");
     setEnquirySuccess(false);
     setIsEnquiryOpen(true);
@@ -273,6 +443,158 @@ function PropertiesClientContent() {
       [name]: value,
     }));
   };
+
+  const handleEnquirySubmit = async (event) => {
+    event.preventDefault();
+
+    if (isSubmittingEnquiry) return;
+
+    if (!enquirySelection.length) {
+      setEnquiryError("Please select at least one property.");
+      return;
+    }
+
+    setIsSubmittingEnquiry(true);
+    setEnquiryError("");
+
+    try {
+      // Refresh property data to obtain the latest Zoho CRM record IDs.
+      const propertiesResponse = await fetch("/api/properties", {
+        method: "GET",
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
+
+      const propertiesData = await propertiesResponse.json().catch(() => ({}));
+
+      const refreshedProperties =
+        propertiesResponse.ok &&
+          propertiesData?.success &&
+          Array.isArray(propertiesData?.data)
+          ? propertiesData.data
+          : [];
+
+      const freshById = new Map();
+
+      refreshedProperties.forEach((property) => {
+        const id = getPropertyId(property);
+        if (id) freshById.set(String(id), property);
+      });
+
+      const resolvedSelection = enquirySelection.map((property) => {
+        const id = getPropertyId(property);
+        const freshProperty = id ? freshById.get(String(id)) : null;
+
+        return freshProperty
+          ? { ...property, ...freshProperty }
+          : property;
+      });
+
+      const selectedProperties = resolvedSelection.map((property) => {
+        const crmId = String(getCRMPropertyId(property) || "").trim();
+
+        if (!crmId || !/^\d+$/.test(crmId)) {
+          throw new Error(
+            "A selected property is missing its Zoho CRM record ID. Check the CRM ID field returned by /api/properties."
+          );
+        }
+
+        return { id: crmId };
+      });
+
+      const requirementCity =
+        getLastSearchedCityFromStorage() ||
+        resolvedSelection.map(getEnquiryPropertyCity).find(Boolean) ||
+        filters.city ||
+        "";
+
+      const requirementType =
+        getRequirementTypeFromStorage() ||
+        resolvedSelection.map(getEnquiryPropertyType).find(Boolean) ||
+        filters.type ||
+        "";
+
+      const savedLocation = getStoredUserLocation() || {};
+
+      const payload = {
+        firstName: enquiryForm.firstName.trim(),
+        lastName: enquiryForm.lastName.trim(),
+        email: enquiryForm.email.trim(),
+        phone: enquiryForm.phone.trim(),
+        company: enquiryForm.company.trim(),
+        message: enquiryForm.message.trim(),
+        source: "Properties",
+        selectedProperties,
+        requirementCity,
+        requirementType,
+        location: {
+          street: savedLocation.street || "",
+          city: savedLocation.city || "",
+          state: savedLocation.state || "",
+          country: savedLocation.country || "",
+          postalCode: savedLocation.postalCode || "",
+          latitude: savedLocation.latitude ?? null,
+          longitude: savedLocation.longitude ?? null,
+        },
+      };
+
+      console.log("[ENQUIRY] Submitting payload:", payload);
+
+      const response = await fetch("/api/lead3", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      console.log("[ENQUIRY] CRM API response:", {
+        status: response.status,
+        data,
+      });
+
+      if (!response.ok || data?.success !== true || !data?.leadId) {
+        throw new Error(
+          data?.message ||
+          data?.error ||
+          `CRM did not confirm lead creation. HTTP ${response.status}. Request ID: ${data?.requestId || "not provided"}`
+        );
+      }
+
+      setEnquirySuccess(true);
+
+      setEnquiryForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        company: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("[ENQUIRY] Lead creation failed:", error);
+
+      setEnquiryError(
+        error?.message ||
+        "Unable to submit your enquiry. Please try again."
+      );
+    } finally {
+      setIsSubmittingEnquiry(false);
+    }
+  };
+
+  // const handleEnquiryChange = (event) => {
+  //   const { name, value } = event.target;
+
+  //   setEnquiryForm((previous) => ({
+  //     ...previous,
+  //     [name]: value,
+  //   }));
+  // };
 
   const normalizedOfficeType = normalizeValue(filters.type);
   const sortValue = filters.sort || "";
@@ -1960,6 +2282,8 @@ function PropertiesClientContent() {
                 </button>
                 <button
                   type="button"
+                  onClick={openEnquiryForm}
+                  disabled={!compareSelection.length}
                   className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/5 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
                 >
                   <MessageSquare className="h-4 w-4" />
@@ -1970,13 +2294,263 @@ function PropertiesClientContent() {
           </div>
         )}
       </div>
+      {isEnquiryOpen && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/55 px-3 py-4 backdrop-blur-sm sm:px-5"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeEnquiryForm();
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="property-enquiry-title"
+            className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+          >
+            <header className="flex items-start justify-between border-b border-slate-100 px-5 py-5 sm:px-7">
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-[#A054A0]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#A054A0]">
+                    Property Enquiry
+                  </span>
+                </div>
+
+                <h2
+                  id="property-enquiry-title"
+                  className="text-xl font-semibold text-slate-900 sm:text-2xl"
+                >
+                  Tell us about your requirement
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Our team will contact you about your selected properties.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeEnquiryForm}
+                disabled={isSubmittingEnquiry}
+                aria-label="Close enquiry form"
+                className="rounded-full p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </header>
+
+            <div className="max-h-[calc(92vh-105px)] overflow-y-auto px-5 py-5 sm:px-7">
+              {enquirySuccess ? (
+                <div className="flex min-h-[300px] flex-col items-center justify-center text-center">
+                  <CheckCircle2 className="h-14 w-14 text-emerald-600" />
+
+                  <h3 className="mt-4 text-2xl font-semibold text-slate-900">
+                    Enquiry submitted
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-500">
+                    Thank you. Your enquiry was accepted by the API.
+                    Our team will contact you shortly.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={closeEnquiryForm}
+                    className="mt-6 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white hover:bg-[#864286]"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleEnquirySubmit}
+                  className="space-y-5"
+                >
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Selected properties ({enquirySelection.length})
+                    </p>
+
+                    <div className="space-y-2">
+                      {enquirySelection.map((property, index) => (
+                        <div
+                          key={`${getPropertyId(property)}-${index}`}
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+                        >
+                          <p className="text-sm font-semibold text-slate-900">
+                            {property?.name ||
+                              property?.Property_Name ||
+                              property?.propertyName ||
+                              property?.Name ||
+                              "Selected Property"}
+                          </p>
+
+                          <p className="mt-1 text-xs text-slate-500">
+                            {[
+                              getEnquiryPropertyCity(property),
+                              property?.micromarket ||
+                              property?.Micromarket ||
+                              property?.Micro_Market ||
+                              property?.area ||
+                              "",
+                            ]
+                              .filter(Boolean)
+                              .join(" • ")}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                        First name *
+                      </span>
+                      <input
+                        required
+                        name="firstName"
+                        value={enquiryForm.firstName}
+                        onChange={handleEnquiryChange}
+                        autoComplete="given-name"
+                        placeholder="First name"
+                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                        Last name *
+                      </span>
+                      <input
+                        required
+                        name="lastName"
+                        value={enquiryForm.lastName}
+                        onChange={handleEnquiryChange}
+                        autoComplete="family-name"
+                        placeholder="Last name"
+                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                        Email *
+                      </span>
+                      <input
+                        required
+                        type="email"
+                        name="email"
+                        value={enquiryForm.email}
+                        onChange={handleEnquiryChange}
+                        autoComplete="email"
+                        placeholder="you@company.com"
+                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                        Phone *
+                      </span>
+                      <input
+                        required
+                        type="tel"
+                        name="phone"
+                        value={enquiryForm.phone}
+                        onChange={handleEnquiryChange}
+                        autoComplete="tel"
+                        placeholder="+91 98765 43210"
+                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      />
+                    </label>
+                  </div>
+
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                      Company
+                    </span>
+                    <input
+                      name="company"
+                      value={enquiryForm.company}
+                      onChange={handleEnquiryChange}
+                      autoComplete="organization"
+                      placeholder="Company name"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                      Message
+                    </span>
+                    <textarea
+                      name="message"
+                      value={enquiryForm.message}
+                      onChange={handleEnquiryChange}
+                      rows={4}
+                      placeholder="Tell us about your requirement..."
+                      className="w-full resize-y rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                    />
+                  </label>
+
+                  {enquiryError && (
+                    <div
+                      role="alert"
+                      className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                    >
+                      {enquiryError}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={closeEnquiryForm}
+                      disabled={isSubmittingEnquiry}
+                      className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmittingEnquiry}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSubmittingEnquiry ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Creating enquiry...
+                        </>
+                      ) : (
+                        <>
+                          Submit Enquiry
+                          <ArrowRight className="h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </div>
+
+
   );
 }
 export default function PropertiesClient() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-white" />}>
       <PropertiesClientContent />
+
     </Suspense>
   );
 }

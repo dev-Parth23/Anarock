@@ -69,36 +69,84 @@ export function convertArea(amount, fromUnit = "sqft", toUnit = "sqft",) {
   return numericAmount;
 }
 
-export function formatPrice(priceINR, currency = "INR", exchangeRates = {},) {
+// export function formatPrice(priceINR, currency = "INR", exchangeRates = {},) {
+//   const numericPrice = Number(priceINR);
+//   if (!Number.isFinite(numericPrice)) {
+//     return "-";
+//   }
+
+//   const convertedValue = convertCurrency(numericPrice, "INR", currency, exchangeRates,);
+//   const normalizedCurrency = String(currency).toUpperCase();
+//   const symbol = CURRENCY_SYMBOLS[normalizedCurrency] || normalizedCurrency;
+//   if (normalizedCurrency === "INR") {
+//     if (convertedValue >= 10000000) {
+//       return `${symbol}${(convertedValue / 10000000).toFixed(2)} Cr`;
+//     }
+//     if (convertedValue >= 100000) {
+//       return `${symbol}${(convertedValue / 100000).toFixed(2)} L`;
+//     }
+//     return `${symbol}${Math.round(convertedValue).toLocaleString(
+//       "en-IN",
+//     )}`;
+//   }
+//   if (Math.abs(convertedValue) >= 1000000) {
+//     return `${symbol}${(convertedValue / 1000000).toFixed(2)}M`;
+//   }
+//   if (Math.abs(convertedValue) >= 1000) {
+//     return `${symbol}${(convertedValue / 1000).toFixed(1)}K`;
+//   }
+
+//   return `${symbol}${Math.round(convertedValue).toLocaleString(
+//     "en-US",
+//   )}`;
+// }
+
+
+
+export function formatPrice(priceINR, currency = "INR", exchangeRates = {}) {
   const numericPrice = Number(priceINR);
+
   if (!Number.isFinite(numericPrice)) {
     return "-";
   }
 
-  const convertedValue = convertCurrency(numericPrice, "INR", currency, exchangeRates,);
+  const convertedValue = convertCurrency(
+    numericPrice,
+    "INR",
+    currency,
+    exchangeRates
+  );
+
   const normalizedCurrency = String(currency).toUpperCase();
   const symbol = CURRENCY_SYMBOLS[normalizedCurrency] || normalizedCurrency;
+
   if (normalizedCurrency === "INR") {
     if (convertedValue >= 10000000) {
       return `${symbol}${(convertedValue / 10000000).toFixed(2)} Cr`;
     }
+
     if (convertedValue >= 100000) {
       return `${symbol}${(convertedValue / 100000).toFixed(2)} L`;
     }
-    return `${symbol}${Math.round(convertedValue).toLocaleString(
-      "en-IN",
-    )}`;
-  }
-  if (Math.abs(convertedValue) >= 1000000) {
-    return `${symbol}${(convertedValue / 1000000).toFixed(2)}M`;
-  }
-  if (Math.abs(convertedValue) >= 1000) {
-    return `${symbol}${(convertedValue / 1000).toFixed(1)}K`;
+
+    return `${symbol}${Math.round(convertedValue).toLocaleString("en-IN")}`;
   }
 
-  return `${symbol}${Math.round(convertedValue).toLocaleString(
-    "en-US",
-  )}`;
+  const absValue = Math.abs(convertedValue);
+
+  if (absValue >= 1000000) {
+    return `${symbol}${(convertedValue / 1000000).toFixed(2)}M`;
+  }
+
+  if (absValue >= 1000) {
+    return `${symbol}${(convertedValue / 1000).toFixed(1)}K`;
+  }
+  const fractionDigits = absValue < 1 ? 3 : 2;
+
+  return `${symbol}${convertedValue.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: fractionDigits,
+  })}`;
 }
 
 

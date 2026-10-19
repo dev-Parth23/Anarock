@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreferences } from "@/lib/preferences";
-import { formatArea } from "@/lib/format";
+import { formatArea, formatPrice } from "@/lib/format";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,7 +17,6 @@ import {
   Layers3,
   CalendarDays,
   TrainFront,
-  BusFront,
   Plane,
   ArrowUpRight,
   CloudCog,
@@ -183,7 +182,7 @@ export default function PropertyDetailClient({ propertyId }) {
   const [gallery, setGallery] = useState([]);
   const [activeImg, setActiveImg] = useState("project");
   const [related, setRelated] = useState([]);
-  const { unit } = usePreferences();
+  const { unit, currency } = usePreferences();
   const [failedImages, setFailedImages] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -468,7 +467,10 @@ export default function PropertyDetailClient({ propertyId }) {
   const availableGallery = useMemo(() => {
     return gallery.filter((image) => !failedImages.has(image.key));
   }, [gallery, failedImages]);
-  const activeImage = availableGallery.find((image) => image.key === activeImg)?.url || property?.image || "";
+  const activeImage =
+    availableGallery.find((image) => image.key === activeImg)?.url ||
+    property?.image ||
+    "";
   const activeIndex = Math.max(
     0,
     availableGallery.findIndex((image) => image.key === activeImg),
@@ -483,7 +485,9 @@ export default function PropertyDetailClient({ propertyId }) {
       const currentIndex = availableGallery.findIndex(
         (img) => img.key === imageKey,
       );
-      const nextImage = availableGallery[currentIndex + 1] || availableGallery[currentIndex - 1];
+      const nextImage =
+        availableGallery[currentIndex + 1] ||
+        availableGallery[currentIndex - 1];
       if (nextImage) {
         setActiveImg(nextImage.key);
       }
@@ -565,33 +569,28 @@ export default function PropertyDetailClient({ propertyId }) {
     };
   }, [goToNextImage, goToPreviousImage]);
   const propertyDetails = useMemo(() => {
-    console.log("TESTING PARth");
-
-    console.log(property);
     if (!property) return {};
     return {
       isCoworking: isCoworkingProperty(property),
       propertyType: getValue(property, ["officeType"], "Conventional"),
       managedBy: getValue(property, ["OperatorName"]),
       offeredSeats: getValue(property, ["NoOfSeatsOffered"]),
+      seatPrice: getValue(property, ["monthlyCostPerSeat"]),
+      quotedRent: getValue(property, ["quotedRent"]),
       towerFloor: getValue(property, ["floor"]),
-      areaOffered: getValue(property, ["totalLeasableAreaAvailable"]),
+      areaOffered: getValue(property, ["TotalLeasableAreaAvailable"]),
       availability: getValue(property, ["availability"]),
       buildingCertification: getValue(property, ["buildingCertifications"]),
-      numberOfElevators: getValue(property, ["elevators"]),
+      buildingStructure: getValue(property, ["buildingStructure"]),
       yearOfCompletion: getValue(property, ["estYearOfCompletion"]),
       nearbyMetro: getValue(property, ["distanceFromMetro"]),
       airport: getValue(property, ["distanceFromAirport"]),
-      busStation: getValue(property, [
-        "busStation",
-        "BusStation",
-        "bussStation",
-        "BussStation",
-        "nearbyBus",
-        "NearbyBus",
-      ]),
     };
   }, [property]);
+
+  const areaValue = Number(property?.totalLeasableAreaAvailable);
+  const hasArea = Number.isFinite(areaValue) && areaValue > 0;
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -658,19 +657,32 @@ export default function PropertyDetailClient({ propertyId }) {
                 )}
               </div>
               <div className="flex w-full shrink-0 items-center gap-2 sm:gap-3 lg:w-auto">
-                <button type="button" onClick={handleCompareToggle}
+                <button
+                  type="button"
+                  onClick={handleCompareToggle}
                   className={`inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isCompared
-                    ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
-                    : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
-                    }`} aria-pressed={isCompared}>
-                  {isCompared ? (<X className="h-4 w-4" />) : (<GitCompare className="h-4 w-4" />)}
+                      ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
+                      : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
+                    }`}
+                  aria-pressed={isCompared}
+                >
+                  {isCompared ? (
+                    <X className="h-4 w-4" />
+                  ) : (
+                    <GitCompare className="h-4 w-4" />
+                  )}
                   {isCompared ? "Compared" : "Compare"}
                 </button>
-                <button type="button" onClick={() => handleWishlist(property)}
+                <button
+                  type="button"
+                  onClick={() => handleWishlist(property)}
                   className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
-                    ? "bg-[#A054A0] text-white hover:bg-[#A054A0]"
-                    : "bg-gray-900 text-white hover:bg-gray-800"
-                    }`}>{isWishlisted ? "Shortlisted" : "Shortlist"}</button>
+                      ? "bg-[#A054A0] text-white hover:bg-[#A054A0]"
+                      : "bg-gray-900 text-white hover:bg-gray-800"
+                    }`}
+                >
+                  {isWishlisted ? "Shortlisted" : "Shortlist"}
+                </button>
               </div>
             </div>
           </div>
@@ -688,7 +700,6 @@ export default function PropertyDetailClient({ propertyId }) {
 
             <div className="p-3 sm:p-5">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px]">
-
                 <div
                   className="group relative overflow-hidden rounded-xl bg-slate-100"
                   onMouseEnter={() => {
@@ -758,7 +769,6 @@ export default function PropertyDetailClient({ propertyId }) {
                   </div>
                 </div>
 
-
                 <div className="min-w-0">
                   <div
                     ref={thumbnailContainerRef}
@@ -818,9 +828,9 @@ export default function PropertyDetailClient({ propertyId }) {
                           </div>
 
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-8">
-                            <p className="truncate text-xs font-medium text-white">
+                            {/* <p className="truncate text-xs font-medium text-white">
                               {image.name}
-                            </p>
+                            </p> */}
                           </div>
                         </button>
                       );
@@ -899,26 +909,25 @@ export default function PropertyDetailClient({ propertyId }) {
                   />
 
                   <DetailField
-                    label="Tower/Floor offered"
-                    value={propertyDetails.towerFloor}
+                    label="Seat Price"
+                    value={
+                      propertyDetails.seatPrice !== "-"
+                        ? formatPrice(propertyDetails.seatPrice, currency)
+                        : "-"
+                    }
                     icon={Layers3}
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                   <DetailField
-                    label="Area offered"
-                    value={
-                      propertyDetails.areaOffered !== "-" &&
-                        !isNaN(Number(propertyDetails.areaOffered))
-                        ? formatArea(Number(propertyDetails.areaOffered), unit)
-                        : propertyDetails.areaOffered
-                    }
+                    label="Area Available"
+                    value={hasArea ? formatArea(areaValue, unit) : "-"}
                     icon={Building2}
                   />
 
                   <DetailField
-                    label="Tower/Floor offered"
+                    label="Typical Floor"
                     value={propertyDetails.towerFloor}
                     icon={Layers3}
                   />
@@ -926,6 +935,15 @@ export default function PropertyDetailClient({ propertyId }) {
                   <DetailField
                     label="Availability Timeline"
                     value={propertyDetails.availability}
+                    icon={CalendarDays}
+                  />
+                  <DetailField
+                    label="Rent"
+                    value={
+                      propertyDetails.quotedRent !== "-"
+                        ? formatPrice(propertyDetails.quotedRent, currency)
+                        : "-"
+                    }
                     icon={CalendarDays}
                   />
                 </div>
@@ -942,13 +960,13 @@ export default function PropertyDetailClient({ propertyId }) {
                   />
 
                   <DetailField
-                    label="Number of elevators"
-                    value={propertyDetails.numberOfElevators}
+                    label="Building Structure"
+                    value={propertyDetails.buildingStructure}
                     icon={Layers3}
                   />
 
                   <DetailField
-                    label="Year of Completion"
+                    label="Year of Construction"
                     value={propertyDetails.yearOfCompletion}
                     icon={CalendarDays}
                   />
@@ -964,13 +982,6 @@ export default function PropertyDetailClient({ propertyId }) {
                     value={propertyDetails.nearbyMetro}
                     icon={TrainFront}
                   />
-
-                  <DetailField
-                    label="Bus station"
-                    value={propertyDetails.busStation}
-                    icon={BusFront}
-                  />
-
                   <DetailField
                     label="Airport"
                     value={propertyDetails.airport}
@@ -1149,10 +1160,22 @@ export default function PropertyDetailClient({ propertyId }) {
               </p>
             </div>
             <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-              <button type="button" onClick={clearCompareSelection} className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none">
+              <button
+                type="button"
+                onClick={clearCompareSelection}
+                className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none"
+              >
                 Clear
               </button>
-              <button type="button" onClick={openComparePage} disabled={compareSelection.length < MIN_COMPARE_PROPERTIES || compareSelection.length > MAX_COMPARE_PROPERTIES} className="flex-1 rounded-lg bg-[#A054A0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8d438d] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none">
+              <button
+                type="button"
+                onClick={openComparePage}
+                disabled={
+                  compareSelection.length < MIN_COMPARE_PROPERTIES ||
+                  compareSelection.length > MAX_COMPARE_PROPERTIES
+                }
+                className="flex-1 rounded-lg bg-[#A054A0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8d438d] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
+              >
                 <span className="inline-flex items-center gap-2">
                   <GitCompare className="h-4 w-4" />
                   Compare Properties
@@ -1162,6 +1185,6 @@ export default function PropertyDetailClient({ propertyId }) {
           </div>
         </div>
       )}
-    </main >
+    </main>
   );
 }

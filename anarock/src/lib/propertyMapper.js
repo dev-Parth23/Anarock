@@ -51,7 +51,7 @@ export function mapProperty(row) {
     buildingStructure: clean(row.BuildingStructure),
     ownershipStructure: clean(row.OwnershipStructure),
     developer: clean(row.Developer),
-    floor: clean(row.Floor || row.ProposedFloor),
+    floor: clean(row.Floor),
     proposedFloor: clean(row.ProposedFloor),
     unitNumber: clean(row.UnitNumber),
     floorPlate: clean(row.FloorPlate),

@@ -1,0 +1,17 @@
+# CRM inspection - AnarockCRM connector (read-only) - run 2026-10-16
+Calls made: getOrganization, getModules(status=visible), getFields(Properties), getFields(Leads), getRecordCount x6, executeCOQLQuery x3 (2 ok, 1 syntax error). No create/update/upsert calls were made.
+## Organisation
+type=production, company "Anarock Property Consultants Pvt. Ltd", domain org60061571377, edition professional, users_license_purchased=100, paid=true, paid_expiry=2026-12-22, currency INR, tz Asia/Kolkata, created 2025-12-18.
+## Modules (API-supported, 54 incl. subform/upload helper modules). Relevant: Leads, Accounts, Deals, Contacts, Tasks, Events, Calls, Properties(custom), City(custom), Micromarkets(custom), Property_Options(custom), Verifications(custom), Competition_Tracker(custom), Invoicing(custom), Employee(custom), IRF(custom)
+## Record counts (getRecordCount)
+Properties=7295 ; Properties Push_to_Website=true = 393 ; Leads=1460 ; Leads Lead_Source='Listing Platform' = 7 ; City=36 ; Micromarkets=94
+(COQL) Properties modified today 2026-10-16 17:48 IST: CRM data is live and changing during the run.
+## Field metadata
+Properties: 97 fields (84 custom); system-mandatory: Name. App code references 16 of them (Address, Availability, City(lookup), Configuration, Escalation, Exclusions, Floor, Inclusions, Latitude, Location, Longitude, Micromarket(lookup), Name, Operator, Owner, id). The remaining Data Store columns are populated by a sync that is NOT in the repo.
+Leads: 60 fields (21 custom); system-mandatory: Last_Name. App code writes/reads 27: City, Company, Country, Email, First_Name, Interested_Properties(subform), Last_Name, Lead_Owner_Team, Lead_Source, Lead_Status, Mobile, Owner, Phone, Prompt, Requirement_Area, Requirement_City(lookup), Requirement_Details, Requirement_Rent, Requirement_Seat_Price, Requirement_Seats, Requirement_Type, State, Street, Sublead_Source, Website, Zip_Code, id. All exist in CRM (checked programmatically). Subform inner field Property_Name: subform metadata not returned by getFields => Not verifiable at subform level.
+Picklists in CRM: Lead_Source includes 'Listing Platform'; Sublead_Source = [-None-, Post a Requirement, Request a Callback, Interested Properties]; Lead_Status = [Not Contacted, Attempted to Contact, Contacted, ..., Schedule a Meeting]. Because /api/lead2 passes client-chosen leadSource/leadStatus/subLeadSource through, a caller can set any of these values (finding S-02).
+## Sample data (no personal data recorded)
+Latest 5 Push_to_Website=true properties (names only): Parvtesh Tower-36B Pusa Road; Camelot starmark; CKPC Brickell Tower; 215 Atrium I C Wing 2F (x2).
+Listing Platform leads (7): created 2026-09-22..2026-10-13, all Lead_Status=Not Contacted; Sublead_Source Request a Callback x5, Post a Requirement x1, Interested Properties x1. Leads are therefore reaching CRM in production from the live site.
+## Blocks
+City names COQL query failed (SYNTAX_ERROR, my query); not retried beyond counts. Properties SPOC_Number criteria count failed (INVALID_QUERY).

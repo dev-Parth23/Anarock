@@ -1,0 +1,10 @@
+# Scope document comparison - run 2026-10-16
+Source: SoW read from the repository file "Anarock-Cla-Online-Listing-Platform Scope (1).docx" (sha256 381b08ff09a4fa3378c6b917ad775b8936ef497035c62e6c0748d8439496168f; last changed in commit 21cf217, 2026-10-10). Text extracted from word/document.xml (13,013 characters; sections 3-7).
+Slack copy of the scope document was NOT re-fetched this run (v2 instructions say to use the repository copy).
+Comparison with code, CRM and Catalyst: see Scope Completeness report (49 items). Summary of method:
+- Code: grep and read of anarock/src for each SoW capability (gemini, salesiq, pagesense, gtag/GTM, revalidate, view count, JSON-LD types, units, maps, related properties, cookie consent).
+- CRM: field/record queries for Properties (Push_to_Website, Has_Images, AI_Attributes_from_Images) and Leads (Lead_Source='Listing Platform').
+- Catalyst: functions, tables, buckets, Slate, API Gateway, cron, job pools.
+SoW out-of-scope items checked: no map libraries/embeds in code (grep for google maps, leaflet, mapbox, iframe: none).
+Slack project tracker (channel C0BL4L42QSK, post 2026-10-16 10:00 IST): estimated 430 h; billable consumed 345.50 h; remaining 84.50 h; completed 80.35%; project end 23/10/2026. Earlier posts: 12 Oct 69.07%, 13-14 Oct 74.77%, 15 Oct 78.49%.
+Slack channel messages of 2026-10-16 17:59 IST: client has supplied most pending dependencies (About Us content, AI API key, domain details) - relevant to Not started items.

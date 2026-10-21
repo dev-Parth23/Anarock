@@ -1,0 +1,11 @@
+== semgrep 1.181.0 2026-10-16T18:31:56Z
+-- canary (known-bad sample, must produce findings)
+canary findings: 3 errors: 0
+  direct-response-write line 5
+  code-string-concat line 5
+  express-open-redirect line 8
+-- project: anarock/src
+project findings: 0 errors: 0 files scanned: 105
+
+If Semgrep missed a finding, please send us feedback to let us know!
+See https://semgrep.dev/docs/reporting-false-negatives/

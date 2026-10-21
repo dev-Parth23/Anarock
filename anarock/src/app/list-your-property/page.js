@@ -20,10 +20,6 @@ import {
     UserRound,
 } from "lucide-react";
 
-/* =========================================================
-   CONSTANTS
-========================================================= */
-
 const STEPS = [
     "Property details",
     "Contact details",
@@ -31,7 +27,6 @@ const STEPS = [
     "Complete listing",
     "Review",
 ];
-
 const PRIMARY = "#A054A0";
 const PRIMARY_DARK = "#7E3F82";
 const PRIMARY_LIGHT = "#E8CBE8";
@@ -60,14 +55,12 @@ const propertyTypes = [
     {
         value: "conventional",
         label: "Conventional Office",
-        description:
-            "Office spaces, commercial buildings & managed offices",
+        description: "Office spaces, commercial buildings & managed offices",
     },
     {
         value: "coworking",
         label: "Coworking",
-        description:
-            "Coworking spaces, flexible offices & managed workspaces",
+        description: "Coworking spaces, flexible offices & managed workspaces",
     },
 ];
 
@@ -79,6 +72,50 @@ const callbackTimes = [
     "5:00 PM – 7:00 PM",
 ];
 
+const STATIC_CITIES = [
+    "Delhi",
+    "Noida",
+    "Gurgaon",
+    "Bengaluru",
+    "Mumbai",
+    "Hyderabad",
+    "Pune",
+    "Chennai",
+];
+
+const STATIC_MICROMARKETS = {
+    Delhi: ["Connaught Place", "Saket", "Nehru Place", "Okhla"],
+    Noida: [
+        "Sector 62",
+        "Sector 132",
+        "Sector 16",
+        "Sector 18",
+        "Noida Expressway",
+    ],
+    Gurgaon: [
+        "Cyber City",
+        "Golf Course Road",
+        "Udyog Vihar",
+        "Golf Course Extension",
+        "Sohna Road",
+    ],
+    Bengaluru: [
+        "Indiranagar",
+        "Koramangala",
+        "Whitefield",
+        "MG Road",
+        "Outer Ring Road",
+    ],
+    Mumbai: [
+        "Bandra Kurla Complex (BKC)",
+        "Lower Parel",
+        "Andheri East",
+        "Nariman Point",
+    ],
+    Hyderabad: ["Gachibowli", "Hitec City", "Madhapur", "Banjara Hills"],
+    Pune: ["Baner", "Hinjawadi", "Koregaon Park", "Magarpatta"],
+    Chennai: ["Anna Salai", "OMR", "Guindy", "T. Nagar"],
+};
 
 const ROUTE_CITY_STORAGE_KEYS = [
     "routeCity",
@@ -153,9 +190,6 @@ function getStorageCity() {
                     return String(city).trim();
                 }
             } catch {
-                /*
-                 * It wasn't JSON, so treat it as a plain string.
-                 */
                 if (raw.trim()) {
                     return raw.trim();
                 }
@@ -202,36 +236,27 @@ export default function ListYourPropertyPage() {
 
     const [citiesLoading, setCitiesLoading] = useState(true);
 
-    const [micromarketsLoading, setMicromarketsLoading] =
-        useState(false);
+    const [micromarketsLoading, setMicromarketsLoading] = useState(false);
 
     const [optionsError, setOptionsError] = useState("");
 
     const [callbackTime, setCallbackTime] = useState("");
 
-    const [callbackConsent, setCallbackConsent] =
-        useState(false);
+    const [callbackConsent, setCallbackConsent] = useState(false);
 
-    const [formConsent, setFormConsent] =
-        useState(false);
+    const [formConsent, setFormConsent] = useState(false);
 
-    const [showReview, setShowReview] =
-        useState(false);
+    const [showReview, setShowReview] = useState(false);
 
-    const [submitted, setSubmitted] =
-        useState(false);
+    const [submitted, setSubmitted] = useState(false);
 
-    const [isSubmitting, setIsSubmitting] =
-        useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [submitError, setSubmitError] =
-        useState("");
+    const [submitError, setSubmitError] = useState("");
 
     const [errors, setErrors] = useState({});
 
-    const isCoworking =
-        form.propertyType === "coworking";
-
+    const isCoworking = form.propertyType === "coworking";
 
     useEffect(() => {
         let cancelled = false;
@@ -248,39 +273,28 @@ export default function ListYourPropertyPage() {
                     {
                         method: "GET",
                         cache: "no-store",
-                    }
+                    },
                 );
 
-                const result =
-                    await response.json();
+                const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(
-                        result?.message ||
-                        "Unable to load cities."
-                    );
+                    throw new Error(result?.message || "Unable to load cities.");
                 }
 
                 if (cancelled) {
                     return;
                 }
 
-                const crmCities = uniqueValues(
-                    (result?.data || []).map(
-                        getRecordName
-                    )
-                );
+                const apiCities = (result?.data || []).map(getRecordName);
+                const crmCities = uniqueValues([...apiCities, ...STATIC_CITIES]);
 
                 setCities(crmCities);
 
-
                 if (storedCity) {
-                    const matchedCity =
-                        crmCities.find(
-                            (city) =>
-                                normalize(city) ===
-                                normalize(storedCity)
-                        );
+                    const matchedCity = crmCities.find(
+                        (city) => normalize(city) === normalize(storedCity),
+                    );
 
                     if (matchedCity) {
                         setForm((previous) => ({
@@ -288,10 +302,7 @@ export default function ListYourPropertyPage() {
                             city: matchedCity,
                             micromarket: "",
                         }));
-                    } else if (
-                        crmCities.length === 0
-                    ) {
-
+                    } else if (crmCities.length === 0) {
                         setForm((previous) => ({
                             ...previous,
                             city: storedCity,
@@ -304,6 +315,10 @@ export default function ListYourPropertyPage() {
                     return;
                 }
 
+                // Fallback to static cities if API fails
+                const crmCities = uniqueValues(STATIC_CITIES);
+                setCities(crmCities);
+
                 if (storedCity) {
                     setForm((previous) => ({
                         ...previous,
@@ -312,14 +327,10 @@ export default function ListYourPropertyPage() {
                     }));
 
                     setOptionsError(
-                        "City list could not be loaded from CRM. Your detected city has been selected."
+                        "City list loaded from static fallback. Your detected city has been selected.",
                     );
                 } else {
-                    setOptionsError(
-                        error instanceof Error
-                            ? error.message
-                            : "Unable to load cities."
-                    );
+                    setOptionsError("");
                 }
             } finally {
                 if (!cancelled) {
@@ -354,46 +365,35 @@ export default function ListYourPropertyPage() {
             try {
                 const response = await fetch(
                     `/api/list-your-property?resource=micromarkets&city=${encodeURIComponent(
-                        city
+                        city,
                     )}`,
                     {
                         method: "GET",
                         cache: "no-store",
-                    }
+                    },
                 );
 
-                const result =
-                    await response.json();
+                const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(
-                        result?.message ||
-                        "Unable to load micromarkets."
-                    );
+                    throw new Error(result?.message || "Unable to load micromarkets.");
                 }
 
                 if (cancelled) {
                     return;
                 }
 
-                const values = uniqueValues(
-                    (result?.data || []).map(
-                        getRecordName
-                    )
-                );
+                const apiMicromarkets = (result?.data || []).map(getRecordName);
+                const staticList = STATIC_MICROMARKETS[city] || [];
+                const values = uniqueValues([...apiMicromarkets, ...staticList]);
 
                 setMicromarkets(values);
                 setForm((previous) => {
-                    const current =
-                        previous.micromarket;
+                    const current = previous.micromarket;
 
                     if (
                         current &&
-                        !values.some(
-                            (item) =>
-                                normalize(item) ===
-                                normalize(current)
-                        )
+                        !values.some((item) => normalize(item) === normalize(current))
                     ) {
                         return {
                             ...previous,
@@ -408,13 +408,10 @@ export default function ListYourPropertyPage() {
                     return;
                 }
 
-                setMicromarkets([]);
+                const staticList = STATIC_MICROMARKETS[city] || [];
+                setMicromarkets(uniqueValues(staticList));
 
-                setOptionsError(
-                    error instanceof Error
-                        ? error.message
-                        : "Unable to load micromarkets."
-                );
+                setOptionsError("");
             } finally {
                 if (!cancelled) {
                     setMicromarketsLoading(false);
@@ -429,22 +426,10 @@ export default function ListYourPropertyPage() {
         };
     }, [form.city]);
 
-    /* =====================================================
-       UPDATE FIELD
-    ===================================================== */
-
-    const updateField = (
-        field,
-        value
-    ) => {
+    const updateField = (field, value) => {
         setForm((previous) => ({
             ...previous,
             [field]: value,
-
-            /*
-             * When city changes, immediately clear
-             * the old micromarket.
-             */
             ...(field === "city"
                 ? {
                     micromarket: "",
@@ -460,154 +445,79 @@ export default function ListYourPropertyPage() {
         setSubmitError("");
     };
 
-    /* =====================================================
-       VALIDATION
-    ===================================================== */
-
     const validateBasicDetails = () => {
         const nextErrors = {};
 
         if (!form.buildingName.trim()) {
-            nextErrors.buildingName =
-                "Building name is required";
+            nextErrors.buildingName = "Building name is required";
         }
 
         if (!form.propertyType) {
-            nextErrors.propertyType =
-                "Please select a property type";
+            nextErrors.propertyType = "Please select a property type";
         }
 
         if (!form.city) {
-            nextErrors.city =
-                "Please select a city";
+            nextErrors.city = "Please select a city";
         }
 
         if (!form.address.trim()) {
-            nextErrors.address =
-                "Address is required";
+            nextErrors.address = "Address is required";
         }
 
         setErrors(nextErrors);
 
-        return (
-            Object.keys(nextErrors).length === 0
-        );
+        return Object.keys(nextErrors).length === 0;
     };
 
     const validateContact = () => {
         const nextErrors = {};
-
-        // if (!form.contactName.trim()) {
-        //     nextErrors.contactName =
-        //         "Contact name is required";
-        // }
-
-        // if (!form.phone.trim()) {
-        //     nextErrors.phone =
-        //         "Phone number is required";
-        // }
-
-        // if (!form.email.trim()) {
-        //     nextErrors.email =
-        //         "Email address is required";
-        // }
-
         setErrors(nextErrors);
-
-        return (
-            Object.keys(nextErrors).length === 0
-        );
+        return Object.keys(nextErrors).length === 0;
     };
 
     const validateListing = () => {
         const nextErrors = {};
 
         if (!form.city) {
-            nextErrors.city =
-                "Please select a city";
+            nextErrors.city = "Please select a city";
         }
 
-        if (
-            !form.micromarket &&
-            micromarkets.length > 0
-        ) {
-            nextErrors.micromarket =
-                "Please select a micromarket";
+        if (!form.micromarket && micromarkets.length > 0) {
+            nextErrors.micromarket = "Please select a micromarket";
         }
-
-        // if (isCoworking) {
-        //     if (!form.seats) {
-        //         nextErrors.seats =
-        //             "Seat count is required";
-        //     }
-
-        //     if (!form.seatPriceMin) {
-        //         nextErrors.seatPriceMin =
-        //             "Minimum seat price is required";
-        //     }
-        // } else {
-        //     if (!form.area) {
-        //         nextErrors.area =
-        //             "Area is required";
-        //     }
-
-        //     if (!form.rentMin) {
-        //         nextErrors.rentMin =
-        //             "Minimum rent is required";
-        //     }
-        // }
-
-        // if (!formConsent) {
-        //     nextErrors.consent =
-        //         "Please accept the declaration";
-        // }
 
         setErrors(nextErrors);
 
-        return (
-            Object.keys(nextErrors).length === 0
-        );
+        return Object.keys(nextErrors).length === 0;
     };
 
     /* =====================================================
-       NAVIGATION
-    ===================================================== */
+         NAVIGATION
+      ===================================================== */
 
     const handleNext = () => {
-        if (
-            step === 0 &&
-            !validateBasicDetails()
-        ) {
+        if (step === 0 && !validateBasicDetails()) {
             return;
         }
 
-        if (
-            step === 1 &&
-            !validateContact()
-        ) {
+        if (step === 1 && !validateContact()) {
             return;
         }
 
-        setStep((previous) =>
-            Math.min(previous + 1, 4)
-        );
+        setStep((previous) => Math.min(previous + 1, 4));
     };
 
-    const handleMethodSelect = (
-        selectedMethod
-    ) => {
+    const handleMethodSelect = (selectedMethod) => {
         setMethod(selectedMethod);
         setStep(3);
         setSubmitError("");
     };
 
     /* =====================================================
-       SUBMISSION
-    ===================================================== */
+         SUBMISSION
+      ===================================================== */
 
-    const submitToServer = async (
-        submissionMethod
-    ) => {
+    const submitToServer = async (submissionMethod) => {
         if (isSubmitting) {
             return;
         }
@@ -616,32 +526,22 @@ export default function ListYourPropertyPage() {
         setSubmitError("");
 
         try {
-            const response = await fetch(
-                "/api/list-your-property",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-                    body: JSON.stringify({
-                        method: submissionMethod,
-                        form,
-                        callbackTime,
-                    }),
-                }
-            );
+            const response = await fetch("/api/list-your-property", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    method: submissionMethod,
+                    form,
+                    callbackTime,
+                }),
+            });
 
-            const result =
-                await response
-                    .json()
-                    .catch(() => ({}));
+            const result = await response.json().catch(() => ({}));
 
             if (!response.ok) {
-                throw new Error(
-                    result?.message ||
-                    "Unable to submit your request."
-                );
+                throw new Error(result?.message || "Unable to submit your request.");
             }
 
             setSubmitted(true);
@@ -650,31 +550,24 @@ export default function ListYourPropertyPage() {
             setSubmitError(
                 error instanceof Error
                     ? error.message
-                    : "Unable to submit your request. Please try again."
+                    : "Unable to submit your request. Please try again.",
             );
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleCallbackSubmit =
-        async () => {
-            if (
-                !callbackTime ||
-                !callbackConsent
-            ) {
-                setErrors({
-                    callback:
-                        "Please select a callback time and accept the consent.",
-                });
+    const handleCallbackSubmit = async () => {
+        if (!callbackTime || !callbackConsent) {
+            setErrors({
+                callback: "Please select a callback time and accept the consent.",
+            });
 
-                return;
-            }
+            return;
+        }
 
-            await submitToServer(
-                "callback"
-            );
-        };
+        await submitToServer("callback");
+    };
 
     const handleListingContinue = () => {
         if (!validateListing()) {
@@ -686,18 +579,16 @@ export default function ListYourPropertyPage() {
         setStep(4);
     };
 
-    const handleFinalSubmit =
-        async () => {
-            await submitToServer("form");
-        };
+    const handleFinalSubmit = async () => {
+        await submitToServer("form");
+    };
 
     /* =====================================================
-       RESTART
-    ===================================================== */
+         RESTART
+      ===================================================== */
 
     const restart = () => {
-        const storedCity =
-            getStorageCity();
+        const storedCity = getStorageCity();
 
         setStep(0);
         setMethod(null);
@@ -722,8 +613,8 @@ export default function ListYourPropertyPage() {
     };
 
     /* =====================================================
-       RENDER
-    ===================================================== */
+         RENDER
+      ===================================================== */
 
     return (
         <main
@@ -733,11 +624,7 @@ export default function ListYourPropertyPage() {
                 text-[#171717]
             "
         >
-            {!submitted && (
-                <ProgressHeader
-                    step={step}
-                />
-            )}
+            {!submitted && <ProgressHeader step={step} />}
 
             <section
                 className="
@@ -753,13 +640,7 @@ export default function ListYourPropertyPage() {
             >
                 <AnimatePresence mode="wait">
                     {submitted ? (
-                        <SuccessScreen
-                            key="success"
-                            method={method}
-                            onRestart={
-                                restart
-                            }
-                        />
+                        <SuccessScreen key="success" method={method} onRestart={restart} />
                     ) : (
                         <motion.div
                             key={`${step}-${showReview}`}
@@ -784,24 +665,12 @@ export default function ListYourPropertyPage() {
                                     form={form}
                                     errors={errors}
                                     cities={cities}
-                                    micromarkets={
-                                        micromarkets
-                                    }
-                                    citiesLoading={
-                                        citiesLoading
-                                    }
-                                    micromarketsLoading={
-                                        micromarketsLoading
-                                    }
-                                    optionsError={
-                                        optionsError
-                                    }
-                                    updateField={
-                                        updateField
-                                    }
-                                    onNext={
-                                        handleNext
-                                    }
+                                    micromarkets={micromarkets}
+                                    citiesLoading={citiesLoading}
+                                    micromarketsLoading={micromarketsLoading}
+                                    optionsError={optionsError}
+                                    updateField={updateField}
+                                    onNext={handleNext}
                                 />
                             )}
 
@@ -809,140 +678,64 @@ export default function ListYourPropertyPage() {
                                 <ContactDetails
                                     form={form}
                                     errors={errors}
-                                    updateField={
-                                        updateField
-                                    }
-                                    onBack={() =>
-                                        setStep(
-                                            0
-                                        )
-                                    }
-                                    onNext={
-                                        handleNext
-                                    }
+                                    updateField={updateField}
+                                    onBack={() => setStep(0)}
+                                    onNext={handleNext}
                                 />
                             )}
 
                             {step === 2 && (
                                 <MethodSelection
-                                    onSelect={
-                                        handleMethodSelect
-                                    }
-                                    onBack={() =>
-                                        setStep(
-                                            1
-                                        )
-                                    }
+                                    onSelect={handleMethodSelect}
+                                    onBack={() => setStep(1)}
                                 />
                             )}
 
-                            {step === 3 &&
-                                method ===
-                                "callback" && (
-                                    <CallbackForm
-                                        callbackTime={
-                                            callbackTime
-                                        }
-                                        setCallbackTime={
-                                            setCallbackTime
-                                        }
-                                        callbackConsent={
-                                            callbackConsent
-                                        }
-                                        setCallbackConsent={
-                                            setCallbackConsent
-                                        }
-                                        error={
-                                            errors.callback
-                                        }
-                                        submitError={
-                                            submitError
-                                        }
-                                        isSubmitting={
-                                            isSubmitting
-                                        }
-                                        onBack={() =>
-                                            setStep(
-                                                2
-                                            )
-                                        }
-                                        onSubmit={
-                                            handleCallbackSubmit
-                                        }
-                                    />
-                                )}
+                            {step === 3 && method === "callback" && (
+                                <CallbackForm
+                                    callbackTime={callbackTime}
+                                    setCallbackTime={setCallbackTime}
+                                    callbackConsent={callbackConsent}
+                                    setCallbackConsent={setCallbackConsent}
+                                    error={errors.callback}
+                                    submitError={submitError}
+                                    isSubmitting={isSubmitting}
+                                    onBack={() => setStep(2)}
+                                    onSubmit={handleCallbackSubmit}
+                                />
+                            )}
 
-                            {step === 3 &&
-                                method ===
-                                "form" &&
-                                !showReview && (
-                                    <ListingForm
-                                        form={form}
-                                        errors={errors}
-                                        updateField={
-                                            updateField
-                                        }
-                                        isCoworking={
-                                            isCoworking
-                                        }
-                                        formConsent={
-                                            formConsent
-                                        }
-                                        setFormConsent={
-                                            setFormConsent
-                                        }
-                                        cities={cities}
-                                        micromarkets={
-                                            micromarkets
-                                        }
-                                        citiesLoading={
-                                            citiesLoading
-                                        }
-                                        micromarketsLoading={
-                                            micromarketsLoading
-                                        }
-                                        optionsError={
-                                            optionsError
-                                        }
-                                        onBack={() =>
-                                            setStep(
-                                                2
-                                            )
-                                        }
-                                        onContinue={
-                                            handleListingContinue
-                                        }
-                                    />
-                                )}
+                            {step === 3 && method === "form" && !showReview && (
+                                <ListingForm
+                                    form={form}
+                                    errors={errors}
+                                    updateField={updateField}
+                                    isCoworking={isCoworking}
+                                    formConsent={formConsent}
+                                    setFormConsent={setFormConsent}
+                                    cities={cities}
+                                    micromarkets={micromarkets}
+                                    citiesLoading={citiesLoading}
+                                    micromarketsLoading={micromarketsLoading}
+                                    optionsError={optionsError}
+                                    onBack={() => setStep(2)}
+                                    onContinue={handleListingContinue}
+                                />
+                            )}
 
-                            {step === 4 &&
-                                method ===
-                                "form" &&
-                                showReview && (
-                                    <ReviewSubmission
-                                        form={form}
-                                        isCoworking={
-                                            isCoworking
-                                        }
-                                        submitError={
-                                            submitError
-                                        }
-                                        isSubmitting={
-                                            isSubmitting
-                                        }
-                                        onBack={() => {
-                                            setShowReview(
-                                                false
-                                            );
-                                            setStep(
-                                                3
-                                            );
-                                        }}
-                                        onSubmit={
-                                            handleFinalSubmit
-                                        }
-                                    />
-                                )}
+                            {step === 4 && method === "form" && showReview && (
+                                <ReviewSubmission
+                                    form={form}
+                                    isCoworking={isCoworking}
+                                    submitError={submitError}
+                                    isSubmitting={isSubmitting}
+                                    onBack={() => {
+                                        setShowReview(false);
+                                        setStep(3);
+                                    }}
+                                    onSubmit={handleFinalSubmit}
+                                />
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -955,9 +748,7 @@ export default function ListYourPropertyPage() {
    PROGRESS HEADER
 ========================================================= */
 
-function ProgressHeader({
-    step,
-}) {
+function ProgressHeader({ step }) {
     return (
         <div
             className="
@@ -982,88 +773,52 @@ function ProgressHeader({
                 "
             >
                 <div className="flex items-center">
-                    {STEPS.map(
-                        (
-                            item,
-                            index
-                        ) => {
-                            const active =
-                                index ===
-                                step;
+                    {STEPS.map((item, index) => {
+                        const active = index === step;
 
-                            const complete =
-                                index <
-                                step;
+                        const complete = index < step;
 
-                            return (
-                                <div
-                                    key={
-                                        item
-                                    }
-                                    className="flex flex-1 items-center"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className={[
-                                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all",
-                                                complete
-                                                    ? "bg-[#A054A0] text-white shadow-[0_6px_18px_rgba(160,84,160,0.28)]"
-                                                    : active
-                                                        ? "bg-[#E8CBE8] text-[#6D356D] ring-4 ring-[#A054A0]/10"
-                                                        : "bg-black/[0.05] text-black/40",
-                                            ].join(
-                                                " "
-                                            )}
-                                        >
-                                            {complete ? (
-                                                <Check
-                                                    size={
-                                                        14
-                                                    }
-                                                />
-                                            ) : (
-                                                index +
-                                                1
-                                            )}
-                                        </div>
-
-                                        <span
-                                            className={[
-                                                "hidden text-xs font-medium sm:block",
-                                                active
-                                                    ? "text-[#7E3F82]"
-                                                    : complete
-                                                        ? "text-black/65"
-                                                        : "text-black/35",
-                                            ].join(
-                                                " "
-                                            )}
-                                        >
-                                            {
-                                                item
-                                            }
-                                        </span>
+                        return (
+                            <div key={item} className="flex flex-1 items-center">
+                                <div className="flex items-center gap-2">
+                                    <div
+                                        className={[
+                                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all",
+                                            complete
+                                                ? "bg-[#A054A0] text-white shadow-[0_6px_18px_rgba(160,84,160,0.28)]"
+                                                : active
+                                                    ? "bg-[#E8CBE8] text-[#6D356D] ring-4 ring-[#A054A0]/10"
+                                                    : "bg-black/[0.05] text-black/40",
+                                        ].join(" ")}
+                                    >
+                                        {complete ? <Check size={14} /> : index + 1}
                                     </div>
 
-                                    {index <
-                                        STEPS.length -
-                                        1 && (
-                                            <div
-                                                className={[
-                                                    "mx-2 h-px flex-1",
-                                                    index <
-                                                        step
-                                                        ? "bg-[#A054A0]/35"
-                                                        : "bg-black/[0.08]",
-                                                ].join(
-                                                    " "
-                                                )}
-                                            />
-                                        )}
+                                    <span
+                                        className={[
+                                            "hidden text-xs font-medium sm:block",
+                                            active
+                                                ? "text-[#7E3F82]"
+                                                : complete
+                                                    ? "text-black/65"
+                                                    : "text-black/35",
+                                        ].join(" ")}
+                                    >
+                                        {item}
+                                    </span>
                                 </div>
-                            );
-                        }
-                    )}
+
+                                {index < STEPS.length - 1 && (
+                                    <div
+                                        className={[
+                                            "mx-2 h-px flex-1",
+                                            index < step ? "bg-[#A054A0]/35" : "bg-black/[0.08]",
+                                        ].join(" ")}
+                                    />
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -1090,134 +845,78 @@ function BasicDetails({
             eyebrow="01 / Property details"
             title="Tell us about your property"
             description="Start with a few basic details about the building you want to list."
-            icon={
-                <Building2 size={21} />
-            }
+            icon={<Building2 size={21} />}
         >
             <div className="grid gap-5 md:grid-cols-2">
                 <Field
                     label="Building name"
-                    value={
-                        form.buildingName
-                    }
+                    value={form.buildingName}
                     placeholder="e.g. DLF Cyber City"
-                    error={
-                        errors.buildingName
-                    }
-                    onChange={(value) =>
-                        updateField(
-                            "buildingName",
-                            value
-                        )
-                    }
+                    error={errors.buildingName}
+                    onChange={(value) => updateField("buildingName", value)}
                 />
 
                 <CitySelect
                     value={form.city}
                     options={cities}
-                    loading={
-                        citiesLoading
-                    }
+                    loading={citiesLoading}
                     error={errors.city}
-                    onChange={(value) =>
-                        updateField(
-                            "city",
-                            value
-                        )
-                    }
+                    onChange={(value) => updateField("city", value)}
                 />
 
                 <div className="md:col-span-2">
                     <label className="mb-3 block text-sm font-semibold">
-                        Property type{" "}
-                        <span className="text-red-500">
-                            *
-                        </span>
+                        Property type <span className="text-red-500">*</span>
                     </label>
 
                     <div className="grid gap-3 sm:grid-cols-2">
-                        {propertyTypes.map(
-                            (type) => {
-                                const selected =
-                                    form.propertyType ===
-                                    type.value;
+                        {propertyTypes.map((type) => {
+                            const selected = form.propertyType === type.value;
 
-                                return (
-                                    <button
-                                        key={
-                                            type.value
-                                        }
-                                        type="button"
-                                        onClick={() =>
-                                            updateField(
-                                                "propertyType",
-                                                type.value
-                                            )
-                                        }
-                                        className={[
-                                            "group rounded-[24px] border p-5 text-left transition-all duration-300",
-                                            selected
-                                                ? "border-[#A054A0] bg-gradient-to-br from-[#A054A0] to-[#7E3F82] text-white shadow-[0_20px_50px_rgba(160,84,160,0.22)]"
-                                                : "border-black/[0.08] bg-white/80 hover:-translate-y-0.5 hover:border-[#A054A0]/30 hover:shadow-[0_20px_50px_rgba(30,20,40,0.07)]",
-                                        ].join(
-                                            " "
-                                        )}
-                                    >
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div>
-                                                <p className="text-sm font-semibold">
-                                                    {
-                                                        type.label
-                                                    }
-                                                </p>
+                            return (
+                                <button
+                                    key={type.value}
+                                    type="button"
+                                    onClick={() => updateField("propertyType", type.value)}
+                                    className={[
+                                        "group rounded-[24px] border p-5 text-left transition-all duration-300",
+                                        selected
+                                            ? "border-[#A054A0] bg-gradient-to-br from-[#A054A0] to-[#7E3F82] text-white shadow-[0_20px_50px_rgba(160,84,160,0.22)]"
+                                            : "border-black/[0.08] bg-white/80 hover:-translate-y-0.5 hover:border-[#A054A0]/30 hover:shadow-[0_20px_50px_rgba(30,20,40,0.07)]",
+                                    ].join(" ")}
+                                >
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-semibold">{type.label}</p>
 
-                                                <p
-                                                    className={[
-                                                        "mt-1 text-xs leading-5",
-                                                        selected
-                                                            ? "text-white/70"
-                                                            : "text-black/45",
-                                                    ].join(
-                                                        " "
-                                                    )}
-                                                >
-                                                    {
-                                                        type.description
-                                                    }
-                                                </p>
-                                            </div>
-
-                                            <div
+                                            <p
                                                 className={[
-                                                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border",
-                                                    selected
-                                                        ? "border-white bg-white text-[#A054A0]"
-                                                        : "border-black/15",
-                                                ].join(
-                                                    " "
-                                                )}
+                                                    "mt-1 text-xs leading-5",
+                                                    selected ? "text-white/70" : "text-black/45",
+                                                ].join(" ")}
                                             >
-                                                {selected && (
-                                                    <Check
-                                                        size={
-                                                            13
-                                                        }
-                                                    />
-                                                )}
-                                            </div>
+                                                {type.description}
+                                            </p>
                                         </div>
-                                    </button>
-                                );
-                            }
-                        )}
+
+                                        <div
+                                            className={[
+                                                "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border",
+                                                selected
+                                                    ? "border-white bg-white text-[#A054A0]"
+                                                    : "border-black/15",
+                                            ].join(" ")}
+                                        >
+                                            {selected && <Check size={13} />}
+                                        </div>
+                                    </div>
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {errors.propertyType && (
-                        <p className="mt-2 text-xs text-red-500">
-                            {
-                                errors.propertyType
-                            }
-                        </p>
+                        <p className="mt-2 text-xs text-red-500">{errors.propertyType}</p>
                     )}
                 </div>
 
@@ -1227,19 +926,8 @@ function BasicDetails({
                         value={form.address}
                         placeholder="Enter complete building address"
                         error={errors.address}
-                        onChange={(value) =>
-                            updateField(
-                                "address",
-                                value
-                            )
-                        }
-                        icon={
-                            <MapPin
-                                size={
-                                    16
-                                }
-                            />
-                        }
+                        onChange={(value) => updateField("address", value)}
+                        icon={<MapPin size={16} />}
                     />
                 </div>
 
@@ -1247,34 +935,16 @@ function BasicDetails({
                     label="Developer / Owner"
                     value={form.developer}
                     placeholder="Developer or owner name"
-                    onChange={(value) =>
-                        updateField(
-                            "developer",
-                            value
-                        )
-                    }
+                    onChange={(value) => updateField("developer", value)}
                 />
 
                 <MicromarketSelect
-                    value={
-                        form.micromarket
-                    }
-                    options={
-                        micromarkets
-                    }
-                    loading={
-                        micromarketsLoading
-                    }
+                    value={form.micromarket}
+                    options={micromarkets}
+                    loading={micromarketsLoading}
                     disabled={!form.city}
-                    error={
-                        errors.micromarket
-                    }
-                    onChange={(value) =>
-                        updateField(
-                            "micromarket",
-                            value
-                        )
-                    }
+                    error={errors.micromarket}
+                    onChange={(value) => updateField("micromarket", value)}
                 />
 
                 {optionsError && (
@@ -1286,13 +956,9 @@ function BasicDetails({
 
             <FormFooter
                 right={
-                    <PrimaryButton
-                        onClick={onNext}
-                    >
+                    <PrimaryButton onClick={onNext}>
                         Continue
-                        <ArrowRight
-                            size={16}
-                        />
+                        <ArrowRight size={16} />
                     </PrimaryButton>
                 }
             />
@@ -1304,39 +970,21 @@ function BasicDetails({
    CONTACT
 ========================================================= */
 
-function ContactDetails({
-    form,
-    errors,
-    updateField,
-    onBack,
-    onNext,
-}) {
+function ContactDetails({ form, errors, updateField, onBack, onNext }) {
     return (
         <PageShell
             eyebrow="02 / Contact details"
             title="How can we reach you?"
             description="We'll use these details only for property verification and listing communication."
-            icon={
-                <UserRound size={21} />
-            }
+            icon={<UserRound size={21} />}
         >
             <div className="grid gap-5 md:grid-cols-2">
                 <Field
                     label="Contact name"
-
-                    value={
-                        form.contactName
-                    }
+                    value={form.contactName}
                     placeholder="Your full name"
-                    error={
-                        errors.contactName
-                    }
-                    onChange={(value) =>
-                        updateField(
-                            "contactName",
-                            value
-                        )
-                    }
+                    error={errors.contactName}
+                    onChange={(value) => updateField("contactName", value)}
                 />
 
                 <Field
@@ -1344,72 +992,36 @@ function ContactDetails({
                     value={form.phone}
                     placeholder="+91 98765 43210"
                     error={errors.phone}
-                    onChange={(value) =>
-                        updateField(
-                            "phone",
-                            value
-                        )
-                    }
-                    icon={
-                        <Phone
-                            size={16}
-                        />
-                    }
+                    onChange={(value) => updateField("phone", value)}
+                    icon={<Phone size={16} />}
                 />
 
                 <Field
                     label="Email address"
-
                     value={form.email}
                     placeholder="you@company.com"
                     error={errors.email}
-                    onChange={(value) =>
-                        updateField(
-                            "email",
-                            value
-                        )
-                    }
+                    onChange={(value) => updateField("email", value)}
                 />
 
                 <Field
                     label="Owner / representative"
-                    value={
-                        form.ownerName
-                    }
+                    value={form.ownerName}
                     placeholder="Optional"
-                    onChange={(value) =>
-                        updateField(
-                            "ownerName",
-                            value
-                        )
-                    }
+                    onChange={(value) => updateField("ownerName", value)}
                 />
             </div>
 
             <div className="mt-8 rounded-[24px] border border-[#A054A0]/10 bg-[#A054A0]/[0.035] p-5">
                 <div className="flex gap-3">
-                    <ShieldCheck
-                        size={19}
-                        className="mt-0.5 shrink-0 text-[#A054A0]"
-                    />
+                    <ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#A054A0]" />
 
                     <div>
-                        <p className="text-sm font-semibold">
-                            Your information is
-                            secure
-                        </p>
+                        <p className="text-sm font-semibold">Your information is secure</p>
 
                         <p className="mt-1 text-xs leading-5 text-black/50">
-                            Your contact
-                            details will not
-                            be displayed
-                            publicly. They
-                            are used for
-                            verification
-                            and
-                            communication
-                            regarding your
-                            listing.
+                            Your contact details will not be displayed publicly. They are used
+                            for verification and communication regarding your listing.
                         </p>
                     </div>
                 </div>
@@ -1417,25 +1029,15 @@ function ContactDetails({
 
             <FormFooter
                 left={
-                    <SecondaryButton
-                        onClick={
-                            onBack
-                        }
-                    >
-                        <ArrowLeft
-                            size={16}
-                        />
+                    <SecondaryButton onClick={onBack}>
+                        <ArrowLeft size={16} />
                         Back
                     </SecondaryButton>
                 }
                 right={
-                    <PrimaryButton
-                        onClick={onNext}
-                    >
+                    <PrimaryButton onClick={onNext}>
                         Continue
-                        <ArrowRight
-                            size={16}
-                        />
+                        <ArrowRight size={16} />
                     </PrimaryButton>
                 }
             />
@@ -1447,26 +1049,17 @@ function ContactDetails({
    METHOD SELECTION
 ========================================================= */
 
-function MethodSelection({
-    onSelect,
-    onBack,
-}) {
+function MethodSelection({ onSelect, onBack }) {
     return (
         <PageShell
             eyebrow="03 / Choose how to proceed"
             title="How would you like to list?"
             description="Choose the option that works best for you. You can either complete the listing yourself or have our team assist you."
-            icon={
-                <Sparkles size={21} />
-            }
+            icon={<Sparkles size={21} />}
         >
             <div className="grid gap-5 md:grid-cols-2">
                 <MethodCard
-                    icon={
-                        <FileCheck2
-                            size={24}
-                        />
-                    }
+                    icon={<FileCheck2 size={24} />}
                     title="Fill it myself"
                     description="Complete the property details yourself. You'll be able to review everything before submitting."
                     features={[
@@ -1474,19 +1067,11 @@ function MethodSelection({
                         "Review before submission",
                         "Submit directly to our team",
                     ]}
-                    onClick={() =>
-                        onSelect(
-                            "form"
-                        )
-                    }
+                    onClick={() => onSelect("form")}
                 />
 
                 <MethodCard
-                    icon={
-                        <Phone
-                            size={24}
-                        />
-                    }
+                    icon={<Phone size={24} />}
                     title="Request a callback"
                     description="Our property team will contact you and help complete the listing."
                     features={[
@@ -1494,24 +1079,14 @@ function MethodSelection({
                         "Talk to our property team",
                         "We help with the listing",
                     ]}
-                    onClick={() =>
-                        onSelect(
-                            "callback"
-                        )
-                    }
+                    onClick={() => onSelect("callback")}
                 />
             </div>
 
             <FormFooter
                 left={
-                    <SecondaryButton
-                        onClick={
-                            onBack
-                        }
-                    >
-                        <ArrowLeft
-                            size={16}
-                        />
+                    <SecondaryButton onClick={onBack}>
+                        <ArrowLeft size={16} />
                         Back
                     </SecondaryButton>
                 }
@@ -1540,17 +1115,13 @@ function CallbackForm({
             eyebrow="03 / Callback"
             title="Let's complete this together"
             description="Select a preferred time and our property team will contact you."
-            icon={
-                <Phone size={21} />
-            }
+            icon={<Phone size={21} />}
         >
             <div className="mx-auto max-w-2xl">
                 <div className="rounded-[28px] border border-white bg-white/80 p-6 shadow-[0_20px_60px_rgba(30,20,40,0.07)] backdrop-blur-xl sm:p-8">
                     <div className="mb-7 flex items-start gap-4">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E8CBE8] text-[#A054A0]">
-                            <Clock3
-                                size={21}
-                            />
+                            <Clock3 size={21} />
                         </div>
 
                         <div>
@@ -1559,100 +1130,55 @@ function CallbackForm({
                             </h3>
 
                             <p className="mt-1 text-sm text-black/45">
-                                Our team will call
-                                you during the
-                                selected window.
+                                Our team will call you during the selected window.
                             </p>
                         </div>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
-                        {callbackTimes.map(
-                            (time) => {
-                                const selected =
-                                    callbackTime ===
-                                    time;
+                        {callbackTimes.map((time) => {
+                            const selected = callbackTime === time;
 
-                                return (
-                                    <button
-                                        key={
-                                            time
-                                        }
-                                        type="button"
-                                        onClick={() =>
-                                            setCallbackTime(
-                                                time
-                                            )
-                                        }
-                                        className={[
-                                            "flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition-all",
-                                            selected
-                                                ? "border-[#A054A0] bg-[#A054A0] text-white shadow-[0_10px_25px_rgba(160,84,160,0.18)]"
-                                                : "border-black/[0.08] bg-white hover:border-[#A054A0]/30 hover:bg-[#A054A0]/[0.03]",
-                                        ].join(
-                                            " "
-                                        )}
-                                    >
-                                        {
-                                            time
-                                        }
+                            return (
+                                <button
+                                    key={time}
+                                    type="button"
+                                    onClick={() => setCallbackTime(time)}
+                                    className={[
+                                        "flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition-all",
+                                        selected
+                                            ? "border-[#A054A0] bg-[#A054A0] text-white shadow-[0_10px_25px_rgba(160,84,160,0.18)]"
+                                            : "border-black/[0.08] bg-white hover:border-[#A054A0]/30 hover:bg-[#A054A0]/[0.03]",
+                                    ].join(" ")}
+                                >
+                                    {time}
 
-                                        {selected && (
-                                            <Check
-                                                size={
-                                                    15
-                                                }
-                                            />
-                                        )}
-                                    </button>
-                                );
-                            }
-                        )}
+                                    {selected && <Check size={15} />}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     <label className="mt-7 flex cursor-pointer gap-3 rounded-xl border border-[#A054A0]/10 bg-[#A054A0]/[0.025] p-4">
                         <input
                             type="checkbox"
-                            checked={
-                                callbackConsent
-                            }
-                            onChange={(
-                                event
-                            ) =>
-                                setCallbackConsent(
-                                    event
-                                        .target
-                                        .checked
-                                )
-                            }
+                            checked={callbackConsent}
+                            onChange={(event) => setCallbackConsent(event.target.checked)}
                             className="mt-0.5 h-4 w-4 accent-[#A054A0]"
                         />
 
                         <span className="text-xs leading-5 text-black/55">
-                            I agree to be
-                            contacted
-                            regarding my
-                            property listing
-                            and understand
-                            that my
-                            information may
-                            be used for
-                            verification
+                            I agree to be contacted regarding my property listing and
+                            understand that my information may be used for verification
                             purposes.
                         </span>
                     </label>
 
-                    {error && (
-                        <p className="mt-3 text-xs text-red-500">
-                            {error}
-                        </p>
-                    )}
+                    {error && <p className="mt-3 text-xs text-red-500">{error}</p>}
 
                     {submitError && (
                         <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                            {
-                                submitError
-                            }
+                            {submitError}
                         </div>
                     )}
                 </div>
@@ -1660,44 +1186,22 @@ function CallbackForm({
 
             <FormFooter
                 left={
-                    <SecondaryButton
-                        onClick={
-                            onBack
-                        }
-                    >
-                        <ArrowLeft
-                            size={16}
-                        />
+                    <SecondaryButton onClick={onBack}>
+                        <ArrowLeft size={16} />
                         Back
                     </SecondaryButton>
                 }
                 right={
-                    <PrimaryButton
-                        onClick={
-                            onSubmit
-                        }
-                        disabled={
-                            isSubmitting
-                        }
-                    >
+                    <PrimaryButton onClick={onSubmit} disabled={isSubmitting}>
                         {isSubmitting ? (
                             <>
-                                <Loader2
-                                    size={
-                                        15
-                                    }
-                                    className="animate-spin"
-                                />
+                                <Loader2 size={15} className="animate-spin" />
                                 Sending...
                             </>
                         ) : (
                             <>
                                 Request callback
-                                <Phone
-                                    size={
-                                        15
-                                    }
-                                />
+                                <Phone size={15} />
                             </>
                         )}
                     </PrimaryButton>
@@ -1731,9 +1235,7 @@ function ListingForm({
             eyebrow="03 / Property information"
             title="Complete your property listing"
             description="Provide the information that will be used to create your property profile."
-            icon={
-                <Building2 size={21} />
-            }
+            icon={<Building2 size={21} />}
         >
             <div className="space-y-6">
                 <SectionCard
@@ -1744,106 +1246,45 @@ function ListingForm({
                     <div className="grid gap-5 md:grid-cols-2">
                         <Field
                             label="Building name"
-                            value={
-                                form.buildingName
-                            }
-                            onChange={(
-                                value
-                            ) =>
-                                updateField(
-                                    "buildingName",
-                                    value
-                                )
-                            }
+                            value={form.buildingName}
+                            onChange={(value) => updateField("buildingName", value)}
                         />
 
                         <CitySelect
-                            value={
-                                form.city
-                            }
-                            options={
-                                cities
-                            }
-                            loading={
-                                citiesLoading
-                            }
-                            error={
-                                errors.city
-                            }
-                            onChange={(
-                                value
-                            ) =>
-                                updateField(
-                                    "city",
-                                    value
-                                )
-                            }
+                            value={form.city}
+                            options={cities}
+                            loading={citiesLoading}
+                            error={errors.city}
+                            onChange={(value) => updateField("city", value)}
                         />
 
                         <MicromarketSelect
-                            value={
-                                form.micromarket
-                            }
-                            options={
-                                micromarkets
-                            }
-                            loading={
-                                micromarketsLoading
-                            }
-                            disabled={
-                                !form.city
-                            }
-                            error={
-                                errors.micromarket
-                            }
-                            onChange={(
-                                value
-                            ) =>
-                                updateField(
-                                    "micromarket",
-                                    value
-                                )
-                            }
+                            value={form.micromarket}
+                            options={micromarkets}
+                            loading={micromarketsLoading}
+                            disabled={!form.city}
+                            error={errors.micromarket}
+                            onChange={(value) => updateField("micromarket", value)}
                         />
 
                         <Field
                             label="Developer / Owner"
-                            value={
-                                form.developer
-                            }
+                            value={form.developer}
                             placeholder="Developer or owner name"
-                            onChange={(
-                                value
-                            ) =>
-                                updateField(
-                                    "developer",
-                                    value
-                                )
-                            }
+                            onChange={(value) => updateField("developer", value)}
                         />
 
                         <div className="md:col-span-2">
                             <Field
                                 label="Address"
-                                value={
-                                    form.address
-                                }
-                                onChange={(
-                                    value
-                                ) =>
-                                    updateField(
-                                        "address",
-                                        value
-                                    )
-                                }
+                                value={form.address}
+                                onChange={(value) => updateField("address", value)}
                             />
                         </div>
 
                         {optionsError && (
                             <div className="md:col-span-2 rounded-2xl border border-[#A054A0]/15 bg-[#A054A0]/[0.045] px-4 py-3 text-xs text-[#70456F]">
-                                {
-                                    optionsError
-                                }
+                                {optionsError}
                             </div>
                         )}
                     </div>
@@ -1851,11 +1292,7 @@ function ListingForm({
 
                 <SectionCard
                     number="02"
-                    title={
-                        isCoworking
-                            ? "Coworking information"
-                            : "Office information"
-                    }
+                    title={isCoworking ? "Coworking information" : "Office information"}
                     description={
                         isCoworking
                             ? "Tell us about the available coworking inventory."
@@ -1867,137 +1304,64 @@ function ListingForm({
                             <>
                                 <Field
                                     label="Seats offered"
-
                                     type="number"
-                                    value={
-                                        form.seats
-                                    }
-                                    error={
-                                        errors.seats
-                                    }
+                                    value={form.seats}
+                                    error={errors.seats}
                                     placeholder="e.g. 250"
-                                    onChange={(
-                                        value
-                                    ) =>
-                                        updateField(
-                                            "seats",
-                                            value
-                                        )
-                                    }
+                                    onChange={(value) => updateField("seats", value)}
                                 />
 
                                 <Field
                                     label="Operator"
-                                    value={
-                                        form.developer
-                                    }
+                                    value={form.developer}
                                     placeholder="Operator name"
-                                    onChange={(
-                                        value
-                                    ) =>
-                                        updateField(
-                                            "developer",
-                                            value
-                                        )
-                                    }
+                                    onChange={(value) => updateField("developer", value)}
                                 />
 
                                 <Field
                                     label="Minimum seat price / month"
                                     type="number"
-                                    value={
-                                        form.seatPriceMin
-                                    }
-                                    error={
-                                        errors.seatPriceMin
-                                    }
+                                    value={form.seatPriceMin}
+                                    error={errors.seatPriceMin}
                                     placeholder="₹ 0"
-                                    onChange={(
-                                        value
-                                    ) =>
-                                        updateField(
-                                            "seatPriceMin",
-                                            value
-                                        )
-                                    }
+                                    onChange={(value) => updateField("seatPriceMin", value)}
                                 />
 
                                 <Field
                                     label="Maximum seat price / month"
                                     type="number"
-                                    value={
-                                        form.seatPriceMax
-                                    }
+                                    value={form.seatPriceMax}
                                     placeholder="₹ 0"
-                                    onChange={(
-                                        value
-                                    ) =>
-                                        updateField(
-                                            "seatPriceMax",
-                                            value
-                                        )
-                                    }
+                                    onChange={(value) => updateField("seatPriceMax", value)}
                                 />
                             </>
                         ) : (
                             <>
                                 <Field
                                     label="Area"
-
                                     type="number"
-                                    value={
-                                        form.area
-                                    }
-                                    error={
-                                        errors.area
-                                    }
+                                    value={form.area}
+                                    error={errors.area}
                                     placeholder="e.g. 25000"
                                     suffix="sq ft"
-                                    onChange={(
-                                        value
-                                    ) =>
-                                        updateField(
-                                            "area",
-                                            value
-                                        )
-                                    }
+                                    onChange={(value) => updateField("area", value)}
                                 />
 
                                 <Field
                                     label="Minimum rent / month"
                                     type="number"
-                                    value={
-                                        form.rentMin
-                                    }
-                                    error={
-                                        errors.rentMin
-                                    }
+                                    value={form.rentMin}
+                                    error={errors.rentMin}
                                     placeholder="₹ 0"
-                                    onChange={(
-                                        value
-                                    ) =>
-                                        updateField(
-                                            "rentMin",
-                                            value
-                                        )
-                                    }
+                                    onChange={(value) => updateField("rentMin", value)}
                                 />
 
                                 <Field
                                     label="Maximum rent / month"
                                     type="number"
-                                    value={
-                                        form.rentMax
-                                    }
+                                    value={form.rentMax}
                                     placeholder="₹ 0"
-                                    onChange={(
-                                        value
-                                    ) =>
-                                        updateField(
-                                            "rentMax",
-                                            value
-                                        )
-                                    }
+                                    onChange={(value) => updateField("rentMax", value)}
                                 />
                             </>
                         )}
@@ -2009,18 +1373,9 @@ function ListingForm({
 
                             <textarea
                                 rows={5}
-                                value={
-                                    form.description
-                                }
-                                onChange={(
-                                    event
-                                ) =>
-                                    updateField(
-                                        "description",
-                                        event
-                                            .target
-                                            .value
-                                    )
+                                value={form.description}
+                                onChange={(event) =>
+                                    updateField("description", event.target.value)
                                 }
                                 placeholder="Tell potential tenants about the property..."
                                 className="
@@ -2053,81 +1408,41 @@ function ListingForm({
                     <label className="flex cursor-pointer gap-3 rounded-2xl border border-[#A054A0]/10 bg-[#A054A0]/[0.025] p-5">
                         <input
                             type="checkbox"
-                            checked={
-                                formConsent
-                            }
-                            onChange={(
-                                event
-                            ) =>
-                                setFormConsent(
-                                    event
-                                        .target
-                                        .checked
-                                )
-                            }
+                            checked={formConsent}
+                            onChange={(event) => setFormConsent(event.target.checked)}
                             className="mt-0.5 h-4 w-4 accent-[#A054A0]"
                         />
 
                         <div>
                             <p className="text-sm font-semibold">
-                                I confirm that
-                                the
-                                information
-                                provided is
-                                accurate.
+                                I confirm that the information provided is accurate.
                             </p>
 
                             <p className="mt-1 text-xs leading-5 text-black/50">
-                                I agree to the
-                                platform&apos;s
-                                privacy
-                                policy and
-                                understand
-                                that the
-                                information
-                                may be
-                                reviewed by
-                                the property
-                                administration
-                                team before
-                                publication.
+                                I agree to the platform&apos;s privacy policy and understand
+                                that the information may be reviewed by the property
+                                administration team before publication.
                             </p>
                         </div>
                     </label>
 
                     {errors.consent && (
-                        <p className="mt-2 text-xs text-red-500">
-                            {
-                                errors.consent
-                            }
-                        </p>
+                        <p className="mt-2 text-xs text-red-500">{errors.consent}</p>
                     )}
                 </SectionCard>
             </div>
 
             <FormFooter
                 left={
-                    <SecondaryButton
-                        onClick={
-                            onBack
-                        }
-                    >
-                        <ArrowLeft
-                            size={16}
-                        />
+                    <SecondaryButton onClick={onBack}>
+                        <ArrowLeft size={16} />
                         Back
                     </SecondaryButton>
                 }
                 right={
-                    <PrimaryButton
-                        onClick={
-                            onContinue
-                        }
-                    >
+                    <PrimaryButton onClick={onContinue}>
                         Review submission
-                        <ArrowRight
-                            size={16}
-                        />
+                        <ArrowRight size={16} />
                     </PrimaryButton>
                 }
             />
@@ -2152,63 +1467,25 @@ function ReviewSubmission({
             eyebrow="04 / Review"
             title="Review your submission"
             description="Please review the information before submitting your property."
-            icon={
-                <FileCheck2 size={21} />
-            }
+            icon={<FileCheck2 size={21} />}
         >
             <div className="space-y-5">
-                <ReviewCard
-                    title="Property"
-                    icon={
-                        <Building2
-                            size={18}
-                        />
-                    }
-                >
-                    <ReviewRow
-                        label="Building"
-                        value={
-                            form.buildingName
-                        }
-                    />
+                <ReviewCard title="Property" icon={<Building2 size={18} />}>
+                    <ReviewRow label="Building" value={form.buildingName} />
 
                     <ReviewRow
                         label="Type"
-                        value={
-                            isCoworking
-                                ? "Coworking"
-                                : "Conventional Office"
-                        }
+                        value={isCoworking ? "Coworking" : "Conventional Office"}
                     />
 
-                    <ReviewRow
-                        label="City"
-                        value={
-                            form.city
-                        }
-                    />
+                    <ReviewRow label="City" value={form.city} />
+
+                    <ReviewRow label="Micromarket" value={form.micromarket || "—"} />
+
+                    <ReviewRow label="Address" value={form.address} />
 
                     <ReviewRow
-                        label="Micromarket"
-                        value={
-                            form.micromarket ||
-                            "—"
-                        }
-                    />
-
-                    <ReviewRow
-                        label="Address"
-                        value={
-                            form.address
-                        }
-                    />
-
-                    <ReviewRow
-                        label={
-                            isCoworking
-                                ? "Seats"
-                                : "Area"
-                        }
+                        label={isCoworking ? "Seats" : "Area"}
                         value={
                             isCoworking
                                 ? form.seats
@@ -2221,65 +1498,26 @@ function ReviewSubmission({
                     />
                 </ReviewCard>
 
-                <ReviewCard
-                    title="Contact"
-                    icon={
-                        <UserRound
-                            size={18}
-                        />
-                    }
-                >
-                    <ReviewRow
-                        label="Contact"
-                        value={
-                            form.contactName
-                        }
-                    />
+                <ReviewCard title="Contact" icon={<UserRound size={18} />}>
+                    <ReviewRow label="Contact" value={form.contactName} />
 
-                    <ReviewRow
-                        label="Phone"
-                        value={
-                            form.phone
-                        }
-                    />
+                    <ReviewRow label="Phone" value={form.phone} />
 
-                    <ReviewRow
-                        label="Email"
-                        value={
-                            form.email
-                        }
-                    />
+                    <ReviewRow label="Email" value={form.email} />
                 </ReviewCard>
 
                 {submitError && (
                     <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                        {
-                            submitError
-                        }
+                        {submitError}
                     </div>
                 )}
 
                 <div className="flex items-start gap-3 rounded-2xl border border-[#A054A0]/15 bg-[#A054A0]/[0.045] p-5">
-                    <Info
-                        size={18}
-                        className="mt-0.5 shrink-0 text-[#A054A0]"
-                    />
+                    <Info size={18} className="mt-0.5 shrink-0 text-[#A054A0]" />
 
                     <p className="text-xs leading-5 text-[#70456F]">
-                        After
-                        submission,
-                        our
-                        administration
-                        team will
-                        verify the
-                        information.
-                        The
-                        property
-                        will only
-                        be
-                        published
-                        after
-                        successful
+                        After submission, our administration team will verify the
+                        information. The property will only be published after successful
                         verification.
                     </p>
                 </div>
@@ -2287,44 +1525,22 @@ function ReviewSubmission({
 
             <FormFooter
                 left={
-                    <SecondaryButton
-                        onClick={
-                            onBack
-                        }
-                    >
-                        <ArrowLeft
-                            size={16}
-                        />
+                    <SecondaryButton onClick={onBack}>
+                        <ArrowLeft size={16} />
                         Edit details
                     </SecondaryButton>
                 }
                 right={
-                    <PrimaryButton
-                        onClick={
-                            onSubmit
-                        }
-                        disabled={
-                            isSubmitting
-                        }
-                    >
+                    <PrimaryButton onClick={onSubmit} disabled={isSubmitting}>
                         {isSubmitting ? (
                             <>
-                                <Loader2
-                                    size={
-                                        15
-                                    }
-                                    className="animate-spin"
-                                />
+                                <Loader2 size={15} className="animate-spin" />
                                 Submitting...
                             </>
                         ) : (
                             <>
                                 Submit property
-                                <Check
-                                    size={
-                                        16
-                                    }
-                                />
+                                <Check size={16} />
                             </>
                         )}
                     </PrimaryButton>
@@ -2338,10 +1554,7 @@ function ReviewSubmission({
    SUCCESS
 ========================================================= */
 
-function SuccessScreen({
-    method,
-    onRestart,
-}) {
+function SuccessScreen({ method, onRestart }) {
     return (
         <div className="mx-auto max-w-2xl py-10 text-center">
             <motion.div
@@ -2371,9 +1584,7 @@ function SuccessScreen({
                     shadow-[0_20px_50px_rgba(160,84,160,0.28)]
                 "
             >
-                <CheckCircle2
-                    size={34}
-                />
+                <CheckCircle2 size={34} />
             </motion.div>
 
             <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-[#A054A0]">
@@ -2381,31 +1592,23 @@ function SuccessScreen({
             </p>
 
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                {method ===
-                    "callback"
+                {method === "callback"
                     ? "Your callback request has been received."
                     : "Your property has been submitted."}
             </h1>
 
             <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-black/50">
-                {method ===
-                    "callback"
+                {method === "callback"
                     ? "Our property team will contact you during your selected time window and help you complete the listing."
                     : "Our administration team will review the information you've provided. Your property will be published after successful verification."}
             </p>
 
             <div className="mx-auto mt-10 max-w-md rounded-[28px] border border-white bg-white/85 p-6 text-left shadow-[0_20px_60px_rgba(30,20,40,0.07)]">
                 <div className="flex items-start gap-3">
-                    <ShieldCheck
-                        size={19}
-                        className="mt-0.5 shrink-0 text-[#A054A0]"
-                    />
+                    <ShieldCheck size={19} className="mt-0.5 shrink-0 text-[#A054A0]" />
 
                     <div>
-                        <p className="text-sm font-semibold">
-                            What happens
-                            next?
-                        </p>
+                        <p className="text-sm font-semibold">What happens next?</p>
 
                         <div className="mt-4 space-y-4">
                             {[
@@ -2413,30 +1616,15 @@ function SuccessScreen({
                                 "Property details are verified",
                                 "Your property is approved",
                                 "The property is published",
-                            ].map(
-                                (
-                                    item,
-                                    index
-                                ) => (
-                                    <div
-                                        key={
-                                            item
-                                        }
-                                        className="flex items-center gap-3"
-                                    >
-                                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E8CBE8] text-[10px] font-semibold text-[#7E3F82]">
-                                            {index +
-                                                1}
-                                        </div>
-
-                                        <span className="text-xs text-black/55">
-                                            {
-                                                item
-                                            }
-                                        </span>
+                            ].map((item, index) => (
+                                <div key={item} className="flex items-center gap-3">
+                                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E8CBE8] text-[10px] font-semibold text-[#7E3F82]">
+                                        {index + 1}
                                     </div>
-                                )
-                            )}
+
+                                    <span className="text-xs text-black/55">{item}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -2444,9 +1632,7 @@ function SuccessScreen({
 
             <button
                 type="button"
-                onClick={
-                    onRestart
-                }
+                onClick={onRestart}
                 className="mt-8 text-sm font-semibold text-[#A054A0] underline underline-offset-4"
             >
                 List another property
@@ -2459,13 +1645,7 @@ function SuccessScreen({
    PAGE SHELL
 ========================================================= */
 
-function PageShell({
-    eyebrow,
-    title,
-    description,
-    icon,
-    children,
-}) {
+function PageShell({ eyebrow, title, description, icon, children }) {
     return (
         <div>
             <div className="mb-9 max-w-3xl">
@@ -2495,24 +1675,14 @@ function PageShell({
    CITY SELECT
 ========================================================= */
 
-function CitySelect({
-    value,
-    options,
-    loading,
-    error,
-    onChange,
-}) {
+function CitySelect({ value, options, loading, error, onChange }) {
     return (
         <SelectField
             label="City"
             required
             value={value}
             options={options}
-            placeholder={
-                loading
-                    ? "Loading cities..."
-                    : "Select city"
-            }
+            placeholder={loading ? "Loading cities..." : "Select city"}
             error={error}
             loading={loading}
             onChange={onChange}
@@ -2549,11 +1719,7 @@ function MicromarketSelect({
             }
             error={error}
             loading={loading}
-            disabled={
-                disabled ||
-                loading ||
-                options.length === 0
-            }
+            disabled={disabled || loading || options.length === 0}
             onChange={onChange}
         />
     );
@@ -2577,12 +1743,7 @@ function Field({
     return (
         <div>
             <label className="mb-2 block text-sm font-semibold">
-                {label}{" "}
-                {required && (
-                    <span className="text-red-500">
-                        *
-                    </span>
-                )}
+                {label} {required && <span className="text-red-500">*</span>}
             </label>
 
             <div className="relative">
@@ -2595,23 +1756,12 @@ function Field({
                 <input
                     type={type}
                     value={value}
-                    placeholder={
-                        placeholder
-                    }
-                    onChange={(event) =>
-                        onChange(
-                            event.target
-                                .value
-                        )
-                    }
+                    placeholder={placeholder}
+                    onChange={(event) => onChange(event.target.value)}
                     className={[
                         "h-12 w-full rounded-xl border bg-white/85 px-4 text-sm outline-none shadow-[0_6px_25px_rgba(15,23,42,0.03)] backdrop-blur transition-all",
-                        icon
-                            ? "pl-11"
-                            : "",
-                        suffix
-                            ? "pr-20"
-                            : "",
+                        icon ? "pl-11" : "",
+                        suffix ? "pr-20" : "",
                         error
                             ? "border-red-300 focus:border-red-400"
                             : "border-black/[0.09] focus:border-[#A054A0]/50 focus:ring-4 focus:ring-[#A054A0]/10",
@@ -2620,18 +1770,12 @@ function Field({
 
                 {suffix && (
                     <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-black/35">
-                        {
-                            suffix
-                        }
+                        {suffix}
                     </span>
                 )}
             </div>
 
-            {error && (
-                <p className="mt-1.5 text-xs text-red-500">
-                    {error}
-                </p>
-            )}
+            {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
         </div>
     );
 }
@@ -2654,57 +1798,30 @@ function SelectField({
     return (
         <div>
             <label className="mb-2 block text-sm font-semibold">
-                {label}{" "}
-                {required && (
-                    <span className="text-red-500">
-                        *
-                    </span>
-                )}
+                {label} {required && <span className="text-red-500">*</span>}
             </label>
 
             <div className="relative">
                 <select
                     value={value}
                     disabled={disabled}
-                    onChange={(event) =>
-                        onChange(
-                            event.target
-                                .value
-                        )
-                    }
+                    onChange={(event) => onChange(event.target.value)}
                     className={[
                         "h-12 w-full appearance-none rounded-xl border bg-white/85 px-4 pr-12 text-sm outline-none shadow-[0_6px_25px_rgba(15,23,42,0.03)] backdrop-blur transition-all",
                         error
                             ? "border-red-300"
                             : "border-black/[0.09] focus:border-[#A054A0]/50 focus:ring-4 focus:ring-[#A054A0]/10",
-                        !value
-                            ? "text-black/35"
-                            : "text-black",
-                        disabled
-                            ? "cursor-not-allowed bg-black/[0.025] opacity-60"
-                            : "",
+                        !value ? "text-black/35" : "text-black",
+                        disabled ? "cursor-not-allowed bg-black/[0.025] opacity-60" : "",
                     ].join(" ")}
                 >
-                    <option value="">
-                        {placeholder}
-                    </option>
+                    <option value="">{placeholder}</option>
 
-                    {options.map(
-                        (option) => (
-                            <option
-                                key={
-                                    option
-                                }
-                                value={
-                                    option
-                                }
-                            >
-                                {
-                                    option
-                                }
-                            </option>
-                        )
-                    )}
+                    {options.map((option) => (
+                        <option key={option} value={option}>
+                            {option}
+                        </option>
+                    ))}
                 </select>
 
                 {loading ? (
@@ -2720,11 +1837,7 @@ function SelectField({
                 )}
             </div>
 
-            {error && (
-                <p className="mt-1.5 text-xs text-red-500">
-                    {error}
-                </p>
-            )}
+            {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
         </div>
     );
 }
@@ -2733,13 +1846,7 @@ function SelectField({
    METHOD CARD
 ========================================================= */
 
-function MethodCard({
-    icon,
-    title,
-    description,
-    features,
-    onClick,
-}) {
+function MethodCard({ icon, title, description, features, onClick }) {
     return (
         <button
             type="button"
@@ -2774,39 +1881,20 @@ function MethodCard({
                 />
             </div>
 
-            <h3 className="mt-7 text-lg font-semibold tracking-tight">
-                {title}
-            </h3>
+            <h3 className="mt-7 text-lg font-semibold tracking-tight">{title}</h3>
 
-            <p className="mt-2 text-sm leading-6 text-black/45">
-                {description}
-            </p>
+            <p className="mt-2 text-sm leading-6 text-black/45">{description}</p>
 
             <div className="mt-7 space-y-3">
-                {features.map(
-                    (feature) => (
-                        <div
-                            key={
-                                feature
-                            }
-                            className="flex items-center gap-2.5"
-                        >
-                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E8CBE8] text-[#A054A0]">
-                                <Check
-                                    size={
-                                        11
-                                    }
-                                />
-                            </div>
-
-                            <span className="text-xs text-black/60">
-                                {
-                                    feature
-                                }
-                            </span>
+                {features.map((feature) => (
+                    <div key={feature} className="flex items-center gap-2.5">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#E8CBE8] text-[#A054A0]">
+                            <Check size={11} />
                         </div>
-                    )
-                )}
+
+                        <span className="text-xs text-black/60">{feature}</span>
+                    </div>
+                ))}
             </div>
         </button>
     );
@@ -2816,12 +1904,7 @@ function MethodCard({
    SECTION CARD
 ========================================================= */
 
-function SectionCard({
-    number,
-    title,
-    description,
-    children,
-}) {
+function SectionCard({ number, title, description, children }) {
     return (
         <div className="rounded-[28px] border border-white bg-white/80 p-6 shadow-[0_15px_50px_rgba(30,20,40,0.045)] backdrop-blur-xl sm:p-8">
             <div className="mb-7 flex gap-4">
@@ -2830,13 +1913,9 @@ function SectionCard({
                 </div>
 
                 <div>
-                    <h2 className="text-base font-semibold">
-                        {title}
-                    </h2>
+                    <h2 className="text-base font-semibold">{title}</h2>
 
-                    <p className="mt-1 text-xs text-black/40">
-                        {description}
-                    </p>
+                    <p className="mt-1 text-xs text-black/40">{description}</p>
                 </div>
             </div>
 
@@ -2849,11 +1928,7 @@ function SectionCard({
    REVIEW CARD
 ========================================================= */
 
-function ReviewCard({
-    title,
-    icon,
-    children,
-}) {
+function ReviewCard({ title, icon, children }) {
     return (
         <div className="rounded-[28px] border border-white bg-white/80 p-6 shadow-[0_15px_50px_rgba(30,20,40,0.045)] backdrop-blur-xl sm:p-7">
             <div className="mb-5 flex items-center gap-3">
@@ -2861,14 +1936,10 @@ function ReviewCard({
                     {icon}
                 </div>
 
-                <h2 className="text-sm font-semibold">
-                    {title}
-                </h2>
+                <h2 className="text-sm font-semibold">{title}</h2>
             </div>
 
-            <div className="divide-y divide-black/[0.06]">
-                {children}
-            </div>
+            <div className="divide-y divide-black/[0.06]">{children}</div>
         </div>
     );
 }
@@ -2877,19 +1948,12 @@ function ReviewCard({
    REVIEW ROW
 ========================================================= */
 
-function ReviewRow({
-    label,
-    value,
-}) {
+function ReviewRow({ label, value }) {
     return (
         <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <span className="text-xs text-black/40">
-                {label}
-            </span>
+            <span className="text-xs text-black/40">{label}</span>
 
-            <span className="text-sm font-medium sm:text-right">
-                {value || "—"}
-            </span>
+            <span className="text-sm font-medium sm:text-right">{value || "—"}</span>
         </div>
     );
 }
@@ -2898,19 +1962,12 @@ function ReviewRow({
    FORM FOOTER
 ========================================================= */
 
-function FormFooter({
-    left,
-    right,
-}) {
+function FormFooter({ left, right }) {
     return (
         <div className="mt-8 flex flex-col-reverse gap-3 border-t border-black/[0.07] pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                {left}
-            </div>
+            <div>{left}</div>
 
-            <div className="flex justify-end">
-                {right}
-            </div>
+            <div className="flex justify-end">{right}</div>
         </div>
     );
 }
@@ -2919,11 +1976,7 @@ function FormFooter({
    PRIMARY BUTTON
 ========================================================= */
 
-function PrimaryButton({
-    children,
-    onClick,
-    disabled = false,
-}) {
+function PrimaryButton({ children, onClick, disabled = false }) {
     return (
         <button
             type="button"
@@ -2956,10 +2009,7 @@ function PrimaryButton({
     );
 }
 
-function SecondaryButton({
-    children,
-    onClick,
-}) {
+function SecondaryButton({ children, onClick }) {
     return (
         <button
             type="button"

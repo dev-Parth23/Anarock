@@ -165,6 +165,23 @@ export default function Navbar() {
     setPreferences({ currency: currencyCode, unit: normalizedUnit });
   };
 
+  const handleServiceNavigation = (slug) => {
+    sessionStorage.setItem("anarock_selected_service", slug);
+
+    closeMenu();
+
+    if (window.location.pathname.replace(/\/$/, "") === "/services") {
+      window.dispatchEvent(
+        new CustomEvent("anarock-service-selected", {
+          detail: { slug },
+        })
+      );
+      return;
+    }
+
+    window.location.href = "/services";
+  };
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -773,10 +790,10 @@ export default function Navbar() {
                           <div className="w-[340px] rounded-2xl border border-white/80 bg-white/95 p-3 pt-5 shadow-2xl backdrop-blur-2xl">
                             <div className="flex flex-col gap-1">
                               {mainServices.map((service) => (
-                                <Link
+                                <button
                                   key={service.slug}
-                                  href={`${ALL_SERVICES_URL}/${service.slug}`}
-                                  onClick={() => setServicesMenuOpen(false)}
+                                  type="button"
+                                  onClick={() => handleServiceNavigation(service.slug)}
                                   className="group/item flex items-center justify-between rounded-xl px-3.5 py-2.5 transition-all duration-150 hover:bg-[#A054A0]/10"
                                 >
                                   <div>
@@ -791,7 +808,7 @@ export default function Navbar() {
                                     size={16}
                                     className="text-slate-400 opacity-0 transition-all duration-150 group-hover/item:translate-x-0.5 group-hover/item:opacity-100 group-hover/item:text-[#A054A0]"
                                   />
-                                </Link>
+                                </button>
                               ))}
                             </div>
 
@@ -972,14 +989,14 @@ export default function Navbar() {
                         {mobileServicesExpanded && (
                           <div className="flex flex-col border-t border-slate-100 bg-slate-50/50 p-2 space-y-1">
                             {mainServices.map((service) => (
-                              <Link
+                              <button
                                 key={service.slug}
-                                href={`${ALL_SERVICES_URL}?tab=${service.slug}`}
-                                onClick={closeMenu}
-                                className="rounded-lg px-3 py-2 text-[13px] font-medium text-slate-700 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                                type="button"
+                                onClick={() => handleServiceNavigation(service.slug)}
+                                className="w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-700 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                               >
                                 {service.title}
-                              </Link>
+                              </button>
                             ))}
                             <Link
                               href={ALL_SERVICES_URL}

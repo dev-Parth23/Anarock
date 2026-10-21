@@ -387,9 +387,7 @@ const faqs = [
 
 function SectionHeading({ children, subtitle, className = "" }) {
   return (
-    <div
-      className={`mx-auto mb-10 max-w-4xl text-center ${className}`}
-    >
+    <div className={`mx-auto mb-10 max-w-4xl text-center ${className}`}>
       <h2 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl">
         {children}
       </h2>
@@ -459,10 +457,53 @@ function CommercialLeasingAndAdvisoryPageContent() {
   };
 
   const requestedService = searchParams.get("service");
+  const [activeService, setActiveService] = useState(0);
 
-  const [activeService, setActiveService] = useState(
-    () => serviceSlugToIndex[requestedService] ?? 0
-  );
+  useEffect(() => {
+    const selectService = (slug) => {
+      const index = serviceSlugToIndex[slug];
+
+      if (index === undefined) return;
+
+      setActiveService(index);
+
+      requestAnimationFrame(() => {
+        const section = document.getElementById("our-services");
+        if (!section) return;
+
+        const headerHeight =
+          document.querySelector("header")?.offsetHeight || 80;
+
+        const top =
+          section.getBoundingClientRect().top +
+          window.scrollY -
+          headerHeight -
+          12;
+
+        window.scrollTo({
+          top: Math.max(0, top),
+          behavior: "smooth",
+        });
+      });
+    };
+
+    const savedSlug = sessionStorage.getItem("anarock_selected_service");
+
+    if (savedSlug) {
+      sessionStorage.removeItem("anarock_selected_service");
+      selectService(savedSlug);
+    }
+
+    const handleSelection = (event) => {
+      selectService(event.detail?.slug);
+    };
+
+    window.addEventListener("anarock-service-selected", handleSelection);
+
+    return () => {
+      window.removeEventListener("anarock-service-selected", handleSelection);
+    };
+  }, []);
 
   useEffect(() => {
     setActiveService(serviceSlugToIndex[requestedService] ?? 0);
@@ -523,10 +564,17 @@ function CommercialLeasingAndAdvisoryPageContent() {
       </section>
 
       {/* BREADCRUMB */}
-      <nav aria-label="Breadcrumb" className="mx-auto flex max-w-[1728px] flex-wrap items-center gap-2 px-6 py-6 text-[11px] text-slate-700 sm:px-10 md:px-16 lg:px-[7.8%]">
-        <Link href="/" className="hover:text-[#A054A0]">Home</Link>
+      <nav
+        aria-label="Breadcrumb"
+        className="mx-auto flex max-w-[1728px] flex-wrap items-center gap-2 px-6 py-6 text-[11px] text-slate-700 sm:px-10 md:px-16 lg:px-[7.8%]"
+      >
+        <Link href="/" className="hover:text-[#A054A0]">
+          Home
+        </Link>
         <ChevronRight size={12} className="text-[#A054A0]" />
-        <Link href="/services" className="hover:text-[#A054A0]">Services</Link>
+        <Link href="/services" className="hover:text-[#A054A0]">
+          Services
+        </Link>
         <ChevronRight size={12} className="text-[#A054A0]" />
         <span className="text-slate-900">Commercial Leasing And Advisory</span>
       </nav>
@@ -545,8 +593,13 @@ function CommercialLeasingAndAdvisoryPageContent() {
             ["3.5mn+ sq ft", "Office Space Advised"],
             ["30+", "Years of Experience"],
           ].map(([value, label]) => (
-            <div key={label} className="min-h-[120px] rounded-md bg-[#FFF5F0] p-5 sm:p-6">
-              <div className="text-3xl font-medium tracking-tight sm:text-4xl">{value}</div>
+            <div
+              key={label}
+              className="min-h-[120px] rounded-md bg-[#FFF5F0] p-5 sm:p-6"
+            >
+              <div className="text-3xl font-medium tracking-tight sm:text-4xl">
+                {value}
+              </div>
               <p className="mt-3 text-sm text-slate-600">{label}</p>
             </div>
           ))}
@@ -554,7 +607,7 @@ function CommercialLeasingAndAdvisoryPageContent() {
       </section>
 
       {/* INTERACTIVE SERVICES */}
-      <ServicePattern className="py-12 sm:py-14 lg:py-12">
+      <ServicePattern id="our-services" className="py-12 sm:py-14 lg:py-12">
         <div className="relative z-10 mx-auto max-w-[1728px] px-5 sm:px-8 lg:px-[7%]">
           <SectionHeading>Our Services</SectionHeading>
           <div className="mb-9 flex flex-wrap justify-center gap-2">
@@ -565,8 +618,8 @@ function CommercialLeasingAndAdvisoryPageContent() {
                 onClick={() => setActiveService(index)}
                 aria-pressed={activeService === index}
                 className={`border px-4 py-2 text-xs transition-colors sm:text-sm ${activeService === index
-                  ? "border-[#A054A0] bg-[#A054A0] font-semibold text-white"
-                  : "border-white bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
+                    ? "border-[#A054A0] bg-[#A054A0] font-semibold text-white"
+                    : "border-white bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
                   }`}
               >
                 {service.title}
@@ -576,9 +629,16 @@ function CommercialLeasingAndAdvisoryPageContent() {
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[0.85fr_1.65fr] lg:gap-10">
             <div className="pt-1">
-              <h3 className="mb-5 text-3xl font-medium leading-tight text-[#A054A0] sm:text-4xl">{selectedService.title}</h3>
-              <p className="max-w-xl text-sm leading-[1.65] text-slate-900 sm:text-base">{selectedService.description}</p>
-              <a href="#enquiry" className="mt-8 inline-flex items-center gap-2 border border-[#D5ADD5] px-5 py-3 text-sm font-medium text-[#A054A0] transition-colors hover:bg-[#A054A0] hover:text-white">
+              <h3 className="mb-5 text-3xl font-medium leading-tight text-[#A054A0] sm:text-4xl">
+                {selectedService.title}
+              </h3>
+              <p className="max-w-xl text-sm leading-[1.65] text-slate-900 sm:text-base">
+                {selectedService.description}
+              </p>
+              <a
+                href="#enquiry"
+                className="mt-8 inline-flex items-center gap-2 border border-[#D5ADD5] px-5 py-3 text-sm font-medium text-[#A054A0] transition-colors hover:bg-[#A054A0] hover:text-white"
+              >
                 Enquire <ArrowUpRight size={17} />
               </a>
             </div>

@@ -173,7 +173,6 @@ const getSqftPrice = (property) => {
     return rent / area;
   }
   return null;
-
 };
 
 function getCRMPropertyId(property) {
@@ -272,7 +271,7 @@ function getEnquiryPropertyCity(property) {
     property?.cityName ??
     property?.City_Name ??
     property?.micromarketCity ??
-    ""
+    "",
   ).trim();
 }
 
@@ -284,7 +283,7 @@ function getEnquiryPropertyType(property) {
     property?.type ??
     property?.Type ??
     property?.officeType ??
-    ""
+    "",
   ).trim();
 }
 
@@ -299,23 +298,16 @@ function getStoredUserLocation() {
 
     return {
       street: String(
-        location?.area ||
-        location?.street ||
-        location?.address ||
-        ""
+        location?.area || location?.street || location?.address || "",
       ).trim(),
       city: String(location?.city || "").trim(),
-      state: String(
-        location?.state ||
-        location?.province ||
-        ""
-      ).trim(),
+      state: String(location?.state || location?.province || "").trim(),
       country: String(location?.country || "").trim(),
       postalCode: String(
         location?.pincode ||
         location?.postalCode ||
         location?.postal_code ||
-        ""
+        "",
       ).trim(),
       latitude: location?.latitude ?? null,
       longitude: location?.longitude ?? null,
@@ -485,9 +477,7 @@ function PropertiesClientContent() {
         const id = getPropertyId(property);
         const freshProperty = id ? freshById.get(String(id)) : null;
 
-        return freshProperty
-          ? { ...property, ...freshProperty }
-          : property;
+        return freshProperty ? { ...property, ...freshProperty } : property;
       });
 
       const selectedProperties = resolvedSelection.map((property) => {
@@ -495,7 +485,7 @@ function PropertiesClientContent() {
 
         if (!crmId || !/^\d+$/.test(crmId)) {
           throw new Error(
-            "A selected property is missing its Zoho CRM record ID. Check the CRM ID field returned by /api/properties."
+            "A selected property is missing its Zoho CRM record ID. Check the CRM ID field returned by /api/properties.",
           );
         }
 
@@ -561,7 +551,7 @@ function PropertiesClientContent() {
         throw new Error(
           data?.message ||
           data?.error ||
-          `CRM did not confirm lead creation. HTTP ${response.status}. Request ID: ${data?.requestId || "not provided"}`
+          `CRM did not confirm lead creation. HTTP ${response.status}. Request ID: ${data?.requestId || "not provided"}`,
         );
       }
 
@@ -579,8 +569,7 @@ function PropertiesClientContent() {
       console.error("[ENQUIRY] Lead creation failed:", error);
 
       setEnquiryError(
-        error?.message ||
-        "Unable to submit your enquiry. Please try again."
+        error?.message || "Unable to submit your enquiry. Please try again.",
       );
     } finally {
       setIsSubmittingEnquiry(false);
@@ -1209,30 +1198,20 @@ function PropertiesClientContent() {
 
   const selectAllMicromarkets = () => {
     const params = new URLSearchParams(searchParams.toString());
-
     params.delete("micromarket");
-
-    router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
-    );
-
+    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`,);
     setShowMicromarkets(false);
   };
 
   const clearFilter = (key) => {
     const params = new URLSearchParams(searchParams.toString());
-
     params.delete(key);
     params.delete("page");
-
-    router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
-    );
+    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`,);
   };
 
   const clearAll = () => {
     router.push("/properties");
-
     setShowMicromarkets(false);
     setShowFilters(false);
   };
@@ -2351,8 +2330,8 @@ function PropertiesClientContent() {
                   </h3>
 
                   <p className="mt-2 text-sm text-slate-500">
-                    Thank you. Your enquiry was accepted by the API.
-                    Our team will contact you shortly.
+                    Thank you. Your enquiry was accepted by the API. Our team
+                    will contact you shortly.
                   </p>
 
                   <button
@@ -2364,10 +2343,7 @@ function PropertiesClientContent() {
                   </button>
                 </div>
               ) : (
-                <form
-                  onSubmit={handleEnquirySubmit}
-                  className="space-y-5"
-                >
+                <form onSubmit={handleEnquirySubmit} className="space-y-5">
                   <div>
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
                       Selected properties ({enquirySelection.length})
@@ -2542,15 +2518,12 @@ function PropertiesClientContent() {
         </div>
       )}
     </div>
-
-
   );
 }
 export default function PropertiesClient() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-white" />}>
       <PropertiesClientContent />
-
     </Suspense>
   );
 }

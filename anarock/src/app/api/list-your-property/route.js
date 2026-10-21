@@ -5,11 +5,6 @@ const CRM_API_DOMAIN = "https://www.zohoapis.in";
 const CITY_MODULE = "City";
 const MICROMARKET_MODULE = "Micromarkets";
 const MICROMARKET_CITY_FIELD = "City";
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
 function escapeHtml(value = "") {
     return String(value)
         .replace(/&/g, "&amp;")
@@ -18,38 +13,30 @@ function escapeHtml(value = "") {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-
 function normalize(value) {
     return String(value || "")
         .trim()
         .toLowerCase()
         .replace(/\s+/g, " ");
 }
-
 function uniqueValues(values) {
     const map = new Map();
-
     for (const value of values) {
         const cleaned = String(value || "").trim();
-
         if (!cleaned) {
             continue;
         }
-
         const key = normalize(cleaned);
-
         if (!map.has(key)) {
             map.set(key, cleaned);
         }
     }
-
     return Array.from(map.values());
 }
 function getRecordName(record) {
     if (typeof record === "string") {
         return record;
     }
-
     return (
         record?.Name ??
         record?.name ??
@@ -108,11 +95,8 @@ async function getZohoAccessToken() {
 
     const params = new URLSearchParams({
         refresh_token: ZOHO_CRM_REFRESH_TOKEN,
-
         client_id: ZOHO_CRM_CLIENT_ID,
-
         client_secret: ZOHO_CRM_CLIENT_SECRET,
-
         grant_type: "refresh_token",
     });
 
@@ -125,40 +109,20 @@ async function getZohoAccessToken() {
     );
 
     const data = await response.json().catch(() => ({}));
-
     if (!response.ok || !data?.access_token) {
         console.error("Zoho token error:", data);
-
         throw new Error("Unable to authenticate with Zoho CRM.");
     }
-
     return data.access_token;
 }
-
-/* =========================================================
-   FETCH CRM RECORDS
-========================================================= */
-
 async function getCRMRecords(moduleName) {
     const accessToken = await getZohoAccessToken();
-
     const records = [];
-
     let page = 1;
-
-    /*
-     * 20 pages x 200 records =
-     * up to 4000 records.
-     */
     while (page <= 20) {
         const url = new URL(
             `${CRM_API_DOMAIN}/crm/v6/${encodeURIComponent(moduleName)}`,
         );
-
-        /*
-         * Keep the field list broad enough to support
-         * common Zoho CRM configurations.
-         */
         url.searchParams.set(
             "fields",
             [
@@ -172,11 +136,8 @@ async function getCRMRecords(moduleName) {
                 "Micromarket_Name",
             ].join(","),
         );
-
         url.searchParams.set("per_page", "200");
-
         url.searchParams.set("page", String(page));
-
         const response = await fetch(url.toString(), {
             method: "GET",
             headers: {
@@ -184,89 +145,48 @@ async function getCRMRecords(moduleName) {
             },
             cache: "no-store",
         });
-
         const data = await response.json().catch(() => ({}));
-
         if (!response.ok) {
             console.error("Zoho CRM error:", data);
-
             throw new Error(
                 data?.message || `Unable to fetch ${moduleName} from CRM.`,
             );
         }
-
         const current = Array.isArray(data?.data) ? data.data : [];
-
         records.push(...current);
-
         if (current.length === 0 || !data?.info?.more_records) {
             break;
         }
-
         page += 1;
     }
-
     return records;
 }
 
-/* =========================================================
-   GET CITIES
-========================================================= */
-
 async function getCities() {
     const records = await getCRMRecords(CITY_MODULE);
-
     return uniqueValues(records.map(getRecordName));
 }
-
-/* =========================================================
-   GET MICROMARKETS FOR CITY
-========================================================= */
 
 async function getMicromarkets(city) {
     if (!city) {
         return [];
     }
-
     const records = await getCRMRecords(MICROMARKET_MODULE);
-
-    /*
-     * IMPORTANT:
-     *
-     * Only records whose City lookup/text field matches
-     * the selected city are returned.
-     */
     const filtered = records.filter((record) => matchesCity(record, city));
-
     return uniqueValues(filtered.map(getRecordName));
 }
-
-/* =========================================================
-   GET API
-========================================================= */
 
 export async function GET(request) {
     try {
         const url = new URL(request.url);
-
         const resource = url.searchParams.get("resource");
-
-        /* ---------------------------------------------
-               CITIES
-            --------------------------------------------- */
-
         if (resource === "cities") {
             const cities = await getCities();
-
             return NextResponse.json({
                 success: true,
                 data: cities,
             });
         }
-
-        /* ---------------------------------------------
-               MICROMARKETS
-            --------------------------------------------- */
 
         if (resource === "micromarkets") {
             const city = url.searchParams.get("city")?.trim();
@@ -656,150 +576,55 @@ function buildEmailHTML({ method, form, callbackTime }) {
     `;
 }
 
-/* =========================================================
-   POST
-========================================================= */
-
 export async function POST(request) {
     try {
         const { method, form = {}, callbackTime = "" } = await request.json();
 
-        /* ---------------------------------------------
-               METHOD
-            --------------------------------------------- */
-
-        if (!method || !["form", "callback"].includes(method)) {
+        // Validate submission method
+        if (!["form", "callback"].includes(method)) {
             return NextResponse.json(
                 {
+                    success: false,
                     message: "Invalid submission method.",
                 },
-                {
-                    status: 400,
-                },
+                { status: 400 },
             );
         }
 
-        /* ---------------------------------------------
-               REQUIRED CONTACT
-            --------------------------------------------- */
-
+        // Validate required contact details
         if (!form.contactName || !form.email || !form.phone) {
             return NextResponse.json(
                 {
+                    success: false,
                     message: "Please provide the required contact details.",
                 },
-                {
-                    status: 400,
-                },
+                { status: 400 },
             );
         }
 
-        /* ---------------------------------------------
-               ENV
-            --------------------------------------------- */
-
-        const { RESEND_API_KEY, PROPERTY_NOTIFICATION_EMAIL, RESEND_FROM_EMAIL } =
-            process.env;
-
-        if (!RESEND_API_KEY || !PROPERTY_NOTIFICATION_EMAIL || !RESEND_FROM_EMAIL) {
-            console.error("Missing email environment variables.");
-
-            return NextResponse.json(
-                {
-                    message:
-                        "Email service is not configured. Please contact the administrator.",
-                },
-                {
-                    status: 500,
-                },
-            );
-        }
-
-        /* ---------------------------------------------
-               SUBJECT
-            --------------------------------------------- */
-
-        const subject =
-            method === "callback"
-                ? `New property callback request — ${form.buildingName || "Property"}`
-                : `New property listing submission — ${form.buildingName || "Property"
-                }`;
-
-        /* ---------------------------------------------
-               EMAIL
-            --------------------------------------------- */
-
-        const html = buildEmailHTML({
-            method,
-            form,
-            callbackTime,
-        });
-
-        /* ---------------------------------------------
-               RESEND
-            --------------------------------------------- */
-
-        const resendResponse = await fetch(RESEND_API_URL, {
-            method: "POST",
-
-            headers: {
-                Authorization: `Bearer ${RESEND_API_KEY}`,
-
-                "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify({
-                from: RESEND_FROM_EMAIL,
-
-                to: [PROPERTY_NOTIFICATION_EMAIL],
-
-                reply_to: form.email,
-
-                subject,
-
-                html,
-            }),
-        });
-
-        const resendData = await resendResponse.json().catch(() => ({}));
-
-        if (!resendResponse.ok) {
-            console.error("Resend error:", resendData);
-
-            return NextResponse.json(
-                {
-                    message:
-                        resendData?.message ||
-                        "The submission could not be delivered by email.",
-                },
-                {
-                    status: 502,
-                },
-            );
-        }
-
-        /* ---------------------------------------------
-               SUCCESS
-            --------------------------------------------- */
-
-        return NextResponse.json({
+        // Build the response without saving or sending anything.
+        const response = {
             success: true,
-            message: "Submission received successfully.",
-        });
+            message: "Form submitted successfully. No record was created.",
+            method,
+            callbackTime,
+            form,
+        };
+
+        // Visible in the browser's console after the frontend logs it.
+        console.log("Property form response:", response);
+
+        // Return the response to the frontend.
+        return NextResponse.json(response, { status: 200 });
     } catch (error) {
-        console.error("Property submission error:", error);
+        console.error("Property form error:", error);
 
         return NextResponse.json(
             {
                 success: false,
-                message:
-                    error instanceof Error
-                        ? error.message
-                        : "Something went wrong while processing the request.",
+                message: "Unable to process the form response.",
             },
-            {
-                status: 500,
-            },
+            { status: 500 },
         );
     }
 }

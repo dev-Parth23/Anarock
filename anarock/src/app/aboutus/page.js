@@ -9,7 +9,11 @@ import {
     Globe2,
     Rocket,
     Armchair,
+    Mail,
+    Link,
 } from "lucide-react";
+
+import { useState } from "react";
 
 import MarketStats from "@/components/home/MarketStats";
 
@@ -18,12 +22,14 @@ const leaders = [
         name: "Anuj Puri",
         role: "Chairman",
         image: "/services/leaders/AnujPuri.avif",
+        linkedin: "https://www.linkedin.com/in/theanujpuri",
+        email: "",
         description: (
             <>
                 <b className="font-semibold text-black">
                     Leading real estate industry spokesperson,
                 </b>{" "}
-                <strong>Chairman and Founder of ANAROCK</strong>, deep networks and
+                <strong>Chairman and Founder of Anarock</strong>, deep networks and
                 strong market influence translate into strategic leverage, driving
                 best-in-class outcomes for our clients.
             </>
@@ -32,10 +38,12 @@ const leaders = [
     {
         name: "Santhosh Kumar",
         role: "Group Vice Chairman",
-        image: "/services/leaders/SanthoshKumar.avif",
+        image: "/services/leaders/SanthoshKumar.png",
+        linkedin: "https://www.linkedin.com/in/santhosh-kumar-anarock/",
+        email: "santhosh.kumar@anarock.com",
         description: (
             <>
-                <strong>Head of operations at ANAROCK</strong>,{" "}
+                <strong>Head of operations at Anarock</strong>,{" "}
                 <b className="font-semibold text-black">deep developer relationships</b>{" "}
                 create a distinct advantage, driving superior, benchmark-setting
                 outcomes for clients.
@@ -46,16 +54,62 @@ const leaders = [
         name: "Peush Jain",
         role: "MD – Commercial Leasing & Advisory",
         image: "/services/leaders/Peush.avif",
+        linkedin: "https://www.linkedin.com/in/peush-jain-62560b5/",
+        email: "peush.jain@anarock.com",
         description: (
             <>
                 <b className="font-semibold text-black">
                     One of the senior leaders in India&apos;s corporate real estate
                     industry, leading{" "}
                 </b>
-                <strong>ANAROCK&apos;s Commercial Leasing &amp; Advisory (CLA)</strong>{" "}
+                <strong>Anarock&apos;s Commercial Leasing &amp; Advisory (CLA)</strong>{" "}
                 business with a client-first, advisory-led approach.
             </>
         ),
+    },
+];
+const leaders2 = [
+    {
+        name: "Abbishek Sharma",
+        role: "Executive Director & Head of Operations",
+        image: "/services/leaders/Abbishek.avif",
+        linkedin: "https://in.linkedin.com/in/abbishek-sharma",
+        email: "Abbishek.Sharma@anarock.com",
+    },
+    {
+        name: "Surabhi Gupta",
+        role: "Executive Director, North India",
+        image: "/services/leaders/Surabhi.avif",
+        linkedin: "https://www.linkedin.com/in/surabhi-gupta-93a55212/",
+        email: "Surabhi.Gupta@anarock.com",
+    },
+    {
+        name: "Atul Khedkar",
+        role: "Regional Director, Mumbai",
+        image: "/services/leaders/Atul.avif",
+        linkedin: "https://www.linkedin.com/in/atul-khedkar-ba63658/",
+        email: "Atul.Khedkar@anarock.com",
+    },
+    {
+        name: "Pratik Mehta",
+        role: "Executive Director, Kolkata & Hyderabad",
+        image: "/services/leaders/Pratik.avif",
+        linkedin: "https://www.linkedin.com/in/pratik-mehta-78b76318/",
+        email: "Pratik.Mehta@anarock.com",
+    },
+    {
+        name: "Mazhar Mulani",
+        role: "Regional Director, Bangalore",
+        image: "/services/leaders/Mazhar.avif",
+        linkedin: "https://www.linkedin.com/in/mazharmulani/",
+        email: "Mazhar.Mulani@anarock.com",
+    },
+    {
+        name: "Kanchana Krishnan",
+        role: "Executive Director, Chennai",
+        image: "/services/leaders/Kanchana.avif",
+        linkedin: "https://in.linkedin.com/in/kanchana-krishnan-mrics",
+        email: "Kanchana.Krishnan@anarock.com",
     },
 ];
 const companyStats = [
@@ -93,7 +147,6 @@ const highlights = [
         text: "Flex Supply Aggregator",
     },
 ];
-
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -107,6 +160,39 @@ function Eyebrow({ children }) {
         <div className="mb-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#ad4b9e]">
             <span className="h-px w-7 bg-[#ad4b9e]" />
             {children}
+        </div>
+    );
+}
+function LocalImage({
+    src,
+    alt,
+    className = "",
+    sizes = "100vw",
+    priority = false,
+}) {
+    const [imageSrc, setImageSrc] = useState(src);
+    const [hasFailed, setHasFailed] = useState(false);
+
+    const fallbackImage =
+        "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80";
+
+    return (
+        <div className={`relative overflow-hidden ${className}`}>
+            <Image
+                src={imageSrc}
+                alt={alt}
+                fill
+                sizes={sizes}
+                priority={priority}
+                unoptimized={hasFailed}
+                onError={() => {
+                    if (!hasFailed) {
+                        setHasFailed(true);
+                        setImageSrc(fallbackImage);
+                    }
+                }}
+                className="object-cover"
+            />
         </div>
     );
 }
@@ -129,7 +215,7 @@ export default function AboutUsPage() {
                         className="relative z-10"
                     >
                         <motion.div variants={fadeUp}>
-                            <Eyebrow>About ANAROCK</Eyebrow>
+                            <Eyebrow>About Anarock</Eyebrow>
                         </motion.div>
 
                         <motion.h1
@@ -146,7 +232,7 @@ export default function AboutUsPage() {
                             className="mt-7 max-w-[510px] text-base leading-8 text-[#6f6b72] sm:text-lg"
                         >
                             <span className="font-semibold italic text-[#ad4b9e]">
-                                ANAROCK
+                                Anarock
                             </span>{" "}
                             is a leading international property consultant that delivers
                             comprehensive real estate services to a large and diversified
@@ -200,7 +286,7 @@ export default function AboutUsPage() {
                         <div className="relative min-h-[320px] overflow-hidden bg-[#e9e5e922] sm:min-h-[460px] lg:min-h-[540px]">
                             <Image
                                 src="/services/Campuses.avif"
-                                alt="ANAROCK commercial office workspace"
+                                alt="Anarock commercial office workspace"
                                 fill
                                 priority
                                 sizes="(max-width: 1024px) 100vw, 60vw"
@@ -211,7 +297,7 @@ export default function AboutUsPage() {
 
                             <div className="absolute left-5 top-5 inline-flex items-center gap-2 bg-white/95 px-3 py-2 text-[10px] font-semibold tracking-[0.12em] text-[#38303a] sm:left-7 sm:top-7">
                                 <Globe2 size={15} className="text-[#ad4b9e]" />
-                                ANAROCK
+                                Anarock
                             </div>
 
                             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-9">
@@ -281,6 +367,7 @@ export default function AboutUsPage() {
                                 src="/services/research/seat.webp"
                                 alt="Commercial office workspace"
                                 fill
+                                priority
                                 sizes="(max-width: 640px) 100vw, 50vw"
                                 className="object-cover grayscale"
                             />
@@ -311,6 +398,7 @@ export default function AboutUsPage() {
                                 src="/services/research/seat2.jpg"
                                 alt="Commercial office workspace"
                                 fill
+                                priority
                                 sizes="(max-width: 640px) 100vw, 50vw"
                                 className="object-cover grayscale"
                             />
@@ -320,20 +408,16 @@ export default function AboutUsPage() {
             </section>
 
             {/* Global partners */}
-
             <section className="px-5 py-16 sm:px-8 sm:py-20 lg:px-16">
                 <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-12">
-                    {/* Left: Content spans 2 columns */}
+                    {" "}
                     <div className="lg:col-span-2">
                         <Eyebrow>Global partners</Eyebrow>
-
                         <h2 className="text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">
                             A connected
                             <span className="block text-[#ad4b9e]">global network.</span>
                         </h2>
                     </div>
-
-                    {/* Right: Logos span 3 columns */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
                         {partners.map((partner) => (
                             <div
@@ -353,7 +437,6 @@ export default function AboutUsPage() {
                     </div>
                 </div>
             </section>
-
 
             {/* Leadership */}
             <section className="border-t border-[#eae6eb] bg-[#f8f7f8] px-5 py-16 sm:px-8 sm:py-20 lg:px-16">
@@ -390,11 +473,24 @@ export default function AboutUsPage() {
 
                                 <div className="p-6 sm:p-7">
                                     <h3 className="text-xl font-semibold tracking-tight text-black">
-                                        {leader.name}
+                                        <a
+                                            href={`${leader.linkedin}`}
+                                            aria-label={`${leader.name} LinkedIn`}
+                                            className="hover:text-[#7D397D]"
+                                        >
+                                            {leader.name}
+                                        </a>
                                     </h3>
 
                                     <p className="mt-1 min-h-[38px] text-sm leading-5 text-[#974597]">
-                                        {leader.role}
+
+                                        <a
+                                            href={`mailto:${leader.email}`}
+                                            aria-label={`Email ${leader.name}`}
+                                            className="hover:text-[#7D397D]"
+                                        >
+                                            {leader.role}
+                                        </a>
                                     </p>
 
                                     <div className="my-5 h-px bg-[#ece6ed]" />
@@ -406,6 +502,46 @@ export default function AboutUsPage() {
                             </motion.article>
                         ))}
                     </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 pt-20">
+                    {leaders2.map((leader) => (
+                        <article
+                            key={leader.name}
+                            className="flex min-w-0 items-start gap-4"
+                        >
+                            <LocalImage
+                                src={leader.image}
+                                alt={leader.name}
+                                className="h-[74px] w-[74px] shrink-0 rounded-full bg-slate-100"
+                                sizes="74px"
+                            />
+                            <div className="min-w-0 flex-1">
+                                <h3 className="border-b border-[#EADBEA] pb-2 text-sm font-semibold">
+                                    {leader.name}
+                                </h3>
+                                <p className="mt-2 text-sm leading-5 text-slate-700">
+                                    {leader.role}
+                                </p>
+                                <div className="mt-2 flex gap-2 text-[#A054A0]">
+                                    <a
+                                        href={`${leader.linkedin}`}
+                                        aria-label={`${leader.name} LinkedIn`}
+                                        className="hover:text-[#7D397D]"
+                                    >
+                                        <ArrowUpRight size={15} />{" "}
+                                    </a>
+                                    <a
+                                        href={`mailto:${leader.email}`}
+                                        aria-label={`Email ${leader.name}`}
+                                        className="hover:text-[#7D397D]"
+                                    >
+                                        <Mail size={15} />
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    ))}
                 </div>
             </section>
         </main>

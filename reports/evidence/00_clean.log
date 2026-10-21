@@ -1,7 +1,0 @@
-== clean 2026-10-16T18:26:30Z
-background servers: none running (checked with ps; a pkill -f attempt matched and killed the invoking shell twice, so ps check used instead)
-scratch now:
-total 8
-drwx------ 2 root root 4096 Oct 16 18:25 .
-drwx------ 4 root root 4096 Oct 16 18:25 ..
-Also removed (prior-run state): none present at start of this session besides the checked-out working copy (reports/ at HEAD 2ee6cd7); node_modules/.next not present. Prior run output files are kept in git history, not reused. Tooling re-installed fresh this run: semgrep 1.181.0, axe-core 4.10.2, playwright-core 1.56.1, reportlab.

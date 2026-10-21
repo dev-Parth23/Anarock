@@ -1546,7 +1546,7 @@ function PropertiesClientContent() {
               {loading
                 ? "Searching..."
                 : `${totalProperties.toLocaleString("en-IN")} properties found${totalProperties > ITEMS_PER_PAGE
-                  ? ` • Page ${safeCurrentPage} of${totalPages}`
+                  ? ` • Page ${safeCurrentPage} of ${totalPages}`
                   : ""
                 }`}
             </p>

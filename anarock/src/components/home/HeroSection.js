@@ -18,24 +18,21 @@ import {
   DollarSign,
   Euro,
 } from "lucide-react";
+
 const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
 const SAMPLE_PROMPTS = [
   "5,000 sq ft managed office in Whitefield with 80+ desks & boardrooms",
   "A-grade bare shell commercial space in BKC with panoramic views",
   "Plug-and-play HQ in Cyber City Gurgaon under ₹15 Lakhs/month",
 ];
-
 const CONTROL_H = "h-[clamp(2.75rem,5vh,3.5rem)]";
 const INPUT_BASE = `w-full ${CONTROL_H} rounded-xl bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10 disabled:cursor-not-allowed disabled:opacity-50`;
 const INPUT_OPEN = "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10";
-const LABEL =
-  "mb-1.5 ml-0.5 block text-[11px] font-bold tracking-[0.14em] text-black/70 sm:text-xs";
-const MENU =
-  "absolute left-0 right-0 top-full z-[100] mt-2 flex flex-col overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]";
-const MENU_LIST =
-  "max-h-[clamp(160px,30vh,260px)] overflow-y-auto overscroll-contain p-1.5";
-const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2";
+const LABEL = "mb-1.5 ml-0.5 block text-[11px] font-bold tracking-[0.14em] text-black/70 sm:text-xs";
+const MENU = "absolute left-0 right-0 top-full z-[100] mt-2 flex flex-col overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]";
+const MENU_LIST = "max-h-[clamp(160px,30vh,260px)] overflow-y-auto overscroll-contain p-1.5";
+const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2";
+
 function CheckBadge() {
   return (
     <span className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10">
@@ -43,6 +40,7 @@ function CheckBadge() {
     </span>
   );
 }
+
 function Field({ label, innerRef, className = "", children }) {
   return (
     <div className={`relative min-w-0 ${className}`} ref={innerRef}>
@@ -51,38 +49,23 @@ function Field({ label, innerRef, className = "", children }) {
     </div>
   );
 }
-function SelectTrigger({
-  icon: Icon,
-  open,
-  disabled,
-  onClick,
-  filled,
-  loading,
-  children,
-}) {
+
+function SelectTrigger({ icon: Icon, open, disabled, onClick, filled, loading, children }) {
   return (
-    <button
-      type="button"
-      aria-haspopup="listbox"
-      aria-expanded={open}
-      disabled={disabled}
-      onClick={onClick}
+    <button type="button" aria-haspopup="listbox" aria-expanded={open} disabled={disabled} onClick={onClick}
       className={`${INPUT_BASE} flex items-center justify-between gap-2 px-3.5 text-left ${open ? INPUT_OPEN : ""}`}
     >
       <span className="flex min-w-0 items-center gap-2.5">
         <Icon className="h-4 w-4 shrink-0 text-[#A054A0]" />
-        <span
-          className={`min-w-0 truncate ${filled ? "font-semibold text-[#211A21]/85" : "text-black/35"}`}
-        >
+        <span className={`min-w-0 truncate ${filled ? "font-semibold text-[#211A21]/85" : "text-black/35"}`} >
           {children}
         </span>
       </span>
+
       {loading ? (
         <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
       ) : (
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${open ? "rotate-180 text-[#A054A0]" : ""}`}
-        />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${open ? "rotate-180 text-[#A054A0]" : ""}`} />
       )}
     </button>
   );
@@ -93,11 +76,7 @@ function MenuSearch({ value, onChange, placeholder }) {
     <div className="shrink-0 border-b border-[#EEE7EE] bg-[#FBF9FB] p-2.5">
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30" />
-        <input
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          autoFocus
+        <input value={value} onChange={onChange} placeholder={placeholder} autoFocus
           className="h-10 w-full rounded-xl border border-[#E7DFE7] bg-white pl-9 pr-3 text-[13px] font-medium text-[#211A21] outline-none transition placeholder:text-black/30 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10 sm:text-sm"
         />
       </div>
@@ -107,12 +86,8 @@ function MenuSearch({ value, onChange, placeholder }) {
 
 function Option({ active, onClick, children }) {
   return (
-    <button
-      type="button"
-      role="option"
-      aria-selected={active}
-      onClick={onClick}
-      className={`flex min-h-[42px] w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-[13px] transition-colors sm:text-sm ${active
+    <button type="button" role="option" aria-selected={active}
+      onClick={onClick} className={`flex min-h-[42px] w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-[13px] transition-colors sm:text-sm ${active
         ? "bg-[#A054A0]/[.08] font-semibold text-[#A054A0]"
         : "text-[#393039] hover:bg-[#A054A0]/[.05] hover:text-[#A054A0]"
         }`}
@@ -122,18 +97,15 @@ function Option({ active, onClick, children }) {
     </button>
   );
 }
+
 function IconInput({ icon, value, onChange, placeholder }) {
   return (
     <div className="relative">
       <span className="pointer-events-none absolute left-3.5 top-1/2 z-10 flex h-5 w-5 -translate-y-1/2 items-center justify-center">
         {icon}
       </span>
-      <input
-        type="text"
-        inputMode="numeric"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
+
+      <input type="text" inputMode="numeric" value={value} onChange={onChange} placeholder={placeholder}
         className={`${INPUT_BASE} pl-11 pr-4 font-semibold text-[#211A21]/85 placeholder:font-normal placeholder:text-black/30`}
       />
     </div>
@@ -142,19 +114,13 @@ function IconInput({ icon, value, onChange, placeholder }) {
 
 function TabButton({ active, onClick, icon: Icon, children }) {
   return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={onClick}
+    <button type="button" role="tab" aria-selected={active} onClick={onClick}
       className={`inline-flex h-[clamp(2.5rem,4.6vh,3rem)] flex-1 items-center justify-center gap-2 rounded-full px-4 text-[11px] font-bold transition-all duration-200 sm:min-w-[170px] sm:flex-none sm:px-6 sm:text-xs ${FOCUS_RING} ${active
         ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
         : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
         }`}
     >
-      <Icon
-        className={`h-4 w-4 ${active ? "text-[#A054A0]" : "text-[#9A939A]"}`}
-      />
+      <Icon className={`h-4 w-4 ${active ? "text-[#A054A0]" : "text-[#9A939A]"}`} />
       {children}
     </button>
   );
@@ -190,23 +156,18 @@ export default function HeroSection({ consentGranted, locationData }) {
     if (!rawValue) return "";
     return new Intl.NumberFormat("en-IN").format(rawValue);
   };
-
   const handleMinBudgetChange = (e) => {
     setMinBudget(formatNumberWithCommas(e.target.value));
   };
-
   const handleAreaChange = (e) => {
     setArea(formatNumberWithCommas(e.target.value));
   };
-
   const handleSeatsChange = (e) => {
     setSeats(formatNumberWithCommas(e.target.value));
   };
-
   const normalizedOfficeType = officeType.trim().toLowerCase();
   const isCoworking = normalizedOfficeType === "managed office/co-working";
   const isRentBased = !isCoworking;
-
   const handleOfficeTypeChange = (val) => {
     const newType = typeof val === "string" ? val : val?.target?.value || "";
     setOfficeType(newType);
@@ -214,22 +175,18 @@ export default function HeroSection({ consentGranted, locationData }) {
     setArea("");
     setSeats("");
   };
-
   const toggleMicromarket = (micromarketName) => {
     setSelectedMicromarkets((current) => {
       if (current.includes(micromarketName)) {
         return current.filter((name) => name !== micromarketName);
       }
-
       return [...current, micromarketName];
     });
   };
-
   const clearMicromarkets = () => {
     setSelectedMicromarkets([]);
     setMicromarketSearch("");
   };
-
   useEffect(() => {
     const controller = new AbortController();
     const fetchCities = async () => {
@@ -286,7 +243,6 @@ export default function HeroSection({ consentGranted, locationData }) {
       controller.abort();
     };
   }, []);
-
   useEffect(() => {
     if (locationAutoSelectedRef.current) {
       return;
@@ -302,7 +258,6 @@ export default function HeroSection({ consentGranted, locationData }) {
         .trim()
         .toLowerCase()
         .replace(/\s+/g, " ");
-
     const detectedCity = normalizeCity(locationData.city);
     const matchedCity = cityOptions.find(
       (option) => normalizeCity(option) === detectedCity,
@@ -312,7 +267,6 @@ export default function HeroSection({ consentGranted, locationData }) {
       locationAutoSelectedRef.current = true;
     }
   }, [locationData?.city, cityOptions]);
-
   useEffect(() => {
     if (!city) {
       setMicromarkets([]);
@@ -339,59 +293,40 @@ export default function HeroSection({ consentGranted, locationData }) {
       });
   }, [city]);
 
-  // useEffect(() => {
-  //   const handler = (e) => {
-  //     if (
-  //       cityDropdownRef.current &&
-  //       !cityDropdownRef.current.contains(e.target)
-  //     ) {
-  //       setCityOpen(false);
-  //     }
-  //     if (
-  //       micromarketDropdownRef.current &&
-  //       !micromarketDropdownRef.current.contains(e.target)
-  //     ) {
-  //       setMicromarketOpen(false);
-  //     }
-  //     if (
-  //       officeTypeDropdownRef.current &&
-  //       !officeTypeDropdownRef.current.contains(e.target)
-  //     ) {
-  //       setOfficeTypeOpen(false);
-  //     }
-  //   };
-
-  //   document.addEventListener("mousedown", handler);
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", handler);
-  //   };
-  // }, []);
-
   useEffect(() => {
     const handleOutsideInteraction = (e) => {
-      if (cityDropdownRef.current && !cityDropdownRef.current.contains(e.target)) {
+      if (
+        cityDropdownRef.current &&
+        !cityDropdownRef.current.contains(e.target)
+      ) {
         setCityOpen(false);
       }
-      if (micromarketDropdownRef.current && !micromarketDropdownRef.current.contains(e.target)) {
+
+      if (
+        micromarketDropdownRef.current &&
+        !micromarketDropdownRef.current.contains(e.target)
+      ) {
         setMicromarketOpen(false);
       }
-      if (officeTypeDropdownRef.current && !officeTypeDropdownRef.current.contains(e.target)) {
+
+      if (
+        officeTypeDropdownRef.current &&
+        !officeTypeDropdownRef.current.contains(e.target)
+      ) {
         setOfficeTypeOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleOutsideInteraction);
+
     return () => {
       document.removeEventListener("mousedown", handleOutsideInteraction);
     };
   }, []);
 
-
   const handleSearch = (e) => {
     e.preventDefault();
-
     setLoading(true);
-
     if (typeof window !== "undefined") {
       if (tab === "filters" && city) {
         const searchLocationObj = {
@@ -400,7 +335,6 @@ export default function HeroSection({ consentGranted, locationData }) {
           propertyType: officeType || "",
           searchedAt: Date.now(),
         };
-
         localStorage.setItem(
           "anarock_last_searched_location",
           JSON.stringify(searchLocationObj),
@@ -432,27 +366,33 @@ export default function HeroSection({ consentGranted, locationData }) {
       if (city?.trim()) {
         params.set("city", toUrlValue(city));
       }
+
       if (selectedMicromarkets.length) {
         params.set(
           "micromarket",
           selectedMicromarkets.map(toUrlValue).join(","),
         );
       }
+
       if (officeType?.trim()) {
         params.set("type", toUrlValue(officeType));
       }
 
       const cleanedMinBudget = cleanNumber(minBudget);
+
       if (cleanedMinBudget) {
         params.set("minBudget", cleanedMinBudget);
       }
+
       params.delete("maxBudget");
 
       if (isCoworking) {
         const cleanedSeats = cleanNumber(seats);
+
         if (cleanedSeats) {
           params.set("seats", cleanedSeats);
         }
+
         params.delete("area");
       } else {
         const cleanedArea = cleanNumber(area);
@@ -460,6 +400,7 @@ export default function HeroSection({ consentGranted, locationData }) {
         if (cleanedArea) {
           params.set("area", cleanedArea);
         }
+
         params.delete("seats");
       }
 
@@ -472,15 +413,18 @@ export default function HeroSection({ consentGranted, locationData }) {
       }
     } else {
       params.set("type", "ai");
+
       if (prompt.trim()) {
         params.set("prompt", prompt.trim());
       }
     }
 
     const queryString = params.toString();
+
     const searchUrl = queryString
       ? `/properties?${queryString}`
       : "/properties";
+
     router.push(searchUrl);
   };
 
@@ -497,31 +441,22 @@ export default function HeroSection({ consentGranted, locationData }) {
       case "USD":
       case "SGD":
         return <DollarSign className="h-4 w-4 text-[#A054A0]" />;
+
       case "EUR":
         return <Euro className="h-4 w-4 text-[#A054A0]" />;
+
       case "AED":
         return <span className="text-xs font-bold text-[#A054A0]">د.إ</span>;
+
       default:
         return <IndianRupee className="h-4 w-4 text-[#A054A0]" />;
     }
   };
 
-  const micromarketTriggerText = loadingMicromarkets
-    ? "Loading..."
-    : city
-      ? selectedMicromarkets.length === 0
-        ? "All Micro Markets"
-        : selectedMicromarkets.length === 1
-          ? selectedMicromarkets[0]
-          : `${selectedMicromarkets.length} Micro Markets Selected`
-      : "Select City First";
+  const micromarketTriggerText = loadingMicromarkets ? "Loading..." : city ? selectedMicromarkets.length === 0 ? "All Micro Markets" : selectedMicromarkets.length === 1 ? selectedMicromarkets[0] : `${selectedMicromarkets.length} Micro Markets Selected` : "Select City First";
 
   const renderSubmitButton = (extraClass = "") => (
-    <button
-      type="submit"
-      disabled={loading}
-      className={`group inline-flex ${CONTROL_H} items-center justify-center gap-2.5 rounded-xl bg-[#A054A0] px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_10px_28px_rgba(160,84,160,.28)] transition-all duration-200 hover:bg-[#914891] hover:shadow-[0_14px_34px_rgba(160,84,160,.38)] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-70 sm:text-[13px] ${FOCUS_RING} ${extraClass}`}
-    >
+    <button type="submit" disabled={loading} className={`group inline-flex ${CONTROL_H} items-center justify-center gap-2.5 rounded-xl bg-[#A054A0] px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_10px_28px_rgba(160,84,160,.28)] transition-all duration-200 hover:bg-[#914891] hover:shadow-[0_14px_34px_rgba(160,84,160,.38)] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-70 sm:text-[13px] ${FOCUS_RING} ${extraClass}`}>
       {loading ? (
         <>
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -536,16 +471,14 @@ export default function HeroSection({ consentGranted, locationData }) {
     </button>
   );
 
-  /* ------------------------------------------------------------------------ */
-  /*  Render                                                                  */
-  /* ------------------------------------------------------------------------ */
-
   return (
-    <main className="relative min-h-dvh w-full overflow-x-hidden bg-[#160B17] lg:h-dvh" style={{
-      minHeight: "100dvh",
-      overflowX: "clip",
-    }}>
-      {/* ------------------------------ Background ------------------------------ */}
+    <main
+      className="relative min-h-dvh w-full overflow-x-hidden bg-[#160B17] lg:min-h-dvh lg:h-auto"
+      style={{
+        minHeight: "100dvh",
+        overflowX: "clip",
+      }}
+    >
       <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <Image
           src="/main.jpg"
@@ -555,11 +488,14 @@ export default function HeroSection({ consentGranted, locationData }) {
           sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover object-center lg:object-top"
         />
+
         <div className="absolute inset-0 bg-[#4E2352]/35 mix-blend-multiply" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(160,84,160,.30),transparent_38%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#100912]/55 via-[#170D19]/25 to-[#160B17]" />
         <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-[#160B17] via-[#160B17]/80 to-transparent" />
+
         <div className="pointer-events-none absolute left-1/2 top-[10%] h-[260px] w-[260px] -translate-x-1/2 rounded-full bg-[#A054A0]/20 blur-[100px] sm:h-[420px] sm:w-[420px] lg:h-[560px] lg:w-[560px]" />
+
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.045]"
           style={{
@@ -571,13 +507,13 @@ export default function HeroSection({ consentGranted, locationData }) {
       </div>
 
       {/* ------------------------------- Content -------------------------------- */}
-      <section className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col items-center justify-center gap-[clamp(1.25rem,4vh,3.5rem)] px-4 pb-8 pt-14 sm:px-6 sm:pb-12 lg:h-full lg:min-h-0 lg:px-8 lg:pb-4 lg:pt-[2.5rem] xl:px-10">
-        {/* Heading block */}
+      <section className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col items-center justify-center gap-[clamp(1.25rem,4vh,3.5rem)] px-4 pb-8 pt-14 sm:px-6 sm:pb-12 lg:min-h-dvh lg:px-8 lg:pb-4 lg:pt-[2.5rem] xl:px-10 [@media(max-height:760px)]:justify-start [@media(max-height:760px)]:gap-4 [@media(max-height:760px)]:pt-6 [@media(max-height:760px)]:pb-6">
         <header className="w-full max-w-[980px] shrink-0 text-center">
           <div className="mb-[clamp(0.75rem,2.2vh,1.5rem)] inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,.12)] backdrop-blur-xl sm:px-4 sm:py-2 [@media(max-height:620px)]:hidden">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#A054A0] shadow-[0_0_24px_rgba(160,84,160,.45)]">
               <Sparkles className="h-3.5 w-3.5 text-white" />
             </span>
+
             <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/90 sm:text-[10px] sm:tracking-[0.22em]">
               Describe · Discover · Decide
             </span>
@@ -595,10 +531,7 @@ export default function HeroSection({ consentGranted, locationData }) {
             workspaces aligned with your business requirements.
           </p>
         </header>
-
-        {/* Search card */}
         <div className="relative z-30 w-full max-w-[1100px] shrink-0 rounded-[24px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(20,5,25,.34)] lg:rounded-[28px]">
-          {/* Tabs */}
           <div className="flex justify-center px-4 pt-[clamp(1rem,2.6vh,1.75rem)] sm:px-6">
             <div
               role="tablist"
@@ -612,6 +545,7 @@ export default function HeroSection({ consentGranted, locationData }) {
               >
                 Filter Properties
               </TabButton>
+
               <TabButton
                 active={tab === "ai"}
                 onClick={() => setTab("ai")}
@@ -648,12 +582,17 @@ export default function HeroSection({ consentGranted, locationData }) {
                         onChange={(e) => setCitySearch(e.target.value)}
                         placeholder="Search city..."
                       />
-                      <div role="listbox" className={MENU_LIST} style={{
-                        maxHeight: "min(220px, calc(100dvh - 360px))",
-                        overflowY: "auto",
-                        overscrollBehavior: "contain",
-                        scrollbarWidth: "thin",
-                      }}>
+
+                      <div
+                        role="listbox"
+                        className={MENU_LIST}
+                        style={{
+                          maxHeight: "min(220px, calc(100dvh - 360px))",
+                          overflowY: "auto",
+                          overscrollBehavior: "contain",
+                          scrollbarWidth: "thin",
+                        }}
+                      >
                         {filteredCities.map((c) => (
                           <Option
                             key={c}
@@ -692,10 +631,13 @@ export default function HeroSection({ consentGranted, locationData }) {
                   </SelectTrigger>
 
                   {micromarketOpen && !loadingMicromarkets && city && (
-                    <div className={MENU} style={{
-                      maxHeight: "calc(100dvh - 120px)",
-                      overflow: "hidden",
-                    }}>
+                    <div
+                      className={MENU}
+                      style={{
+                        maxHeight: "calc(100dvh - 120px)",
+                        overflow: "hidden",
+                      }}
+                    >
                       {micromarkets.length > 5 && (
                         <MenuSearch
                           value={micromarketSearch}

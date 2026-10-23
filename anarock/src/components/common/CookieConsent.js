@@ -1,8 +1,6 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Cookie, ArrowUpRight } from "lucide-react";
-
 export default function CookieConsent({ onConsentGiven }) {
   const [show, setShow] = useState(false);
   const [view, setView] = useState("overview");
@@ -12,10 +10,8 @@ export default function CookieConsent({ onConsentGiven }) {
     marketing: true,
     preferences: true,
   });
-
   useEffect(() => {
     const consent = localStorage.getItem("cookie_consent_accepted");
-
     if (!consent) {
       setShow(true);
     } else {
@@ -25,12 +21,9 @@ export default function CookieConsent({ onConsentGiven }) {
 
   const handleSave = (customPrefs) => {
     const finalPrefs = customPrefs || preferences;
-
     localStorage.setItem("cookie_consent_accepted", "true");
     localStorage.setItem("cookie_preferences", JSON.stringify(finalPrefs));
-
     setShow(false);
-
     if (onConsentGiven) onConsentGiven();
   };
 
@@ -41,7 +34,6 @@ export default function CookieConsent({ onConsentGiven }) {
       marketing: true,
       preferences: true,
     };
-
     setPreferences(allOn);
     handleSave(allOn);
   };
@@ -53,7 +45,6 @@ export default function CookieConsent({ onConsentGiven }) {
       marketing: false,
       preferences: false,
     };
-
     setPreferences(essentialOnly);
     handleSave(essentialOnly);
   };
@@ -68,40 +59,31 @@ export default function CookieConsent({ onConsentGiven }) {
                 <Cookie size={18} className="sm:w-5 sm:h-5 stroke-[2.2]" />
               </div>
               <div className="min-w-0">
-                {/* <span className="block text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8f3d8a] truncate">
-                  ANAROCK PROPERTY CONSULTANTS
-                </span> */}
-                <h3 className="text-lg sm:text-2xl font-bold text-slate-900 leading-tight">
-                  We value your privacy.
-                </h3>
+                <h3 className="text-lg sm:text-2xl font-bold text-slate-900 leading-tight"> We value your privacy</h3>
               </div>
             </div>
-            <p className="text-[13px] sm:text-base md:text-lg text-slate-600 leading-relaxed max-w-[760px]">
+            <p id="cookie-consent-description" className="max-w-3xl text-sm leading-5 text-slate-800 sm:text-base sm:leading-6 lg:text-[15px] lg:leading-7">
               We use cookies and similar technologies to personalise your
               experience, analyse site performance, and showcase the most
               relevant commercial real estate opportunities for you. You remain
               in control of what we collect.
             </p>
+            <p className="mt-2 max-w-3xl text-sm leading-5 text-slate-700 sm:mt-3 sm:text-sm sm:leading-6 lg:text-[15px] lg:leading-6">
+              Cookies help us remember your shortlisted and compared properties,
+              location, search history, and preferences to deliver a seamless,
+              personalised experience.
+            </p>
           </div>
-
           <div className="w-full lg:w-[300px] flex flex-col gap-2 sm:gap-2.5 shrink-0">
-            <button
-              type="button"
-              onClick={handleAcceptAll}
-              className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl bg-[#8f3d8a] hover:bg-[#7e3479] active:bg-[#702d6b] text-white text-xs sm:text-sm     font-semibold transition-all shadow-sm"
-            >
+            <button type="button" onClick={handleAcceptAll} className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl bg-[#8f3d8a] hover:bg-[#7e3479] active:bg-[#702d6b] text-white text-xs sm:text-sm     font-semibold transition-all shadow-sm">
               Accept All Cookies
             </button>
-            <button
-              type="button"
-              onClick={handleEssentialOnly}
-              className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl text-nowrap bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-[#8f3d8a] text-xs sm:text-sm font-semibold transition-all shadow-sm"
-            >
+            <button type="button" onClick={handleEssentialOnly} className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl text-nowrap bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-[#8f3d8a] text-xs sm:text-sm font-semibold transition-all shadow-sm">
               Reject Non-Essential Cookies
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

@@ -339,34 +339,53 @@ export default function HeroSection({ consentGranted, locationData }) {
       });
   }, [city]);
 
+  // useEffect(() => {
+  //   const handler = (e) => {
+  //     if (
+  //       cityDropdownRef.current &&
+  //       !cityDropdownRef.current.contains(e.target)
+  //     ) {
+  //       setCityOpen(false);
+  //     }
+  //     if (
+  //       micromarketDropdownRef.current &&
+  //       !micromarketDropdownRef.current.contains(e.target)
+  //     ) {
+  //       setMicromarketOpen(false);
+  //     }
+  //     if (
+  //       officeTypeDropdownRef.current &&
+  //       !officeTypeDropdownRef.current.contains(e.target)
+  //     ) {
+  //       setOfficeTypeOpen(false);
+  //     }
+  //   };
+
+  //   document.addEventListener("mousedown", handler);
+
+  //   return () => {
+  //     document.removeEventListener("mousedown", handler);
+  //   };
+  // }, []);
+
   useEffect(() => {
-    const handler = (e) => {
-      if (
-        cityDropdownRef.current &&
-        !cityDropdownRef.current.contains(e.target)
-      ) {
+    const handleOutsideInteraction = (e) => {
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(e.target)) {
         setCityOpen(false);
       }
-      if (
-        micromarketDropdownRef.current &&
-        !micromarketDropdownRef.current.contains(e.target)
-      ) {
+      if (micromarketDropdownRef.current && !micromarketDropdownRef.current.contains(e.target)) {
         setMicromarketOpen(false);
       }
-      if (
-        officeTypeDropdownRef.current &&
-        !officeTypeDropdownRef.current.contains(e.target)
-      ) {
+      if (officeTypeDropdownRef.current && !officeTypeDropdownRef.current.contains(e.target)) {
         setOfficeTypeOpen(false);
       }
     };
-
-    document.addEventListener("mousedown", handler);
-
+    document.addEventListener("mousedown", handleOutsideInteraction);
     return () => {
-      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("mousedown", handleOutsideInteraction);
     };
   }, []);
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -522,7 +541,10 @@ export default function HeroSection({ consentGranted, locationData }) {
   /* ------------------------------------------------------------------------ */
 
   return (
-    <main className="relative min-h-dvh w-full overflow-x-hidden bg-[#160B17] lg:h-dvh">
+    <main className="relative min-h-dvh w-full overflow-x-hidden bg-[#160B17] lg:h-dvh" style={{
+      minHeight: "100dvh",
+      overflowX: "clip",
+    }}>
       {/* ------------------------------ Background ------------------------------ */}
       <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <Image
@@ -626,7 +648,12 @@ export default function HeroSection({ consentGranted, locationData }) {
                         onChange={(e) => setCitySearch(e.target.value)}
                         placeholder="Search city..."
                       />
-                      <div role="listbox" className={MENU_LIST}>
+                      <div role="listbox" className={MENU_LIST} style={{
+                        maxHeight: "min(220px, calc(100dvh - 360px))",
+                        overflowY: "auto",
+                        overscrollBehavior: "contain",
+                        scrollbarWidth: "thin",
+                      }}>
                         {filteredCities.map((c) => (
                           <Option
                             key={c}
@@ -665,7 +692,10 @@ export default function HeroSection({ consentGranted, locationData }) {
                   </SelectTrigger>
 
                   {micromarketOpen && !loadingMicromarkets && city && (
-                    <div className={MENU}>
+                    <div className={MENU} style={{
+                      maxHeight: "calc(100dvh - 120px)",
+                      overflow: "hidden",
+                    }}>
                       {micromarkets.length > 5 && (
                         <MenuSearch
                           value={micromarketSearch}

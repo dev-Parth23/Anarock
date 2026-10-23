@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { ChevronRight, Home } from 'lucide-react';
+import Link from "next/link";
+import { ChevronRight, Home } from "lucide-react";
 
 function sanitizeLabel(value) {
   return String(value ?? "")
@@ -48,9 +48,9 @@ export default function Breadcrumbs({ items = [] }) {
   };
 
   const safeJsonLd = JSON.stringify(jsonLd)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026');
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
 
   return (
     <nav aria-label="Breadcrumb" className="py-3 text-sm">
@@ -74,19 +74,15 @@ export default function Breadcrumbs({ items = [] }) {
           <li
             key={`${item.href || "current"}-${item.label}-${i}`}
             className="flex items-center gap-1"
-          >          <ChevronRight className="h-3.5 w-3.5" />
-
+          >
+            {" "}
+            <ChevronRight className="h-3.5 w-3.5" />
             {item.href && i < normalizedItems.length - 1 ? (
-              <Link
-                href={item.href}
-                className="hover:text-amber-600"
-              >
+              <Link href={item.href} className="hover:text-amber-600">
                 {item.label}
               </Link>
             ) : (
-              <span className="text-slate-900 font-medium">
-                {item.label}
-              </span>
+              <span className="text-slate-900 font-medium">{item.label}</span>
             )}
           </li>
         ))}

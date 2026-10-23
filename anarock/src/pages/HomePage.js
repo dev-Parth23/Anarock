@@ -1231,7 +1231,7 @@ export default function HomePage() {
       <div className="premium-page relative w-full overflow-hidden bg-gradient-to-tr from-[#A054A0]/10 via-amber-200/5 to-purple-100/30 font-sans text-slate-800 selection:bg-[#A054A0] selection:text-white">
         <HeroSection locationData={locationData} />
         {/* POPULAR CITIES */}
-        <section className="relative overflow-hidden py-14 sm:py-16 md:py-20 lg:py-24">
+        <section id="popularCities" className="relative overflow-hidden py-14 sm:py-16 md:py-20 lg:py-24">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#A054A0]/[0.05] blur-3xl" />
             <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#A054A0]/[0.04] blur-3xl" />

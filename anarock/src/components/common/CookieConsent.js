@@ -75,10 +75,10 @@ export default function CookieConsent({ onConsentGiven }) {
             </p>
           </div>
           <div className="w-full lg:w-[300px] flex flex-col gap-2 sm:gap-2.5 shrink-0">
-            <button type="button" onClick={handleAcceptAll} className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl bg-[#8f3d8a] hover:bg-[#7e3479] active:bg-[#702d6b] text-white text-xs sm:text-sm     font-semibold transition-all shadow-sm">
+            <button type="button" onClick={handleAcceptAll} className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl bg-[#A054A0] hover:bg-[#A054A0] active:bg-[#A054A0] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm hover:scale-95">
               Accept All Cookies
             </button>
-            <button type="button" onClick={handleEssentialOnly} className=" w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl text-nowrap bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-100 text-[#8f3d8a] text-xs sm:text-sm font-semibold transition-all shadow-sm">
+            <button type="button" onClick={handleEssentialOnly} className="w-full min-h-11 sm:h-11 px-4 sm:px-5 py-2.5 sm:py-0 rounded-xl text-nowrap border border-dashed border-slate-400 hover:bg-slate-50  text-[#A054A0] text-xs sm:text-sm font-semibold transition-all shadow-sm hover:scale-95">
               Reject Non-Essential Cookies
             </button>
           </div>

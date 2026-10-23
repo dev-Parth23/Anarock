@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -44,10 +43,31 @@ const currencies = [
 
 const phoneCountries = [
   { name: "India", code: "IN", dial: "+91", flag: "🇮🇳", min: 10, max: 10 },
-  { name: "United States", code: "US", dial: "+1", flag: "🇺🇸", min: 10, max: 10 },
+  {
+    name: "United States",
+    code: "US",
+    dial: "+1",
+    flag: "🇺🇸",
+    min: 10,
+    max: 10,
+  },
   { name: "Canada", code: "CA", dial: "+1", flag: "🇨🇦", min: 10, max: 10 },
-  { name: "United Kingdom", code: "GB", dial: "+44", flag: "🇬🇧", min: 10, max: 10 },
-  { name: "United Arab Emirates", code: "AE", dial: "+971", flag: "🇦🇪", min: 9, max: 9 },
+  {
+    name: "United Kingdom",
+    code: "GB",
+    dial: "+44",
+    flag: "🇬🇧",
+    min: 10,
+    max: 10,
+  },
+  {
+    name: "United Arab Emirates",
+    code: "AE",
+    dial: "+971",
+    flag: "🇦🇪",
+    min: 9,
+    max: 9,
+  },
   { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺", min: 9, max: 9 },
   { name: "Singapore", code: "SG", dial: "+65", flag: "🇸🇬", min: 8, max: 8 },
   { name: "Germany", code: "DE", dial: "+49", flag: "🇩🇪", min: 10, max: 11 },
@@ -66,16 +86,37 @@ const phoneCountries = [
   { name: "Thailand", code: "TH", dial: "+66", flag: "🇹🇭", min: 9, max: 9 },
   { name: "Israel", code: "IL", dial: "+972", flag: "🇮🇱", min: 9, max: 9 },
   { name: "Indonesia", code: "ID", dial: "+62", flag: "🇮🇩", min: 9, max: 12 },
-  { name: "Philippines", code: "PH", dial: "+63", flag: "🇵🇭", min: 10, max: 10 },
+  {
+    name: "Philippines",
+    code: "PH",
+    dial: "+63",
+    flag: "🇵🇭",
+    min: 10,
+    max: 10,
+  },
   { name: "Vietnam", code: "VN", dial: "+84", flag: "🇻🇳", min: 9, max: 10 },
   { name: "South Africa", code: "ZA", dial: "+27", flag: "🇿🇦", min: 9, max: 9 },
-  { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", min: 9, max: 9 },
+  {
+    name: "Saudi Arabia",
+    code: "SA",
+    dial: "+966",
+    flag: "🇸🇦",
+    min: 9,
+    max: 9,
+  },
   { name: "Qatar", code: "QA", dial: "+974", flag: "🇶🇦", min: 8, max: 8 },
   { name: "Kuwait", code: "KW", dial: "+965", flag: "🇰🇼", min: 8, max: 8 },
   { name: "Oman", code: "OM", dial: "+968", flag: "🇴🇲", min: 8, max: 8 },
   { name: "Bahrain", code: "BH", dial: "+973", flag: "🇧🇭", min: 8, max: 8 },
   { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", min: 10, max: 10 },
-  { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", min: 10, max: 10 },
+  {
+    name: "Bangladesh",
+    code: "BD",
+    dial: "+880",
+    flag: "🇧🇩",
+    min: 10,
+    max: 10,
+  },
   { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", min: 10, max: 10 },
   { name: "Sri Lanka", code: "LK", dial: "+94", flag: "🇱🇰", min: 9, max: 9 },
   { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", min: 10, max: 10 },
@@ -97,22 +138,18 @@ const mainServices = [
   {
     title: "Leasing Services",
     slug: "leasing-services",
-    description: "Identify space, evaluate alternatives & execute commercial lease terms.",
   },
   {
     title: "Transaction Management",
     slug: "transaction-management",
-    description: "Structured execution, governance & visibility across renewals & relocations.",
   },
   {
     title: "Advisory Services",
     slug: "advisory-services",
-    description: "Market intelligence, workplace strategy & portfolio planning.",
   },
   {
     title: "Enterprise Advisory Solutions",
     slug: "enterprise-advisory-solutions",
-    description: "Strategic workplace, portfolio, and occupancy solutions.",
   },
 ];
 
@@ -174,7 +211,7 @@ export default function Navbar() {
       window.dispatchEvent(
         new CustomEvent("anarock-service-selected", {
           detail: { slug },
-        })
+        }),
       );
       return;
     }
@@ -466,8 +503,12 @@ export default function Navbar() {
   });
 
   const mapLocationToLeadOwnerTeam = (city, state) => {
-    const cityLower = String(city || "").trim().toLowerCase();
-    const stateLower = String(state || "").trim().toLowerCase();
+    const cityLower = String(city || "")
+      .trim()
+      .toLowerCase();
+    const stateLower = String(state || "")
+      .trim()
+      .toLowerCase();
 
     if (cityLower.includes("bengaluru") || cityLower.includes("bangalore"))
       return "Bengaluru";
@@ -793,15 +834,14 @@ export default function Navbar() {
                                 <button
                                   key={service.slug}
                                   type="button"
-                                  onClick={() => handleServiceNavigation(service.slug)}
+                                  onClick={() =>
+                                    handleServiceNavigation(service.slug)
+                                  }
                                   className="group/item flex items-center justify-between rounded-xl px-3.5 py-2.5 transition-all duration-150 hover:bg-[#A054A0]/10"
                                 >
                                   <div>
                                     <div className="text-[14px] font-bold text-slate-800 transition-colors group-hover/item:text-[#A054A0]">
                                       {service.title}
-                                    </div>
-                                    <div className="text-[11px] text-slate-500 line-clamp-1">
-                                      {service.description}
                                     </div>
                                   </div>
                                   <ChevronRight
@@ -856,7 +896,9 @@ export default function Navbar() {
                     <ChevronDown
                       size={12}
                       strokeWidth={2}
-                      className={`transition-transform duration-300 ${currencyOpen ? "rotate-180 text-[#A054A0]" : "text-slate-500"
+                      className={`transition-transform duration-300 ${currencyOpen
+                        ? "rotate-180 text-[#A054A0]"
+                        : "text-slate-500"
                         }`}
                     />
                   </button>
@@ -938,9 +980,7 @@ export default function Navbar() {
                   <span>Shortlisted</span>
 
                   {wishlistCount > 0 && (
-                    <span>
-                      ({wishlistCount > 99 ? "99+" : wishlistCount})
-                    </span>
+                    <span>({wishlistCount > 99 ? "99+" : wishlistCount})</span>
                   )}
                 </Link>
               </div>
@@ -972,16 +1012,23 @@ export default function Navbar() {
                 {navigation.map((item, index) => {
                   if (item.label === "Services") {
                     return (
-                      <div key={item.label} className="flex flex-col rounded-lg border border-[#A054A0]/10 bg-white/80">
+                      <div
+                        key={item.label}
+                        className="flex flex-col rounded-lg border border-[#A054A0]/10 bg-white/80"
+                      >
                         <button
                           type="button"
-                          onClick={() => setMobileServicesExpanded((prev) => !prev)}
+                          onClick={() =>
+                            setMobileServicesExpanded((prev) => !prev)
+                          }
                           className="flex w-full items-center justify-between px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800"
                         >
                           <span>{item.label}</span>
                           <ChevronDown
                             size={18}
-                            className={`transition-transform duration-200 ${mobileServicesExpanded ? "rotate-180 text-[#A054A0]" : ""
+                            className={`transition-transform duration-200 ${mobileServicesExpanded
+                              ? "rotate-180 text-[#A054A0]"
+                              : ""
                               }`}
                           />
                         </button>
@@ -992,7 +1039,9 @@ export default function Navbar() {
                               <button
                                 key={service.slug}
                                 type="button"
-                                onClick={() => handleServiceNavigation(service.slug)}
+                                onClick={() =>
+                                  handleServiceNavigation(service.slug)
+                                }
                                 className="w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-700 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                               >
                                 {service.title}

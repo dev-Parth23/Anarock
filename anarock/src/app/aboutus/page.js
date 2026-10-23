@@ -12,10 +12,10 @@ import {
     Mail,
     Link,
 } from "lucide-react";
-
 import { useState } from "react";
 
 import MarketStats from "@/components/home/MarketStats";
+import Breadcrumbs from "@/components/common/Breadcrumbs";
 
 const leaders = [
     {
@@ -68,6 +68,7 @@ const leaders = [
         ),
     },
 ];
+
 const leaders2 = [
     {
         name: "Abbishek Sharma",
@@ -112,6 +113,7 @@ const leaders2 = [
         email: "Kanchana.Krishnan@anarock.com",
     },
 ];
+
 const companyStats = [
     { value: "3000+", label: "Employees" },
     {
@@ -121,6 +123,7 @@ const companyStats = [
     { value: "30%", label: "YoY Growth" },
     { value: "15", label: "Offices across India" },
 ];
+
 const partners = [
     { name: "BINSWANGER", IMG: "/services/research/binswanger.png" },
     { name: "HVS", IMG: "/services/research/hvs.png" },
@@ -129,6 +132,7 @@ const partners = [
     { name: "myHQ", IMG: "/services/research/myhq.svg" },
     { name: "UPFLEX", IMG: "/services/research/upflex.png" },
 ];
+
 const highlights = [
     {
         icon: Rocket,
@@ -147,6 +151,7 @@ const highlights = [
         text: "Flex Supply Aggregator",
     },
 ];
+
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -155,14 +160,16 @@ const fadeUp = {
         transition: { duration: 0.55, ease: "easeOut" },
     },
 };
+
 function Eyebrow({ children }) {
     return (
-        <div className="mb-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#ad4b9e]">
+        <div className="mb-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#A054A0]">
             <span className="h-px w-7 bg-[#ad4b9e]" />
             {children}
         </div>
     );
 }
+
 function LocalImage({
     src,
     alt,
@@ -199,39 +206,46 @@ function LocalImage({
 
 export default function AboutUsPage() {
     return (
-        <main className="overflow-hidden bg-white text-[#202027]">
+        <main className="w-full min-w-0 overflow-x-clip text-black">
             {/* Introduction */}
-            <section className="relative border-b border-[#eae7eb] bg-[#f8f7f8]">
-                <div className="absolute inset-y-0 right-0 hidden w-[38%] bg-[#f0edf1] lg:block" />
+            <Breadcrumbs
+                items={[
+                    {
+                        label: "About us",
+                        href: "/aboutus",
+                    },
+                ]}
+            />
 
-                <div className="relative mx-auto grid max-w-[1440px] items-center gap-10 px-5 py-14 sm:px-8 sm:py-20 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:px-16 lg:py-24">
+            <section className="relative">
+                <div className="relative mx-auto grid w-full max-w-[1440px] min-w-0 grid-cols-1 items-center gap-8 px-4 py-6 sm:gap-10 sm:px-6 sm:py-8 md:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-10 lg:px-12 xl:px-16">
                     <motion.div
                         initial="hidden"
                         animate="visible"
                         variants={{
                             hidden: {},
-                            visible: { transition: { staggerChildren: 0.12 } },
+                            visible: {
+                                transition: { staggerChildren: 0.12 },
+                            },
                         }}
                         className="relative z-10"
                     >
-                        <motion.div variants={fadeUp}>
-                            <Eyebrow>About Anarock</Eyebrow>
-                        </motion.div>
+                        <motion.div variants={fadeUp}></motion.div>
 
                         <motion.h1
                             variants={fadeUp}
-                            className="text-5xl font-semibold leading-[1.05] tracking-[-0.05em] sm:text-6xl lg:text-[72px]"
+                            className="text-[clamp(2.75rem,7vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.05em]"
                         >
                             Who
                             <br />
-                            <span className="text-[#ad4b9e]">we are.</span>
+                            <span className="text-[#A054A0]">we are.</span>
                         </motion.h1>
 
                         <motion.p
                             variants={fadeUp}
-                            className="mt-7 max-w-[510px] text-base leading-8 text-[#6f6b72] sm:text-lg"
+                            className="mt-5 max-w-[510px] text-[15px] leading-7 text-black sm:mt-6 sm:text-lg sm:leading-8"
                         >
-                            <span className="font-semibold italic text-[#ad4b9e]">
+                            <span className="font-semibold italic text-[#A054A0]">
                                 Anarock
                             </span>{" "}
                             is a leading international property consultant that delivers
@@ -242,9 +256,9 @@ export default function AboutUsPage() {
 
                         <motion.div
                             variants={fadeUp}
-                            className="mt-9 border-t border-[#ded9df] pt-7"
+                            className="mt-7 border-t border-[#ded9df] pt-6 sm:mt-9 sm:pt-7"
                         >
-                            <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8b848d]">
+                            <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-black">
                                 Our distinction
                             </p>
 
@@ -255,15 +269,15 @@ export default function AboutUsPage() {
                                     return (
                                         <div
                                             key={item.emphasis}
-                                            className="flex items-center gap-4"
+                                            className="flex min-w-0 items-center gap-3 sm:gap-4"
                                         >
-                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#e5d9e5] bg-white text-[#974597]">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e5d9e5] bg-white text-[#A054A0] sm:h-11 sm:w-11">
                                                 <Icon size={20} strokeWidth={1.6} />
                                             </div>
 
-                                            <p className="text-sm leading-6 text-black sm:text-base">
+                                            <p className="min-w-0 text-sm leading-6 text-black sm:text-base">
                                                 {item.prefix || ""}
-                                                <strong className="font-bold text-[#974597]">
+                                                <strong className="font-bold text-[#A054A0]">
                                                     {item.emphasis}
                                                 </strong>{" "}
                                                 {item.text}
@@ -281,9 +295,9 @@ export default function AboutUsPage() {
                         transition={{ duration: 0.75 }}
                         className="relative z-10"
                     >
-                        <div className="absolute -inset-3 border border-white" />
+                        <div className="pointer-events-none absolute -inset-1 border border-white border-t-black/75 border-r-black/75 sm:-inset-3" />
 
-                        <div className="relative min-h-[320px] overflow-hidden bg-[#e9e5e922] sm:min-h-[460px] lg:min-h-[540px]">
+                        <div className="relative min-h-[280px] w-full overflow-hidden sm:min-h-[380px] md:min-h-[460px] lg:min-h-[540px]">
                             <Image
                                 src="/services/Campuses.avif"
                                 alt="Anarock commercial office workspace"
@@ -295,13 +309,13 @@ export default function AboutUsPage() {
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/5" />
 
-                            <div className="absolute left-5 top-5 inline-flex items-center gap-2 bg-white/95 px-3 py-2 text-[10px] font-semibold tracking-[0.12em] text-[#38303a] sm:left-7 sm:top-7">
-                                <Globe2 size={15} className="text-[#ad4b9e]" />
+                            <div className="absolute left-5 top-5 inline-flex items-center gap-2 bg-white px-3 py-2 text-[10px] font-semibold tracking-[0.12em] text-black sm:left-7 sm:top-7">
+                                <Globe2 size={15} className="text-[#A054A0]" />
                                 Anarock
                             </div>
 
                             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-9">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/75">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white">
                                     International property consultant
                                 </p>
                                 <h2 className="mt-3 max-w-md text-2xl font-medium leading-snug text-white sm:text-4xl">
@@ -313,14 +327,13 @@ export default function AboutUsPage() {
                 </div>
             </section>
 
-            {/* MarketStats: dedicated full-width section */}
+            {/* Market statistics */}
             <section
                 aria-label="Commercial real estate market statistics"
-                className="bg-white px-0 py-8 sm:py-12"
+                className="px-4 py-8 sm:px-6 sm:py-12 lg:px-8"
             >
-                <div className="mx-auto w-full max-w-[1600px]">
-                    <div className="mb-6 px-5 sm:px-8 lg:px-12">
-                        <Eyebrow>Market overview</Eyebrow>
+                <div className="mx-auto w-full max-w-[1600px] min-w-0">
+                    <div className="mb-6 px-1 sm:px-2 lg:px-4">
                         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
                             Commercial real estate at a glance
                         </h2>
@@ -330,30 +343,29 @@ export default function AboutUsPage() {
             </section>
 
             {/* Company statistics */}
-            <section className="border-y border-[#eae6eb] bg-[#f8f7f8] px-5 py-14 sm:px-8 sm:py-20 lg:px-16">
-                <div className="mx-auto max-w-[1280px]">
+            <section className="border-y border-[#eae6eb] bg-[#f8f7f8] px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:px-12 lg:py-20 xl:px-16">
+                <div className="mx-auto w-full max-w-[1280px] min-w-0">
                     <div className="mb-9">
-                        <Eyebrow>ANAROCK in numbers</Eyebrow>
                         <h2 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
                             Our scale and reach.
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-px overflow-hidden border border-[#e9e4e9] bg-[#e9e4e9] sm:grid-cols-2 lg:grid-cols-4">
-                        {companyStats.map((stat, index) => (
+                    <div className="grid grid-cols-2 gap-px overflow-hidden border border-[#e9e4e9] bg-[#e9e4e9] sm:grid-cols-2 lg:grid-cols-4">
+                        {companyStats.map((stat) => (
                             <motion.div
                                 key={stat.label}
                                 initial="hidden"
                                 whileInView="visible"
                                 viewport={{ once: true, amount: 0.2 }}
                                 variants={fadeUp}
-                                className="flex min-h-[160px] flex-col justify-between bg-white p-6 sm:p-7"
+                                className="flex min-h-[130px] min-w-0 flex-col justify-between bg-white p-4 sm:min-h-[160px] sm:p-6 lg:p-7"
                             >
                                 <div>
-                                    <p className="text-3xl font-semibold tracking-[-0.04em] text-[#ad4b9e] sm:text-4xl">
+                                    <p className="text-2xl font-semibold tracking-[-0.04em] text-[#A054A0] sm:text-4xl">
                                         {stat.value}
                                     </p>
-                                    <p className="mt-2 text-sm leading-6 text-black">
+                                    <p className="mt-2 text-xs leading-5 text-black sm:text-sm sm:leading-6">
                                         {stat.label}
                                     </p>
                                 </div>
@@ -361,8 +373,8 @@ export default function AboutUsPage() {
                         ))}
                     </div>
 
-                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                        <div className="relative min-h-[230px] overflow-hidden bg-[#e8e5e8]">
+                    <div className="mt-4 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="relative min-h-[190px] overflow-hidden bg-[#e8e5e8] sm:min-h-[230px]">
                             <Image
                                 src="/services/research/seat.webp"
                                 alt="Commercial office workspace"
@@ -373,27 +385,29 @@ export default function AboutUsPage() {
                             />
                         </div>
 
-                        <div className="flex min-h-[230px] flex-col justify-center bg-white p-8 sm:p-10">
+                        <div className="flex min-h-[190px] min-w-0 flex-col justify-center bg-white p-6 sm:min-h-[230px] sm:p-10">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-black">
                                 Annual revenue
                             </p>
-                            <p className="mt-3 text-5xl font-semibold tracking-[-0.05em] text-[#ad4b9e]">
+                            <p className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-[#A054A0] sm:text-5xl">
                                 $110 M
                             </p>
                         </div>
                     </div>
-                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                        <div className="flex min-h-[230px] flex-col justify-center bg-white p-8 sm:p-10">
+
+                    <div className="mt-4 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="flex min-h-[190px] min-w-0 flex-col justify-center bg-white p-6 sm:min-h-[230px] sm:p-10">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-black">
                                 Presence in
                             </p>
-                            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#ad4b9e]">
+                            <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-[#A054A0] sm:text-3xl">
                                 India, US, UK,
                                 <br />
                                 Middle East &amp; Singapore
                             </p>
                         </div>
-                        <div className="relative min-h-[230px] overflow-hidden bg-[#e8e5e8]">
+
+                        <div className="relative min-h-[190px] overflow-hidden bg-[#e8e5e8] sm:min-h-[230px]">
                             <Image
                                 src="/services/research/seat2.jpg"
                                 alt="Commercial office workspace"
@@ -408,28 +422,27 @@ export default function AboutUsPage() {
             </section>
 
             {/* Global partners */}
-            <section className="px-5 py-16 sm:px-8 sm:py-20 lg:px-16">
-                <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 lg:grid-cols-5 lg:gap-12">
-                    {" "}
+            <section className="px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:px-12 lg:py-20 xl:px-16">
+                <div className="mx-auto grid w-full max-w-[1280px] min-w-0 grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-5 lg:gap-12">
                     <div className="lg:col-span-2">
-                        <Eyebrow>Global partners</Eyebrow>
                         <h2 className="text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">
                             A connected
-                            <span className="block text-[#ad4b9e]">global network.</span>
+                            <span className="block text-[#A054A0]">global network.</span>
                         </h2>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
+
+                    <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
                         {partners.map((partner) => (
                             <div
                                 key={partner.name}
-                                className="flex min-h-[110px] items-center justify-center rounded-sm border border-[#eae5eb] bg-white p-5 transition-all duration-300 hover:border-[#cda5c7] hover:shadow-sm sm:min-h-[125px]"
+                                className="flex min-h-[110px] items-center justify-center rounded-sm border border-dashed border-slate-400 bg-white p-5 transition-all duration-300 hover:border-[#cda5c7] hover:shadow-sm sm:min-h-[125px]"
                             >
                                 {partner.IMG && (
                                     <img
                                         src={partner.IMG}
                                         alt={partner.name}
                                         loading="lazy"
-                                        className="max-h-[95px] max-w-full object-cover"
+                                        className="max-h-[70px] max-w-full object-contain sm:max-h-[95px]"
                                     />
                                 )}
                             </div>
@@ -439,63 +452,65 @@ export default function AboutUsPage() {
             </section>
 
             {/* Leadership */}
-            <section className="border-t border-[#eae6eb] bg-[#f8f7f8] px-5 py-16 sm:px-8 sm:py-20 lg:px-16">
-                <div className="mx-auto max-w-[1280px]">
-                    <div className="mb-10">
-                        <Eyebrow>Leadership</Eyebrow>
+            <section className="border-t border-[#eae6eb] bg-[#f8f7f8] px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:px-12 lg:py-20 xl:px-16">
+                <div className="mx-auto w-full max-w-[1280px] min-w-0">
+                    <div className="mb-7 sm:mb-10">
                         <h2 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
                             Our Leaders
                         </h2>
                     </div>
 
-                    <div className="grid gap-5 md:grid-cols-3">
+                    <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
                         {leaders.map((leader, index) => (
                             <motion.article
                                 key={leader.name}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, amount: 0.15 }}
-                                transition={{ duration: 0.5, delay: index * 0.08 }}
-                                className="group overflow-hidden border border-[#e9e3ea] bg-white transition-shadow duration-300 hover:shadow-[0_16px_40px_rgba(40,25,43,0.07)]"
+                                transition={{
+                                    duration: 0.5,
+                                    delay: index * 0.08,
+                                }}
+                                className="group flex min-w-0 flex-col overflow-hidden border border-[#e9e3ea] bg-white transition-all duration-300 hover:border-[#d8c3d8] hover:shadow-[0_12px_32px_rgba(40,25,43,0.07)]"
                             >
-                                <div className="relative flex h-[270px] items-end justify-center overflow-hidden bg-[#f3edf3]">
-                                    <div className="absolute bottom-0 h-[205px] w-[205px] rounded-full bg-[#ead9e8]" />
+                                <div className="relative flex h-[220px] shrink-0 items-end justify-center overflow-hidden bg-[#f3edf3] xs:h-[230px] sm:h-[240px] md:h-[260px] lg:h-[270px]">
+                                    <div className="absolute bottom-0 h-[165px] w-[165px] rounded-full bg-[#ead9e8] transition-transform duration-500 group-hover:scale-105 sm:h-[185px] sm:w-[185px] lg:h-[205px] lg:w-[205px]" />
 
                                     <Image
                                         src={leader.image}
                                         alt={leader.name}
                                         width={300}
                                         height={300}
-                                        sizes="(max-width: 768px) 100vw, 33vw"
-                                        className="relative z-10 h-[255px] w-full object-contain object-bottom transition-transform duration-500 group-hover:scale-[1.03]"
+                                        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                                        className="relative z-10 h-[210px] w-full max-w-[300px] object-contain object-bottom transition-transform duration-500 group-hover:scale-[1.03] sm:h-[230px] md:h-[245px] lg:h-[255px]"
                                     />
                                 </div>
 
-                                <div className="p-6 sm:p-7">
-                                    <h3 className="text-xl font-semibold tracking-tight text-black">
+                                {/* Leader details */}
+                                <div className="flex flex-1 flex-col p-4 sm:p-5 lg:p-7">
+                                    <h3 className="break-words text-lg font-semibold leading-snug tracking-tight text-black sm:text-xl">
                                         <a
-                                            href={`${leader.linkedin}`}
+                                            href={leader.linkedin}
                                             aria-label={`${leader.name} LinkedIn`}
-                                            className="hover:text-[#7D397D]"
+                                            className="transition-colors duration-200 hover:text-[#A054A0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
                                         >
                                             {leader.name}
                                         </a>
                                     </h3>
 
-                                    <p className="mt-1 min-h-[38px] text-sm leading-5 text-[#974597]">
-
+                                    <p className="mt-1 min-h-0 break-words text-sm leading-5 text-[#A054A0] sm:min-h-[40px]">
                                         <a
                                             href={`mailto:${leader.email}`}
                                             aria-label={`Email ${leader.name}`}
-                                            className="hover:text-[#7D397D]"
+                                            className="transition-colors duration-200 hover:text-[#7D397D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
                                         >
                                             {leader.role}
                                         </a>
                                     </p>
 
-                                    <div className="my-5 h-px bg-[#ece6ed]" />
+                                    <div className="my-4 h-px shrink-0 bg-[#ece6ed] sm:my-5" />
 
-                                    <p className="text-sm leading-6 text-black [&_strong]:font-semibold [&_strong]:text-[#974597]">
+                                    <p className="text-sm leading-6 text-black [&_strong]:font-semibold [&_strong]:text-[#A054A0]">
                                         {leader.description}
                                     </p>
                                 </div>
@@ -503,42 +518,51 @@ export default function AboutUsPage() {
                         ))}
                     </div>
                 </div>
-
-                <div className="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 pt-20">
+                <div className="mx-auto mt-14 grid w-full max-w-[1280px] grid-cols-1 gap-x-8 gap-y-5 sm:mt-16 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-6 lg:grid-cols-3 lg:gap-x-10">
                     {leaders2.map((leader) => (
                         <article
                             key={leader.name}
-                            className="flex min-w-0 items-start gap-4"
+                            className="group flex min-w-0 items-center gap-4 border-b border-[#EADBEA]/80 px-1 pb-5 transition-colors duration-300 hover:border-[#A054A0]/50 sm:pb-6"
                         >
-                            <LocalImage
-                                src={leader.image}
-                                alt={leader.name}
-                                className="h-[74px] w-[74px] shrink-0 rounded-full bg-slate-100"
-                                sizes="74px"
-                            />
+                            <div className="relative h-[62px] w-[62px] shrink-0 overflow-hidden rounded-full border border-[#EADBEA] bg-white p-0.5  duration-300 group-hover:border-[#A054A0]/50 group-hover:scale-105 sm:h-[70px] sm:w-[70px]">
+                                <LocalImage
+                                    src={leader.image}
+                                    alt={leader.name}
+                                    className="h-full w-full rounded-full bg-[#F5F0F5]"
+                                    sizes="70px"
+                                />
+                            </div>
+
                             <div className="min-w-0 flex-1">
-                                <h3 className="border-b border-[#EADBEA] pb-2 text-sm font-semibold">
-                                    {leader.name}
-                                </h3>
-                                <p className="mt-2 text-sm leading-5 text-slate-700">
+                                <div className="flex min-w-0 items-center justify-between gap-2">
+                                    <h3 className="min-w-0 break-words text-sm font-semibold leading-5 tracking-[-0.01em] text-black transition-colors duration-300 group-hover:text-[#A054A0] group-hover:scale-105 sm:text-[18px]">
+                                        {leader.name}
+                                    </h3>
+
+                                    <div className="flex shrink-0 items-center gap-1">
+                                        <a
+                                            href={leader.linkedin}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label={`${leader.name} LinkedIn`}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full text-[#A054A0] transition-all duration-200 hover:bg-[#F3EAF3] hover:text-[#7D397D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
+                                        >
+                                            <ArrowUpRight size={16} strokeWidth={1.7} />
+                                        </a>
+
+                                        <a
+                                            href={`mailto:${leader.email}`}
+                                            aria-label={`Email ${leader.name}`}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full text-[#A054A0] transition-all duration-200 hover:bg-[#F3EAF3] hover:text-[#7D397D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
+                                        >
+                                            <Mail size={15} strokeWidth={1.7} />
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <p className="break-words text-xs leading-5 text-black/80 sm:text-[13px]">
                                     {leader.role}
                                 </p>
-                                <div className="mt-2 flex gap-2 text-[#A054A0]">
-                                    <a
-                                        href={`${leader.linkedin}`}
-                                        aria-label={`${leader.name} LinkedIn`}
-                                        className="hover:text-[#7D397D]"
-                                    >
-                                        <ArrowUpRight size={15} />{" "}
-                                    </a>
-                                    <a
-                                        href={`mailto:${leader.email}`}
-                                        aria-label={`Email ${leader.name}`}
-                                        className="hover:text-[#7D397D]"
-                                    >
-                                        <Mail size={15} />
-                                    </a>
-                                </div>
                             </div>
                         </article>
                     ))}

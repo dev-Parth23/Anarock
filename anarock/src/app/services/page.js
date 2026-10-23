@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Breadcrumbs from "@/components/common/Breadcrumbs";
 
 import {
   ArrowUpRight,
@@ -10,6 +11,7 @@ import {
   ChevronLeft,
   Plus,
   Minus,
+  Home,
   Download,
   Share2,
   Mail,
@@ -526,6 +528,13 @@ function CommercialLeasingAndAdvisoryPageContent() {
     );
   };
 
+  const breadcrumbs = [
+    {
+      label: "CLA Services",
+      href: "/services",
+    },
+  ];
+
   return (
     <main className="min-h-screen overflow-hidden bg-white text-black">
       {/* HERO */}
@@ -564,7 +573,7 @@ function CommercialLeasingAndAdvisoryPageContent() {
       </section>
 
       {/* BREADCRUMB */}
-      <nav
+      {/* <nav
         aria-label="Breadcrumb"
         className="mx-auto flex max-w-[1728px] flex-wrap items-center gap-2 px-6 py-6 text-[11px] text-slate-700 sm:px-10 md:px-16 lg:px-[7.8%]"
       >
@@ -577,7 +586,11 @@ function CommercialLeasingAndAdvisoryPageContent() {
         </Link>
         <ChevronRight size={12} className="text-[#A054A0]" />
         <span className="text-slate-900">Commercial Leasing And Advisory</span>
-      </nav>
+      </nav> */}
+
+
+
+      <Breadcrumbs items={breadcrumbs} />
 
       {/* INTRODUCTION AND STATISTICS */}
       <section className="mx-auto max-w-[1150px] px-6 pb-14 pt-12 sm:px-10 lg:pb-20">
@@ -618,8 +631,8 @@ function CommercialLeasingAndAdvisoryPageContent() {
                 onClick={() => setActiveService(index)}
                 aria-pressed={activeService === index}
                 className={`border px-4 py-2 text-xs transition-colors sm:text-sm ${activeService === index
-                    ? "border-[#A054A0] bg-[#A054A0] font-semibold text-white"
-                    : "border-white bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
+                  ? "border-[#A054A0] bg-[#A054A0] font-semibold text-white"
+                  : "border-white bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
                   }`}
               >
                 {service.title}

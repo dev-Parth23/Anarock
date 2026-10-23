@@ -185,11 +185,11 @@ export default function MarketStats() {
                 {loading ? (
                   <div className=" h-8  w-28 animate-pulse  rounded-lg   bg-slate-100  sm:h-10   sm:w-36   lg:h-12  lg:w-40" />
                 ) : error ? (
-                  <span className=" text-xs font-medium  text-slate-400  sm:text-sm">
+                  <span className=" text-xs font-medium  text-black  sm:text-sm">
                     Unavailable
                   </span>
                 ) : (
-                  <div className=" min-w-0 truncate text-lg font-bold tracking-tight text-[#b54fb5] transition-transform duration-300 group-hover:translate-x-0.5 min-[400px]:text-xl sm:text-xl lg:text-2xl xl:text-3xl">
+                  <div className=" min-w-0 truncate text-lg font-bold tracking-tight text-[#A054A0] transition-transform duration-300 group-hover:translate-x-0.5 min-[400px]:text-xl sm:text-xl lg:text-2xl xl:text-3xl">
                     <AnimatedNumber
                       value={stats?.[key]}
                       unit={unit}
@@ -199,9 +199,9 @@ export default function MarketStats() {
                   </div>
                 )}
               </div>
-              <h3 className="text-xs font-semibold tracking-tight text-slate-800 min-[400px]:text-sm sm:text-base">{label}</h3>
+              <h3 className="text-xs font-semibold tracking-tight text-black min-[400px]:text-sm sm:text-base">{label}</h3>
             </div>
-            <p className="mt-4 max-w-[260px] text-[11px] leading-relaxed text-slate-500 min-[400px]:text-[12px] sm:text-xs sm:leading-relaxed">
+            <p className="mt-4 max-w-[260px] text-[11px] leading-relaxed text-black min-[400px]:text-[12px] sm:text-xs sm:leading-relaxed">
               {description}
             </p>
           </div>

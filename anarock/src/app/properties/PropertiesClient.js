@@ -576,15 +576,6 @@ function PropertiesClientContent() {
     }
   };
 
-  // const handleEnquiryChange = (event) => {
-  //   const { name, value } = event.target;
-
-  //   setEnquiryForm((previous) => ({
-  //     ...previous,
-  //     [name]: value,
-  //   }));
-  // };
-
   const normalizedOfficeType = normalizeValue(filters.type);
   const sortValue = filters.sort || "";
   const isCoworking = normalizedOfficeType === "managed office/co-working";
@@ -1503,8 +1494,8 @@ function PropertiesClientContent() {
         }
       `}</style>
 
+      <Breadcrumbs items={breadcrumbs} />
       <div className="px-4 py-4">
-        <Breadcrumbs items={breadcrumbs} />
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>

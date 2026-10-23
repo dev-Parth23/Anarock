@@ -101,8 +101,7 @@ function readLocalStorageObject(keys) {
           value: raw.trim(),
         };
       }
-    } catch {
-    }
+    } catch { }
   }
   return null;
 }
@@ -120,15 +119,19 @@ function readLocalStorageValue(keys) {
           return String(parsed).trim();
         }
         if (parsed && typeof parsed === "object") {
-          const possibleValue = parsed.city || parsed.City || parsed.name || parsed.Name || parsed.value;
+          const possibleValue =
+            parsed.city ||
+            parsed.City ||
+            parsed.name ||
+            parsed.Name ||
+            parsed.value;
           if (possibleValue) {
             return String(possibleValue).trim();
           }
         }
         return String(value).trim();
       }
-    } catch {
-    }
+    } catch { }
   }
   return "";
 }
@@ -136,7 +139,14 @@ function getShortlistPropertyCity(property) {
   if (!property || typeof property !== "object") {
     return "";
   }
-  return String(property?.city ?? property?.City ?? property?.cityName ?? property?.City_Name ?? property?.micromarketCity ?? "").trim();
+  return String(
+    property?.city ??
+    property?.City ??
+    property?.cityName ??
+    property?.City_Name ??
+    property?.micromarketCity ??
+    "",
+  ).trim();
 }
 function getShortlistPropertyType(property) {
   if (!property || typeof property !== "object") {
@@ -248,8 +258,10 @@ function getSelectionKey(properties = []) {
 
 export default function WishlistClient() {
   const router = useRouter();
-  const [enquirySubmittedSelectionKey, setEnquirySubmittedSelectionKey] = useState("");
-  const [enquirySubmittedForSelection, setEnquirySubmittedForSelection] = useState(false);
+  const [enquirySubmittedSelectionKey, setEnquirySubmittedSelectionKey] =
+    useState("");
+  const [enquirySubmittedForSelection, setEnquirySubmittedForSelection] =
+    useState(false);
   const [enquirySuccess, setEnquirySuccess] = useState(false);
   const { items, count, isInitialized } = useWishlist();
   const { currency, unit } = usePreferences();
@@ -309,7 +321,8 @@ export default function WishlistClient() {
             const id = getPropertyId(oldProperty);
             if (!id) {
               return null;
-            } const freshProperty = propertyMap.get(id);
+            }
+            const freshProperty = propertyMap.get(id);
             return freshProperty || oldProperty;
           })
           .filter(Boolean);
@@ -359,7 +372,8 @@ export default function WishlistClient() {
   useEffect(() => {
     if (!isInitialized) {
       return;
-    } if (!items.length) {
+    }
+    if (!items.length) {
       setEnquirySubmittedForSelection(false);
       return;
     }
@@ -411,8 +425,13 @@ export default function WishlistClient() {
     router.push("/compare");
   };
 
-  const canCompare = compareSelection.length >= MIN_COMPARE_PROPERTIES && compareSelection.length <= MAX_COMPARE_PROPERTIES;
-  const remainingToCompare = Math.max(0, MIN_COMPARE_PROPERTIES - compareSelection.length);
+  const canCompare =
+    compareSelection.length >= MIN_COMPARE_PROPERTIES &&
+    compareSelection.length <= MAX_COMPARE_PROPERTIES;
+  const remainingToCompare = Math.max(
+    0,
+    MIN_COMPARE_PROPERTIES - compareSelection.length,
+  );
   const openEnquiryForm = () => {
     if (!items || items.length === 0) {
       return;
@@ -655,448 +674,442 @@ export default function WishlistClient() {
     }
   };
   return (
-    <main className="min-h-screen bg-[#fafafa] px-4 py-6 pb-32 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-[1600px]">
-        <Breadcrumbs
-          items={[
-            {
-              label: "Properties",
-              href: "/properties",
-            },
-            {
-              label: "Shortlisted Properties",
-            },
-          ]}
-        />
+    <>
+      <Breadcrumbs
+        items={[
+          {
+            label: "Properties",
+            href: "/properties",
+          },
+          {
+            label: "Shortlisted Properties",
+            href: "/shortlist",
+          },
+        ]}
+      />
+      <main className="min-h-screen px-4 py-4 pb-32 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-[1600px]">
+          <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <Heart className="h-5 w-5 fill-[#A054A0] text-[#A054A0]" />
 
-        {/* =========================
-            HEADER
-        ========================= */}
+                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#A054A0]">
+                  Your Collection
+                </span>
+              </div>
 
-        <section className="mt-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-3 flex items-center gap-2">
-              <Heart className="h-5 w-5 fill-[#A054A0] text-[#A054A0]" />
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+                Shortlisted Properties
+              </h1>
 
-              <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#A054A0]">
-                Your Collection
-              </span>
+              <p className="mt-2 text-sm text-black/70 sm:text-base">
+                {count} saved {count === 1 ? "property" : "properties"}
+              </p>
             </div>
-
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-              Shortlisted Properties
-            </h1>
-
-            <p className="mt-2 text-sm text-slate-500 sm:text-base">
-              {count} saved {count === 1 ? "property" : "properties"}
-            </p>
-          </div>
-
-          <Link
-            href="/properties"
-            className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#A054A0] hover:text-[#A054A0]"
-          >
-            Explore Properties
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </section>
-
-        {/* =========================
-            PROPERTY GRID
-        ========================= */}
-
-        {items.length > 0 ? (
-          <section className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {items.map((property) => {
-              const propertyId = getPropertyId(property);
-
-              return (
-                <PropertyCard
-                  key={propertyId}
-                  property={property}
-                  isCompared={compareSelection.some(
-                    (item) => getPropertyId(item) === propertyId,
-                  )}
-                  onCompareToggle={handleCompareToggle}
-                />
-              );
-            })}
-          </section>
-        ) : (
-          <section className="mt-12 flex min-h-[350px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#A054A0]/10">
-              <Heart className="h-7 w-7 text-[#A054A0]" />
-            </div>
-
-            <h2 className="mt-5 text-xl font-semibold text-slate-900">
-              No properties shortlisted yet
-            </h2>
 
             <Link
               href="/properties"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#864286]"
+              className="inline-flex w-fit items-center gap-2 rounded-xl border border-dashed border-slate-400 bg-white px-5 py-3 text-sm font-semibold text-black transition hover:text-[#A054A0] hover:scale-95 "
             >
-              Browse Properties
+              Explore Properties
               <ArrowRight className="h-4 w-4" />
             </Link>
           </section>
-        )}
 
-        {items.length > 0 && (
-          <div className="fixed bottom-4 left-1/2 z-[90] w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur-xl sm:p-4">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              {/* LEFT SIDE */}
-              <div className="min-w-0">
-                {compareSelection.length > 0 ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <GitCompare className="h-4 w-4 text-[#A054A0]" />
+          {items.length > 0 ? (
+            <section className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              {items.map((property) => {
+                const propertyId = getPropertyId(property);
 
-                      <p className="text-sm font-semibold text-slate-900">
-                        {compareSelection.length} of 3 properties selected
-                      </p>
-                    </div>
-
-                    <p className="mt-1 text-xs text-slate-500">
-                      {canCompare
-                        ? "Ready to compare your selected properties."
-                        : `Select ${remainingToCompare === 1
-                          ? "one more property"
-                          : "at least two properties"
-                        } to compare.`}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Heart className="h-4 w-4 text-[#A054A0]" />
-
-                      <p className="text-sm font-semibold text-slate-900">
-                        {items.length} shortlisted{" "}
-                        {items.length === 1 ? "property" : "properties"}
-                      </p>
-                    </div>
-
-                    <p className="mt-1 text-xs text-slate-500">
-                      Raise an enquiry for your shortlisted properties.
-                    </p>
-                  </>
-                )}
+                return (
+                  <PropertyCard
+                    key={propertyId}
+                    property={property}
+                    isCompared={compareSelection.some(
+                      (item) => getPropertyId(item) === propertyId,
+                    )}
+                    onCompareToggle={handleCompareToggle}
+                  />
+                );
+              })}
+            </section>
+          ) : (
+            <section className="mt-12 flex min-h-[350px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-400 bg-white px-6 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#A054A0]/10">
+                <Heart className="h-7 w-7 text-[#A054A0]" />
               </div>
 
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                {compareSelection.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={clearCompareSelection}
-                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm"
-                  >
-                    <X className="h-4 w-4" />
-                    Clear
-                  </button>
-                )}
-                {compareSelection.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={openComparePage}
-                    disabled={!canCompare}
-                    className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
-                  >
-                    Compare Properties
-                  </button>
-                )}
-                {getSelectionKey(items) !== enquirySubmittedSelectionKey && (
-                  <button
-                    type="button"
-                    onClick={openEnquiryForm}
-                    disabled={!items.length}
-                    className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/5 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Raise Enquiry
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-        {isEnquiryOpen && (
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 px-4 py-6 backdrop-blur-sm"
-            onMouseDown={(event) => {
-              if (event.target === event.currentTarget) {
-                closeEnquiryForm();
-              }
-            }}
-          >
-            <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-              <div className="flex items-start justify-between border-b border-slate-100 px-5 py-5 sm:px-7">
-                <div>
-                  <div className="mb-2 flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#A054A0]/10">
-                      <MessageSquare className="h-4 w-4 text-[#A054A0]" />
-                    </div>
+              <h2 className="mt-5 text-xl font-semibold text-black">
+                No properties shortlisted yet
+              </h2>
 
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#A054A0]">
-                      Property Enquiry
-                    </span>
-                  </div>
+              <Link
+                href="/properties"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:scale-95"
+              >
+                Browse Properties
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </section>
+          )}
 
-                  <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
-                    Tell us about your requirement
-                  </h2>
+          {items.length > 0 && (
+            <div className="fixed bottom-4 left-1/2 z-[90] w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur-xl sm:p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                {/* LEFT SIDE */}
+                <div className="min-w-0">
+                  {compareSelection.length > 0 ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <GitCompare className="h-4 w-4 text-[#A054A0]" />
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    Our team will get in touch with you regarding your selected
-                    properties.
-                  </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {compareSelection.length} of 3 properties selected
+                        </p>
+                      </div>
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        {canCompare
+                          ? "Ready to compare your selected properties."
+                          : `Select ${remainingToCompare === 1
+                            ? "one more property"
+                            : "at least two properties"
+                          } to compare.`}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Heart className="h-4 w-4 text-[#A054A0]" />
+
+                        <p className="text-sm font-semibold text-slate-900">
+                          {items.length} shortlisted{" "}
+                          {items.length === 1 ? "property" : "properties"}
+                        </p>
+                      </div>
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        Raise an enquiry for your shortlisted properties.
+                      </p>
+                    </>
+                  )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={closeEnquiryForm}
-                  disabled={isSubmittingEnquiry}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="max-h-[calc(92vh-110px)] overflow-y-auto px-5 py-5 sm:px-7">
-                {enquirySuccess ? (
-                  <div className="flex min-h-[380px] flex-col items-center justify-center text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-                      <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-                    </div>
-
-                    <h3 className="mt-5 text-2xl font-semibold text-slate-900">
-                      Enquiry submitted
-                    </h3>
-
-                    <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-                      Thank you. Your enquiry has been submitted successfully.
-                      Our team will contact you shortly.
-                    </p>
-
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {compareSelection.length > 0 && (
                     <button
                       type="button"
-                      onClick={closeEnquiryForm}
-                      className="mt-7 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#864286]"
+                      onClick={clearCompareSelection}
+                      className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm"
                     >
-                      Done
+                      <X className="h-4 w-4" />
+                      Clear
                     </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleEnquirySubmit} className="space-y-5">
-                    <div>
-                      <div className="mb-2 flex items-center justify-between">
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                          Selected Properties
-                        </p>
-
-                        <span className="rounded-full bg-[#A054A0]/10 px-2.5 py-1 text-xs font-semibold text-[#A054A0]">
-                          {enquirySelection.length}
-                        </span>
-                      </div>
-
-                      <div className="space-y-2">
-                        {enquirySelection.map((property, index) => {
-                          const propertyId = getPropertyId(property);
-
-                          const propertyName =
-                            property?.name ??
-                            property?.Property_Name ??
-                            property?.propertyName ??
-                            property?.Name ??
-                            "Selected Property";
-
-                          const city = property?.city ?? property?.City ?? "";
-
-                          const micromarket =
-                            property?.micromarket ??
-                            property?.Micromarket ??
-                            property?.Micro_Market ??
-                            "";
-
-                          return (
-                            <div
-                              key={`${propertyId}-${index}`}
-                              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
-                            >
-                              <p className="text-sm font-semibold text-slate-900">
-                                {propertyName}
-                              </p>
-
-                              {(city || micromarket) && (
-                                <p className="mt-1 text-xs text-slate-500">
-                                  {[city, micromarket]
-                                    .filter(Boolean)
-                                    .join(" • ")}
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* NAME */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <label className="block">
-                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                          First Name *
-                        </span>
-
-                        <div className="relative">
-                          <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                          <input
-                            required
-                            name="firstName"
-                            value={enquiryForm.firstName}
-                            onChange={handleEnquiryChange}
-                            autoComplete="given-name"
-                            placeholder="First name"
-                            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
-                          />
-                        </div>
-                      </label>
-
-                      <label className="block">
-                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                          Last Name *
-                        </span>
-                        <input
-                          required
-                          name="lastName"
-                          value={enquiryForm.lastName}
-                          onChange={handleEnquiryChange}
-                          autoComplete="family-name"
-                          placeholder="Last name"
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
-                        />
-                      </label>
-                    </div>
-
-                    {/* EMAIL + PHONE */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <label className="block">
-                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                          Email *
-                        </span>
-
-                        <div className="relative">
-                          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                          <input
-                            type="email"
-                            name="email"
-                            value={enquiryForm.email}
-                            onChange={handleEnquiryChange}
-                            autoComplete="email"
-                            placeholder="you@company.com"
-                            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
-                          />
-                        </div>
-                      </label>
-
-                      <label className="block">
-                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                          Phone *
-                        </span>
-
-                        <div className="relative">
-                          <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                          <input
-                            required
-                            type="tel"
-                            name="phone"
-                            value={enquiryForm.phone}
-                            onChange={handleEnquiryChange}
-                            autoComplete="tel"
-                            placeholder="+91 98765 43210"
-                            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
-                          />
-                        </div>
-                      </label>
-                    </div>
-
-                    {/* COMPANY */}
-                    <label className="block">
-                      <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                        Company
-                      </span>
-
-                      <div className="relative">
-                        <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                        <input
-                          name="company"
-                          value={enquiryForm.company}
-                          onChange={handleEnquiryChange}
-                          autoComplete="organization"
-                          placeholder="Company name"
-                          className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
-                        />
-                      </div>
-                    </label>
-
-                    {/* MESSAGE */}
-                    <label className="block">
-                      <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                        Message
-                      </span>
-
-                      <textarea
-                        name="message"
-                        value={enquiryForm.message}
-                        onChange={handleEnquiryChange}
-                        rows={4}
-                        placeholder="Tell us about your requirement..."
-                        className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
-                      />
-                    </label>
-
-                    {/* ERROR */}
-                    {enquiryError && (
-                      <div
-                        role="alert"
-                        className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-                      >
-                        {enquiryError}
-                      </div>
-                    )}
-
-                    {/* SUBMIT */}
+                  )}
+                  {compareSelection.length > 0 && (
                     <button
-                      type="submit"
-                      disabled={isSubmittingEnquiry}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-60"
+                      type="button"
+                      onClick={openComparePage}
+                      disabled={!canCompare}
+                      className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
                     >
-                      {isSubmittingEnquiry ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Creating enquiry...
-                        </>
-                      ) : (
-                        <>
-                          Raise Enquiry
-                          <ArrowRight className="h-4 w-4" />
-                        </>
-                      )}
+                      Compare Properties
                     </button>
-
-                    <p className="text-center text-[11px] leading-5 text-slate-400">
-                      By submitting this enquiry, you agree to be contacted
-                      regarding your selected properties.
-                    </p>
-                  </form>
-                )}
+                  )}
+                  {getSelectionKey(items) !== enquirySubmittedSelectionKey && (
+                    <button
+                      type="button"
+                      onClick={openEnquiryForm}
+                      disabled={!items.length}
+                      className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/5 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Raise Enquiry
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-    </main>
+          )}
+          {isEnquiryOpen && (
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 px-4 py-6 backdrop-blur-sm"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
+                  closeEnquiryForm();
+                }
+              }}
+            >
+              <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+                <div className="flex items-start justify-between border-b border-slate-100 px-5 py-5 sm:px-7">
+                  <div>
+                    <div className="mb-2 flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#A054A0]/10">
+                        <MessageSquare className="h-4 w-4 text-[#A054A0]" />
+                      </div>
+
+                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#A054A0]">
+                        Property Enquiry
+                      </span>
+                    </div>
+
+                    <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+                      Tell us about your requirement
+                    </h2>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      Our team will get in touch with you regarding your
+                      selected properties.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={closeEnquiryForm}
+                    disabled={isSubmittingEnquiry}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="max-h-[calc(92vh-110px)] overflow-y-auto px-5 py-5 sm:px-7">
+                  {enquirySuccess ? (
+                    <div className="flex min-h-[380px] flex-col items-center justify-center text-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
+                        <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                      </div>
+
+                      <h3 className="mt-5 text-2xl font-semibold text-slate-900">
+                        Enquiry submitted
+                      </h3>
+
+                      <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+                        Thank you. Your enquiry has been submitted successfully.
+                        Our team will contact you shortly.
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={closeEnquiryForm}
+                        className="mt-7 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#864286]"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleEnquirySubmit} className="space-y-5">
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            Selected Properties
+                          </p>
+
+                          <span className="rounded-full bg-[#A054A0]/10 px-2.5 py-1 text-xs font-semibold text-[#A054A0]">
+                            {enquirySelection.length}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          {enquirySelection.map((property, index) => {
+                            const propertyId = getPropertyId(property);
+
+                            const propertyName =
+                              property?.name ??
+                              property?.Property_Name ??
+                              property?.propertyName ??
+                              property?.Name ??
+                              "Selected Property";
+
+                            const city = property?.city ?? property?.City ?? "";
+
+                            const micromarket =
+                              property?.micromarket ??
+                              property?.Micromarket ??
+                              property?.Micro_Market ??
+                              "";
+
+                            return (
+                              <div
+                                key={`${propertyId}-${index}`}
+                                className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+                              >
+                                <p className="text-sm font-semibold text-slate-900">
+                                  {propertyName}
+                                </p>
+
+                                {(city || micromarket) && (
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    {[city, micromarket]
+                                      .filter(Boolean)
+                                      .join(" • ")}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* NAME */}
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <label className="block">
+                          <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                            First Name *
+                          </span>
+
+                          <div className="relative">
+                            <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                            <input
+                              required
+                              name="firstName"
+                              value={enquiryForm.firstName}
+                              onChange={handleEnquiryChange}
+                              autoComplete="given-name"
+                              placeholder="First name"
+                              className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                            />
+                          </div>
+                        </label>
+
+                        <label className="block">
+                          <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                            Last Name *
+                          </span>
+                          <input
+                            required
+                            name="lastName"
+                            value={enquiryForm.lastName}
+                            onChange={handleEnquiryChange}
+                            autoComplete="family-name"
+                            placeholder="Last name"
+                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                          />
+                        </label>
+                      </div>
+
+                      {/* EMAIL + PHONE */}
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <label className="block">
+                          <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                            Email *
+                          </span>
+
+                          <div className="relative">
+                            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                            <input
+                              type="email"
+                              name="email"
+                              value={enquiryForm.email}
+                              onChange={handleEnquiryChange}
+                              autoComplete="email"
+                              placeholder="you@company.com"
+                              className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                            />
+                          </div>
+                        </label>
+
+                        <label className="block">
+                          <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                            Phone *
+                          </span>
+
+                          <div className="relative">
+                            <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                            <input
+                              required
+                              type="tel"
+                              name="phone"
+                              value={enquiryForm.phone}
+                              onChange={handleEnquiryChange}
+                              autoComplete="tel"
+                              placeholder="+91 98765 43210"
+                              className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                            />
+                          </div>
+                        </label>
+                      </div>
+
+                      {/* COMPANY */}
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                          Company
+                        </span>
+
+                        <div className="relative">
+                          <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+                          <input
+                            name="company"
+                            value={enquiryForm.company}
+                            onChange={handleEnquiryChange}
+                            autoComplete="organization"
+                            placeholder="Company name"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                          />
+                        </div>
+                      </label>
+
+                      {/* MESSAGE */}
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                          Message
+                        </span>
+
+                        <textarea
+                          name="message"
+                          value={enquiryForm.message}
+                          onChange={handleEnquiryChange}
+                          rows={4}
+                          placeholder="Tell us about your requirement..."
+                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                        />
+                      </label>
+
+                      {/* ERROR */}
+                      {enquiryError && (
+                        <div
+                          role="alert"
+                          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                        >
+                          {enquiryError}
+                        </div>
+                      )}
+
+                      {/* SUBMIT */}
+                      <button
+                        type="submit"
+                        disabled={isSubmittingEnquiry}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isSubmittingEnquiry ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Creating enquiry...
+                          </>
+                        ) : (
+                          <>
+                            Raise Enquiry
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
+                      </button>
+
+                      <p className="text-center text-[11px] leading-5 text-slate-400">
+                        By submitting this enquiry, you agree to be contacted
+                        regarding your selected properties.
+                      </p>
+                    </form>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </>
   );
 }

@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Trash2, Heart } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Trash2, Heart } from "lucide-react";
 import { formatArea } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
+import Breadcrumbs from "@/components/common/Breadcrumbs";
+
 import { useWishlist } from "@/lib/wishlist";
 
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
@@ -231,246 +233,254 @@ export default function ComparePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 px-3 py-5 pb-16 sm:px-6 sm:py-8 lg:px-8">
-      <div className="mx-auto max-w-[1440px]">
-        <Link
-          href="/properties"
-          className="inline-flex items-center gap-2 rounded-lg text-sm font-semibold text-slate-600 transition hover:text-[#A054A0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Properties
-        </Link>
+    <>
+      <Breadcrumbs
+        items={[
+          { label: "Properties", href: "/properties" },
+          { label: "Compare Properties" },
+        ]}
+      />
+      <main className="min-h-screen px-3 py-4 pb-16 sm:px-6 sm:py-4 lg:px-8">
+        <div className="mx-auto max-w-[1600px]">
+          <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#A054A0]">
+                  Property Comparison
+                </span>
+              </div>
 
-        <header className="mt-6 rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm sm:mt-7 sm:p-7 lg:p-8">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A054A0] sm:text-xs">
-            Property Comparison
-          </p>
-
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-3xl lg:text-[2.5rem]">
-            Compare Properties
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-            Review the key details of your selected properties side by side.
-          </p>
-        </header>
-
-        {properties.length === 0 ? (
-          <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 text-center shadow-sm sm:mt-10 sm:p-12">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#A054A0]/10">
-              <ArrowLeft className="h-6 w-6 text-[#A054A0]" />
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+                Compare Properties
+              </h1>
             </div>
-
-            <h2 className="mt-4 text-xl font-semibold text-slate-900">
-              No properties selected
-            </h2>
-
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Return to the property list and select up to three properties to
-              compare.
-            </p>
 
             <Link
               href="/properties"
-              className="mt-5 inline-flex items-center justify-center rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#864286] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2"
+              className="inline-flex w-fit items-center gap-2 rounded-xl border border-dashed border-slate-400 bg-white px-5 py-3 text-sm font-semibold text-black transition hover:text-[#A054A0] hover:scale-95 "
             >
-              Browse Properties
+              Back to Properties
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </section>
-        ) : (
-          <div className="mt-7 overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_18px_55px_-35px_rgba(15,23,42,0.35)] sm:mt-9">
-            <section className="p-3 sm:p-5 lg:p-6">
-              <div
-                className={`grid grid-cols-1 gap-4 ${properties.length >= 2 ? "sm:grid-cols-2" : ""
-                  } ${properties.length >= 3 ? "lg:grid-cols-3" : ""}`}
+
+          {properties.length === 0 ? (
+            <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 text-center shadow-sm sm:mt-10 sm:p-12">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#A054A0]/10">
+                <ArrowLeft className="h-6 w-6 text-[#A054A0]" />
+              </div>
+
+              <h2 className="mt-4 text-xl font-semibold text-slate-900">
+                No properties selected
+              </h2>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                Return to the property list and select up to three properties to
+                compare.
+              </p>
+
+              <Link
+                href="/properties"
+                className="mt-5 inline-flex items-center justify-center rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#864286] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2"
               >
-                {properties.map((property) => {
-                  const propertyId = getId(property);
-                  const propertyName = getName(property);
-                  const imageUrl = getImage(property);
-                  const propertyUrl = getPropertyUrl(property);
+                Browse Properties
+              </Link>
+            </section>
+          ) : (
+            <div className="mt-7 overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_18px_55px_-35px_rgba(15,23,42,0.35)] sm:mt-9">
+              <section className="p-3 sm:p-5 lg:p-6">
+                <div
+                  className={`grid grid-cols-1 gap-4 ${properties.length >= 2 ? "sm:grid-cols-2" : ""
+                    } ${properties.length >= 3 ? "lg:grid-cols-3" : ""}`}
+                >
+                  {properties.map((property) => {
+                    const propertyId = getId(property);
+                    const propertyName = getName(property);
+                    const imageUrl = getImage(property);
+                    const propertyUrl = getPropertyUrl(property);
 
-                  return (
-                    <article
-                      key={propertyId}
-                      className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white transition duration-300 hover:-translate-y-1 hover:border-[#A054A0]/40 hover:shadow-xl hover:shadow-slate-900/5"
-                    >
-                      <Link
-                        href={propertyUrl}
-                        className="relative block h-48 overflow-hidden bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#A054A0] sm:h-52 lg:h-60"
-                        aria-label={`View ${propertyName}`}
+                    return (
+                      <article
+                        key={propertyId}
+                        className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white transition duration-300 hover:-translate-y-1 hover:border-[#A054A0]/40 hover:shadow-xl hover:shadow-slate-900/5"
                       >
-                        {imageUrl ? (
-                          <Image
-                            src={imageUrl}
-                            alt={propertyName}
-                            fill
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                            onError={(event) => {
-                              event.currentTarget.style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-sm text-slate-400">
-                            Image unavailable
-                          </div>
-                        )}
-
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      </Link>
-
-                      <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => toggleShortlist(property)}
-                          className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-md backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] ${isShortlisted(property)
-                              ? "text-[#A054A0]"
-                              : "text-slate-600 hover:text-[#A054A0]"
-                            }`}
-                          aria-label={
-                            isShortlisted(property)
-                              ? `Remove ${propertyName} from shortlist`
-                              : `Add ${propertyName} to shortlist`
-                          }
-                          title={
-                            isShortlisted(property)
-                              ? "Remove from Shortlist"
-                              : "Add to Shortlist"
-                          }
-                        >
-                          <Heart
-                            className="h-4 w-4"
-                            fill={
-                              isShortlisted(property) ? "currentColor" : "none"
-                            }
-                          />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => removeProperty(propertyId)}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-600 shadow-md backdrop-blur transition hover:bg-white hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-                          aria-label={`Remove ${propertyName} from compare`}
-                          title="Remove from Compare"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      <div className="p-4 sm:p-5">
-                        <Link href={propertyUrl} className="block">
-                          <h2 className="truncate text-base font-bold text-slate-950 transition group-hover:text-[#A054A0] sm:text-lg">
-                            {propertyName}
-                          </h2>
-                        </Link>
-
-                        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
-                          <MapPin className="h-3.5 w-3.5 shrink-0" />
-                          <span className="truncate">
-                            {property?.city || property?.City || "-"}
-                          </span>
-                        </p>
-
                         <Link
                           href={propertyUrl}
-                          className="mt-3 inline-flex items-center text-xs font-semibold text-[#A054A0] transition hover:text-[#864286]"
+                          className="relative block h-48 overflow-hidden bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#A054A0] sm:h-52 lg:h-60"
+                          aria-label={`View ${propertyName}`}
                         >
-                          View Property <span className="ml-1">→</span>
+                          {imageUrl ? (
+                            <Image
+                              src={imageUrl}
+                              alt={propertyName}
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                              onError={(event) => {
+                                event.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-sm text-slate-400">
+                              Image unavailable
+                            </div>
+                          )}
+
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                         </Link>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
 
-            <section className="border-t border-slate-200 bg-white">
-              {properties.length > 1 && (
-                <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5 sm:hidden">
-                  <span className="text-[11px] font-medium text-slate-500">
-                    Swipe horizontally to compare
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    {properties.length} properties
-                  </span>
+                        <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleShortlist(property)}
+                            className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-md backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] ${isShortlisted(property)
+                              ? "text-[#A054A0]"
+                              : "text-slate-600 hover:text-[#A054A0]"
+                              }`}
+                            aria-label={
+                              isShortlisted(property)
+                                ? `Remove ${propertyName} from shortlist`
+                                : `Add ${propertyName} to shortlist`
+                            }
+                            title={
+                              isShortlisted(property)
+                                ? "Remove from Shortlist"
+                                : "Add to Shortlist"
+                            }
+                          >
+                            <Heart
+                              className="h-4 w-4"
+                              fill={
+                                isShortlisted(property) ? "currentColor" : "none"
+                              }
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => removeProperty(propertyId)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-600 shadow-md backdrop-blur transition hover:bg-white hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                            aria-label={`Remove ${propertyName} from compare`}
+                            title="Remove from Compare"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="p-4 sm:p-5">
+                          <Link href={propertyUrl} className="block">
+                            <h2 className="truncate text-base font-bold text-slate-950 transition group-hover:text-[#A054A0] sm:text-lg">
+                              {propertyName}
+                            </h2>
+                          </Link>
+
+                          <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+                            <MapPin className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">
+                              {property?.city || property?.City || "-"}
+                            </span>
+                          </p>
+
+                          <Link
+                            href={propertyUrl}
+                            className="mt-3 inline-flex items-center text-xs font-semibold text-[#A054A0] transition hover:text-[#864286]"
+                          >
+                            View Property <span className="ml-1">→</span>
+                          </Link>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
-              )}
+              </section>
 
-              <div className="relative w-full overflow-hidden">
-                <div className="w-full overflow-x-auto overscroll-x-contain">
-                  <div
-                    className={`${properties.length === 1
+              <section className="border-t border-slate-200 bg-white">
+                {properties.length > 1 && (
+                  <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5 sm:hidden">
+                    <span className="text-[11px] font-medium text-slate-500">
+                      Swipe horizontally to compare
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      {properties.length} properties
+                    </span>
+                  </div>
+                )}
+
+                <div className="relative w-full overflow-hidden">
+                  <div className="w-full overflow-x-auto overscroll-x-contain">
+                    <div
+                      className={`${properties.length === 1
                         ? "min-w-[365px]"
                         : properties.length === 2
                           ? "min-w-[760px]"
                           : "min-w-[1000px]"
-                      } sm:min-w-0`}
-                  >
-                    <div
-                      className={`grid border-b border-slate-200 bg-white ${properties.length === 1
+                        } sm:min-w-0`}
+                    >
+                      <div
+                        className={`grid border-b border-slate-200 bg-white ${properties.length === 1
                           ? "grid-cols-[180px_minmax(0,1fr)]"
                           : properties.length === 2
                             ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
                             : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
-                        }`}
-                    >
-                      <div className="sticky left-0 z-30 flex items-center border-r border-slate-200 bg-slate-100/95 px-3 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.35)] backdrop-blur sm:px-6">
-                        Details
+                          }`}
+                      >
+                        <div className="sticky left-0 z-30 flex items-center border-r border-slate-200 bg-slate-100/95 px-3 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.35)] backdrop-blur sm:px-6">
+                          Details
+                        </div>
+
+                        {properties.map((property) => (
+                          <Link
+                            key={`header-${getId(property)}`}
+                            href={getPropertyUrl(property)}
+                            className="min-w-0 border-l border-slate-100 bg-white px-4 py-4 text-sm font-semibold text-slate-800 transition hover:text-[#A054A0] sm:px-6"
+                          >
+                            <span className="block truncate">
+                              {getName(property)}
+                            </span>
+                          </Link>
+                        ))}
                       </div>
 
-                      {properties.map((property) => (
-                        <Link
-                          key={`header-${getId(property)}`}
-                          href={getPropertyUrl(property)}
-                          className="min-w-0 border-l border-slate-100 bg-white px-4 py-4 text-sm font-semibold text-slate-800 transition hover:text-[#A054A0] sm:px-6"
-                        >
-                          <span className="block truncate">
-                            {getName(property)}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-
-                    {rows.map((row) => (
-                      <div
-                        key={row.label}
-                        className={`grid border-b border-slate-100 last:border-b-0 ${properties.length === 1
+                      {rows.map((row) => (
+                        <div
+                          key={row.label}
+                          className={`grid border-b border-slate-100 last:border-b-0 ${properties.length === 1
                             ? "grid-cols-[180px_minmax(0,1fr)]"
                             : properties.length === 2
                               ? "grid-cols-[180px_repeat(2,minmax(0,1fr))]"
                               : "grid-cols-[180px_repeat(3,minmax(0,1fr))]"
-                          }`}
-                      >
-                        <div className="sticky left-0 z-20 flex min-h-[58px] items-center border-r border-slate-200 bg-slate-100/95 px-3 py-4 text-[10px] font-bold uppercase tracking-wide text-slate-600 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.45)] backdrop-blur sm:px-6 sm:text-xs">
-                          <span className="truncate">{row.label}</span>
-                        </div>
-
-                        {properties.map((property) => (
-                          <div
-                            key={`${row.label}-${getId(property)}`}
-                            className="flex min-h-[58px] min-w-0 items-center border-l border-slate-100 bg-white px-4 py-4 text-sm font-medium text-slate-800 sm:px-6"
-                          >
-                            <span className="truncate">
-                              {row.value(property)}
-                            </span>
+                            }`}
+                        >
+                          <div className="sticky left-0 z-20 flex min-h-[58px] items-center border-r border-slate-200 bg-slate-100/95 px-3 py-4 text-[10px] font-bold uppercase tracking-wide text-slate-600 shadow-[4px_0_10px_-8px_rgba(15,23,42,0.45)] backdrop-blur sm:px-6 sm:text-xs">
+                            <span className="truncate">{row.label}</span>
                           </div>
-                        ))}
-                      </div>
-                    ))}
+
+                          {properties.map((property) => (
+                            <div
+                              key={`${row.label}-${getId(property)}`}
+                              className="flex min-h-[58px] min-w-0 items-center border-l border-slate-100 bg-white px-4 py-4 text-sm font-medium text-slate-800 sm:px-6"
+                            >
+                              <span className="truncate">
+                                {row.value(property)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
-          </div>
-        )}
+              </section>
+            </div>
+          )}
 
-        {properties.length > 1 && (
-          <p className="mt-3 text-center text-[11px] text-slate-400 sm:hidden">
-            ← Swipe left or right to compare property details →
-          </p>
-        )}
-      </div>
-    </main>
+          {properties.length > 1 && (
+            <p className="mt-3 text-center text-[11px] text-slate-400 sm:hidden">
+              ← Swipe left or right to compare property details →
+            </p>
+          )}
+        </div>
+      </main>
+    </>
   );
 }

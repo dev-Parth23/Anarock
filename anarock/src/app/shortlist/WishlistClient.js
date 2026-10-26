@@ -801,7 +801,7 @@ export default function WishlistClient() {
                     <button
                       type="button"
                       onClick={clearCompareSelection}
-                      className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm"
+                      className="inline-flex items-center gap-1 rounded-xl border border-dashed border-slate-400 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm"
                     >
                       <X className="h-4 w-4" />
                       Clear
@@ -812,7 +812,7 @@ export default function WishlistClient() {
                       type="button"
                       onClick={openComparePage}
                       disabled={!canCompare}
-                      className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
+                      className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#A054A0] disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
                     >
                       Compare Properties
                     </button>
@@ -822,7 +822,7 @@ export default function WishlistClient() {
                       type="button"
                       onClick={openEnquiryForm}
                       disabled={!items.length}
-                      className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/5 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
+                      className="inline-flex items-center gap-2 rounded-xl border border-dashed border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/10 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
                     >
                       <MessageSquare className="h-4 w-4" />
                       Raise Enquiry

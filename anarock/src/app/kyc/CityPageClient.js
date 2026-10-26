@@ -285,7 +285,7 @@ export default function CityPageClient({ city, slug }) {
               2xl:grid-cols-[minmax(0,1fr)_560px]
             "
           >
-            <section className="min-w-0 border-r border-gray-100">
+            <section className="min-w-0 border-r border-gray-300">
               <Breadcrumbs
                 items={[
                   { label: "Popular Cities", href: "/#popularCities" },
@@ -293,7 +293,7 @@ export default function CityPageClient({ city, slug }) {
                 ]}
               />
 
-              <div className="shrink-0 border-b border-gray-100 bg-white">
+              <div className="shrink-0 border-b border-gray-300">
                 <div
                   className="
                     px-4 py-5
@@ -321,7 +321,7 @@ export default function CityPageClient({ city, slug }) {
                           text-2xl
                           font-semibold
                           tracking-[-0.03em]
-                          text-[#15233c]
+                          text-black
                           sm:text-3xl
                           lg:text-4xl
                         "
@@ -335,7 +335,7 @@ export default function CityPageClient({ city, slug }) {
                           max-w-2xl
                           text-sm
                           leading-6
-                          text-gray-500
+                          text-black/80
                         "
                       >
                         Selected commercial properties and a concise view of the
@@ -350,10 +350,9 @@ export default function CityPageClient({ city, slug }) {
                         shrink-0
                         items-center
                         gap-2
-                        rounded-full
-                        border
-                        border-gray-200
-                        bg-[#fafafa]
+                        rounded-xl
+                        border border-dashed
+                        border-gray-400
                         px-4
                         py-2.5
                       "
@@ -441,8 +440,8 @@ export default function CityPageClient({ city, slug }) {
                             items-center
                             justify-center
                             gap-3
-                            rounded-full
-                            bg-[#15233c]
+                            rounded-xl
+                            bg-[#A054A0]
                             px-6
                             py-3.5
                             text-center
@@ -450,11 +449,12 @@ export default function CityPageClient({ city, slug }) {
                             font-semibold
                             text-white
                             shadow-lg
-                            shadow-[#15233c]/10
+                            shadow-[#A054A0]/10
                             transition-all
                             duration-300
                             hover:-translate-y-0.5
                             hover:bg-[#A054A0]
+                            hover:scale-95
                             hover:shadow-xl
                             sm:px-7
                           "
@@ -750,6 +750,8 @@ export default function CityPageClient({ city, slug }) {
                     sm:px-4
                   "
                 >
+                  {/* className="inline-flex items-center gap-1 rounded-xl border border-dashed border-slate-400 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm" */}
+
                   <X className="h-4 w-4" />
 
                   <span>Clear</span>

@@ -204,9 +204,9 @@ export async function catalystFetch(url, options = {}, retryCount = 0) {
 
   return response;
 }
+// const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 // async function getDataStorePage(tableId, options = {}) {
-//   const projectId = required("PROJECT_ID");
-//   const maxRows = Math.min(Math.max(Number(options.maxRows || 100), 1), 100);
+//   const maxRows = Math.min(Math.max(Number(options.maxRows || 100), 1), 100,);
 //   const params = new URLSearchParams();
 //   params.set("max_rows", String(maxRows));
 //   if (options.nextToken) {
@@ -214,57 +214,114 @@ export async function catalystFetch(url, options = {}, retryCount = 0) {
 //   }
 
 //   const url =
-//     `${getCatalystApiUrl()}` +
-//     `/baas/v1/project/` +
-//     `${encodeURIComponent(projectId)}` +
-//     `/table/` +
-//     `${encodeURIComponent(tableId)}` +
-//     `/row?` +
-//     `${params.toString()}`;
+//     `${getCatalystApiUrl()}/baas/v1/project/` +
+//     `${encodeURIComponent(projectId)}/table/` +
+//     `${encodeURIComponent(tableId)}/row?${params.toString()}`;
 
-//   const response = await catalystFetch(url, {
-//     method: "GET",
-//   });
+//   const maxAttempts = 4;
+//   let lastError;
 
-//   const responseText = await response.text();
+//   for (let attempt = 0; attempt < maxAttempts; attempt++) {
+//     try {
+//       const response = await catalystFetch(url, { method: "GET" });
+//       const responseText = await response.text();
+//       let data = {};
+//       try {
+//         data = responseText ? JSON.parse(responseText) : {};
+//       } catch {
+//         data = { raw: responseText };
+//       }
 
-//   let data = {};
+//       const bodyMessage =
+//         data?.message ||
+//         data?.error_description ||
+//         data?.error ||
+//         data?.description ||
+//         "";
 
-//   try {
-//     data = responseText ? JSON.parse(responseText) : {};
-//   } catch {
-//     data = {
-//       raw: responseText,
-//     };
+//       const rateLimited = response.status === 429 ||
+//         /too many requests|rate.?limit|requests continuously/i.test(
+//           `${bodyMessage} ${data?.raw || ""}`,
+//         );
+
+//       if (response.ok && !rateLimited) {
+//         if (!Array.isArray(data?.data)) {
+//           console.error("[Catalyst DataStore] Unexpected response:", {
+//             status: response.status,
+//             tableId,
+//             responseKeys:
+//               data && typeof data === "object"
+//                 ? Object.keys(data)
+//                 : [],
+//             message: bodyMessage || "Missing data array",
+//           });
+
+//           throw new Error(
+//             `Unexpected Catalyst DataStore response for table ${tableId}`,
+//           );
+//         }
+
+//         return {
+//           data: data.data,
+//           next_token: data.next_token || data.nextToken || null,
+//           more_records: Boolean(
+//             data.more_records ??
+//             data.moreRecords ??
+//             data.next_token ??
+//             data.nextToken,
+//           ),
+//         };
+//       }
+
+//       const error = new Error(
+//         bodyMessage ||
+//         `Catalyst DataStore request failed (${response.status})`,
+//       );
+
+//       error.status = response.status;
+//       error.code = rateLimited ? "CATALYST_RATE_LIMITED" : "CATALYST_REQUEST_FAILED";
+
+//       console.error("[Catalyst DataStore] Request failed:", {
+//         status: response.status,
+//         statusText: response.statusText,
+//         tableId,
+//         attempt: attempt + 1,
+//         rateLimited,
+//         message: error.message,
+//       });
+
+//       lastError = error;
+
+//       if (!rateLimited || attempt === maxAttempts - 1) {
+//         throw error;
+//       }
+
+//       const retryAfter = Number(response.headers.get("retry-after"));
+//       const waitMs =
+//         Number.isFinite(retryAfter) && retryAfter > 0
+//           ? Math.min(retryAfter * 1000, 15000)
+//           : 1000 * 2 ** attempt;
+
+//       await delay(waitMs);
+//     } catch (error) {
+//       lastError = error;
+
+//       if (
+//         error?.code !== "CATALYST_RATE_LIMITED" ||
+//         attempt === maxAttempts - 1
+//       ) {
+//         throw error;
+//       }
+//     }
 //   }
 
-//   if (!response.ok) {
-//     console.error("[Catalyst DataStore] Request failed:", {
-//       status: response.status,
-//       statusText: response.statusText,
-//       tableId,
-//     });
-
-//     throw new Error(`Catalyst DataStore request failed (${response.status})`);
-//   }
-
-//   if (!data || typeof data !== "object") {
-//     throw new Error("Invalid Catalyst DataStore response");
-//   }
-
-//   return {
-//     data: Array.isArray(data.data) ? data.data : [],
-//     next_token: data.next_token || data.nextToken || null,
-//     more_records: Boolean(
-//       data.more_records ??
-//       data.moreRecords ??
-//       data.next_token ??
-//       data.nextToken,
-//     ),
-//   };
+//   throw lastError || new Error("Catalyst DataStore request failed");
 // }
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function getDataStorePage(tableId, options = {}) {
   const maxRows = Math.min(
@@ -288,104 +345,126 @@ async function getDataStorePage(tableId, options = {}) {
   let lastError;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let response;
+
     try {
-      const response = await catalystFetch(url, { method: "GET" });
-      const responseText = await response.text();
-
-      let data = {};
-      try {
-        data = responseText ? JSON.parse(responseText) : {};
-      } catch {
-        data = { raw: responseText };
-      }
-
-      const bodyMessage =
-        data?.message ||
-        data?.error_description ||
-        data?.error ||
-        data?.description ||
-        "";
-
-      // Some upstream failures can arrive in an HTTP 200 response.
-      const rateLimited =
-        response.status === 429 ||
-        /too many requests|rate.?limit|requests continuously/i.test(
-          `${bodyMessage} ${data?.raw || ""}`,
-        );
-
-      if (response.ok && !rateLimited) {
-        if (!Array.isArray(data?.data)) {
-          console.error("[Catalyst DataStore] Unexpected response:", {
-            status: response.status,
-            tableId,
-            responseKeys:
-              data && typeof data === "object"
-                ? Object.keys(data)
-                : [],
-            message: bodyMessage || "Missing data array",
-          });
-
-          throw new Error(
-            `Unexpected Catalyst DataStore response for table ${tableId}`,
-          );
-        }
-
-        return {
-          data: data.data,
-          next_token: data.next_token || data.nextToken || null,
-          more_records: Boolean(
-            data.more_records ??
-            data.moreRecords ??
-            data.next_token ??
-            data.nextToken,
-          ),
-        };
-      }
-
-      const error = new Error(
-        bodyMessage ||
-        `Catalyst DataStore request failed (${response.status})`,
-      );
-
-      error.status = response.status;
-      error.code = rateLimited ? "CATALYST_RATE_LIMITED" : "CATALYST_REQUEST_FAILED";
-
-      console.error("[Catalyst DataStore] Request failed:", {
-        status: response.status,
-        statusText: response.statusText,
-        tableId,
-        attempt: attempt + 1,
-        rateLimited,
-        message: error.message,
+      response = await catalystFetch(url, {
+        method: "GET",
       });
-
-      lastError = error;
-
-      if (!rateLimited || attempt === maxAttempts - 1) {
-        throw error;
-      }
-
-      const retryAfter = Number(response.headers.get("retry-after"));
-      const waitMs =
-        Number.isFinite(retryAfter) && retryAfter > 0
-          ? Math.min(retryAfter * 1000, 15000)
-          : 1000 * 2 ** attempt;
-
-      await delay(waitMs);
     } catch (error) {
       lastError = error;
 
+      const retryableNetworkError =
+        error?.name === "AbortError" ||
+        error?.name === "TimeoutError" ||
+        error instanceof TypeError;
+
       if (
-        error?.code !== "CATALYST_RATE_LIMITED" ||
+        !retryableNetworkError ||
         attempt === maxAttempts - 1
       ) {
         throw error;
       }
+
+      await delay(400 * 2 ** attempt);
+      continue;
     }
+
+    const responseText = await response.text();
+    let data = {};
+
+    try {
+      data = responseText
+        ? JSON.parse(responseText)
+        : {};
+    } catch {
+      data = { raw: responseText };
+    }
+
+    const message =
+      data?.message ||
+      data?.error_description ||
+      data?.error ||
+      data?.description ||
+      "";
+
+    const rateLimited =
+      response.status === 429 ||
+      /too many requests|rate.?limit|requests continuously/i.test(
+        `${message} ${data?.raw || ""}`,
+      );
+
+    if (response.ok && !rateLimited) {
+      if (!Array.isArray(data?.data)) {
+        const error = new Error(
+          `Unexpected Catalyst DataStore response for table ${tableId}`,
+        );
+
+        error.status = response.status;
+        error.code = "CATALYST_INVALID_RESPONSE";
+
+        throw error;
+      }
+
+      const nextToken =
+        data.next_token ||
+        data.nextToken ||
+        null;
+
+      return {
+        data: data.data,
+        next_token: nextToken,
+        more_records: Boolean(
+          data.more_records ??
+          data.moreRecords ??
+          nextToken,
+        ),
+      };
+    }
+
+    const error = new Error(
+      message ||
+      `Catalyst DataStore request failed (${response.status})`,
+    );
+
+    error.status = response.status;
+    error.code = rateLimited
+      ? "CATALYST_RATE_LIMITED"
+      : "CATALYST_REQUEST_FAILED";
+
+    lastError = error;
+
+    const retryable =
+      rateLimited ||
+      response.status === 408 ||
+      response.status >= 500;
+
+    if (
+      !retryable ||
+      attempt === maxAttempts - 1
+    ) {
+      throw error;
+    }
+
+    const retryAfter = Number(
+      response.headers.get("retry-after"),
+    );
+
+    const waitMs =
+      Number.isFinite(retryAfter) &&
+        retryAfter > 0
+        ? Math.min(retryAfter * 1000, 15000)
+        : 400 * 2 ** attempt;
+
+    await delay(waitMs);
   }
 
-  throw lastError || new Error("Catalyst DataStore request failed");
+  throw (
+    lastError ||
+    new Error("Catalyst DataStore request failed")
+  );
 }
+
 
 function createDataStoreTable(tableId) {
   return {

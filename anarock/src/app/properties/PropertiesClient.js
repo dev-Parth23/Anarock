@@ -2518,3 +2518,4 @@ export default function PropertiesClient() {
     </Suspense>
   );
 }
+

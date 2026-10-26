@@ -412,7 +412,7 @@ export default function HeroSection({ consentGranted, locationData }) {
         params.set("areaUnit", toUrlValue(areaUnit));
       }
     } else {
-      params.set("type", "ai");
+      params.set("mode", "ai");
 
       if (prompt.trim()) {
         params.set("prompt", prompt.trim());

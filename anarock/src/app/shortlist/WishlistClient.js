@@ -46,7 +46,6 @@ function getCRMPropertyId(property) {
   if (!property || typeof property !== "object") {
     return "";
   }
-
   const possibleCRMIds = [
     property?.crmID,
     property?.crmId,
@@ -56,20 +55,16 @@ function getCRMPropertyId(property) {
     property?.Property_CRM_ID,
     property?.propertyCRMId,
   ];
-
   for (const value of possibleCRMIds) {
     const id = String(value ?? "").trim();
-
     if (id) {
       return id;
     }
   }
-
   return "";
 }
 function safeParseJSON(value) {
   if (!value) return null;
-
   try {
     return JSON.parse(value);
   } catch {
@@ -81,17 +76,14 @@ function readLocalStorageObject(keys) {
   if (typeof window === "undefined") {
     return null;
   }
-
   for (const key of keys) {
     try {
       const raw = localStorage.getItem(key);
-
       if (!raw) {
         continue;
       }
 
       const parsed = safeParseJSON(raw);
-
       if (parsed && typeof parsed === "object") {
         return parsed;
       }
@@ -481,26 +473,18 @@ export default function WishlistClient() {
     setEnquiryError("");
 
     try {
-      /* ================================================================
-         1. BUILD CRM PROPERTY IDs
-         ================================================================ */
-
       const selectedProperties = enquirySelection
         .map((property) => {
           const crmId = getCRMPropertyId(property);
-
           if (!crmId) {
             console.error("[ENQUIRY] Missing CRM Property ID:", property);
-
             return null;
           }
-
           return {
             id: String(crmId).trim(),
           };
         })
         .filter(Boolean);
-
       console.log(
         "[ENQUIRY] Selected shortlist properties:",
         selectedProperties,
@@ -522,41 +506,17 @@ export default function WishlistClient() {
         );
       }
 
-      /* ================================================================
-         2. GET LAST SEARCHED CITY
-         ================================================================ */
-
       let lastSearchedCity = getLastSearchedCityFromStorage();
-
-      /*
-       * If the search state was not persisted separately,
-       * use the city of the first shortlisted property.
-       *
-       * This prevents the CRM Lead from completely losing
-       * the property city.
-       */
-
       if (!lastSearchedCity) {
         for (const property of enquirySelection) {
           const propertyCity = getShortlistPropertyCity(property);
-
           if (propertyCity) {
             lastSearchedCity = propertyCity;
             break;
           }
         }
       }
-
-      /* ================================================================
-         3. GET REQUIREMENT TYPE
-         ================================================================ */
-
       let lastRequirementType = getRequirementTypeFromStorage();
-
-      /*
-       * Fallback to shortlisted property's property type.
-       */
-
       if (!lastRequirementType) {
         for (const property of enquirySelection) {
           const propertyType = getShortlistPropertyType(property);
@@ -567,13 +527,7 @@ export default function WishlistClient() {
           }
         }
       }
-
-      /* ================================================================
-         4. GET USER LOCATION
-         ================================================================ */
-
       let userLocation = getStoredUserLocation();
-
       if (!userLocation) {
         userLocation = {
           street: "",
@@ -586,30 +540,15 @@ export default function WishlistClient() {
         };
       }
 
-      /*
-       * Make sure every property/location field is a clean value.
-       */
-
       userLocation = {
         street: String(userLocation?.street || "").trim(),
-
         city: String(userLocation?.city || "").trim(),
-
         state: String(userLocation?.state || "").trim(),
-
         country: String(userLocation?.country || "").trim(),
-
         postalCode: String(userLocation?.postalCode || "").trim(),
-
         latitude: userLocation?.latitude ?? null,
-
         longitude: userLocation?.longitude ?? null,
       };
-
-      /* ================================================================
-         5. FINAL PAYLOAD
-         ================================================================ */
-
       const payload = {
         firstName: enquiryForm.firstName.trim(),
         lastName: enquiryForm.lastName.trim(),

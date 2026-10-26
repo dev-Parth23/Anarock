@@ -105,6 +105,17 @@ const normalizeValue = (value) => {
     .toLowerCase()
     .replace(/\s+/g, " ");
 };
+
+function toFilterSlug(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[\/\\]+/g, "-")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 const getOfficeTypeFromUrl = (value) => {
   if (!value) return "";
   const normalized = normalizeValue(value);
@@ -342,6 +353,8 @@ function PropertiesClientContent() {
   const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState(false);
   const [enquiryError, setEnquiryError] = useState("");
   const [enquirySuccess, setEnquirySuccess] = useState(false);
+  const [aiPromptDraft, setAiPromptDraft] = useState("");
+  const [appliedAiPrompt, setAppliedAiPrompt] = useState("");
 
   const [enquiryForm, setEnquiryForm] = useState({
     firstName: "",
@@ -355,58 +368,73 @@ function PropertiesClientContent() {
     if (!showFilters) {
       return;
     }
-
     const previousOverflow = document.body.style.overflow;
-
     document.body.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = previousOverflow;
     };
   }, [showFilters]);
-
   const ITEMS_PER_PAGE = 30;
-
   const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1);
 
   const filters = useMemo(() => {
     const rawType = searchParams.get("type") || "";
-    const type = rawType === "ai" ? "ai" : getOfficeTypeFromUrl(rawType);
-
+    const prompt = searchParams.get("prompt") || "";
+    const mode = searchParams.get("mode") || "";
+    const isAi = mode === "ai" && Boolean(prompt.trim());
     return {
       city: searchParams.get("city") || "",
       micromarket: searchParams.get("micromarket") || "",
-      type,
+      type: rawType === "ai" ? "" : getOfficeTypeFromUrl(rawType),
       minBudget: searchParams.get("minBudget") || "",
+      maxBudget: searchParams.get("maxBudget") || "",
       area: searchParams.get("area") || "",
+      maxArea: searchParams.get("maxArea") || "",
       seats: searchParams.get("seats") || "",
+      maxSeats: searchParams.get("maxSeats") || "",
       sort: searchParams.get("sort") || "",
       currency: searchParams.get("currency") || currency,
       areaUnit: searchParams.get("areaUnit") || unit,
-      prompt: searchParams.get("prompt") || "",
-      isAi: rawType === "ai" || searchParams.has("prompt"),
+      prompt,
+      isAi,
     };
   }, [searchParams, currency, unit]);
 
-  // const openEnquiryForm = () => {
-  //   if (!Array.isArray(wishlistItems) || wishlistItems.length === 0) {
-  //     return;
-  //   }
+  useEffect(() => {
+    const prompt = searchParams.get("prompt") || "";
+    setAiPromptDraft(prompt);
+    setAppliedAiPrompt(prompt);
+  }, [searchParams]);
 
-  //   setEnquirySelection([...wishlistItems]);
-  //   setEnquiryError("");
-  //   setEnquirySuccess(false);
-  //   setIsEnquiryOpen(true);
-  // };
+  const handleApplyAiSearch = () => {
+    const prompt = aiPromptDraft.trim();
+    const params = new URLSearchParams(searchParams.toString());
 
-  // const closeEnquiryForm = () => {
-  //   if (isSubmittingEnquiry) return;
+    params.delete("page");
 
-  //   setIsEnquiryOpen(false);
-  //   setEnquiryError("");
-  //   setEnquirySuccess(false);
-  // };
+    if (prompt) {
+      params.set("mode", "ai");
+      params.set("prompt", prompt);
+      params.delete("type");
+    } else {
+      params.delete("mode");
+      params.delete("prompt");
+    }
 
+    setAppliedAiPrompt(prompt);
+
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      { scroll: false },
+    );
+  };
+
+  const handleAiSearchKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleApplyAiSearch();
+    }
+  };
   const openEnquiryForm = () => {
     if (!compareSelection.length) {
       setEnquiryError("Please select at least one property.");
@@ -450,7 +478,6 @@ function PropertiesClientContent() {
     setEnquiryError("");
 
     try {
-      // Refresh property data to obtain the latest Zoho CRM record IDs.
       const propertiesResponse = await fetch("/api/properties", {
         method: "GET",
         cache: "no-store",
@@ -541,7 +568,6 @@ function PropertiesClientContent() {
       });
 
       const data = await response.json().catch(() => ({}));
-
       console.log("[ENQUIRY] CRM API response:", {
         status: response.status,
         data,
@@ -765,22 +791,16 @@ function PropertiesClientContent() {
 
       try {
         const params = new URLSearchParams();
-
         params.set("page", String(currentPage));
-
         params.set("pageSize", String(ITEMS_PER_PAGE));
-
         if (resolvedCity) {
           params.set("city", resolvedCity);
         }
-
         if (filters.type && filters.type !== "ai") {
           params.set("type", filters.type.toLowerCase());
         }
-
         if (filters.minBudget !== "") {
           const value = Number(filters.minBudget);
-
           if (Number.isFinite(value)) {
             const converted = convertCurrency(
               value,
@@ -824,30 +844,115 @@ function PropertiesClientContent() {
         }
 
         if (filters.isAi) {
-          params.set("type", "ai");
-        }
+          params.set("mode", "ai");
 
-        if (filters.prompt) {
-          params.set("prompt", filters.prompt);
+          if (filters.prompt) {
+            params.set("prompt", filters.prompt);
+          }
+        }
+        const prompt = appliedAiPrompt.trim();
+        const shouldUseAi = Boolean(prompt);
+
+        if (shouldUseAi) {
+          params.set("mode", "ai");
+          params.set("prompt", prompt);
+        } else {
+          params.delete("mode");
+          params.delete("prompt");
         }
 
         const query = params.toString();
 
-        const response = await fetch(`/api/properties?${query}`, {
-          cache: "no-store",
-          signal: controller.signal,
-        });
+        const response = shouldUseAi
+          ? await fetch("/api/ai-search", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              ...Object.fromEntries(params.entries()),
+              mode: "ai",
+              prompt,
+            }),
+            cache: "no-store",
+            signal: controller.signal,
+          })
+          : await fetch(`/api/properties?${query}`, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+            cache: "no-store",
+            signal: controller.signal,
+          });
 
+        if (filters.prompt) {
+          params.set("prompt", filters.prompt);
+        }
         const data = await response.json();
+
+        console.group("🤖 AI Property Search");
+        console.log("Prompt:", filters.prompt);
+        console.log("API response:", data);
+        console.log("Interpreted filters:", data.interpretedQuery);
+        console.log("Properties returned:", data.data?.length ?? 0);
+        console.log("Total matching properties:", data.total ?? 0);
+        console.groupEnd();
 
         if (!response.ok || !data.success) {
           throw new Error(data.error || "Failed to fetch properties");
         }
 
+        if (filters.isAi && data.interpretedQuery) {
+          const interpreted = data.interpretedQuery;
+          const nextParams = new URLSearchParams(searchParams.toString());
+
+          nextParams.set("mode", "ai");
+          nextParams.set("prompt", filters.prompt || "");
+
+          const setOrDelete = (key, value) => {
+            if (value !== null && value !== undefined && value !== "") {
+              nextParams.set(key, String(value));
+            } else {
+              nextParams.delete(key);
+            }
+          };
+
+          setOrDelete(
+            "city",
+            interpreted.city ? toUrlValue(interpreted.city) : "",
+          );
+
+          setOrDelete(
+            "micromarket",
+            interpreted.micromarket ? toUrlValue(interpreted.micromarket) : "",
+          );
+
+          setOrDelete(
+            "type",
+            interpreted.type ? toUrlValue(interpreted.type) : "",
+          );
+
+          setOrDelete("area", interpreted.minArea);
+          setOrDelete("maxArea", interpreted.maxArea);
+          setOrDelete("seats", interpreted.minSeats);
+          setOrDelete("maxSeats", interpreted.maxSeats);
+          setOrDelete("minBudget", interpreted.minPrice);
+          setOrDelete("maxBudget", interpreted.maxPrice);
+          params.set("mode", "ai");
+          params.set("prompt", filters.prompt);
+
+          nextParams.delete("page");
+
+          if (nextParams.toString() !== searchParams.toString()) {
+            router.replace(`/properties?${nextParams.toString()}`, {
+              scroll: false,
+            });
+          }
+        }
         setProperties(Array.isArray(data.data) ? data.data : []);
-
         setTotalProperties(Number(data.total || 0));
-
         setTotalPagesFromApi(Math.max(1, Number(data.totalPages || 1)));
       } catch (err) {
         if (err?.name !== "AbortError") {
@@ -976,7 +1081,65 @@ function PropertiesClientContent() {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(data.error || "Failed to fetch suggested properties");
+          throw new Error(data.error || "AI search failed");
+        }
+
+        console.groupEnd();
+
+        const interpreted = data.interpretedQuery;
+
+        if (filters.isAi && interpreted) {
+          const nextParams = new URLSearchParams(searchParams.toString());
+
+          nextParams.set("mode", "ai");
+          nextParams.set("prompt", filters.prompt);
+          nextParams.delete("type");
+
+          if (interpreted.city) {
+            nextParams.set("city", toFilterSlug(interpreted.city));
+          }
+
+          if (interpreted.micromarket) {
+            nextParams.set(
+              "micromarket",
+              toFilterSlug(interpreted.micromarket),
+            );
+          }
+
+          if (interpreted.type) {
+            nextParams.set("type", toFilterSlug(interpreted.type));
+          }
+
+          if (interpreted.minArea != null) {
+            nextParams.set("area", String(interpreted.minArea));
+          }
+
+          if (interpreted.maxArea != null) {
+            nextParams.set("maxArea", String(interpreted.maxArea));
+          }
+
+          if (interpreted.minSeats != null) {
+            nextParams.set("seats", String(interpreted.minSeats));
+          }
+
+          if (interpreted.maxSeats != null) {
+            nextParams.set("maxSeats", String(interpreted.maxSeats));
+          }
+
+          if (interpreted.minPrice != null) {
+            nextParams.set("minBudget", String(interpreted.minPrice));
+          }
+
+          if (interpreted.maxPrice != null) {
+            nextParams.set("maxBudget", String(interpreted.maxPrice));
+          }
+
+          const current = searchParams.toString();
+          const next = nextParams.toString();
+
+          if (next !== current) {
+            router.replace(`/properties?${next}`, { scroll: false });
+          }
         }
 
         setSuggestedProperties(Array.isArray(data.data) ? data.data : []);
@@ -1190,7 +1353,9 @@ function PropertiesClientContent() {
   const selectAllMicromarkets = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("micromarket");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`,);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
     setShowMicromarkets(false);
   };
 
@@ -1198,7 +1363,9 @@ function PropertiesClientContent() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete(key);
     params.delete("page");
-    router.push(`/properties${params.toString() ? `?${params.toString()}` : ""}`,);
+    router.push(
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+    );
   };
 
   const clearAll = () => {
@@ -1312,8 +1479,8 @@ function PropertiesClientContent() {
 
     filters.micromarket && {
       label: `Micromarkets: ${selectedMicromarketNames.length
-        ? selectedMicromarketNames.join(", ")
-        : filters.micromarket
+          ? selectedMicromarketNames.join(", ")
+          : filters.micromarket
         }`,
       key: "micromarket",
     },
@@ -1496,44 +1663,91 @@ function PropertiesClientContent() {
 
       <Breadcrumbs items={breadcrumbs} />
       <div className="px-4 py-4">
+        <div className="mb-5 space-y-4">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl lg:text-3xl">
+                {filters.isAi ? (
+                  <span className="flex flex-wrap items-center gap-2">
+                    <Sparkles className="h-5 w-5 shrink-0 text-[#A054A0] sm:h-6 sm:w-6" />
+                    AI Recommended Properties
+                  </span>
+                ) : resolvedCity ? (
+                  `Commercial Properties in ${resolvedCity}`
+                ) : (
+                  "All Commercial Properties"
+                )}
+              </h1>
 
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-              {filters.isAi ? (
-                <span className="flex items-center gap-2">
-                  <Sparkles className="h-6 w-6 text-amber-500" />
-                  AI Recommended Properties
-                </span>
-              ) : resolvedCity ? (
-                `Commercial Properties in ${resolvedCity}`
-              ) : (
-                "All Commercial Properties"
-              )}
-            </h1>
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                {loading
+                  ? "Searching properties..."
+                  : `${totalProperties.toLocaleString("en-IN")} properties found${totalProperties > ITEMS_PER_PAGE
+                    ? ` • Page ${safeCurrentPage} of ${totalPages}`
+                    : ""
+                  }`}
+              </p>
+            </div>
 
-            <p className="mt-1 text-sm text-slate-600">
-              {loading
-                ? "Searching..."
-                : `${totalProperties.toLocaleString("en-IN")} properties found${totalProperties > ITEMS_PER_PAGE
-                  ? ` • Page ${safeCurrentPage} of ${totalPages}`
-                  : ""
-                }`}
-            </p>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleApplyAiSearch();
+              }}
+              className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-[#E9D9EC] bg-white p-2 shadow-sm sm:flex-row xl:max-w-2xl"
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-2 px-2">
+                <Sparkles className="h-5 w-5 shrink-0 text-[#A054A0]" />
+
+                <input
+                  type="text"
+                  value={aiPromptDraft}
+                  onChange={(event) => setAiPromptDraft(event.target.value)}
+                  placeholder="Describe your ideal office space..."
+                  aria-label="Search properties using AI"
+                  className="w-full min-w-0 bg-transparent py-2.5 text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                />
+
+                {aiPromptDraft && (
+                  <button
+                    type="button"
+                    onClick={() => setAiPromptDraft("")}
+                    aria-label="Clear AI search"
+                    className="shrink-0 rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#884188] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:py-2.5"
+              >
+                <Search className="h-4 w-4" />
+                Apply
+              </button>
+            </form>
           </div>
 
-          <div className="flex w-full items-center gap-2 sm:w-auto lg:hidden">
+          <div className="grid grid-cols-2 gap-3 lg:hidden">
             <button
               type="button"
               onClick={() => {
                 setSidebarTab("filters");
                 setShowFilters(true);
               }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 sm:flex-none"
+              aria-label="Open property filters"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
             >
-              <SlidersHorizontal className="h-4 w-4" />
-
-              <span>Filters</span>
+              <SlidersHorizontal className="h-4 w-4 shrink-0" />
+              Filters
+              {activeChips.length > 0 && (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] font-bold text-slate-900">
+                  {activeChips.length}
+                </span>
+              )}
             </button>
 
             <button
@@ -1542,15 +1756,14 @@ function PropertiesClientContent() {
                 setSidebarTab("sort");
                 setShowFilters(true);
               }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] sm:flex-none"
+              aria-label="Sort properties"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
             >
-              <ArrowUpDown className="h-4 w-4" />
-
-              <span>Sort</span>
-
+              <ArrowUpDown className="h-4 w-4 shrink-0" />
+              Sort
               {sortValue && (
-                <span className="hidden rounded-full bg-[#A054A0]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#A054A0] min-[400px]:inline-flex">
-                  {getActiveSortDisplayLabel()}
+                <span className="max-w-[90px] truncate rounded-full bg-[#A054A0]/10 px-2 py-0.5 text-[10px] font-semibold text-[#A054A0]">
+                  Active
                 </span>
               )}
             </button>
@@ -1590,8 +1803,8 @@ function PropertiesClientContent() {
           >
             <div
               className={`border border-slate-200 bg-white p-4 ${showFilters
-                ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
-                : "rounded-xl lg:sticky lg:top-24"
+                  ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
+                  : "rounded-xl lg:sticky lg:top-24"
                 }`}
             >
               <div className="mb-4 flex items-center gap-3">
@@ -1601,8 +1814,8 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => setSidebarTab("filters")}
                       className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${sidebarTab === "filters"
-                        ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                        : "text-slate-500 hover:text-slate-800"
+                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                          : "text-slate-500 hover:text-slate-800"
                         }`}
                     >
                       <SlidersHorizontal className="h-4 w-4 shrink-0" />
@@ -1614,8 +1827,8 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => setSidebarTab("sort")}
                       className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${sidebarTab === "sort"
-                        ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                        : "text-slate-500 hover:text-slate-800"
+                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                          : "text-slate-500 hover:text-slate-800"
                         }`}
                     >
                       <ArrowUpDown className="h-4 w-4 shrink-0" />
@@ -1628,8 +1841,8 @@ function PropertiesClientContent() {
                 <button
                   type="button"
                   onClick={() => setShowFilters(false)}
-                  className="shrink-0 rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden"
                   aria-label="Close filters"
+                  className="shrink-0 rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1652,14 +1865,14 @@ function PropertiesClientContent() {
                           onClick={() => handleCategoryClick(cat)}
                           aria-pressed={isSelected}
                           className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all duration-200 ${isSelected
-                            ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#7B3D7B] shadow-sm"
-                            : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
+                              ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#7B3D7B] shadow-sm"
+                              : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
                             }`}
                         >
                           <span
                             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${isSelected
-                              ? "border-[#A054A0]/20 bg-[#A054A0]/10 text-[#A054A0]"
-                              : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
+                                ? "border-[#A054A0]/20 bg-[#A054A0]/10 text-[#A054A0]"
+                                : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
                               }`}
                           >
                             {cat.id === "recommended" ? (
@@ -1695,8 +1908,8 @@ function PropertiesClientContent() {
 
                           <span
                             className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${isSelected
-                              ? "border-[#A054A0]"
-                              : "border-slate-300 group-hover:border-slate-400"
+                                ? "border-[#A054A0]"
+                                : "border-slate-300 group-hover:border-slate-400"
                               }`}
                           >
                             {isSelected && (
@@ -1750,8 +1963,8 @@ function PropertiesClientContent() {
                       disabled={!resolvedCity || micromarketsLoading}
                       onClick={() => setShowMicromarkets(!showMicromarkets)}
                       className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${!resolvedCity
-                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                        : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
+                          ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                          : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
                         }`}
                     >
                       <span className="truncate">
@@ -1779,8 +1992,8 @@ function PropertiesClientContent() {
                           >
                             <span
                               className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
-                                ? "border-[#A054A0] bg-[#A054A0]"
-                                : "border-slate-300"
+                                  ? "border-[#A054A0] bg-[#A054A0]"
+                                  : "border-slate-300"
                                 }`}
                             >
                               {selectedMicromarkets.length === 0 && (
@@ -1814,8 +2027,8 @@ function PropertiesClientContent() {
                                   >
                                     <span
                                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
-                                        ? "border-[#A054A0] bg-[#A054A0]"
-                                        : "border-slate-300"
+                                          ? "border-[#A054A0] bg-[#A054A0]"
+                                          : "border-slate-300"
                                         }`}
                                     >
                                       {selected && (
@@ -1825,8 +2038,8 @@ function PropertiesClientContent() {
 
                                     <span
                                       className={`truncate ${selected
-                                        ? "font-medium text-slate-900"
-                                        : "text-slate-700"
+                                          ? "font-medium text-slate-900"
+                                          : "text-slate-700"
                                         }`}
                                     >
                                       {market.name}
@@ -1969,7 +2182,7 @@ function PropertiesClientContent() {
                     </>
                   )}
 
-                  {filters.isAi && (
+                  {/* {filters.isAi && (
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
                         AI Query
@@ -1982,7 +2195,7 @@ function PropertiesClientContent() {
                         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#A054A0] focus:outline-none"
                       />
                     </div>
-                  )}
+                  )} */}
 
                   <button
                     onClick={clearAll}
@@ -2143,8 +2356,8 @@ function PropertiesClientContent() {
                             page === safeCurrentPage ? "page" : undefined
                           }
                           className={`min-w-10 rounded-lg px-3 py-2 text-sm font-medium transition ${page === safeCurrentPage
-                            ? "bg-[#A054A0] text-white shadow-sm"
-                            : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
+                              ? "bg-[#A054A0] text-white shadow-sm"
+                              : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
                             }`}
                         >
                           {page}
@@ -2518,4 +2731,3 @@ export default function PropertiesClient() {
     </Suspense>
   );
 }
-

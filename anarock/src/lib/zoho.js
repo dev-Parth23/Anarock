@@ -53,13 +53,6 @@ function hasValidAccessToken() {
 }
 
 async function refreshZohoAccessToken() {
-  /*
-   * IMPORTANT:
-   * If multiple requests arrive at the same time while
-   * the token is expired, they all wait for this SAME promise.
-   *
-   * This prevents 100 simultaneous OAuth refresh requests.
-   */
   if (state.refreshPromise) {
     return state.refreshPromise;
   }

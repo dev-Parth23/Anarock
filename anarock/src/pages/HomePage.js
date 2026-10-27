@@ -1265,7 +1265,6 @@ export default function HomePage() {
   min-[600px]:aspect-auto
   min-[600px]:w-[calc(50%-0.625rem)]
   min-[600px]:rounded-[1.5rem]
-  min-[600px]:aspect-auto
   md:w-[calc(33.333%-0.85rem)]
   lg:w-[calc(25%-0.9375rem)]
   xl:w-[calc(20%-1rem)]
@@ -1278,17 +1277,17 @@ export default function HomePage() {
                       decoding="async"
                       className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
                     />
-                    <div className=" absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
+                    <div className=" absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/25 to-transparent" />
                     <div className=" absolute inset-x-0 bottom-0 p-4 sm:p-5 lg:p-5">
-                      <div className="mb-3 h-px w-8 bg-[#DCA9DD] transition-all duration-500 group-hover:w-14" />
-                      <h3 className=" text-lg font-bold tracking-tight text-white sm:text-xl lg:text-xl">
+                      <div className="mb-3 h-px w-8 bg-[#A054A0] transition-all duration-500 group-hover:w-14" />
+                      <h3 className=" text-lg font-bold tracking-tight text-[#ffffff] sm:text-xl lg:text-xl">
                         {city.name}
                       </h3>
                       <div className="mt-2.5 flex items-center justify-between gap-3">
-                        <p className=" text-[9px] font-medium uppercase tracking-[0.12em] text-white/65 sm:text-[10px]">
+                        <p className=" text-[9px] font-medium uppercase tracking-[0.12em] text-white sm:text-[10px]">
                           Explore
                         </p>
-                        <ArrowRight className=" h-4 w-4 shrink-0 text-white/70 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
+                        <ArrowRight className=" h-4 w-4 shrink-0 text-white transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
                       </div>
                     </div>
                   </div>

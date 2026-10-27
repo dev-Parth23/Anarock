@@ -1,6 +1,8 @@
 import { getPropertiesTable } from "@/lib/catalyst";
 import { mapProperty } from "@/lib/propertyMapper";
+
 const g = globalThis;
+
 if (!g.__anarockPropertiesCache) {
   g.__anarockPropertiesCache = {
     data: null,
@@ -17,15 +19,22 @@ if (!g.__anarockPropertiesCache) {
     lastRefreshErrorAt: 0,
   };
 }
+
 const state = g.__anarockPropertiesCache;
+
 const parsedTtl = Number(process.env.PROPERTIES_CACHE_TTL || "900");
 const CACHE_TTL =
-  Number.isFinite(parsedTtl) && parsedTtl > 0 ? parsedTtl * 1000 : 900 * 1000;
+  Number.isFinite(parsedTtl) && parsedTtl > 0
+    ? parsedTtl * 1000
+    : 900 * 1000;
+
 const REFRESH_RETRY_COOLDOWN_MS = 60 * 1000;
+
 function normalize(value) {
   if (value === null || value === undefined) {
     return "";
   }
+
   return String(value).trim().toLowerCase().replace(/\s+/g, " ");
 }
 
@@ -41,7 +50,11 @@ function getFirstValue(property, keys) {
   for (const key of keys) {
     const value = property[key];
 
-    if (value !== undefined && value !== null && String(value).trim() !== "") {
+    if (
+      value !== undefined &&
+      value !== null &&
+      String(value).trim() !== ""
+    ) {
       return value;
     }
   }
@@ -70,7 +83,12 @@ function getPropertyType(property) {
 
 function getPropertyCity(property) {
   return normalizeMatch(
-    getFirstValue(property, ["city", "City", "cityName", "CityName"]),
+    getFirstValue(property, [
+      "city",
+      "City",
+      "cityName",
+      "CityName",
+    ]),
   );
 }
 
@@ -104,7 +122,6 @@ async function fetchAllFromCatalyst() {
     }
 
     const result = await table.getPagedRows(options);
-
     const page = Array.isArray(result?.data) ? result.data : [];
 
     rows.push(...page);
@@ -112,7 +129,8 @@ async function fetchAllFromCatalyst() {
     const newToken = result?.next_token || result?.nextToken || null;
 
     const moreRecords =
-      result?.more_records === true || result?.moreRecords === true;
+      result?.more_records === true ||
+      result?.moreRecords === true;
 
     if (!moreRecords || !newToken || newToken === nextToken) {
       break;
@@ -121,7 +139,9 @@ async function fetchAllFromCatalyst() {
     nextToken = newToken;
   }
 
-  console.log(`[PropertiesCache] Catalyst returned ${rows.length} rows.`);
+  console.log(
+    `[PropertiesCache] Catalyst returned ${rows.length} rows.`,
+  );
 
   const properties = [];
 
@@ -151,16 +171,16 @@ async function fetchAllFromCatalyst() {
   return properties;
 }
 
-function addToIndex(index, value, propertyId) {
+function addToIndex(indexMap, value, propertyId) {
   if (!value || !propertyId) {
     return;
   }
 
-  let bucket = index.get(value);
+  let bucket = indexMap.get(value);
 
   if (!bucket) {
     bucket = new Set();
-    index.set(value, bucket);
+    indexMap.set(value, bucket);
   }
 
   bucket.add(propertyId);
@@ -204,6 +224,7 @@ function startRefresh() {
   state.fetchPromise = fetchAllFromCatalyst()
     .then((properties) => {
       const built = buildIndexes(properties);
+
       state.data = properties;
       state.byId = built.byId;
       state.indexes = built.indexes;
@@ -211,39 +232,55 @@ function startRefresh() {
       state.lastRefreshError = null;
       state.lastRefreshErrorAt = 0;
       state.nextRefreshAllowedAt = 0;
-      console.log(`[PropertiesCache] Cached ${properties.length} properties.`);
+
+      console.log(
+        `[PropertiesCache] Cached ${properties.length} properties.`,
+      );
+
       return properties;
     })
     .catch((error) => {
       state.lastRefreshError = error?.message || String(error);
       state.lastRefreshErrorAt = Date.now();
-      state.nextRefreshAllowedAt = Date.now() + REFRESH_RETRY_COOLDOWN_MS;
+      state.nextRefreshAllowedAt =
+        Date.now() + REFRESH_RETRY_COOLDOWN_MS;
+
       console.error(
         "[PropertiesCache] Refresh failed:",
         state.lastRefreshError,
       );
+
       throw error;
     })
     .finally(() => {
       state.fetchPromise = null;
     });
+
   return state.fetchPromise;
 }
 
 export async function getAllProperties() {
   const now = Date.now();
+
   if (state.data && now - state.timestamp < CACHE_TTL) {
     return state.data;
   }
+
   if (state.data) {
-    if (!state.fetchPromise && now >= (state.nextRefreshAllowedAt || 0)) {
+    if (
+      !state.fetchPromise &&
+      now >= (state.nextRefreshAllowedAt || 0)
+    ) {
       startRefresh().catch(() => { });
     }
+
     return state.data;
   }
+
   if (state.fetchPromise) {
     return state.fetchPromise;
   }
+
   if (now < (state.nextRefreshAllowedAt || 0)) {
     const secondsRemaining = Math.ceil(
       (state.nextRefreshAllowedAt - now) / 1000,
@@ -264,12 +301,19 @@ export async function getPropertyById(id) {
   if (!targetId) {
     return null;
   }
+
   await getAllProperties();
+
   return state.byId.get(targetId) ?? null;
 }
+
 export async function getPropertiesByIds(ids = []) {
   const requestedIds = Array.isArray(ids)
-    ? [...new Set(ids.map((id) => String(id ?? "").trim()).filter(Boolean))]
+    ? [
+      ...new Set(
+        ids.map((id) => String(id ?? "").trim()).filter(Boolean),
+      ),
+    ]
     : [];
 
   if (requestedIds.length === 0) {
@@ -278,7 +322,9 @@ export async function getPropertiesByIds(ids = []) {
 
   await getAllProperties();
 
-  return requestedIds.map((id) => state.byId.get(id)).filter(Boolean);
+  return requestedIds
+    .map((id) => state.byId.get(id))
+    .filter(Boolean);
 }
 
 export async function getPropertyCandidates({
@@ -287,11 +333,14 @@ export async function getPropertyCandidates({
   micromarkets = [],
 } = {}) {
   const properties = await getAllProperties();
+
   const normalizedCity = normalizeMatch(city);
   const normalizedType = normalizeMatch(type);
+
   const normalizedMicromarkets = Array.isArray(micromarkets)
     ? micromarkets.map(normalizeMatch).filter(Boolean)
     : [];
+
   if (
     !normalizedCity &&
     !normalizedType &&
@@ -299,32 +348,44 @@ export async function getPropertyCandidates({
   ) {
     return properties;
   }
+
   const candidateSets = [];
+
   if (normalizedCity) {
-    const set = state.indexes.city.get(normalizedCity);
-    if (!set) {
+    const citySet = state.indexes.city.get(normalizedCity);
+
+    if (!citySet) {
       return [];
     }
-    candidateSets.push(set);
+
+    candidateSets.push(citySet);
   }
+
   if (normalizedType) {
-    const set = state.indexes.type.get(normalizedType);
-    if (!set) {
+    const typeSet = state.indexes.type.get(normalizedType);
+
+    if (!typeSet) {
       return [];
     }
-    candidateSets.push(set);
+
+    candidateSets.push(typeSet);
   }
+
   if (normalizedMicromarkets.length > 0) {
     const micromarketIds = new Set();
+
     for (const market of normalizedMicromarkets) {
       const exactSet = state.indexes.micromarket.get(market);
+
       if (!exactSet) {
         continue;
       }
+
       for (const id of exactSet) {
         micromarketIds.add(id);
       }
     }
+
     if (micromarketIds.size === 0) {
       for (const [indexedMarket, ids] of state.indexes.micromarket) {
         const matchesRequestedMarket = normalizedMicromarkets.some(
@@ -351,16 +412,21 @@ export async function getPropertyCandidates({
   }
 
   candidateSets.sort((a, b) => a.size - b.size);
+
   const base = candidateSets[0];
   const result = [];
+
   for (const id of base) {
     let matchesAll = true;
-    for (index = 1; index < candidateSets.length; index++) {
+
+    // FIX: index must be declared in this loop.
+    for (let index = 1; index < candidateSets.length; index++) {
       if (!candidateSets[index].has(id)) {
         matchesAll = false;
         break;
       }
     }
+
     if (!matchesAll) {
       continue;
     }
@@ -378,17 +444,19 @@ export async function getPropertyCandidates({
 export function getPropertiesCacheInfo() {
   const now = Date.now();
 
-  const isStale = state.data !== null && now - state.timestamp >= CACHE_TTL;
+  const isStale =
+    state.data !== null &&
+    now - state.timestamp >= CACHE_TTL;
 
   return {
     count: state.data?.length ?? 0,
 
-    cachedAt: state.timestamp ? new Date(state.timestamp).toISOString() : null,
+    cachedAt: state.timestamp
+      ? new Date(state.timestamp).toISOString()
+      : null,
 
     isFresh: state.data !== null && !isStale,
-
     isStale,
-
     refreshInProgress: Boolean(state.fetchPromise),
 
     lastRefreshError: state.lastRefreshError,

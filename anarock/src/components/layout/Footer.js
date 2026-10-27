@@ -9,13 +9,13 @@ export default function Footer() {
             <Link href="/" aria-label="Anarock Commercial Listing Platform" className="group inline-flex items-center transition-transform duration-200 active:scale-95 ">
               <img src="/Anarock(W).svg" alt="Anarock" className=" block h-auto w-[100px] object-contain transition-transform duration-300 group-hover:scale-105 min-[480px]:w-[110px] sm:w-[120px] lg:w-[130px]" />
             </Link>
-            <p className=" mt-5 max-w-2xl text-[13px] leading-6 text-[#bcbcbc] min-[400px]:text-[14px] min-[400px]:leading-6 sm:mt-6 sm:text-[15px] sm:leading-7 lg:max-w-[680px]">
+            <p className=" mt-5 max-w-2xl text-[13px] leading-6 text-white/85 min-[400px]:text-[14px] min-[400px]:leading-6 sm:mt-6 sm:text-[15px] sm:leading-7 lg:max-w-[680px]">
               Leading real estate services company that delivers integrated
               solutions to a diversified client base including developers,
               investors, corporates and the government.
             </p>
           </div>
-          <div className=" flex shrink-0 items-center justify-center gap-5 sm:gap-6 lg:justify-end lg:pt-2">
+          <div className=" flex shrink-0 items-center justify-center gap-5 sm:gap-6 lg:justify-end lg:pt-2 text-white">
             {/* LINKEDIN */}
             <SocialLink href="https://www.linkedin.com/company/anarock-property-consultants/" label="LinkedIn">
               <svg viewBox="0 0 24 24" className="h-[20px] w-[20px]" fill="currentColor">
@@ -59,10 +59,10 @@ export default function Footer() {
             </SocialLink>
           </div>
         </div>
-        <div className="h-px w-full bg-[#7f3f80]/80" />
+        <div className="h-px w-full bg-[#A054A0]" />
         <div className=" py-8 sm:py-9 md:py-10 lg:py-11">
           <h3 className="text-[14px] font-semibold uppercase tracking-[0.08em] text-white sm:text-[15px]">Disclaimer</h3>
-          <p className="mt-3 max-w-[1450px] text-[12px] leading-[1.7] text-[#8f8f8f] min-[400px]:text-[13px] sm:mt-4 sm:text-[14px] sm:leading-[1.75]">The site and its contents is provided on an &quot;as is&quot; basis. Anarock Property Consultants Private Limited, its associate or
+          <p className="mt-3 max-w-[1450px] text-[12px] leading-[1.7] text-white/80 min-[400px]:text-[13px] sm:mt-4 sm:text-[14px] sm:leading-[1.75]">The site and its contents is provided on an &quot;as is&quot; basis. Anarock Property Consultants Private Limited, its associate or
             subsidiary companies (collectively &quot;Anarock&quot;) expressly
             disclaims all warranties, including the warranties of
             merchantability, fitness for a particular purpose and
@@ -77,20 +77,19 @@ export default function Footer() {
             thereof, (iv) use of this site by you or (v) use of any equipment or
             software in connection with the site by you.
           </p>
-        </div>  <div className="h-px w-full bg-[#7f3f80]/80" />
+        </div>
+        <div className="h-px w-full bg-[#A054A0]" />
         <div className="flex flex-col items-center gap-4 py-5 text-center min-[480px]:py-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-6 sm:text-left">
-          <p className="text-[11px] leading-5 text-[#d0d0d0] min-[400px]:text-[12px] sm:text-[12px]">© {new Date().getFullYear()} Anarock Property Consultants Pvt Ltd. All Rights Reserved.</p>
+          <p className="text-[11px] leading-5 text-white/80 min-[400px]:text-[12px] sm:text-[12px]">© {new Date().getFullYear()} Anarock Property Consultants Pvt Ltd. All Rights Reserved.</p>
           <nav aria-label="Legal" className="flex flex-wrap
               items-center
               justify-center
               gap-x-4
               gap-y-2
               text-[11px]
-              text-[#999999]
-
+              text-white/80              
               min-[400px]:gap-x-5
               min-[400px]:text-[12px]
-
               sm:justify-end
               sm:gap-x-6
               sm:text-[12px]

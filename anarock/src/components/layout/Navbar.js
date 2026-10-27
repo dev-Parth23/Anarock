@@ -743,13 +743,13 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky inset-x-0 top-0 z-[100] w-full translate-y-0 opacity-100">
-        <div className="relative mx-auto w-full overflow-visible border shadow-lg border-white/30 bg-transparent backdrop-blur-2xl">
+        <div className="relative mx-auto w-full overflow-visible border shadow-lg border-white/40 bg-transparent backdrop-blur-2xl">
           <div className="flex h-[70px] min-h-[70px] w-full items-center justify-between gap-2 px-3 sm:h-[70px] sm:px-4 md:gap-3 md:px-5 lg:h-[85px] lg:px-3 min-[1366px]:h-[80px] min-[1366px]:gap-2 min-[1366px]:px-3 min-[1920px]:h-[80px] min-[1920px]:px-8">
             <Link
               href="/"
               onClick={closeMenu}
               aria-label="Anarock Commercial Listing Platform"
-              className="group flex min-w-0 shrink-0 items-center transition-transform duration-200 active:scale-90"
+              className="group flex min-w-0 shrink-0 items-center transition-transform duration-200 active:scale-95"
             >
               <div className="flex min-w-0 items-center gap-2 sm:gap-3 md:gap-3.5 min-[1920px]:gap-5">
                 <img
@@ -757,10 +757,7 @@ export default function Navbar() {
                   alt="Anarock"
                   className="block h-auto w-[90px] object-contain transition-transform duration-300 group-hover:scale-105 sm:w-[102px] md:w-[112px] lg:w-[120px] min-[1280px]:w-[122px] min-[1920px]:w-[150px]"
                 />
-
-                <div className="hidden h-6 w-px bg-[#A054A0]/20 sm:block md:h-7 min-[1920px]:h-8" />
-
-                <div className="flex min-w-0 max-w-[116px] items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white/80 sm:max-w-[165px] sm:gap-2 sm:px-2.5 sm:py-1.5 md:max-w-[185px] lg:max-w-[205px] min-[1920px]:max-w-[260px] min-[1920px]:px-3 min-[1920px]:py-2">
+                <div className="flex min-w-0 max-w-[180px] items-center gap-1.5 bg-white/90 rounded-lg border border-black/15 px-2.5 py-1.5 shadow-sm backdrop-blur-sm transition-all duration-200 sm:max-w-[165px] sm:gap-2 sm:px-3 sm:py-2 md:max-w-[185px] lg:max-w-[250px] min-[1920px]:max-w-[260px] min-[1920px]:px-3.5 min-[1920px]:py-2.5">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#A054A0] text-white shadow-sm sm:h-7 sm:w-7 min-[1920px]:h-8 min-[1920px]:w-8">
                     <MapPin size={14} strokeWidth={2.3} />
                   </span>
@@ -770,7 +767,7 @@ export default function Navbar() {
                       Your location
                     </span>
 
-                    <span className="block truncate text-[10px] font-semibold text-slate-800 sm:text-[13px] md:text-[14px]">
+                    <span className="block truncate text-[10px] font-semibold text-black sm:text-[13px] md:text-[14px]">
                       {userLocation?.city
                         ? `${userLocation.city}${userLocation?.state ? `, ${userLocation.state}` : ""}`
                         : userLocation?.state || "Select location"}
@@ -781,7 +778,7 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="no-scrollbar mx-0 hidden min-w-0 items-center justify-center gap-1 overflow-visible rounded-lg border border-white bg-white/90 px-4 backdrop-blur-sm min-[1366px]:flex min-[1366px]:gap-1 min-[1920px]:gap-2 min-[1920px]:p-1.5">
+            <nav className="no-scrollbar mx-0 hidden min-w-0 items-center justify-center gap-1 overflow-visible rounded-lg border border-white/80 bg-white/90 px-4 py-1.5 shadow-sm backdrop-blur-md min-[1366px]:flex min-[1366px]:gap-1 min-[1920px]:gap-2 min-[1920px]:p-2">
               {navigation.map((item) => {
                 if (item.type === "scroll") {
                   return (
@@ -789,10 +786,10 @@ export default function Navbar() {
                       key={item.label}
                       type="button"
                       onClick={() => handleScrollNavigation(item.href)}
-                      className="group relative cursor-pointer whitespace-nowrap rounded-lg border-0 bg-transparent px-3 py-1.5 text-[14px] font-semibold text-slate-900 transition-all duration-200 hover:text-[#A054A0] min-[1366px]:px-2.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[16px]"
+                      className="group relative cursor-pointer whitespace-nowrap rounded-lg border-0 bg-transparent px-3 py-1.5 text-[14px] font-semibold text-black transition-all duration-200 hover:text-[#A054A0] min-[1366px]:px-2.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[16px]"
                     >
                       <span>{item.label}</span>
-                      <span className="absolute bottom-0 left-2.5 right-2.5 h-[2.5px] rounded-full bg-[#A054A0] scale-x-0 transition-transform duration-200 group-hover:scale-x-100 min-[1366px]:left-2 min-[1366px]:right-2" />
+                      <span className="absolute bottom-0 left-2.5 right-2.5 h-[2.5px] rounded-lg bg-[#A054A0] scale-x-0 transition-transform duration-200 group-hover:scale-x-100 min-[1366px]:left-2 min-[1366px]:right-2" />
                     </button>
                   );
                 }
@@ -812,13 +809,13 @@ export default function Navbar() {
                         onClick={() => setServicesMenuOpen((prev) => !prev)}
                         className={`group relative flex items-center gap-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-[14px] font-semibold transition-all duration-200 min-[1366px]:px-2.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[16px] ${servicesMenuOpen
                           ? "text-[#A054A0]"
-                          : "text-slate-900 hover:text-[#A054A0]"
+                          : "text-black hover:text-[#A054A0]"
                           }`}
                       >
                         <span>{item.label}</span>
 
                         <span
-                          className={`absolute bottom-0 left-2.5 right-2.5 h-[2.5px] rounded-full bg-[#A054A0] transition-transform duration-200 min-[1366px]:left-2 min-[1366px]:right-2 ${servicesMenuOpen
+                          className={`absolute bottom-0 left-2.5 right-2.5 h-[2.5px] rounded-lg bg-[#A054A0] transition-transform duration-200 min-[1366px]:left-2 min-[1366px]:right-2 ${servicesMenuOpen
                             ? "scale-x-100"
                             : "scale-x-0 group-hover:scale-x-100"
                             }`}
@@ -828,7 +825,7 @@ export default function Navbar() {
                       {/* DROPDOWN MENU */}
                       {servicesMenuOpen && (
                         <div className="absolute left-1/2 top-full z-[300] pt-2 -translate-x-1/2 animate-[countryDrop_180ms_cubic-bezier(0.16,1,0.3,1)]">
-                          <div className="w-[340px] rounded-2xl border border-white/80 bg-white/95 p-3 pt-5 shadow-2xl backdrop-blur-2xl">
+                          <div className="w-[340px] rounded-lg border border-white/90 bg-white/95 p-3 pt-5 shadow-2xl backdrop-blur-2xl">
                             <div className="flex flex-col gap-1">
                               {mainServices.map((service) => (
                                 <button
@@ -837,26 +834,26 @@ export default function Navbar() {
                                   onClick={() =>
                                     handleServiceNavigation(service.slug)
                                   }
-                                  className="group/item flex items-center justify-between rounded-xl px-3.5 py-2.5 transition-all duration-150 hover:bg-[#A054A0]/10"
+                                  className="group/item flex items-center justify-between rounded-lg px-3.5 py-2.5 transition-all duration-150 hover:bg-[#A054A0]/10"
                                 >
                                   <div>
-                                    <div className="text-[14px] font-bold text-slate-800 transition-colors group-hover/item:text-[#A054A0]">
+                                    <div className="text-[14px] font-bold text-black transition-colors group-hover/item:text-[#A054A0]">
                                       {service.title}
                                     </div>
                                   </div>
                                   <ChevronRight
                                     size={16}
-                                    className="text-slate-400 opacity-0 transition-all duration-150 group-hover/item:translate-x-0.5 group-hover/item:opacity-100 group-hover/item:text-[#A054A0]"
+                                    className="text-black opacity-40 transition-all duration-150 group-hover/item:translate-x-0.5 group-hover/item:opacity-100 group-hover/item:text-[#A054A0]"
                                   />
                                 </button>
                               ))}
                             </div>
 
-                            <div className="mt-2 border-t border-slate-100 pt-2">
+                            <div className="mt-2 border-t border-black/10 pt-2">
                               <Link
                                 href={ALL_SERVICES_URL}
                                 onClick={() => setServicesMenuOpen(false)}
-                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#A054A0] py-2.5 text-[13px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] active:scale-95"
+                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#A054A0] py-2.5 text-[13px] font-bold text-white shadow-md transition-all duration-200 hover:bg-[#8d478d] active:scale-95"
                               >
                                 <span>View All Services</span>
                                 <ArrowUpRight size={15} strokeWidth={2} />
@@ -874,10 +871,10 @@ export default function Navbar() {
                     key={item.href}
                     href={item.href}
                     onClick={closeMenu}
-                    className="group relative whitespace-nowrap rounded-lg px-3 py-1.5 text-[14px] font-semibold text-slate-900 transition-all duration-200 hover:text-[#A054A0] min-[1366px]:px-2.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[16px]"
+                    className="group relative whitespace-nowrap rounded-lg px-3 py-1.5 text-[14px] font-semibold text-black transition-all duration-200 hover:text-[#A054A0] min-[1366px]:px-2.5 min-[1366px]:text-[13px] min-[1920px]:px-4 min-[1920px]:py-2 min-[1920px]:text-[16px]"
                   >
                     <span>{item.label}</span>
-                    <span className="absolute bottom-0 left-2.5 right-2.5 h-[2.5px] rounded-full bg-[#A054A0] scale-x-0 transition-transform duration-200 group-hover:scale-x-100 min-[1366px]:left-2 min-[1366px]:right-2" />
+                    <span className="absolute bottom-0 left-2.5 right-2.5 h-[2.5px] rounded-lg bg-[#A054A0] scale-x-0 transition-transform duration-200 group-hover:scale-x-100 min-[1366px]:left-2 min-[1366px]:right-2" />
                   </Link>
                 );
               })}
@@ -889,7 +886,7 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setCurrencyOpen((prev) => !prev)}
-                    className="flex h-9 items-center text-nowrap rounded-lg border border-[#A054A0]/20 bg-white/90 px-3 text-[12px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[13px]"
+                    className="flex h-9 items-center text-nowrap rounded-lg border border-[#A054A0]/20 bg-white/90 px-3 text-[12px] font-semibold text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[13px]"
                   >
                     {currencyLabel}
 
@@ -898,13 +895,13 @@ export default function Navbar() {
                       strokeWidth={2}
                       className={`transition-transform duration-300 ${currencyOpen
                         ? "rotate-180 text-[#A054A0]"
-                        : "text-slate-500"
+                        : "text-black"
                         }`}
                     />
                   </button>
 
                   {currencyOpen && (
-                    <div className="absolute right-0 top-[calc(100%+8px)] z-[200] w-[150px] origin-top-right rounded-lg border border-white/80 bg-white/95 p-1.5 shadow-lg backdrop-blur-xl animate-[countryDrop_180ms_cubic-bezier(0.16,1,0.3,1)] min-[1920px]:w-[170px]">
+                    <div className="absolute right-0 top-[calc(100%+8px)] z-[200] w-[150px] origin-top-right rounded-lg border border-white/90 bg-white/95 p-1.5 shadow-lg backdrop-blur-xl animate-[countryDrop_180ms_cubic-bezier(0.16,1,0.3,1)] min-[1920px]:w-[170px]">
                       {currencies.map(([code, label]) => (
                         <button
                           key={code}
@@ -912,7 +909,7 @@ export default function Navbar() {
                           onClick={() => handleCurrencySelect(code)}
                           className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 min-[1920px]:py-2.5 min-[1920px]:text-[14px] ${currencyCode === code
                             ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                            : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                            : "text-black hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                             }`}
                         >
                           {label}
@@ -928,7 +925,7 @@ export default function Navbar() {
                     onClick={() => handleUnitSelect("sq.ft")}
                     className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqft"
                       ? "bg-[#A054A0] text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                      : "text-black hover:bg-white/80 hover:text-[#A054A0]"
                       }`}
                   >
                     sq.ft
@@ -939,7 +936,7 @@ export default function Navbar() {
                     onClick={() => handleUnitSelect("sq.m")}
                     className={`relative z-10 rounded-lg px-2.5 py-1 text-[14px] font-bold transition-all duration-200 active:scale-95 min-[1366px]:px-2 min-[1366px]:text-[14px] min-[1920px]:px-4 min-[1920px]:py-1.5 min-[1920px]:text-[16px] ${unit === "sqm"
                       ? "bg-[#A054A0] text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/80 hover:text-[#A054A0]"
+                      : "text-black hover:bg-white/80 hover:text-[#A054A0]"
                       }`}
                   >
                     sq.m
@@ -949,7 +946,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={openEnquiry}
-                  className="group inline-flex h-9 items-center justify-between gap-2 rounded-xl bg-[#A054A0] px-4 text-[14px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 min-[1366px]:gap-1 min-[1366px]:px-3 min-[1366px]:text-[12px] min-[1920px]:h-10 min-[1920px]:px-5 min-[1920px]:text-[16px]"
+                  className="group inline-flex h-9 items-center justify-between gap-2 rounded-lg bg-[#A054A0] px-4 text-[14px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 min-[1366px]:gap-1 min-[1366px]:px-3 min-[1366px]:text-[12px] min-[1920px]:h-10 min-[1920px]:px-5 min-[1920px]:text-[16px]"
                 >
                   <span className="relative z-10">Request Callback</span>
 
@@ -966,14 +963,14 @@ export default function Navbar() {
                     ? `, ${wishlistCount} saved properties`
                     : ""
                     }`}
-                  className="group relative hidden h-9 shrink-0 items-center gap-1 rounded-lg border border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
+                  className="group relative hidden h-9 shrink-0 items-center gap-1 rounded-lg border border-[#A054A0]/20 bg-white/90 px-3 text-[14px] font-semibold text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-95 min-[1366px]:inline-flex min-[1366px]:px-2.5 min-[1920px]:h-10 min-[1920px]:px-4 min-[1920px]:text-[16px]"
                 >
                   <Heart
                     size={16}
                     strokeWidth={1.8}
                     className={`transition-all duration-200 min-[1920px]:h-5 min-[1920px]:w-5 ${wishlistCount > 0
                       ? "fill-[#A054A0] text-[#A054A0]"
-                      : "text-slate-500 group-hover:text-[#A054A0]"
+                      : "text-black group-hover:text-[#A054A0]"
                       }`}
                   />
 
@@ -990,7 +987,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen((prev) => !prev)}
                 aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
                 aria-expanded={mobileOpen}
-                className="group flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#A054A0]/20 bg-white/70 text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-90 sm:h-10 sm:w-10 min-[1366px]:hidden"
+                className="group flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#A054A0]/20 bg-white/70 text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-90 sm:h-10 sm:w-10 min-[1366px]:hidden"
               >
                 {mobileOpen ? (
                   <X size={18} strokeWidth={2} className="text-[#A054A0]" />
@@ -1002,8 +999,8 @@ export default function Navbar() {
           </div>
 
           <div
-            className={`overflow-hidden border-t border-[#A054A0]/10 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${mobileOpen
-              ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-lg opacity-100 shadow-xl"
+            className={`overflow-hidden border-t border-[#A054A0]/15 bg-white/95 backdrop-blur-2xl transition-all duration-300 ease-in-out min-[1366px]:hidden ${mobileOpen
+              ? "pointer-events-auto max-h-[calc(100dvh-100px)] rounded-b-xl opacity-100 shadow-xl"
               : "pointer-events-none max-h-0 opacity-0"
               }`}
           >
@@ -1014,27 +1011,27 @@ export default function Navbar() {
                     return (
                       <div
                         key={item.label}
-                        className="flex flex-col rounded-lg border border-[#A054A0]/10 bg-white/80"
+                        className="flex flex-col rounded-lg border border-[#A054A0]/15 bg-white/80"
                       >
                         <button
                           type="button"
                           onClick={() =>
                             setMobileServicesExpanded((prev) => !prev)
                           }
-                          className="flex w-full items-center justify-between px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800"
+                          className="flex w-full items-center justify-between px-3.5 py-3 text-left text-[14px] font-semibold text-black"
                         >
                           <span>{item.label}</span>
                           <ChevronDown
                             size={18}
                             className={`transition-transform duration-200 ${mobileServicesExpanded
                               ? "rotate-180 text-[#A054A0]"
-                              : ""
+                              : "text-black"
                               }`}
                           />
                         </button>
 
                         {mobileServicesExpanded && (
-                          <div className="flex flex-col border-t border-slate-100 bg-slate-50/50 p-2 space-y-1">
+                          <div className="flex flex-col border-t border-black/10 bg-black/[0.02] p-2 space-y-1">
                             {mainServices.map((service) => (
                               <button
                                 key={service.slug}
@@ -1042,7 +1039,7 @@ export default function Navbar() {
                                 onClick={() =>
                                   handleServiceNavigation(service.slug)
                                 }
-                                className="w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-700 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                                className="w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-black hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                               >
                                 {service.title}
                               </button>
@@ -1072,7 +1069,7 @@ export default function Navbar() {
                             ? `${index * 30}ms`
                             : "0ms",
                         }}
-                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:text-[#A054A0] active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
+                        className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/15 bg-white/90 px-3.5 py-3 text-left text-[14px] font-semibold text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:text-[#A054A0] active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
                           ? "translate-x-0 opacity-100"
                           : "-translate-x-4 opacity-0"
                           }`}
@@ -1095,7 +1092,7 @@ export default function Navbar() {
                       style={{
                         transitionDelay: mobileOpen ? `${index * 30}ms` : "0ms",
                       }}
-                      className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/10 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:text-[#A054A0] active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
+                      className={`group flex w-full items-center justify-between rounded-lg border border-[#A054A0]/15 bg-white/60 px-3.5 py-3 text-left text-[14px] font-semibold text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:text-[#A054A0] active:scale-[0.99] sm:px-4 sm:py-3.5 sm:text-[15px] ${mobileOpen
                         ? "translate-x-0 opacity-100"
                         : "-translate-x-4 opacity-0"
                         }`}
@@ -1114,7 +1111,7 @@ export default function Navbar() {
               <Link
                 href="/shortlist"
                 onClick={closeMenu}
-                className="mt-2 flex w-full items-center justify-between rounded-lg border border-[#A054A0]/20 bg-white/80 px-3.5 py-3 text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-[0.99] sm:px-4 sm:py-3.5"
+                className="mt-2 flex w-full items-center justify-between rounded-lg border border-[#A054A0]/20 bg-white/80 px-3.5 py-3 text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] active:scale-[0.99] sm:px-4 sm:py-3.5"
               >
                 <div className="flex items-center gap-3">
                   <Heart
@@ -1123,7 +1120,7 @@ export default function Navbar() {
                     className={
                       wishlistCount > 0
                         ? "fill-[#A054A0] text-[#A054A0]"
-                        : "text-slate-700"
+                        : "text-black"
                     }
                   />
                   <span className="font-semibold">Shortlisted</span>
@@ -1136,7 +1133,7 @@ export default function Navbar() {
                 )}
               </Link>
 
-              <div className="mt-4 flex flex-col gap-3 border-t border-[#A054A0]/10 pt-4 sm:mt-5 sm:gap-3.5 sm:pt-5">
+              <div className="mt-4 flex flex-col gap-3 border-t border-[#A054A0]/15 pt-4 sm:mt-5 sm:gap-3.5 sm:pt-5">
                 <div className="flex items-center justify-between gap-3 rounded-lg border border-[#A054A0]/15 bg-white/50 p-2 shadow-sm backdrop-blur-md">
                   <div className="flex min-w-0 overflow-hidden rounded-lg border border-[#A054A0]/20 bg-white/60 p-0.5">
                     <button
@@ -1144,7 +1141,7 @@ export default function Navbar() {
                       onClick={() => handleUnitSelect("sq.ft")}
                       className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqft"
                         ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80"
+                        : "text-black hover:bg-white/80 hover:text-[#A054A0]"
                         }`}
                     >
                       sq.ft
@@ -1155,7 +1152,7 @@ export default function Navbar() {
                       onClick={() => handleUnitSelect("sq.m")}
                       className={`h-8 rounded-lg px-3.5 text-[12px] font-bold transition-all duration-200 active:scale-95 sm:px-4 sm:text-[13px] ${unit === "sqm"
                         ? "bg-[#A054A0] text-white shadow-sm"
-                        : "text-slate-600 hover:bg-white/80"
+                        : "text-black hover:bg-white/80 hover:text-[#A054A0]"
                         }`}
                     >
                       sq.m
@@ -1166,12 +1163,12 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => setCurrencyOpen((prev) => !prev)}
-                      className="flex h-8 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white px-2.5 text-[12px] font-semibold text-slate-800 shadow-sm backdrop-blur-md transition-all duration-200 active:scale-95 sm:px-3"
+                      className="flex h-8 items-center gap-1.5 rounded-lg border border-[#A054A0]/20 bg-white px-2.5 text-[12px] font-semibold text-black shadow-sm backdrop-blur-md transition-all duration-200 active:scale-95 sm:px-3"
                     >
                       {currencyLabel}
                       <ChevronDown
                         size={13}
-                        className={`transition-transform duration-200 ${currencyOpen ? "rotate-180 text-[#A054A0]" : ""
+                        className={`transition-transform duration-200 ${currencyOpen ? "rotate-180 text-[#A054A0]" : "text-black"
                           }`}
                       />
                     </button>
@@ -1185,7 +1182,7 @@ export default function Navbar() {
                             onClick={() => handleCurrencySelect(code)}
                             className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${currencyCode === code
                               ? "bg-[#A054A0] font-bold text-white shadow-sm"
-                              : "text-slate-600 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                              : "text-black hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                               }`}
                           >
                             <span>{label}</span>
@@ -1223,7 +1220,7 @@ export default function Navbar() {
       {/* ENQUIRY MODAL */}
       {enquiryOpen && (
         <div
-          className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm animate-[navbarFadeIn_200ms_ease-out] sm:p-4 md:p-6"
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm animate-[navbarFadeIn_200ms_ease-out] sm:p-4 md:p-6"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               handleModalClose();
@@ -1234,7 +1231,7 @@ export default function Navbar() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="enquiry-title"
-            className="relative flex max-h-[85dvh] w-full max-w-[580px] 2xl:max-w-[700px] flex-col overflow-hidden rounded-lg border border-white/60 bg-white/90 shadow-2xl backdrop-blur-xl animate-[navbarPopup_280ms_cubic-bezier(0.16,1,0.3,1)]"
+            className="relative flex max-h-[85dvh] w-full max-w-[580px] 2xl:max-w-[700px] flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/95 shadow-2xl backdrop-blur-2xl animate-[navbarPopup_280ms_cubic-bezier(0.16,1,0.3,1)]"
           >
             <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[#A054A0]/15 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-28 -left-24 h-56 w-56 rounded-full bg-[#A054A0]/10 blur-3xl" />
@@ -1243,14 +1240,14 @@ export default function Navbar() {
               type="button"
               onClick={handleModalClose}
               aria-label="Close enquiry form"
-              className="absolute right-3.5 top-3.5 z-30 flex h-9 w-9 items-center justify-center rounded-lg border border-white/80 bg-white/80 text-slate-500 shadow-sm backdrop-blur-md transition-all duration-200 hover:rotate-90 hover:bg-white hover:text-[#A054A0] hover:shadow-md active:scale-95 sm:right-5 sm:top-5 sm:h-10 sm:w-10 2xl:h-12 2xl:w-12"
+              className="absolute right-3.5 top-3.5 z-30 flex h-9 w-9 items-center justify-center rounded-lg border border-white/90 bg-white/90 text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:rotate-90 hover:bg-white hover:text-[#A054A0] hover:shadow-md active:scale-95 sm:right-5 sm:top-5 sm:h-10 sm:w-10 2xl:h-12 2xl:w-12"
             >
               <X size={18} strokeWidth={2} className="2xl:h-6 2xl:w-6" />
             </button>
 
             {enquiryStatus === "success" ? (
               <div className="relative flex min-h-[380px] flex-col items-center justify-center px-6 py-10 text-center sm:min-h-[430px] sm:px-10 2xl:min-h-[520px]">
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-lg bg-[#A054A0] text-white shadow-lg animate-[successPop_450ms_cubic-bezier(0.16,1,0.3,1)] sm:h-24 sm:w-24 2xl:h-28 2xl:w-28">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#A054A0] text-white shadow-lg animate-[successPop_450ms_cubic-bezier(0.16,1,0.3,1)] sm:h-24 sm:w-24 2xl:h-28 2xl:w-28">
                   <CheckCircle2
                     size={42}
                     strokeWidth={2}
@@ -1262,33 +1259,33 @@ export default function Navbar() {
                   Thank you
                 </p>
 
-                <h2 className="max-w-[440px] text-[24px] font-bold tracking-[-0.02em] text-slate-900 sm:text-[27px] lg:text-[30px] 2xl:text-[32px]">
+                <h2 className="max-w-[440px] text-[24px] font-bold tracking-[-0.02em] text-black sm:text-[27px] lg:text-[30px] 2xl:text-[32px]">
                   {isPriorityLead
                     ? "Your enquiry has been received and put on priority"
                     : "Your enquiry has been received"}
                 </h2>
 
-                <p className="mt-3 text-[14px] leading-6 text-slate-600 sm:text-[15px] 2xl:text-[16px]">
+                <p className="mt-3 text-[14px] leading-6 text-black/70 sm:text-[15px] 2xl:text-[16px]">
                   {isPriorityLead
                     ? "We have updated your information and placed your enquiry on priority. Our team will get back to you shortly."
                     : "Our team will get back to you shortly."}
                 </p>
 
-                <p className="mt-7 rounded-lg border border-[#A054A0]/20 bg-white/80 px-4 py-2 text-[12px] font-medium text-slate-500 shadow-sm backdrop-blur-md sm:text-[13px] 2xl:text-[14px]">
+                <p className="mt-7 rounded-lg border border-[#A054A0]/20 bg-white/80 px-4 py-2 text-[12px] font-medium text-[#A054A0] shadow-sm backdrop-blur-md sm:text-[13px] 2xl:text-[14px]">
                   This window will close automatically.
                 </p>
               </div>
             ) : enquiryStep === 1 ? (
               <>
-                <div className="relative shrink-0 border-b border-[#A054A0]/10 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
+                <div className="relative shrink-0 border-b border-[#A054A0]/15 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
                   <h2
                     id="enquiry-title"
-                    className="pr-10 text-[21px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[28px] 2xl:text-[32px]"
+                    className="pr-10 text-[21px] font-bold tracking-[-0.025em] text-black sm:text-[25px] lg:text-[28px] 2xl:text-[32px]"
                   >
                     Tell us what you’re looking for
                   </h2>
 
-                  <p className="mt-1.5 max-w-[480px] text-[12px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
+                  <p className="mt-1.5 max-w-[480px] text-[12px] leading-5 text-black/70 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
                     Share your contact info and our team will get back to you.
                   </p>
                 </div>
@@ -1302,9 +1299,9 @@ export default function Navbar() {
                       <div>
                         <label
                           htmlFor="enquiry-name"
-                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-black sm:text-[14px] 2xl:text-[15px]"
                         >
-                          Full Name<span className="text-red-500">*</span>
+                          Full Name<span className="text-[#A054A0]">*</span>
                         </label>
 
                         <input
@@ -1314,22 +1311,22 @@ export default function Navbar() {
                           placeholder="Enter your name"
                           required
                           autoComplete="name"
-                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[15px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[16px] 2xl:px-5"
+                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[15px] font-medium text-black shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-black/40 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[16px] 2xl:px-5"
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="enquiry-phone"
-                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-black sm:text-[14px] 2xl:text-[15px]"
                         >
-                          Phone Number <span className="text-red-500">*</span>
+                          Phone Number <span className="text-[#A054A0]">*</span>
                         </label>
 
                         <div className="relative w-full">
                           <div
                             className={`flex h-10 w-full rounded-lg border bg-white/70 shadow-sm backdrop-blur-md transition-all duration-200 sm:h-[46px] 2xl:h-[54px] ${phoneError
-                              ? "border-red-400 ring-2 ring-red-500/10"
+                              ? "border-[#A054A0] ring-2 ring-[#A054A0]/10"
                               : "border-[#A054A0]/20 focus-within:border-[#A054A0] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A054A0]/20"
                               }`}
                           >
@@ -1340,7 +1337,7 @@ export default function Navbar() {
                                 onClick={() => setCountryOpen((prev) => !prev)}
                                 aria-expanded={countryOpen}
                                 aria-haspopup="listbox"
-                                className="flex h-full items-center gap-1.5 rounded-l-lg border-r border-[#A054A0]/20 bg-slate-50/60 px-3 text-[14px] font-semibold text-slate-800 outline-none transition-all duration-150 hover:bg-white active:scale-95 sm:px-3 sm:text-[14px] 2xl:px-4.5 2xl:text-[15px]"
+                                className="flex h-full items-center gap-1.5 rounded-l-xl border-r border-[#A054A0]/20 bg-white/60 px-3 text-[14px] font-semibold text-black outline-none transition-all duration-150 hover:bg-white active:scale-95 sm:px-3 sm:text-[14px] 2xl:px-4.5 2xl:text-[15px]"
                               >
                                 <span className="text-[18px] leading-none 2xl:text-[22px]">
                                   {selectedCountry.flag}
@@ -1353,7 +1350,7 @@ export default function Navbar() {
                                   strokeWidth={2}
                                   className={`transition-transform duration-200 ${countryOpen
                                     ? "rotate-180 text-[#A054A0]"
-                                    : "text-slate-500"
+                                    : "text-black"
                                     }`}
                                 />
                               </button>
@@ -1370,7 +1367,7 @@ export default function Navbar() {
                                     }}
                                   >
                                     <div
-                                      className="fixed z-[9999] w-[310px] max-w-[calc(100vw-20px)] overflow-hidden rounded-lg border border-white/80 bg-white/95 shadow-xl backdrop-blur-2xl"
+                                      className="fixed z-[9999] w-[310px] max-w-[calc(100vw-20px)] overflow-hidden rounded-2xl border border-white/90 bg-white/95 shadow-2xl backdrop-blur-2xl"
                                       style={{
                                         top: (() => {
                                           const rect =
@@ -1407,11 +1404,11 @@ export default function Navbar() {
                                         maxHeight: "calc(100vh - 24px)",
                                       }}
                                     >
-                                      <div className="border-b border-slate-100 p-2.5">
-                                        <div className="flex items-center gap-2 rounded-lg border border-[#A054A0]/20 bg-slate-50/70 px-3 shadow-inner">
+                                      <div className="border-b border-black/10 p-3">
+                                        <div className="flex items-center gap-2 rounded-lg border border-[#A054A0]/20 bg-white/70 px-3 shadow-inner">
                                           <Search
                                             size={14}
-                                            className="shrink-0 text-slate-400"
+                                            className="shrink-0 text-black/40"
                                           />
 
                                           <input
@@ -1422,7 +1419,7 @@ export default function Navbar() {
                                               setCountrySearch(e.target.value)
                                             }
                                             placeholder="Search country..."
-                                            className="h-9 min-w-0 flex-1 bg-transparent text-[14px] font-medium text-slate-800 outline-none placeholder:text-slate-400"
+                                            className="h-9 min-w-0 flex-1 bg-transparent text-[14px] font-medium text-black outline-none placeholder:text-black/40"
                                           />
 
                                           {countrySearch && (
@@ -1431,9 +1428,9 @@ export default function Navbar() {
                                               onClick={() =>
                                                 setCountrySearch("")
                                               }
-                                              className="flex h-5 w-5 items-center justify-center rounded-lg hover:bg-slate-200"
+                                              className="flex h-5 w-5 items-center justify-center rounded-lg hover:bg-black/10"
                                             >
-                                              <X size={12} />
+                                              <X size={12} className="text-black" />
                                             </button>
                                           )}
                                         </div>
@@ -1457,7 +1454,7 @@ export default function Navbar() {
                                                 }
                                                 className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all duration-150 ${isSelected
                                                   ? "bg-[#A054A0] font-semibold text-white"
-                                                  : "text-slate-800 hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
+                                                  : "text-black hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
                                                   }`}
                                               >
                                                 <span className="text-[18px] leading-none">
@@ -1470,8 +1467,8 @@ export default function Navbar() {
 
                                                 <span
                                                   className={`text-[13px] font-medium ${isSelected
-                                                    ? "text-white/80"
-                                                    : "text-slate-500"
+                                                    ? "text-white/90"
+                                                    : "text-black/60"
                                                     }`}
                                                 >
                                                   {country.dial}
@@ -1487,7 +1484,7 @@ export default function Navbar() {
                                             );
                                           })
                                         ) : (
-                                          <div className="px-3 py-6 text-center text-[13px] text-slate-500">
+                                          <div className="px-3 py-6 text-center text-[13px] text-black/60">
                                             No country found
                                           </div>
                                         )}
@@ -1514,17 +1511,17 @@ export default function Navbar() {
                               placeholder="Enter phone number"
                               required
                               autoComplete="tel"
-                              className="w-full flex-1 rounded-r-lg bg-transparent px-3 text-[14px] font-medium text-slate-900 outline-none placeholder:text-slate-400 sm:text-[15px] 2xl:text-[17px] 2xl:px-5"
+                              className="w-full flex-1 rounded-r-xl bg-transparent px-3 text-[14px] font-medium text-black outline-none placeholder:text-black/40 sm:text-[15px] 2xl:text-[17px] 2xl:px-5"
                             />
                           </div>
                         </div>
 
                         {phoneError ? (
-                          <p className="mt-1.5 text-[12px] font-medium leading-4 text-red-600 2xl:text-[13px]">
+                          <p className="mt-1.5 text-[12px] font-medium leading-4 text-[#A054A0] 2xl:text-[13px]">
                             {phoneError}
                           </p>
                         ) : phone ? (
-                          <p className="mt-1.5 text-[11px] text-slate-400 2xl:text-[12px]">
+                          <p className="mt-1.5 text-[11px] text-black/60 2xl:text-[12px]">
                             {selectedCountry.min === selectedCountry.max
                               ? `${selectedCountry.min} digits required`
                               : `${selectedCountry.min}-${selectedCountry.max} digits required`}
@@ -1536,7 +1533,7 @@ export default function Navbar() {
                     {submitError && (
                       <div
                         role="alert"
-                        className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[13px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
+                        className="mt-4 rounded-lg border border-[#A054A0]/30 bg-[#A054A0]/10 px-4 py-3 text-[13px] leading-5 text-[#A054A0] shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
                       >
                         {submitError}
                       </div>
@@ -1558,15 +1555,15 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <div className="relative shrink-0 border-b border-[#A054A0]/10 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
+                <div className="relative shrink-0 border-b border-[#A054A0]/15 bg-white/50 px-5 pb-5 pt-6 backdrop-blur-md sm:px-8 sm:pb-6 sm:pt-7 2xl:px-10 2xl:pb-6 2xl:pt-7">
                   <h2
                     id="enquiry-title"
-                    className="pr-10 text-[21px] font-bold tracking-[-0.025em] text-slate-900 sm:text-[25px] lg:text-[28px] 2xl:text-[32px]"
+                    className="pr-10 text-[21px] font-bold tracking-[-0.025em] text-black sm:text-[25px] lg:text-[28px] 2xl:text-[32px]"
                   >
                     Almost done!
                   </h2>
 
-                  <p className="mt-1.5 max-w-[480px] text-[12px] leading-5 text-slate-500 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
+                  <p className="mt-1.5 max-w-[480px] text-[12px] leading-5 text-black/70 sm:text-[14px] sm:leading-6 2xl:text-[16px] 2xl:leading-7">
                     Provide your email and company name to help us serve you
                     better.
                   </p>
@@ -1581,7 +1578,7 @@ export default function Navbar() {
                       <div>
                         <label
                           htmlFor="enquiry-email"
-                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-black sm:text-[14px] 2xl:text-[15px]"
                         >
                           Email Address
                         </label>
@@ -1599,13 +1596,13 @@ export default function Navbar() {
                               setEmailError("");
                             }
                           }}
-                          className={`h-10 w-full rounded-lg border bg-white/70 px-4 text-[15px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:bg-white sm:h-[46px] sm:text-[15px] ${emailError
-                            ? "border-red-400 ring-2 ring-red-500/10"
+                          className={`h-10 w-full rounded-lg border bg-white/70 px-4 text-[15px] font-medium text-black shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-black/40 hover:bg-white focus:bg-white sm:h-[46px] sm:text-[15px] ${emailError
+                            ? "border-[#A054A0] ring-2 ring-[#A054A0]/10"
                             : "border-[#A054A0]/20 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
                             }`}
                         />
                         {emailError && (
-                          <p className="mt-1.5 text-[12px] font-medium leading-4 text-red-600 2xl:text-[13px]">
+                          <p className="mt-1.5 text-[12px] font-medium leading-4 text-[#A054A0] 2xl:text-[13px]">
                             {emailError}
                           </p>
                         )}
@@ -1613,7 +1610,7 @@ export default function Navbar() {
                       <div>
                         <label
                           htmlFor="enquiry-company"
-                          className="mb-1.5 block text-[13px] font-bold text-slate-700 sm:text-[14px] 2xl:text-[15px]"
+                          className="mb-1.5 block text-[13px] font-bold text-black sm:text-[14px] 2xl:text-[15px]"
                         >
                           Company Name
                         </label>
@@ -1625,7 +1622,7 @@ export default function Navbar() {
                           autoComplete="organization"
                           value={company ?? ""}
                           onChange={(event) => setCompany(event.target.value)}
-                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[15px] font-medium text-slate-900 shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-slate-400 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[16px] 2xl:px-5"
+                          className="h-10 w-full rounded-lg border border-[#A054A0]/20 bg-white/70 px-4 text-[15px] font-medium text-black shadow-sm outline-none backdrop-blur-md transition-all duration-200 placeholder:text-black/40 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-2 focus:ring-[#A054A0]/20 sm:h-[46px] sm:text-[15px] 2xl:h-[54px] 2xl:text-[16px] 2xl:px-5"
                         />
                       </div>
                     </div>
@@ -1633,7 +1630,7 @@ export default function Navbar() {
                     {submitError && (
                       <div
                         role="alert"
-                        className="mt-4 rounded-lg border border-red-200 bg-red-50/90 px-4 py-3 text-[13px] leading-5 text-red-700 shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
+                        className="mt-4 rounded-lg border border-[#A054A0]/30 bg-[#A054A0]/10 px-4 py-3 text-[13px] leading-5 text-[#A054A0] shadow-sm backdrop-blur-md animate-[errorShake_250ms_ease-out] 2xl:text-[14px]"
                       >
                         {submitError}
                       </div>
@@ -1671,7 +1668,7 @@ export default function Navbar() {
                         type="button"
                         onClick={handleSkipFormTwo}
                         disabled={isSubmitting}
-                        className="flex h-[48px] w-full items-center justify-center rounded-lg border px-6 text-[13px] font-semibold text-[#000] transition-all duration-200 hover:text-[#A054A0] active:scale-98 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[17px]"
+                        className="mt-3 flex h-[48px] w-full items-center justify-center rounded-lg border border-[#A054A0]/20 px-6 text-[13px] font-semibold text-black transition-all duration-200 hover:border-[#A054A0] hover:text-[#A054A0] active:scale-98 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[50px] sm:text-[15px] 2xl:h-[58px] 2xl:text-[17px]"
                       >
                         - Skip -
                       </button>

@@ -572,27 +572,8 @@ function CommercialLeasingAndAdvisoryPageContent() {
         </div>
       </section>
 
-      {/* BREADCRUMB */}
-      {/* <nav
-        aria-label="Breadcrumb"
-        className="mx-auto flex max-w-[1728px] flex-wrap items-center gap-2 px-6 py-6 text-[11px] text-slate-700 sm:px-10 md:px-16 lg:px-[7.8%]"
-      >
-        <Link href="/" className="hover:text-[#A054A0]">
-          Home
-        </Link>
-        <ChevronRight size={12} className="text-[#A054A0]" />
-        <Link href="/services" className="hover:text-[#A054A0]">
-          Services
-        </Link>
-        <ChevronRight size={12} className="text-[#A054A0]" />
-        <span className="text-slate-900">Commercial Leasing And Advisory</span>
-      </nav> */}
-
-
-
       <Breadcrumbs items={breadcrumbs} />
 
-      {/* INTRODUCTION AND STATISTICS */}
       <section className="mx-auto max-w-[1150px] px-6 pb-14 pt-12 sm:px-10 lg:pb-20">
         <h2 className="mx-auto max-w-[850px] text-center text-2xl font-normal leading-tight tracking-tight text-black sm:text-3xl">
           Our office real estate specialists deliver strategic workplace

@@ -176,7 +176,7 @@ export default function MarketStats() {
     };
   }, []);
   return (
-    <section ref={statsRef} className="relative w-full overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_20px_80px_-40px_rgba(15,23,42,0.18)] sm:rounded-[2.25rem]">
+    <section ref={statsRef} className="relative w-full overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-[0_20px_80px_-40px_rgba(15,23,42,0.18)]">
       <div className="grid grid-cols-2 lg:grid-cols-4">
         {STAT_CONFIG.map(({ key, label, description }, i) => (
           <div key={key} className={`group relative flex min-w-0 flex-col justify-between p-5 min-[400px]:p-6 sm:p-8 lg:p-9 xl:p-10 min-h-[220px] sm:min-h-[260px] lg:min-h-[290px] xl:min-h-[320px] transition-colors duration-300 hover:bg-slate-50/60 ${i % 2 !== 0 ? "border-l border-slate-200/80" : ""} ${i >= 2 ? "border-t border-slate-200/80 lg:border-t-0" : ""} ${i > 0 ? "lg:border-l lg:border-slate-200/80" : ""}`}>
@@ -185,11 +185,11 @@ export default function MarketStats() {
                 {loading ? (
                   <div className=" h-8  w-28 animate-pulse  rounded-lg   bg-slate-100  sm:h-10   sm:w-36   lg:h-12  lg:w-40" />
                 ) : error ? (
-                  <span className=" text-xs font-medium  text-black  sm:text-sm">
+                  <span className=" text-xs font-medium text-black  sm:text-sm">
                     Unavailable
                   </span>
                 ) : (
-                  <div className=" min-w-0 truncate text-lg font-bold tracking-tight text-[#A054A0] transition-transform duration-300 group-hover:translate-x-0.5 min-[400px]:text-xl sm:text-xl lg:text-2xl xl:text-3xl">
+                  <div className=" min-w-0 truncate text-lg font-semibold tracking-tight text-[#A054A0] transition-transform duration-300 group-hover:translate-x-0.5 min-[400px]:text-xl sm:text-xl lg:text-2xl xl:text-3xl">
                     <AnimatedNumber
                       value={stats?.[key]}
                       unit={unit}

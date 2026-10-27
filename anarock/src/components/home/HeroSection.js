@@ -26,20 +26,13 @@ const SAMPLE_PROMPTS = [
   "Plug-and-play HQ in Cyber City Gurgaon under ₹15 Lakhs/month",
 ];
 const CONTROL_H = "h-[clamp(2.75rem,5vh,3.5rem)]";
-const INPUT_BASE = `w-full ${CONTROL_H} rounded-xl bg-[#FAF8FA] border border-[#E8E0E8] text-[#211A21] text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10 disabled:cursor-not-allowed disabled:opacity-50`;
+const INPUT_BASE = `w-full ${CONTROL_H} rounded-xl bg-white/70 border border-[#A054A0]/20 text-black text-[13px] sm:text-sm font-medium outline-none transition-all duration-200 hover:border-[#A054A0] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10 disabled:cursor-not-allowed disabled:opacity-50`;
 const INPUT_OPEN = "border-[#A054A0] bg-white ring-[3px] ring-[#A054A0]/10";
-const LABEL = "mb-1.5 ml-0.5 block text-[11px] font-bold tracking-[0.14em] text-black/70 sm:text-xs";
-const MENU = "absolute left-0 right-0 top-full z-[100] mt-2 flex flex-col overflow-hidden rounded-2xl border border-[#E6DDE6] bg-white shadow-[0_24px_60px_rgba(35,10,38,.18)]";
+const LABEL = "mb-1.5 ml-0.5 block text-[11px] font-bold tracking-[0.14em] text-black sm:text-xs";
+const MENU = "absolute left-0 right-0 top-full z-[100] mt-2 flex flex-col overflow-hidden rounded-xl border border-white/90 bg-white/95 shadow-2xl backdrop-blur-2xl";
 const MENU_LIST = "max-h-[clamp(160px,30vh,260px)] overflow-y-auto overscroll-contain p-1.5";
 const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2";
 
-function CheckBadge() {
-  return (
-    <span className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#A054A0]/10">
-      <Check className="h-3 w-3 text-[#A054A0]" />
-    </span>
-  );
-}
 
 function Field({ label, innerRef, className = "", children }) {
   return (
@@ -57,7 +50,7 @@ function SelectTrigger({ icon: Icon, open, disabled, onClick, filled, loading, c
     >
       <span className="flex min-w-0 items-center gap-2.5">
         <Icon className="h-4 w-4 shrink-0 text-[#A054A0]" />
-        <span className={`min-w-0 truncate ${filled ? "font-semibold text-[#211A21]/85" : "text-black/35"}`} >
+        <span className={`min-w-0 truncate ${filled ? "font-semibold text-black" : "text-black/40"}`} >
           {children}
         </span>
       </span>
@@ -65,7 +58,7 @@ function SelectTrigger({ icon: Icon, open, disabled, onClick, filled, loading, c
       {loading ? (
         <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#A054A0]" />
       ) : (
-        <ChevronDown className={`h-4 w-4 shrink-0 text-black/35 transition-transform ${open ? "rotate-180 text-[#A054A0]" : ""}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180 text-[#A054A0]" : "text-black/40"}`} />
       )}
     </button>
   );
@@ -73,11 +66,11 @@ function SelectTrigger({ icon: Icon, open, disabled, onClick, filled, loading, c
 
 function MenuSearch({ value, onChange, placeholder }) {
   return (
-    <div className="shrink-0 border-b border-[#EEE7EE] bg-[#FBF9FB] p-2.5">
+    <div className="shrink-0 border-b border-black/10 bg-white/50 p-2.5">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/30" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
         <input value={value} onChange={onChange} placeholder={placeholder} autoFocus
-          className="h-10 w-full rounded-xl border border-[#E7DFE7] bg-white pl-9 pr-3 text-[13px] font-medium text-[#211A21] outline-none transition placeholder:text-black/30 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10 sm:text-sm"
+          className="h-10 w-full rounded-xl border border-[#A054A0]/20 bg-white pl-9 pr-3 text-[13px] font-medium text-black outline-none transition placeholder:text-black/40 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10 sm:text-sm"
         />
       </div>
     </div>
@@ -88,12 +81,12 @@ function Option({ active, onClick, children }) {
   return (
     <button type="button" role="option" aria-selected={active}
       onClick={onClick} className={`flex min-h-[42px] w-full items-center justify-between rounded-xl px-3.5 py-2 text-left text-[13px] transition-colors sm:text-sm ${active
-        ? "bg-[#A054A0]/[.08] font-semibold text-[#A054A0]"
-        : "text-[#393039] hover:bg-[#A054A0]/[.05] hover:text-[#A054A0]"
+        ? "bg-[#A054A0] font-bold text-white shadow-sm"
+        : "text-black hover:bg-[#A054A0]/10 hover:text-[#A054A0]"
         }`}
     >
       <span className="min-w-0 truncate">{children}</span>
-      {active && <CheckBadge />}
+      {active && <Check size={14} className="text-white" />}
     </button>
   );
 }
@@ -106,7 +99,7 @@ function IconInput({ icon, value, onChange, placeholder }) {
       </span>
 
       <input type="text" inputMode="numeric" value={value} onChange={onChange} placeholder={placeholder}
-        className={`${INPUT_BASE} pl-11 pr-4 font-semibold text-[#211A21]/85 placeholder:font-normal placeholder:text-black/30`}
+        className={`${INPUT_BASE} pl-11 pr-4 font-semibold text-black placeholder:font-normal placeholder:text-black/40`}
       />
     </div>
   );
@@ -115,12 +108,12 @@ function IconInput({ icon, value, onChange, placeholder }) {
 function TabButton({ active, onClick, icon: Icon, children }) {
   return (
     <button type="button" role="tab" aria-selected={active} onClick={onClick}
-      className={`inline-flex h-[clamp(2.5rem,4.6vh,3rem)] flex-1 items-center justify-center gap-2 rounded-full px-4 text-[11px] font-bold transition-all duration-200 sm:min-w-[170px] sm:flex-none sm:px-6 sm:text-xs ${FOCUS_RING} ${active
-        ? "border border-[#E7E1E7] bg-white text-[#211A21] shadow-[0_4px_14px_rgba(30,15,30,.09)]"
-        : "text-[#817981] hover:bg-white/70 hover:text-[#3C353C]"
+      className={`inline-flex h-[clamp(2.5rem,4.6vh,3rem)] flex-1 items-center justify-center gap-2 rounded-xl px-4 text-[11px] font-bold transition-all duration-200 sm:min-w-[170px] sm:flex-none sm:px-6 sm:text-xs ${FOCUS_RING} ${active
+        ? "border border-[#A054A0]/30 bg-white text-black shadow-md"
+        : "text-black/70 hover:bg-white/70 hover:text-[#A054A0]"
         }`}
     >
-      <Icon className={`h-4 w-4 ${active ? "text-[#A054A0]" : "text-[#9A939A]"}`} />
+      <Icon className={`h-4 w-4 ${active ? "text-[#A054A0]" : "text-black/50"}`} />
       {children}
     </button>
   );
@@ -494,7 +487,7 @@ export default function HeroSection({ consentGranted, locationData }) {
         <div className="absolute inset-0 bg-gradient-to-b from-[#100912]/55 via-[#170D19]/25 to-[#160B17]" />
         <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-[#160B17] via-[#160B17]/80 to-transparent" />
 
-        <div className="pointer-events-none absolute left-1/2 top-[10%] h-[260px] w-[260px] -translate-x-1/2 rounded-full bg-[#A054A0]/20 blur-[100px] sm:h-[420px] sm:w-[420px] lg:h-[560px] lg:w-[560px]" />
+        <div className="pointer-events-none absolute left-1/2 top-[10%] h-[260px] w-[260px] -translate-x-1/2 bg-[#A054A0]/20 blur-[100px] sm:h-[420px] sm:w-[420px] lg:h-[560px] lg:w-[560px]" />
 
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.045]"
@@ -507,14 +500,14 @@ export default function HeroSection({ consentGranted, locationData }) {
       </div>
 
       {/* ------------------------------- Content -------------------------------- */}
-      <section className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col items-center justify-center gap-[clamp(1.25rem,4vh,3.5rem)] px-4 pb-8 pt-14 sm:px-6 sm:pb-12 lg:min-h-dvh lg:px-8 lg:pb-4 lg:pt-[2.5rem] xl:px-10 [@media(max-height:760px)]:justify-start [@media(max-height:760px)]:gap-4 [@media(max-height:760px)]:pt-6 [@media(max-height:760px)]:pb-6">
+      <section className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col items-center justify-start gap-[clamp(1.25rem,3vh,2.5rem)] px-4 pb-8 pt-14 sm:px-6 sm:pb-12 lg:min-h-dvh lg:px-8 lg:pb-8 lg:pt-16 xl:px-10">
         <header className="w-full max-w-[980px] shrink-0 text-center">
           <div className="mb-[clamp(0.75rem,2.2vh,1.5rem)] inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,.12)] backdrop-blur-xl sm:px-4 sm:py-2 [@media(max-height:620px)]:hidden">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#A054A0] shadow-[0_0_24px_rgba(160,84,160,.45)]">
               <Sparkles className="h-3.5 w-3.5 text-white" />
             </span>
 
-            <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/90 sm:text-[10px] sm:tracking-[0.22em]">
+            <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white sm:text-[10px] sm:tracking-[0.22em]">
               Describe · Discover · Decide
             </span>
           </div>
@@ -526,17 +519,17 @@ export default function HeroSection({ consentGranted, locationData }) {
             </span>
           </h1>
 
-          <p className="mx-auto mt-[clamp(0.5rem,1.8vh,1.25rem)] max-w-[650px] px-2 text-[13px] leading-[1.55] tracking-wide text-white/70 sm:px-0 sm:text-base sm:leading-7">
+          <p className="mx-auto mt-[clamp(0.5rem,1.8vh,1.25rem)] max-w-[650px] px-2 text-[13px] leading-[1.55] tracking-wide text-white/90 sm:px-0 sm:text-base sm:leading-7">
             An AI-enabled, data-driven approach to discovering commercial
             workspaces aligned with your business requirements.
           </p>
         </header>
-        <div className="relative z-30 w-full max-w-[1100px] shrink-0 rounded-[24px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(20,5,25,.34)] lg:rounded-[28px]">
+        <div className="relative z-30 w-full max-w-[1100px] shrink-0 rounded-xl border border-white/85 bg-white/95 shadow-2xl backdrop-blur-xl">
           <div className="flex justify-center px-4 pt-[clamp(1rem,2.6vh,1.75rem)] sm:px-6">
             <div
               role="tablist"
               aria-label="Search mode"
-              className="flex w-full max-w-[430px] rounded-full border border-[#ECE7EC] bg-[#F7F5F7] p-1 shadow-[inset_0_1px_2px_rgba(30,15,30,.04)] sm:w-auto sm:max-w-none"
+              className="flex w-full max-w-[430px] rounded-xl border border-[#A054A0]/20 bg-white/80 p-1 shadow-sm sm:w-auto sm:max-w-none"
             >
               <TabButton
                 active={tab === "filters"}
@@ -590,7 +583,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                           maxHeight: "min(220px, calc(100dvh - 360px))",
                           overflowY: "auto",
                           overscrollBehavior: "contain",
-                          scrollbarWidth: "thin",
                         }}
                       >
                         {filteredCities.map((c) => (
@@ -608,7 +600,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         ))}
 
                         {!filteredCities.length && (
-                          <div className="px-4 py-8 text-center text-xs text-black/35">
+                          <div className="px-4 py-8 text-center text-xs text-black/40">
                             No cities found
                           </div>
                         )}
@@ -675,7 +667,7 @@ export default function HeroSection({ consentGranted, locationData }) {
                         ))}
 
                         {!filteredMicromarkets.length && (
-                          <div className="flex min-h-[96px] items-center justify-center px-4 text-center text-[11px] text-black/35 sm:text-xs">
+                          <div className="flex min-h-[96px] items-center justify-center px-4 text-center text-[11px] text-black/40 sm:text-xs">
                             No micromarkets found
                           </div>
                         )}
@@ -701,7 +693,7 @@ export default function HeroSection({ consentGranted, locationData }) {
 
                   {officeTypeOpen && (
                     <div className={MENU}>
-                      <div role="listbox" className="p-1.5">
+                      <div role="listbox" className={MENU_LIST}>
                         <Option
                           active={!officeType}
                           onClick={() => {
@@ -786,16 +778,16 @@ export default function HeroSection({ consentGranted, locationData }) {
                     placeholder="Describe the workspace you're looking for..."
                     rows={2}
                     aria-label="Describe the workspace you're looking for"
-                    className="h-[clamp(110px,20vh,135px)] w-full resize-none rounded-2xl border border-[#E8E0E8] bg-[#FAF8FA] p-4 pb-9 pl-12 text-sm font-medium leading-6 text-[#211A21] outline-none transition-all duration-200 placeholder:font-normal placeholder:text-black/30 hover:border-[#D4C4D5] hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10"
+                    className="h-[clamp(110px,20vh,135px)] w-full resize-none rounded-xl border border-[#A054A0]/20 bg-white/70 p-4 pb-9 pl-12 text-sm font-medium leading-6 text-black outline-none transition-all duration-200 placeholder:font-normal placeholder:text-black/40 hover:bg-white focus:border-[#A054A0] focus:bg-white focus:ring-[3px] focus:ring-[#A054A0]/10"
                   />
 
-                  <span className="pointer-events-none absolute bottom-3 right-4 text-[10px] font-medium uppercase tracking-wider text-black/25">
+                  <span className="pointer-events-none absolute bottom-3 right-4 text-[10px] font-medium uppercase tracking-wider text-[#A054A0]">
                     AI powered
                   </span>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="shrink-0 text-[11px] font-semibold text-black/35">
+                  <span className="shrink-0 text-[11px] font-semibold text-black">
                     Try asking
                   </span>
 
@@ -805,14 +797,14 @@ export default function HeroSection({ consentGranted, locationData }) {
                       key={idx}
                       onClick={() => setPrompt(samplePrompt)}
                       title={samplePrompt}
-                      className={`max-w-full truncate rounded-full border border-[#E8E0E8] bg-[#FAF8FA] px-3.5 py-2 text-[11px] text-[#514751] transition-all hover:border-[#A054A0]/30 hover:bg-[#A054A0]/[.06] hover:text-[#A054A0] sm:max-w-[340px] sm:text-xs ${FOCUS_RING}`}
+                      className={`max-w-full truncate rounded-xl border border-[#A054A0]/20 bg-white/70 px-3.5 py-2 text-[11px] font-medium text-black transition-all hover:border-[#A054A0] hover:bg-white hover:text-[#A054A0] sm:max-w-[340px] sm:text-xs ${FOCUS_RING}`}
                     >
                       {samplePrompt}
                     </button>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-center border-t border-[#EEE7EE] pt-4 sm:pt-5">
+                <div className="flex items-center justify-center border-t border-black/10 pt-4 sm:pt-5">
                   {renderSubmitButton("w-full sm:w-auto sm:min-w-[240px]")}
                 </div>
               </div>

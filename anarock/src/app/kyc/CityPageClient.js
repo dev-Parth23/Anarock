@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -7,12 +8,10 @@ import PropertyCard from "@/components/properties/PropertyCard";
 import {
   ArrowRight,
   Building2,
-  ChevronRight,
-  Home,
-  MapPin,
   GitCompare,
   X,
-  TrendingUp,
+  Plus,
+  Minus,
 } from "lucide-react";
 
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
@@ -24,6 +23,7 @@ function getPropertyId(property) {
   return String(
     property?.ROWID ||
     property?.rowId ||
+    property?.rowid ||
     property?.id ||
     property?.ID ||
     property?.propertyId ||
@@ -31,21 +31,9 @@ function getPropertyId(property) {
   ).trim();
 }
 
-function clean(value) {
-  if (value === null || value === undefined) {
-    return "";
-  }
-
-  return String(value).trim();
-}
-
-function displayValue(value, fallback = "—") {
-  const cleaned = clean(value);
-  return cleaned || fallback;
-}
-
 export default function CityPageClient({ city, slug }) {
   const router = useRouter();
+
   const [compareSelection, setCompareSelection] = useState([]);
   const [kyc, setKyc] = useState(null);
   const [properties, setProperties] = useState([]);
@@ -53,12 +41,15 @@ export default function CityPageClient({ city, slug }) {
   const [loadingProperties, setLoadingProperties] = useState(true);
   const [kycError, setKycError] = useState("");
   const [propertyError, setPropertyError] = useState("");
+
   useEffect(() => {
     let cancelled = false;
+
     async function loadKyc() {
       try {
         setLoadingKyc(true);
         setKycError("");
+
         const response = await fetch(
           `/api/kyc?city=${encodeURIComponent(city)}`,
           {
@@ -66,30 +57,48 @@ export default function CityPageClient({ city, slug }) {
             cache: "no-store",
           },
         );
+
         const json = await response.json();
-        if (cancelled) {
-          return;
-        }
+
+        if (cancelled) return;
+
         if (!response.ok || !json?.success) {
-          throw new Error(json?.error || "Unable to load market information.");
+          throw new Error(
+            json?.error || "Unable to load FAQs for this city.",
+          );
         }
+
         setKyc(json.data || null);
       } catch (error) {
-        if (cancelled) {
-          return;
-        }
-        console.error("[CityPage] KYC error:", error);
-        setKycError(error?.message || "Unable to load market information.");
+        if (cancelled) return;
+
+        console.error("[CityPage] FAQ data error:", error);
+
+        setKycError(
+          error?.message || "Unable to load FAQs for this city.",
+        );
       } finally {
         if (!cancelled) {
           setLoadingKyc(false);
         }
       }
     }
+
+    loadKyc();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [city]);
+
+  useEffect(() => {
+    let cancelled = false;
+
     async function loadProperties() {
       try {
         setLoadingProperties(true);
         setPropertyError("");
+
         const response = await fetch(
           `/api/properties?city=${encodeURIComponent(city)}`,
           {
@@ -99,23 +108,28 @@ export default function CityPageClient({ city, slug }) {
         );
 
         const json = await response.json();
-        if (cancelled) {
-          return;
-        }
+
+        if (cancelled) return;
 
         if (!response.ok || !json?.success) {
-          throw new Error(json?.error || "Unable to load properties.");
+          throw new Error(
+            json?.error || "Unable to load properties.",
+          );
         }
-        const propertyData = Array.isArray(json?.data) ? json.data : [];
+
+        const propertyData = Array.isArray(json?.data)
+          ? json.data
+          : [];
+
         setProperties(propertyData);
       } catch (error) {
-        if (cancelled) {
-          return;
-        }
+        if (cancelled) return;
 
         console.error("[CityPage] Properties error:", error);
 
-        setPropertyError(error?.message || "Unable to load properties.");
+        setPropertyError(
+          error?.message || "Unable to load properties.",
+        );
       } finally {
         if (!cancelled) {
           setLoadingProperties(false);
@@ -123,7 +137,6 @@ export default function CityPageClient({ city, slug }) {
       }
     }
 
-    loadKyc();
     loadProperties();
 
     return () => {
@@ -149,11 +162,22 @@ export default function CityPageClient({ city, slug }) {
 
       const validSelection = parsed
         .filter((item) => getPropertyId(item))
+        .filter(
+          (item, index, array) =>
+            index ===
+            array.findIndex(
+              (candidate) =>
+                getPropertyId(candidate) === getPropertyId(item),
+            ),
+        )
         .slice(0, MAX_COMPARE_PROPERTIES);
 
       setCompareSelection(validSelection);
     } catch (error) {
-      console.error("Failed to restore compare selection:", error);
+      console.error(
+        "[CityPage] Failed to restore compare selection:",
+        error,
+      );
 
       setCompareSelection([]);
     }
@@ -164,7 +188,6 @@ export default function CityPageClient({ city, slug }) {
 
     if (!propertyId) {
       console.warn("[CityPage] Property has no valid ID:", property);
-
       return;
     }
 
@@ -182,7 +205,7 @@ export default function CityPageClient({ city, slug }) {
       } else {
         if (currentSelection.length >= MAX_COMPARE_PROPERTIES) {
           alert(
-            `You can compare maximum ${MAX_COMPARE_PROPERTIES} properties.`,
+            `You can compare a maximum of ${MAX_COMPARE_PROPERTIES} properties.`,
           );
 
           return currentSelection;
@@ -197,47 +220,15 @@ export default function CityPageClient({ city, slug }) {
           JSON.stringify(updatedSelection),
         );
       } catch (error) {
-        console.error("[CityPage] Failed to save compare selection:", error);
+        console.error(
+          "[CityPage] Failed to save compare selection:",
+          error,
+        );
       }
 
       return updatedSelection;
     });
   };
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
-
-      if (!stored) {
-        setCompareSelection([]);
-        return;
-      }
-
-      const parsed = JSON.parse(stored);
-
-      if (!Array.isArray(parsed)) {
-        setCompareSelection([]);
-        return;
-      }
-
-      const cleaned = parsed
-        .filter((property) => getPropertyId(property))
-        .filter(
-          (property, index, array) =>
-            index ===
-            array.findIndex(
-              (item) => getPropertyId(item) === getPropertyId(property),
-            ),
-        )
-        .slice(0, MAX_COMPARE_PROPERTIES);
-
-      setCompareSelection(cleaned);
-    } catch (error) {
-      console.error("[CityPage] Failed to restore compare selection:", error);
-
-      setCompareSelection([]);
-    }
-  }, []);
 
   const clearCompareSelection = () => {
     setCompareSelection([]);
@@ -245,16 +236,18 @@ export default function CityPageClient({ city, slug }) {
     try {
       localStorage.removeItem(COMPARE_STORAGE_KEY);
     } catch (error) {
-      console.error("[CityPage] Failed to clear compare selection:", error);
+      console.error(
+        "[CityPage] Failed to clear compare selection:",
+        error,
+      );
     }
   };
 
   const openComparePage = () => {
-    if (compareSelection.length < MIN_COMPARE_PROPERTIES) {
-      return;
-    }
-
-    if (compareSelection.length > MAX_COMPARE_PROPERTIES) {
+    if (
+      compareSelection.length < MIN_COMPARE_PROPERTIES ||
+      compareSelection.length > MAX_COMPARE_PROPERTIES
+    ) {
       return;
     }
 
@@ -264,7 +257,10 @@ export default function CityPageClient({ city, slug }) {
         JSON.stringify(compareSelection),
       );
     } catch (error) {
-      console.error("[CityPage] Failed to save compare selection:", error);
+      console.error(
+        "[CityPage] Failed to save compare selection:",
+        error,
+      );
 
       return;
     }
@@ -274,94 +270,79 @@ export default function CityPageClient({ city, slug }) {
 
   return (
     <>
-      <main className="w-full bg-[#fafafa]">
-        <div className="w-full">
+      <main className="w-full min-w-0 bg-[#fafafa]">
+        <div className="w-full min-w-0">
           <div
             className="
-              grid
-              w-full
-              grid-cols-1
-              xl:grid-cols-[minmax(0,1fr)_500px]
-              2xl:grid-cols-[minmax(0,1fr)_560px]
+              grid w-full min-w-0 grid-cols-1
+              xl:grid-cols-[minmax(0,1fr)_360px]
+              2xl:grid-cols-[minmax(0,1fr)_400px]
             "
           >
-            <section className="min-w-0 border-r border-gray-300">
+            {/* LEFT: CITY AND PROPERTIES */}
+            <section className="min-w-0 border-r border-gray-200">
               <Breadcrumbs
                 items={[
-                  { label: "Popular Cities", href: "/#popularCities" },
+                  {
+                    label: "Popular Cities",
+                    href: "/#popularCities",
+                  },
                   { label: city },
                 ]}
               />
 
-              <div className="shrink-0 border-b border-gray-300">
+              {/* CITY HEADING */}
+              <div className="shrink-0 border-b border-gray-200">
                 <div
                   className="
                     px-4 py-5
                     sm:px-6 sm:py-6
                     md:px-8
                     lg:px-10
-                    xl:px-12
+                    xl:px-10
                     2xl:px-14
                   "
                 >
                   <div
                     className="
-                      flex
-                      flex-col
-                      gap-4
+                      flex min-w-0 flex-col gap-4
                       sm:gap-5
-                      md:flex-row
-                      md:items-end
+                      md:flex-row md:items-end
                       md:justify-between
                     "
                   >
                     <div className="min-w-0">
                       <h1
                         className="
-                          text-2xl
-                          font-semibold
-                          tracking-[-0.03em]
-                          text-black
-                          sm:text-3xl
-                          lg:text-4xl
+                          break-words text-2xl font-semibold
+                          tracking-[-0.03em] text-black
+                          sm:text-3xl lg:text-4xl
                         "
                       >
                         {city}
                       </h1>
 
-                      <p
-                        className="
-                          mt-2
-                          max-w-2xl
-                          text-sm
-                          leading-6
-                          text-black/80
-                        "
-                      >
-                        Selected commercial properties and a concise view of the
-                        city.
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-black/70">
+                        Explore commercial properties and discover
+                        opportunities in {city}.
                       </p>
                     </div>
 
                     <div
                       className="
-                        flex
-                        w-fit
-                        shrink-0
-                        items-center
-                        gap-2
-                        rounded-xl
-                        border border-dashed
-                        border-gray-400
-                        px-4
-                        py-2.5
+                        flex w-fit max-w-full shrink-0
+                        items-center gap-2 rounded-xl
+                        border border-gray-300 px-4 py-2.5
                       "
                     >
-                      <Building2 size={16} className="text-[#9b3c96]" />
+                      <Building2
+                        size={16}
+                        className="shrink-0 text-[#A054A0]"
+                      />
 
                       <span className="text-sm font-semibold text-[#15233c]">
                         {loadingProperties
-                          ? "..."
+                          ? "Loading..."
                           : `${properties.length} Properties`}
                       </span>
                     </div>
@@ -369,24 +350,22 @@ export default function CityPageClient({ city, slug }) {
                 </div>
               </div>
 
-              {/* Properties */}
-              <div className="bg-[#fafafa]">
+              {/* PROPERTIES */}
+              <div className="min-w-0 bg-[#fafafa]">
                 <div
                   className="
-                    px-4
-                    py-6
-                    sm:px-6
-                    sm:py-7
+                    px-4 py-6
+                    sm:px-6 sm:py-7
                     md:px-8
                     lg:px-10
-                    xl:px-12
+                    xl:px-10
                     2xl:px-14
                   "
                 >
                   {loadingProperties ? (
                     <PropertyGridSkeleton />
                   ) : propertyError ? (
-                    <div className="rounded-3xl border border-red-100 bg-red-50 p-6 text-sm text-red-600">
+                    <div className="rounded-3xl border border-red-100 bg-red-50 p-6 text-sm leading-6 text-red-600">
                       {propertyError}
                     </div>
                   ) : properties.length === 0 ? (
@@ -395,9 +374,7 @@ export default function CityPageClient({ city, slug }) {
                     <>
                       <div
                         className="
-                          grid
-                          grid-cols-1
-                          gap-4
+                          grid min-w-0 grid-cols-1 gap-4
                           sm:grid-cols-2
                           lg:gap-5
                           2xl:grid-cols-3
@@ -405,14 +382,7 @@ export default function CityPageClient({ city, slug }) {
                       >
                         {properties.slice(0, 9).map((property, index) => (
                           <div
-                            key={
-                              property?.ROWID ||
-                              property?.rowid ||
-                              property?.id ||
-                              property?.ID ||
-                              property?.propertyId ||
-                              index
-                            }
+                            key={getPropertyId(property) || index}
                             className="min-w-0"
                           >
                             <PropertyCard
@@ -434,40 +404,25 @@ export default function CityPageClient({ city, slug }) {
                         <Link
                           href={`/properties?city=${encodeURIComponent(city)}`}
                           className="
-                            group
-                            inline-flex
-                            max-w-full
-                            items-center
-                            justify-center
-                            gap-3
-                            rounded-xl
-                            bg-[#A054A0]
-                            px-6
-                            py-3.5
-                            text-center
-                            text-sm
-                            font-semibold
-                            text-white
-                            shadow-lg
-                            shadow-[#A054A0]/10
-                            transition-all
-                            duration-300
-                            hover:-translate-y-0.5
-                            hover:bg-[#A054A0]
-                            hover:scale-95
-                            hover:shadow-xl
+                            group inline-flex max-w-full
+                            items-center justify-center gap-3
+                            rounded-xl bg-[#A054A0] px-5 py-3.5
+                            text-center text-sm font-semibold text-white
+                            shadow-lg shadow-[#A054A0]/10
+                            transition-all duration-300
+                            hover:-translate-y-0.5 hover:shadow-xl
                             sm:px-7
                           "
                         >
-                          <span>View All Properties in {city}</span>
+                          <span className="break-words">
+                            View All Properties in {city}
+                          </span>
 
                           <ArrowRight
                             size={17}
                             className="
-                              shrink-0
-                              transition-transform
-                              duration-300
-                              group-hover:translate-x-1
+                              shrink-0 transition-transform
+                              duration-300 group-hover:translate-x-1
                             "
                           />
                         </Link>
@@ -478,236 +433,99 @@ export default function CityPageClient({ city, slug }) {
               </div>
             </section>
 
+            {/* RIGHT: DESKTOP CITY FAQS */}
             <aside
               className="
-    hidden
-    min-w-0
-    border-l
-    border-gray-100
-    bg-white
-    xl:block
-  "
+                hidden min-w-0 border-l border-gray-100
+                bg-[#fafafa] xl:block
+              "
             >
               <div
                 className="
-      sticky
-      top-[73px]
-      self-start
-      w-full
-      bg-[#fafafa]
-      px-5
-      py-6
-      lg:px-6
-      2xl:px-7
-    "
+                  sticky top-[80px]
+                  max-h-[calc(100vh-80px)]
+                  w-full overflow-x-hidden overflow-y-auto
+                  overscroll-y-contain
+                  px-3 py-4
+                  [scrollbar-width:thin]
+                  [scrollbar-color:#d8c4d8_transparent]
+                  2xl:px-4 2xl:py-5
+                "
               >
-                <div className="space-y-5">
-                  {loadingKyc ? (
-                    <KycSkeleton />
-                  ) : kycError ? (
-                    <div
-                      className="
-            rounded-[28px]
-            border
-            border-red-100
-            bg-red-50
-            p-6
-            text-sm
-            text-red-600
-          "
-                    >
-                      {kycError}
-                    </div>
-                  ) : kyc ? (
-                    <>
-                      <MarketOverviewCard kyc={kyc} />
-
-                      <MarketPerformanceCard kyc={kyc} />
-                    </>
-                  ) : (
-                    <div
-                      className="
-            rounded-[28px]
-            border
-            border-gray-200
-            bg-white
-            p-6
-            text-sm
-            text-gray-500
-            shadow-sm
-          "
-                    >
-                      No market information available for {city}.
-                    </div>
-                  )}
-                </div>
+                {loadingKyc ? (
+                  <FAQSkeleton />
+                ) : kycError ? (
+                  <div className="rounded-2xl border border-red-100 bg-red-50 p-5 text-sm leading-6 text-red-600">
+                    {kycError}
+                  </div>
+                ) : (
+                  <CityFAQs kyc={kyc} city={city} />
+                )}
               </div>
             </aside>
           </div>
         </div>
 
-        {/* =========================================================
-            MOBILE / TABLET MARKET INTELLIGENCE
-        ========================================================== */}
-        <div
-          className="
-            block
-            border-t
-            border-gray-100
-            bg-white
-            xl:hidden
-          "
-        >
+        {/* MOBILE / TABLET CITY FAQS */}
+        <section className="block min-w-0 border-t border-gray-100 bg-[#fafafa] xl:hidden">
           <div
             className="
-              px-4
-              py-8
-              sm:px-6
+              mx-auto w-full max-w-5xl min-w-0
+              px-4 py-8
+              sm:px-6 sm:py-10
               md:px-8
               lg:px-10
             "
           >
-            <div className="mb-5 flex items-center gap-3">
-              <div
-                className="
-                  flex
-                  h-10
-                  w-10
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-[#f5d9f1]
-                "
-              >
-                <TrendingUp size={18} className="text-[#9b3c96]" />
-              </div>
-
-              <div>
-                <p
-                  className="
-                    text-[10px]
-                    font-bold
-                    uppercase
-                    tracking-[0.15em]
-                    text-[#9b3c96]
-                  "
-                >
-                  Market Intelligence
-                </p>
-
-                <p className="mt-0.5 text-xs text-gray-500">
-                  {city} commercial market
-                </p>
-              </div>
-            </div>
-
             {loadingKyc ? (
-              <KycSkeleton />
+              <FAQSkeleton />
             ) : kycError ? (
-              <div
-                className="
-                  rounded-[28px]
-                  border
-                  border-red-100
-                  bg-red-50
-                  p-6
-                  text-sm
-                  text-red-600
-                "
-              >
+              <div className="rounded-2xl border border-red-100 bg-red-50 p-5 text-sm leading-6 text-red-600">
                 {kycError}
               </div>
-            ) : kyc ? (
-              <div
-                className="
-                  grid
-                  gap-5
-                  md:grid-cols-2
-                  xl:grid-cols-1
-                "
-              >
-                <MarketOverviewCard kyc={kyc} />
-
-                <MarketPerformanceCard kyc={kyc} />
-              </div>
             ) : (
-              <div
-                className="
-                  rounded-[28px]
-                  border
-                  border-gray-200
-                  bg-white
-                  p-6
-                  text-sm
-                  text-gray-500
-                  shadow-sm
-                "
-              >
-                No market information available for {city}.
-              </div>
+              <CityFAQs kyc={kyc} city={city} />
             )}
           </div>
-        </div>
+        </section>
 
-        {/* =========================================================
-            COMPARE BAR
-        ========================================================== */}
+        {/* COMPARE BAR */}
         {compareSelection.length > 0 && (
           <div
             className="
-              fixed
-              bottom-4
-              left-1/2
-              z-[40]
-              w-[calc(100%-1.5rem)]
-              max-w-3xl
-              -translate-x-1/2
-              rounded-2xl
-              border
-              border-gray-200
-              bg-white/95
-              p-3
+              fixed bottom-4 left-1/2 z-[40]
+              w-[calc(100%-1.5rem)] max-w-3xl
+              -translate-x-1/2 rounded-2xl
+              border border-gray-200 bg-white/95 p-3
               shadow-[0_20px_60px_rgba(0,0,0,0.15)]
               backdrop-blur-xl
-              sm:bottom-5
-              sm:w-[calc(100%-2rem)]
-              sm:p-4
+              sm:bottom-5 sm:w-[calc(100%-2rem)] sm:p-4
               md:p-5
             "
           >
             <div
               className="
-                flex
-                flex-col
-                gap-3
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
-                sm:gap-4
+                flex flex-col gap-3
+                sm:flex-row sm:items-center
+                sm:justify-between sm:gap-4
               "
             >
-              {/* LEFT */}
               <div className="flex min-w-0 items-center gap-3">
                 <div
                   className="
-                    flex
-                    h-10
-                    w-10
-                    shrink-0
-                    items-center
-                    justify-center
-                    rounded-xl
-                    bg-[#f5d9f1]
+                    flex h-10 w-10 shrink-0 items-center
+                    justify-center rounded-xl bg-[#f5d9f1]
                   "
                 >
-                  <GitCompare className="h-5 w-5 text-[#9b3c96]" />
+                  <GitCompare className="h-5 w-5 text-[#A054A0]" />
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[#15233c]">
+                  <p className="text-sm font-semibold text-black">
                     {compareSelection.length}{" "}
-                    {compareSelection.length === 1 ? "property" : "properties"}{" "}
+                    {compareSelection.length === 1
+                      ? "property"
+                      : "properties"}{" "}
                     selected
                   </p>
 
@@ -717,78 +535,39 @@ export default function CityPageClient({ city, slug }) {
                 </div>
               </div>
 
-              {/* RIGHT */}
-              <div
-                className="
-                  flex
-                  w-full
-                  items-center
-                  gap-2
-                  sm:w-auto
-                "
-              >
+              <div className="flex w-full items-center gap-2 sm:w-auto">
                 <button
                   type="button"
                   onClick={clearCompareSelection}
                   className="
-                    inline-flex
-                    flex-1
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    border
-                    border-gray-200
-                    px-3
-                    py-2.5
-                    text-sm
-                    font-medium
-                    text-gray-600
-                    transition
-                    hover:bg-gray-50
-                    sm:flex-none
-                    sm:px-4
+                    inline-flex flex-1 items-center justify-center
+                    gap-2 rounded-xl border border-gray-200
+                    px-3 py-2.5 text-sm font-medium text-gray-600
+                    transition hover:bg-gray-50
+                    sm:flex-none sm:px-4
                   "
                 >
-                  {/* className="inline-flex items-center gap-1 rounded-xl border border-dashed border-slate-400 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 sm:px-4 sm:text-sm" */}
-
                   <X className="h-4 w-4" />
-
                   <span>Clear</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={openComparePage}
-                  disabled={compareSelection.length < MIN_COMPARE_PROPERTIES}
+                  disabled={
+                    compareSelection.length < MIN_COMPARE_PROPERTIES
+                  }
                   className="
-                    inline-flex
-                    flex-1
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    bg-[#15233c]
-                    px-4
-                    py-2.5
-                    text-sm
-                    font-semibold
-                    text-white
-                    transition
-                    hover:bg-[#9b3c96]
-                    disabled:cursor-not-allowed
-                    disabled:opacity-40
-                    sm:flex-none
-                    sm:px-5
+                    inline-flex flex-1 items-center justify-center
+                    gap-2 rounded-xl bg-[#15233c] px-4 py-2.5
+                    text-sm font-semibold text-white transition
+                    hover:bg-[#A054A0]
+                    disabled:cursor-not-allowed disabled:opacity-40
+                    sm:flex-none sm:px-5
                   "
                 >
                   <GitCompare className="h-4 w-4" />
-
-                  <span>
-                    Compare
-                    {compareSelection.length > 0 &&
-                      ` (${compareSelection.length})`}
-                  </span>
+                  <span>Compare ({compareSelection.length})</span>
                 </button>
               </div>
             </div>
@@ -799,34 +578,205 @@ export default function CityPageClient({ city, slug }) {
   );
 }
 
-/* ===============================================================
-   EMPTY PROPERTIES
-================================================================ */
+/* =========================================================
+   CITY FAQ ACCORDION
+========================================================= */
+
+function CityFAQs({ kyc, city }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const faqs = Array.from({ length: 5 }, (_, index) => {
+    const number = index + 1;
+
+    return {
+      question: String(kyc?.[`Question${number}`] ?? "").trim(),
+      answer: String(kyc?.[`Answer${number}`] ?? "").trim(),
+    };
+  }).filter((faq) => faq.question || faq.answer);
+
+  return (
+    <section
+      className="
+        w-full min-w-0 overflow-hidden rounded-2xl
+        border border-slate-200 bg-white
+        shadow-sm shadow-slate-900/[0.03]
+      "
+    >
+      {/* FAQ HEADER */}
+      <div
+        className="
+          border-b border-slate-100
+          bg-gradient-to-br from-white to-[#fcf5fc]
+          px-4 py-4 sm:px-5 sm:py-5
+        "
+      >
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#A054A0]">
+          City Guide
+        </p>
+
+        <h2
+          className="
+            mt-1.5 break-words text-lg font-semibold
+            leading-6 tracking-tight text-black sm:text-xl
+          "
+        >
+          Frequently Asked Questions
+        </h2>
+
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          Helpful information about {city}
+        </p>
+      </div>
+
+      {/* SINGLE-OPEN FAQ LIST */}
+      {faqs.length > 0 ? (
+        <div className="divide-y divide-slate-200 px-4 sm:px-5">
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+            const answerId = `city-faq-answer-${index}`;
+
+            return (
+              <article
+                key={`${faq.question}-${index}`}
+                className="min-w-0"
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? null : index)}
+                  aria-expanded={isOpen}
+                  aria-controls={answerId}
+                  className="
+                    group flex w-full min-w-0 items-center
+                    gap-3 py-3.5 text-left
+                    transition-colors duration-200
+                    focus-visible:outline-none
+                    focus-visible:ring-2 focus-visible:ring-inset
+                    focus-visible:ring-[#A054A0]
+                    sm:py-4
+                  "
+                >
+                  {/* PURPLE DOT */}
+                  <span
+                    className="
+                      h-1.5 w-1.5 shrink-0 rounded-full
+                      bg-[#A054A0]
+                    "
+                    aria-hidden="true"
+                  />
+
+                  {/* QUESTION */}
+                  <span
+                    className={`
+                      min-w-0 flex-1 break-words
+                      text-[13px] font-semibold leading-5
+                      transition-colors sm:text-sm sm:leading-6
+                      ${isOpen
+                        ? "text-[#A054A0]"
+                        : "text-black group-hover:text-[#A054A0]"
+                      }
+                    `}
+                  >
+                    {faq.question || `Question ${index + 1}`}
+                  </span>
+
+                  {/* PLUS / MINUS ICON */}
+                  <span
+                    className="
+                      flex h-7 w-7 shrink-0 items-center
+                      justify-center rounded-full
+                      text-[#A054A0] transition-colors
+                      group-hover:bg-[#f8eafa]
+                    "
+                    aria-hidden="true"
+                  >
+                    {isOpen ? (
+                      <Minus size={18} strokeWidth={1.8} />
+                    ) : (
+                      <Plus size={18} strokeWidth={1.8} />
+                    )}
+                  </span>
+                </button>
+
+                {/* ANSWER */}
+                {isOpen && (
+                  <div
+                    id={answerId}
+                    className="
+                      min-w-0 pb-4 pl-5 pr-1
+                      sm:pb-5 sm:pl-6
+                    "
+                  >
+                    <p
+                      className="
+                        break-words text-[13px] leading-6
+                        text-slate-700 sm:text-sm sm:leading-6
+                      "
+                    >
+                      {faq.answer || "Answer not available."}
+                    </p>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="px-4 py-5 sm:px-5">
+          <p className="text-sm leading-6 text-slate-500">
+            No FAQs are available for {city} yet.
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function FAQSkeleton() {
+  return (
+    <div
+      className="
+        w-full min-w-0 animate-pulse overflow-hidden
+        rounded-2xl border border-gray-200 bg-white p-4
+        sm:p-5
+      "
+    >
+      <div className="h-3 w-20 rounded bg-gray-100" />
+      <div className="mt-3 h-6 w-4/5 rounded bg-gray-100" />
+      <div className="mt-2 h-3 w-3/5 rounded bg-gray-100" />
+
+      <div className="mt-5 space-y-0">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div
+            key={index}
+            className="
+              flex items-center justify-between gap-3
+              border-t border-gray-100 py-4
+            "
+          >
+            <div className="h-4 min-w-0 flex-1 rounded bg-gray-100" />
+            <div className="h-7 w-7 shrink-0 rounded-full bg-gray-100" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 function EmptyProperties({ city }) {
   return (
     <div
       className="
-        rounded-3xl
-        border
-        border-gray-200
-        bg-white
-        p-8
-        text-center
-        shadow-sm
-        sm:p-10
+        rounded-3xl border border-gray-200 bg-white
+        p-8 text-center shadow-sm sm:p-10
       "
     >
-      <Building2 size={30} className="mx-auto text-gray-300" />
+      <Building2
+        size={30}
+        className="mx-auto text-gray-300"
+      />
 
-      <h3
-        className="
-          mt-4
-          text-lg
-          font-semibold
-          text-[#15233c]
-        "
-      >
+      <h3 className="mt-4 text-lg font-semibold text-[#15233c]">
         No properties found
       </h3>
 
@@ -837,330 +787,27 @@ function EmptyProperties({ city }) {
   );
 }
 
-/* ===============================================================
-   MARKET OVERVIEW
-================================================================ */
-
-function MarketOverviewCard({ kyc }) {
-  return (
-    <article
-      className="
-        relative
-        overflow-hidden
-        rounded-[28px]
-        border
-        border-[#ead6e8]
-        bg-gradient-to-br
-        from-[#f8def4]
-        via-[#f6d9f1]
-        to-[#f2d2ee]
-        p-5
-        shadow-[0_12px_40px_rgba(80,30,80,0.08)]
-        sm:p-6
-        lg:p-7
-      "
-    >
-      <div
-        className="
-          pointer-events-none
-          absolute
-          -right-16
-          -top-16
-          h-36
-          w-36
-          rounded-full
-          bg-white/30
-          blur-2xl
-        "
-      />
-
-      <div className="relative">
-        <h2
-          className="
-            text-[11px]
-            font-bold
-            uppercase
-            leading-5
-            tracking-[0.08em]
-            text-[#34313a]
-          "
-        >
-          {displayValue(kyc?.CityName)} Market Overview ·{" "}
-          {displayValue(kyc?.QuarterYear)}
-        </h2>
-
-        <p
-          className="
-            mt-5
-            text-[13px]
-            leading-[1.5]
-            text-[#35313a]
-          "
-        >
-          {displayValue(kyc?.OverviewText1)}
-        </p>
-
-        <div className="my-5 h-px bg-[#527b8c]/60" />
-
-        <div>
-          <div
-            className="
-              text-3xl
-              font-medium
-              tracking-tight
-              text-[#9b3c96]
-              sm:text-4xl
-            "
-          >
-            {displayValue(kyc?.Overview)}
-          </div>
-
-          <p
-            className="
-              mt-3
-              text-[13px]
-              leading-[1.5]
-              text-[#35313a]
-            "
-          >
-            {displayValue(kyc?.OverviewText2)}
-          </p>
-        </div>
-
-        <div className="my-5 h-px bg-[#527b8c]/60" />
-
-        <div className="grid grid-cols-3 gap-3">
-          <Metric value={kyc?.GrossLeasing} label="Gross leasing" />
-
-          <Metric value={kyc?.GradeAStock} label="Grade A stock" />
-
-          <Metric value={kyc?.Vacancy} label="Vacancy" />
-        </div>
-      </div>
-    </article>
-  );
-}
-
-/* ===============================================================
-   MARKET PERFORMANCE
-================================================================ */
-
-function MarketPerformanceCard({ kyc }) {
-  return (
-    <article
-      className="
-        relative
-        overflow-hidden
-        rounded-[28px]
-        border
-        border-[#ead6e8]
-        bg-gradient-to-br
-        from-[#f8def4]
-        via-[#f6d9f1]
-        to-[#f2d2ee]
-        p-5
-        shadow-[0_12px_40px_rgba(80,30,80,0.08)]
-        sm:p-6
-        lg:p-7
-      "
-    >
-      <div
-        className="
-          pointer-events-none
-          absolute
-          -bottom-16
-          -left-16
-          h-36
-          w-36
-          rounded-full
-          bg-white/30
-          blur-2xl
-        "
-      />
-
-      <div className="relative">
-        <h2
-          className="
-            text-[11px]
-            font-bold
-            uppercase
-            leading-5
-            tracking-[0.08em]
-            text-[#34313a]
-          "
-        >
-          {displayValue(kyc?.CityName)} Market Performance ·{" "}
-          {displayValue(kyc?.QuarterYear)}
-        </h2>
-
-        <p
-          className="
-            mt-5
-            text-[13px]
-            leading-[1.5]
-            text-[#35313a]
-          "
-        >
-          {displayValue(kyc?.PerformanceText1)}
-        </p>
-
-        <div className="my-5 h-px bg-[#527b8c]/60" />
-
-        <div>
-          <div
-            className="
-              text-3xl
-              font-medium
-              tracking-tight
-              text-[#9b3c96]
-              sm:text-4xl
-            "
-          >
-            {displayValue(kyc?.Performance)}
-          </div>
-
-          <p
-            className="
-              mt-3
-              text-[13px]
-              leading-[1.5]
-              text-[#35313a]
-            "
-          >
-            {displayValue(kyc?.PerformanceText2)}
-          </p>
-        </div>
-
-        <div className="my-5 h-px bg-[#527b8c]/60" />
-
-        <div className="grid grid-cols-3 gap-3">
-          <Metric value={kyc?.TMT} label="TMT" />
-
-          <Metric value={kyc?.FlexSpace} label="Flex space" />
-
-          <Metric value={kyc?.BFSI} label="BFSI" />
-        </div>
-
-        <div
-          className="
-            mt-4
-            text-center
-            text-[11px]
-            font-medium
-            uppercase
-            tracking-[0.12em]
-            text-[#55505a]
-          "
-        >
-          Demand Drivers
-        </div>
-      </div>
-    </article>
-  );
-}
-
-/* ===============================================================
-   METRIC
-================================================================ */
-
-function Metric({ value, label }) {
-  return (
-    <div className="min-w-0">
-      <div
-        className="
-          truncate
-          text-[15px]
-          font-bold
-          leading-none
-          text-[#161616]
-          sm:text-[17px]
-        "
-      >
-        {displayValue(value)}
-      </div>
-
-      <div
-        className="
-          mt-2
-          text-[10px]
-          leading-[1.3]
-          text-[#4c4750]
-          sm:text-[12px]
-        "
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
-
-/* ===============================================================
-   PROPERTY SKELETON
-================================================================ */
 
 function PropertyGridSkeleton() {
   return (
-    <div
-      className="
-        grid
-        grid-cols-1
-        gap-4
-        sm:grid-cols-2
-        lg:gap-5
-        2xl:grid-cols-3
-      "
-    >
+    <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5 2xl:grid-cols-3">
       {Array.from({ length: 9 }).map((_, index) => (
         <div
           key={index}
           className="
-            overflow-hidden
-            rounded-3xl
-            border
-            border-gray-100
-            bg-white
-            shadow-sm
+            min-w-0 overflow-hidden rounded-3xl
+            border border-gray-100 bg-white shadow-sm
           "
         >
           <div className="aspect-square animate-pulse bg-gray-100" />
 
           <div className="space-y-3 p-5">
             <div className="h-4 w-3/4 animate-pulse rounded-full bg-gray-100" />
-
             <div className="h-3 w-1/2 animate-pulse rounded-full bg-gray-100" />
-
             <div className="h-9 w-full animate-pulse rounded-xl bg-gray-100" />
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-/* ===============================================================
-   KYC SKELETON
-================================================================ */
-
-function KycSkeleton() {
-  return (
-    <div className="space-y-5">
-      <div
-        className="
-          h-[350px]
-          animate-pulse
-          rounded-[28px]
-          bg-gray-100
-        "
-      />
-
-      <div
-        className="
-          h-[350px]
-          animate-pulse
-          rounded-[28px]
-          bg-gray-100
-        "
-      />
     </div>
   );
 }

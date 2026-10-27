@@ -661,8 +661,8 @@ export default function PropertyDetailClient({ propertyId }) {
                   type="button"
                   onClick={handleCompareToggle}
                   className={`inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isCompared
-                      ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
-                      : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
+                    ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
+                    : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
                     }`}
                   aria-pressed={isCompared}
                 >
@@ -676,9 +676,9 @@ export default function PropertyDetailClient({ propertyId }) {
                 <button
                   type="button"
                   onClick={() => handleWishlist(property)}
-                  className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
-                      ? "bg-[#A054A0] text-white hover:bg-[#A054A0]"
-                      : "bg-gray-900 text-white hover:bg-gray-800"
+                  className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl border px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
+                    ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
+                    : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
                     }`}
                 >
                   {isWishlisted ? "Shortlisted" : "Shortlist"}

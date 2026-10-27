@@ -949,7 +949,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={openEnquiry}
-                  className="group inline-flex h-9 items-center justify-between gap-2 rounded-lg bg-[#A054A0] px-3.5 text-[14px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 min-[1366px]:gap-1 min-[1366px]:px-3 min-[1366px]:text-[12px] min-[1920px]:h-10 min-[1920px]:px-5 min-[1920px]:text-[16px]"
+                  className="group inline-flex h-9 items-center justify-between gap-2 rounded-xl bg-[#A054A0] px-4 text-[14px] font-semibold text-white shadow-md transition-all duration-200 ease-out hover:bg-[#8d478d] hover:shadow-lg active:scale-95 min-[1366px]:gap-1 min-[1366px]:px-3 min-[1366px]:text-[12px] min-[1920px]:h-10 min-[1920px]:px-5 min-[1920px]:text-[16px]"
                 >
                   <span className="relative z-10">Request Callback</span>
 

@@ -1,5 +1,6 @@
 "use client";
-import { Suspense, useEffect, useState, useMemo } from "react";
+
+import { Suspense, useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import PropertyCard from "@/components/properties/PropertyCard";
@@ -16,20 +17,15 @@ import {
   Search,
   ChevronDown,
   Check,
-  User,
   Users,
   Maximize2,
   IndianRupee,
   DollarSign,
   Euro,
   MessageSquare,
-  Mail,
-  Phone,
-  Building2,
   Loader2,
   CheckCircle2,
   ArrowRight,
-  CloudCog,
 } from "lucide-react";
 
 const MAX_COMPARE_PROPERTIES = 3;
@@ -37,36 +33,13 @@ const MIN_COMPARE_PROPERTIES = 2;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
 const SORT_CATEGORIES = [
-  {
-    id: "recommended",
-    label: "Recommended",
-    value: "",
-  },
-  {
-    id: "budget",
-    label: "Budget",
-    ascVal: "budget_asc",
-    descVal: "budget_desc",
-  },
-  {
-    id: "seats",
-    label: "Seat Count",
-    ascVal: "seats_asc",
-    descVal: "seats_desc",
-  },
-  {
-    id: "area",
-    label: "Area",
-    ascVal: "area_asc",
-    descVal: "area_desc",
-  },
-  {
-    id: "name",
-    label: "Alphabetically",
-    ascVal: "name_asc",
-    descVal: "name_desc",
-  },
+  { id: "recommended", label: "Recommended", value: "" },
+  { id: "budget", label: "Budget", ascVal: "budget_asc", descVal: "budget_desc" },
+  { id: "seats", label: "Seat Count", ascVal: "seats_asc", descVal: "seats_desc" },
+  { id: "area", label: "Area", ascVal: "area_asc", descVal: "area_desc" },
+  { id: "name", label: "Alphabetically", ascVal: "name_asc", descVal: "name_desc" },
 ];
+
 function PropertyCardSkeleton() {
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm">
@@ -90,6 +63,7 @@ function PropertyCardSkeleton() {
     </div>
   );
 }
+
 const toUrlValue = (value) => {
   return String(value || "")
     .trim()
@@ -99,22 +73,13 @@ const toUrlValue = (value) => {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 };
+
 const normalizeValue = (value) => {
   return String(value || "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
 };
-
-function toFilterSlug(value) {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/[\/\\]+/g, "-")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 const getOfficeTypeFromUrl = (value) => {
   if (!value) return "";
@@ -126,69 +91,12 @@ const getOfficeTypeFromUrl = (value) => {
   );
   return match || value;
 };
+
 const getPropertyId = (property) =>
   String(property?.id || property?.rowId || property?.ROWID || "");
-const getNumber = (value) => {
-  if (value === null || value === undefined || value === "") {
-    return null;
-  }
-  const number = Number(
-    String(value)
-      .replace(/,/g, "")
-      .replace(/[^\d.-]/g, ""),
-  );
-  return Number.isFinite(number) ? number : null;
-};
-const getFirstNumber = (property, fields = []) => {
-  for (const field of fields) {
-    const value = getNumber(property?.[field]);
-    if (value !== null) {
-      return value;
-    }
-  }
-  return null;
-};
-
-const getAvailableSeats = (property) => {
-  return getFirstNumber(property, ["NoOfSeatsOffered"]);
-};
-
-const getPropertyType = (property) => {
-  return normalizeValue(property?.type || property?.officeType || "");
-};
-
-const getPropertyCity = (property) => {
-  return normalizeValue(property?.city || "");
-};
-
-const getPropertyMicromarket = (property) => {
-  return normalizeValue(property?.area || property?.micromarket || "");
-};
-
-const getAreaSqft = (property) => {
-  return getFirstNumber(property, ["totalLeasableAreaAvailable"]);
-};
-
-const getSeatPrice = (property) => {
-  return getFirstNumber(property, ["monthlyCostPerSeat"]);
-};
-
-const getSqftPrice = (property) => {
-  const directPrice = getFirstNumber(property, ["quotedRent"]);
-  if (directPrice !== null) {
-    return directPrice;
-  }
-  const rent = getFirstNumber(property, ["quotedRent"]);
-  const area = getAreaSqft(property);
-  if (rent !== null && area !== null && area > 0) {
-    return rent / area;
-  }
-  return null;
-};
 
 function getCRMPropertyId(property) {
   if (!property || typeof property !== "object") return "";
-
   const possibleIds = [
     property.crmID,
     property.crmId,
@@ -203,25 +111,20 @@ function getCRMPropertyId(property) {
     const id = String(value ?? "").trim();
     if (id) return id;
   }
-
   return "";
 }
 
 function readLocalStorageValue(keys) {
   if (typeof window === "undefined") return "";
-
   for (const key of keys) {
     try {
       const raw = localStorage.getItem(key);
       if (!raw || !raw.trim()) continue;
-
       try {
         const parsed = JSON.parse(raw);
-
         if (typeof parsed === "string" || typeof parsed === "number") {
           return String(parsed).trim();
         }
-
         if (parsed && typeof parsed === "object") {
           const value =
             parsed.city ||
@@ -229,19 +132,16 @@ function readLocalStorageValue(keys) {
             parsed.name ||
             parsed.Name ||
             parsed.value;
-
           if (value) return String(value).trim();
         }
       } catch {
         return raw.trim();
       }
-
       return raw.trim();
     } catch (error) {
       console.error("Unable to read storage key:", key, error);
     }
   }
-
   return "";
 }
 
@@ -300,13 +200,10 @@ function getEnquiryPropertyType(property) {
 
 function getStoredUserLocation() {
   if (typeof window === "undefined") return null;
-
   try {
     const raw = sessionStorage.getItem("anarock_user_location");
     if (!raw) return null;
-
     const location = JSON.parse(raw);
-
     return {
       street: String(
         location?.area || location?.street || location?.address || "",
@@ -334,6 +231,7 @@ function PropertiesClientContent() {
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
   const [enquirySelection, setEnquirySelection] = useState([]);
   const [compareSelection, setCompareSelection] = useState([]);
@@ -356,6 +254,10 @@ function PropertiesClientContent() {
   const [aiPromptDraft, setAiPromptDraft] = useState("");
   const [appliedAiPrompt, setAppliedAiPrompt] = useState("");
 
+  const hasShortlistedProperties = wishlistIds.length > 0;
+  const hasComparedProperties = compareSelection.length > 0;
+  const showSelectionBar = hasShortlistedProperties || hasComparedProperties;
+
   const [enquiryForm, setEnquiryForm] = useState({
     firstName: "",
     lastName: "",
@@ -364,16 +266,16 @@ function PropertiesClientContent() {
     company: "",
     message: "",
   });
+
   useEffect(() => {
-    if (!showFilters) {
-      return;
-    }
+    if (!showFilters) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previousOverflow;
     };
   }, [showFilters]);
+
   const ITEMS_PER_PAGE = 30;
   const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1);
 
@@ -409,7 +311,6 @@ function PropertiesClientContent() {
   const handleApplyAiSearch = () => {
     const prompt = aiPromptDraft.trim();
     const params = new URLSearchParams(searchParams.toString());
-
     params.delete("page");
 
     if (prompt) {
@@ -422,25 +323,17 @@ function PropertiesClientContent() {
     }
 
     setAppliedAiPrompt(prompt);
-
     router.push(
       `/properties${params.toString() ? `?${params.toString()}` : ""}`,
-      { scroll: false },
+      { scroll: false }
     );
   };
 
-  const handleAiSearchKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleApplyAiSearch();
-    }
-  };
   const openEnquiryForm = () => {
     if (!compareSelection.length) {
       setEnquiryError("Please select at least one property.");
       return;
     }
-
     setEnquirySelection([...compareSelection]);
     setEnquiryError("");
     setEnquirySuccess(false);
@@ -449,26 +342,19 @@ function PropertiesClientContent() {
 
   const closeEnquiryForm = () => {
     if (isSubmittingEnquiry) return;
-
     setIsEnquiryOpen(false);
     setEnquiryError("");
     setEnquirySuccess(false);
   };
 
-  const handleEnquiryChange = (event) => {
-    const { name, value } = event.target;
-
-    setEnquiryForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+  const handleEnquiryChange = (e) => {
+    const { name, value } = e.target;
+    setEnquiryForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEnquirySubmit = async (event) => {
-    event.preventDefault();
-
+  const handleEnquirySubmit = async (e) => {
+    e.preventDefault();
     if (isSubmittingEnquiry) return;
-
     if (!enquirySelection.length) {
       setEnquiryError("Please select at least one property.");
       return;
@@ -483,9 +369,7 @@ function PropertiesClientContent() {
         cache: "no-store",
         headers: { Accept: "application/json" },
       });
-
       const propertiesData = await propertiesResponse.json().catch(() => ({}));
-
       const refreshedProperties =
         propertiesResponse.ok &&
           propertiesData?.success &&
@@ -494,28 +378,24 @@ function PropertiesClientContent() {
           : [];
 
       const freshById = new Map();
-
-      refreshedProperties.forEach((property) => {
-        const id = getPropertyId(property);
-        if (id) freshById.set(String(id), property);
+      refreshedProperties.forEach((prop) => {
+        const id = getPropertyId(prop);
+        if (id) freshById.set(String(id), prop);
       });
 
-      const resolvedSelection = enquirySelection.map((property) => {
-        const id = getPropertyId(property);
-        const freshProperty = id ? freshById.get(String(id)) : null;
-
-        return freshProperty ? { ...property, ...freshProperty } : property;
+      const resolvedSelection = enquirySelection.map((prop) => {
+        const id = getPropertyId(prop);
+        const fresh = id ? freshById.get(String(id)) : null;
+        return fresh ? { ...prop, ...fresh } : prop;
       });
 
-      const selectedProperties = resolvedSelection.map((property) => {
-        const crmId = String(getCRMPropertyId(property) || "").trim();
-
+      const selectedProperties = resolvedSelection.map((prop) => {
+        const crmId = String(getCRMPropertyId(prop) || "").trim();
         if (!crmId || !/^\d+$/.test(crmId)) {
           throw new Error(
-            "A selected property is missing its Zoho CRM record ID. Check the CRM ID field returned by /api/properties.",
+            "A selected property is missing its CRM record ID."
           );
         }
-
         return { id: crmId };
       });
 
@@ -555,8 +435,6 @@ function PropertiesClientContent() {
         },
       };
 
-      console.log("[ENQUIRY] Submitting payload:", payload);
-
       const response = await fetch("/api/lead3", {
         method: "POST",
         headers: {
@@ -568,21 +446,16 @@ function PropertiesClientContent() {
       });
 
       const data = await response.json().catch(() => ({}));
-      console.log("[ENQUIRY] CRM API response:", {
-        status: response.status,
-        data,
-      });
 
       if (!response.ok || data?.success !== true || !data?.leadId) {
         throw new Error(
           data?.message ||
           data?.error ||
-          `CRM did not confirm lead creation. HTTP ${response.status}. Request ID: ${data?.requestId || "not provided"}`,
+          `CRM did not confirm lead creation. HTTP ${response.status}.`
         );
       }
 
       setEnquirySuccess(true);
-
       setEnquiryForm({
         firstName: "",
         lastName: "",
@@ -591,11 +464,10 @@ function PropertiesClientContent() {
         company: "",
         message: "",
       });
-    } catch (error) {
-      console.error("[ENQUIRY] Lead creation failed:", error);
-
+    } catch (err) {
+      console.error("[ENQUIRY] Lead creation failed:", err);
       setEnquiryError(
-        error?.message || "Unable to submit your enquiry. Please try again.",
+        err?.message || "Unable to submit your enquiry. Please try again."
       );
     } finally {
       setIsSubmittingEnquiry(false);
@@ -605,29 +477,26 @@ function PropertiesClientContent() {
   const normalizedOfficeType = normalizeValue(filters.type);
   const sortValue = filters.sort || "";
   const isCoworking = normalizedOfficeType === "managed office/co-working";
-  const handleShortlistToggle = (property) => {
-    const propertyId = getPropertyId(property);
-    if (!propertyId) {
-      return;
-    }
-    toggleWishlist(property);
-  };
-  const handleCompareToggle = (property) => {
-    const propertyId = getPropertyId(property);
-    if (!propertyId) {
-      return;
-    }
+
+  const handleShortlistToggle = useCallback(
+    (property) => {
+      const id = getPropertyId(property);
+      if (id) toggleWishlist(property);
+    },
+    [toggleWishlist]
+  );
+
+  const handleCompareToggle = useCallback((property) => {
+    const id = getPropertyId(property);
+    if (!id) return;
+
     setCompareSelection((prev) => {
-      const alreadySelected = prev.some(
-        (item) => getPropertyId(item) === propertyId,
-      );
+      const alreadySelected = prev.some((item) => getPropertyId(item) === id);
       let updated;
       if (alreadySelected) {
-        updated = prev.filter((item) => getPropertyId(item) !== propertyId);
+        updated = prev.filter((item) => getPropertyId(item) !== id);
       } else {
-        if (prev.length >= MAX_COMPARE_PROPERTIES) {
-          return prev;
-        }
+        if (prev.length >= MAX_COMPARE_PROPERTIES) return prev;
         updated = [...prev, property];
       }
       try {
@@ -635,14 +504,12 @@ function PropertiesClientContent() {
       } catch (e) {
         console.error("Failed to save comparison properties:", e);
       }
-
       return updated;
     });
-  };
+  }, []);
 
   const clearCompareSelection = () => {
     setCompareSelection([]);
-
     try {
       localStorage.removeItem(COMPARE_STORAGE_KEY);
     } catch (e) {
@@ -657,11 +524,10 @@ function PropertiesClientContent() {
     ) {
       return;
     }
-
     try {
       localStorage.setItem(
         COMPARE_STORAGE_KEY,
-        JSON.stringify(compareSelection),
+        JSON.stringify(compareSelection)
       );
     } catch (e) {
       console.error("Failed to save comparison properties:", e);
@@ -669,13 +535,12 @@ function PropertiesClientContent() {
     }
     router.push("/compare");
   };
+
   useEffect(() => {
     fetch("/api/cities")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setCities(data.cities);
-        }
+        if (data.success) setCities(data.cities);
       })
       .catch(() => setCities([]));
   }, []);
@@ -683,18 +548,12 @@ function PropertiesClientContent() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(COMPARE_STORAGE_KEY);
-
-      if (!saved) {
-        return;
-      }
-
+      if (!saved) return;
       const parsed = JSON.parse(saved);
-
       if (Array.isArray(parsed)) {
         const valid = parsed
           .filter((p) => getPropertyId(p))
           .slice(0, MAX_COMPARE_PROPERTIES);
-
         setCompareSelection(valid);
       }
     } catch (e) {
@@ -703,11 +562,9 @@ function PropertiesClientContent() {
   }, []);
 
   const resolvedCity = useMemo(() => {
-    if (!filters.city) {
-      return "";
-    }
+    if (!filters.city) return "";
     const match = cities.find(
-      (c) => toUrlValue(c) === filters.city.toLowerCase(),
+      (c) => toUrlValue(c) === filters.city.toLowerCase()
     );
     return match || filters.city;
   }, [filters.city, cities]);
@@ -732,24 +589,17 @@ function PropertiesClientContent() {
         }
       })
       .catch((err) => {
-        if (err.name !== "AbortError") {
-          setMicromarkets([]);
-        }
+        if (err.name !== "AbortError") setMicromarkets([]);
       })
       .finally(() => {
-        if (!controller.signal.aborted) {
-          setMicromarketsLoading(false);
-        }
+        if (!controller.signal.aborted) setMicromarketsLoading(false);
       });
 
     return () => controller.abort();
   }, [resolvedCity]);
 
   const selectedMicromarkets = useMemo(() => {
-    if (!filters.micromarket || micromarkets.length === 0) {
-      return [];
-    }
-
+    if (!filters.micromarket || micromarkets.length === 0) return [];
     const selectedNames = filters.micromarket
       .split(",")
       .map((n) => n.trim().toLowerCase())
@@ -758,26 +608,22 @@ function PropertiesClientContent() {
     return micromarkets
       .filter((market) => {
         const marketSlug = toUrlValue(market.name);
-
         return selectedNames.some(
           (selected) =>
             selected === String(market.name).trim().toLowerCase() ||
-            selected === marketSlug,
+            selected === marketSlug
         );
       })
       .map((market) => String(market.id));
   }, [filters.micromarket, micromarkets]);
 
   const selectedMicromarketNames = useMemo(() => {
-    if (selectedMicromarkets.length === 0) {
-      return [];
-    }
-
+    if (selectedMicromarkets.length === 0) return [];
     return selectedMicromarkets
       .map(
         (id) =>
           micromarkets.find((item) => String(item.id) === String(id))?.name ||
-          "",
+          ""
       )
       .filter(Boolean);
   }, [selectedMicromarkets, micromarkets]);
@@ -793,9 +639,7 @@ function PropertiesClientContent() {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
         params.set("pageSize", String(ITEMS_PER_PAGE));
-        if (resolvedCity) {
-          params.set("city", resolvedCity);
-        }
+        if (resolvedCity) params.set("city", resolvedCity);
         if (filters.type && filters.type !== "ai") {
           params.set("type", filters.type.toLowerCase());
         }
@@ -806,30 +650,26 @@ function PropertiesClientContent() {
               value,
               filters.currency,
               "INR",
-              exchangeRates,
+              exchangeRates
             );
-
             params.set("minBudget", String(Math.round(converted)));
           }
         }
 
         if (!isCoworking && filters.area !== "") {
           const enteredArea = Number(filters.area);
-
           if (Number.isFinite(enteredArea)) {
             const areaInSqft = convertArea(
               enteredArea,
               filters.areaUnit,
-              "sqft",
+              "sqft"
             );
-
             params.set("area", String(Math.round(areaInSqft)));
           }
         }
 
         if (isCoworking && filters.seats !== "") {
           const enteredSeats = Number(filters.seats);
-
           if (Number.isFinite(enteredSeats)) {
             params.set("seats", String(Math.round(enteredSeats)));
           }
@@ -839,30 +679,17 @@ function PropertiesClientContent() {
           params.set("micromarket", selectedMicromarketNames.join(","));
         }
 
-        if (sortValue) {
-          params.set("sort", sortValue);
-        }
+        if (sortValue) params.set("sort", sortValue);
 
-        if (filters.isAi) {
-          params.set("mode", "ai");
-
-          if (filters.prompt) {
-            params.set("prompt", filters.prompt);
-          }
-        }
         const prompt = appliedAiPrompt.trim();
         const shouldUseAi = Boolean(prompt);
 
         if (shouldUseAi) {
           params.set("mode", "ai");
           params.set("prompt", prompt);
-        } else {
-          params.delete("mode");
-          params.delete("prompt");
         }
 
         const query = params.toString();
-
         const response = shouldUseAi
           ? await fetch("/api/ai-search", {
             method: "POST",
@@ -880,25 +707,12 @@ function PropertiesClientContent() {
           })
           : await fetch(`/api/properties?${query}`, {
             method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
+            headers: { Accept: "application/json" },
             cache: "no-store",
             signal: controller.signal,
           });
 
-        if (filters.prompt) {
-          params.set("prompt", filters.prompt);
-        }
         const data = await response.json();
-
-        console.group("🤖 AI Property Search");
-        console.log("Prompt:", filters.prompt);
-        console.log("API response:", data);
-        console.log("Interpreted filters:", data.interpretedQuery);
-        console.log("Properties returned:", data.data?.length ?? 0);
-        console.log("Total matching properties:", data.total ?? 0);
-        console.groupEnd();
 
         if (!response.ok || !data.success) {
           throw new Error(data.error || "Failed to fetch properties");
@@ -907,7 +721,6 @@ function PropertiesClientContent() {
         if (filters.isAi && data.interpretedQuery) {
           const interpreted = data.interpretedQuery;
           const nextParams = new URLSearchParams(searchParams.toString());
-
           nextParams.set("mode", "ai");
           nextParams.set("prompt", filters.prompt || "");
 
@@ -921,28 +734,22 @@ function PropertiesClientContent() {
 
           setOrDelete(
             "city",
-            interpreted.city ? toUrlValue(interpreted.city) : "",
+            interpreted.city ? toUrlValue(interpreted.city) : ""
           );
-
           setOrDelete(
             "micromarket",
-            interpreted.micromarket ? toUrlValue(interpreted.micromarket) : "",
+            interpreted.micromarket ? toUrlValue(interpreted.micromarket) : ""
           );
-
           setOrDelete(
             "type",
-            interpreted.type ? toUrlValue(interpreted.type) : "",
+            interpreted.type ? toUrlValue(interpreted.type) : ""
           );
-
           setOrDelete("area", interpreted.minArea);
           setOrDelete("maxArea", interpreted.maxArea);
           setOrDelete("seats", interpreted.minSeats);
           setOrDelete("maxSeats", interpreted.maxSeats);
           setOrDelete("minBudget", interpreted.minPrice);
           setOrDelete("maxBudget", interpreted.maxPrice);
-          params.set("mode", "ai");
-          params.set("prompt", filters.prompt);
-
           nextParams.delete("page");
 
           if (nextParams.toString() !== searchParams.toString()) {
@@ -951,31 +758,25 @@ function PropertiesClientContent() {
             });
           }
         }
+
         setProperties(Array.isArray(data.data) ? data.data : []);
         setTotalProperties(Number(data.total || 0));
         setTotalPagesFromApi(Math.max(1, Number(data.totalPages || 1)));
       } catch (err) {
         if (err?.name !== "AbortError") {
           console.error("[PropertiesClient] Fetch failed:", err);
-
           setError(err?.message || "Failed to fetch properties");
-
           setProperties([]);
           setTotalProperties(0);
           setTotalPagesFromApi(1);
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
     fetchProperties();
-
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [
     currentPage,
     resolvedCity,
@@ -990,226 +791,79 @@ function PropertiesClientContent() {
     filters.isAi,
     filters.sort,
     sortValue,
+    appliedAiPrompt,
     exchangeRates,
     isCoworking,
+    router,
+    searchParams,
   ]);
 
+  // Always fetch suggestions whenever properties or filters change, so they can always be shown outside filter results
   useEffect(() => {
-    if (loading) {
-      return;
-    }
-
-    if (totalProperties > 0 && currentPage !== totalPagesFromApi) {
-      setSuggestedProperties([]);
-      setSuggestionsLoading(false);
-      return;
-    }
+    if (loading) return;
 
     const controller = new AbortController();
 
     async function fetchSuggestions() {
       setSuggestionsLoading(true);
-
       try {
         const params = new URLSearchParams();
-
-        if (resolvedCity) {
-          params.set("city", resolvedCity);
-        }
-
+        if (resolvedCity) params.set("city", resolvedCity);
         if (filters.type && filters.type !== "ai") {
           params.set("type", filters.type.toLowerCase());
         }
-
         if (selectedMicromarketNames.length) {
           params.set("micromarket", selectedMicromarketNames.join(","));
         }
-
         if (filters.minBudget !== "") {
           const value = Number(filters.minBudget);
-
           if (Number.isFinite(value)) {
             const converted = convertCurrency(
               value,
               filters.currency,
               "INR",
-              exchangeRates,
+              exchangeRates
             );
-
             params.set("minBudget", String(Math.round(converted)));
           }
         }
 
-        if (!isCoworking && filters.area !== "") {
-          const enteredArea = Number(filters.area);
-
-          if (Number.isFinite(enteredArea)) {
-            const areaInSqft = convertArea(
-              enteredArea,
-              filters.areaUnit,
-              "sqft",
-            );
-
-            params.set("area", String(Math.round(areaInSqft)));
-          }
-        }
-
-        if (isCoworking && filters.seats !== "") {
-          const enteredSeats = Number(filters.seats);
-
-          if (Number.isFinite(enteredSeats)) {
-            params.set("seats", String(Math.round(enteredSeats)));
-          }
-        }
-
         const excludeIds = properties
-          .map((property) => getPropertyId(property))
+          .map((p) => getPropertyId(p))
           .filter(Boolean);
-
         if (excludeIds.length > 0) {
           params.set("exclude", excludeIds.join(","));
         }
 
         const response = await fetch(
           `/api/properties/suggestions?${params.toString()}`,
-          {
-            cache: "no-store",
-            signal: controller.signal,
-          },
+          { cache: "no-store", signal: controller.signal }
         );
-
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(data.error || "AI search failed");
-        }
-
-        console.groupEnd();
-
-        const interpreted = data.interpretedQuery;
-
-        if (filters.isAi && interpreted) {
-          const nextParams = new URLSearchParams(searchParams.toString());
-
-          nextParams.set("mode", "ai");
-          nextParams.set("prompt", filters.prompt);
-          nextParams.delete("type");
-
-          if (interpreted.city) {
-            nextParams.set("city", toFilterSlug(interpreted.city));
-          }
-
-          if (interpreted.micromarket) {
-            nextParams.set(
-              "micromarket",
-              toFilterSlug(interpreted.micromarket),
-            );
-          }
-
-          if (interpreted.type) {
-            nextParams.set("type", toFilterSlug(interpreted.type));
-          }
-
-          if (interpreted.minArea != null) {
-            nextParams.set("area", String(interpreted.minArea));
-          }
-
-          if (interpreted.maxArea != null) {
-            nextParams.set("maxArea", String(interpreted.maxArea));
-          }
-
-          if (interpreted.minSeats != null) {
-            nextParams.set("seats", String(interpreted.minSeats));
-          }
-
-          if (interpreted.maxSeats != null) {
-            nextParams.set("maxSeats", String(interpreted.maxSeats));
-          }
-
-          if (interpreted.minPrice != null) {
-            nextParams.set("minBudget", String(interpreted.minPrice));
-          }
-
-          if (interpreted.maxPrice != null) {
-            nextParams.set("maxBudget", String(interpreted.maxPrice));
-          }
-
-          const current = searchParams.toString();
-          const next = nextParams.toString();
-
-          if (next !== current) {
-            router.replace(`/properties?${next}`, { scroll: false });
-          }
+          throw new Error(data.error || "Suggestions search failed");
         }
 
         setSuggestedProperties(Array.isArray(data.data) ? data.data : []);
-      } catch (error) {
-        if (error?.name !== "AbortError") {
-          console.error(
-            "[PropertiesClient] Suggested properties failed:",
-            error,
-          );
-
-          setSuggestedProperties([]);
-        }
+      } catch (err) {
+        if (err?.name !== "AbortError") setSuggestedProperties([]);
       } finally {
-        if (!controller.signal.aborted) {
-          setSuggestionsLoading(false);
-        }
+        if (!controller.signal.aborted) setSuggestionsLoading(false);
       }
     }
 
     fetchSuggestions();
-
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [
     loading,
-    currentPage,
-    totalProperties,
-    totalPagesFromApi,
     properties,
     resolvedCity,
     filters.type,
     filters.minBudget,
-    filters.area,
-    filters.seats,
     filters.currency,
-    filters.areaUnit,
     selectedMicromarketNames,
     exchangeRates,
-    isCoworking,
-  ]);
-
-  useEffect(() => {
-    if (!filters.city && !filters.micromarket) {
-      return;
-    }
-
-    try {
-      const searchLocationObj = {
-        city: resolvedCity || filters.city || "",
-        micromarket: selectedMicromarketNames.length
-          ? selectedMicromarketNames.join(", ")
-          : filters.micromarket || "",
-        propertyType: filters.type || "",
-        state: "",
-      };
-
-      localStorage.setItem(
-        "anarock_last_searched_location",
-        JSON.stringify(searchLocationObj),
-      );
-    } catch (e) {
-      console.error("Unable to save last searched location:", e);
-    }
-  }, [
-    filters.city,
-    filters.micromarket,
-    filters.type,
-    resolvedCity,
-    selectedMicromarketNames,
   ]);
 
   const updateFilter = (key, value) => {
@@ -1222,68 +876,41 @@ function PropertiesClientContent() {
         params.delete("seats");
       } else {
         params.set("type", toUrlValue(value));
-
         const nextIsCoworking =
           normalizeValue(value) === "managed office/co-working";
-
-        if (nextIsCoworking) {
-          params.delete("area");
-        } else {
-          params.delete("seats");
-        }
+        if (nextIsCoworking) params.delete("area");
+        else params.delete("seats");
       }
-
       params.delete("page");
-
       router.push(
-        `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+        `/properties${params.toString() ? `?${params.toString()}` : ""}`
       );
-
       return;
     }
 
-    if (value !== "") {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
+    if (value !== "") params.set(key, value);
+    else params.delete(key);
 
-    if (key === "area" && isCoworking) {
-      params.delete("area");
-    }
-
-    if (key === "seats" && !isCoworking) {
-      params.delete("seats");
-    }
+    if (key === "area" && isCoworking) params.delete("area");
+    if (key === "seats" && !isCoworking) params.delete("seats");
 
     params.delete("page");
-
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
   };
 
   const handleSortChange = (value) => {
     const params = new URLSearchParams(searchParams.toString());
-
-    if (value) {
-      params.set("sort", value);
-    } else {
-      params.delete("sort");
-    }
+    if (value) params.set("sort", value);
+    else params.delete("sort");
 
     params.delete("page");
-
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
-
     setShowFilters(false);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCategoryClick = (category) => {
@@ -1291,40 +918,30 @@ function PropertiesClientContent() {
       handleSortChange("");
       return;
     }
-
     const isActive = sortValue.startsWith(category.id);
     let nextVal = category.ascVal;
-
     if (isActive) {
       nextVal =
         sortValue === category.ascVal ? category.descVal : category.ascVal;
     }
-
     handleSortChange(nextVal);
   };
 
   const handleCityChange = (selectedCity) => {
     const params = new URLSearchParams(searchParams.toString());
-
-    if (selectedCity) {
-      params.set("city", toUrlValue(selectedCity));
-    } else {
-      params.delete("city");
-    }
+    if (selectedCity) params.set("city", toUrlValue(selectedCity));
+    else params.delete("city");
 
     params.delete("micromarket");
     params.delete("page");
-
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
-
     setShowMicromarkets(false);
   };
 
   const toggleMicromarket = (micromarketId) => {
     const id = String(micromarketId);
-
     const nextSelected = selectedMicromarkets.includes(id)
       ? selectedMicromarkets.filter((selectedId) => selectedId !== id)
       : [...selectedMicromarkets, id];
@@ -1333,20 +950,16 @@ function PropertiesClientContent() {
       .map(
         (selectedId) =>
           micromarkets.find((item) => String(item.id) === String(selectedId))
-            ?.name || "",
+            ?.name || ""
       )
       .filter(Boolean);
 
     const params = new URLSearchParams(searchParams.toString());
-
-    if (selectedNames.length) {
-      params.set("micromarket", selectedNames.join(","));
-    } else {
-      params.delete("micromarket");
-    }
+    if (selectedNames.length) params.set("micromarket", selectedNames.join(","));
+    else params.delete("micromarket");
 
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
   };
 
@@ -1354,7 +967,7 @@ function PropertiesClientContent() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("micromarket");
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
     setShowMicromarkets(false);
   };
@@ -1364,7 +977,7 @@ function PropertiesClientContent() {
     params.delete(key);
     params.delete("page");
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
   };
 
@@ -1379,275 +992,133 @@ function PropertiesClientContent() {
       case "USD":
       case "SGD":
         return <DollarSign className="h-4 w-4 text-[#A054A0]" />;
-
       case "EUR":
         return <Euro className="h-4 w-4 text-[#A054A0]" />;
-
       case "AED":
         return <span className="text-xs font-bold text-[#A054A0]">د.إ</span>;
-
       default:
         return <IndianRupee className="h-4 w-4 text-[#A054A0]" />;
     }
   };
 
   const getCurrencySymbol = (value) => {
-    switch (
-    String(value || "")
-      .trim()
-      .toUpperCase()
-    ) {
-      case "USD":
-        return "$";
-
-      case "EUR":
-        return "€";
-
-      case "GBP":
-        return "£";
-
-      case "AED":
-        return "د.إ";
-
-      case "SGD":
-        return "S$";
-
-      case "AUD":
-        return "A$";
-
-      case "CAD":
-        return "C$";
-
+    switch (String(value || "").trim().toUpperCase()) {
+      case "USD": return "$";
+      case "EUR": return "€";
+      case "GBP": return "£";
+      case "AED": return "د.إ";
+      case "SGD": return "S$";
+      case "AUD": return "A$";
+      case "CAD": return "C$";
       case "INR":
-      default:
-        return "₹";
+      default: return "₹";
     }
   };
 
   const formatRawNumber = (value) => {
-    if (value === "" || value === null || value === undefined) {
-      return "";
-    }
-
+    if (value === "" || value === null || value === undefined) return "";
     const number = Number(value);
-
-    if (!Number.isFinite(number)) {
-      return String(value);
-    }
-
-    return number.toLocaleString("en-IN", {
-      maximumFractionDigits: 2,
-    });
-  };
-
-  const getAreaUnitLabel = (value) => {
-    switch (
-    String(value || "")
-      .trim()
-      .toLowerCase()
-    ) {
-      case "sqm":
-      case "sq.m":
-        return "sq.m";
-
-      case "sqyd":
-      case "sq.yd":
-        return "sq.yd";
-
-      case "acre":
-      case "acres":
-        return "acre";
-
-      case "hectare":
-      case "hectares":
-        return "hectare";
-
-      default:
-        return "sq.ft";
-    }
+    if (!Number.isFinite(number)) return String(value);
+    return number.toLocaleString("en-IN", { maximumFractionDigits: 2 });
   };
 
   const currencySymbol = getCurrencySymbol(filters.currency);
-
-  const areaUnitLabel = getAreaUnitLabel(filters.areaUnit);
+  const areaUnitLabel = filters.areaUnit === "sqm" ? "sq.m" : "sq.ft";
 
   const activeChips = [
     filters.city && {
       label: `City: ${resolvedCity || filters.city}`,
       key: "city",
     },
-
     filters.micromarket && {
       label: `Micromarkets: ${selectedMicromarketNames.length
-          ? selectedMicromarketNames.join(", ")
-          : filters.micromarket
+        ? selectedMicromarketNames.join(", ")
+        : filters.micromarket
         }`,
       key: "micromarket",
     },
-
     filters.type &&
     filters.type !== "ai" && {
       label: `Type: ${filters.type}`,
       key: "type",
     },
-
     filters.minBudget !== "" && {
-      label: `Min ${isCoworking ? "Seat Price" : "Rent"
-        }: ${currencySymbol}${formatRawNumber(filters.minBudget)}`,
+      label: `Min ${isCoworking ? "Seat Price" : "Rent"}: ${currencySymbol}${formatRawNumber(
+        filters.minBudget
+      )}`,
       key: "minBudget",
     },
-
     !isCoworking &&
     filters.area !== "" && {
       label: `Min Area: ${formatRawNumber(filters.area)} ${areaUnitLabel}`,
       key: "area",
     },
-
     isCoworking &&
     filters.seats !== "" && {
       label: `Seats: ${formatRawNumber(filters.seats)}`,
       key: "seats",
     },
-
     filters.prompt && {
-      label: `AI: ${filters.prompt.slice(0, 40)}${filters.prompt.length > 40 ? "..." : ""
+      label: `AI: ${filters.prompt.slice(0, 30)}${filters.prompt.length > 30 ? "..." : ""
         }`,
       key: "prompt",
     },
   ].filter(Boolean);
 
-  const sortedProperties = Array.isArray(properties) ? properties : [];
-
   const totalPages = totalPagesFromApi;
-
   const safeCurrentPage = Math.min(currentPage, totalPages);
-
-  const paginatedProperties = sortedProperties;
 
   const goToPage = (page) => {
     const nextPage = Math.min(Math.max(1, Number(page) || 1), totalPages);
-
-    if (nextPage === safeCurrentPage) {
-      return;
-    }
+    if (nextPage === safeCurrentPage) return;
 
     const params = new URLSearchParams(searchParams.toString());
-
-    if (nextPage <= 1) {
-      params.delete("page");
-    } else {
-      params.set("page", String(nextPage));
-    }
+    if (nextPage <= 1) params.delete("page");
+    else params.set("page", String(nextPage));
 
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`
     );
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const getPaginationPages = () => {
     const pages = [];
-
     if (totalPages <= 7) {
-      for (let page = 1; page <= totalPages; page++) {
-        pages.push(page);
-      }
-
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
       return pages;
     }
-
     pages.push(1);
-
-    if (safeCurrentPage > 4) {
-      pages.push("ellipsis-start");
-    }
+    if (safeCurrentPage > 4) pages.push("ellipsis-start");
 
     const start = Math.max(2, safeCurrentPage - 1);
-
     const end = Math.min(totalPages - 1, safeCurrentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
 
-    for (let page = start; page <= end; page++) {
-      pages.push(page);
-    }
-
-    if (safeCurrentPage < totalPages - 3) {
-      pages.push("ellipsis-end");
-    }
-
+    if (safeCurrentPage < totalPages - 3) pages.push("ellipsis-end");
     pages.push(totalPages);
-
     return pages;
   };
 
   const breadcrumbs = [
-    {
-      label: "Properties",
-      href: "/properties",
-    },
-    ...(resolvedCity
-      ? [
-        {
-          label: resolvedCity,
-        },
-      ]
-      : []),
+    { label: "Properties", href: "/properties" },
+    ...(resolvedCity ? [{ label: resolvedCity }] : []),
   ];
 
-  const activeCategory =
-    SORT_CATEGORIES.find((cat) => {
-      if (cat.id === "recommended") return !sortValue;
-      return sortValue.startsWith(cat.id);
-    }) || SORT_CATEGORIES[0];
-
-  const getActiveSortDisplayLabel = () => {
-    if (!sortValue) return "Recommended";
-    if (sortValue.startsWith("budget"))
-      return sortValue === "budget_desc"
-        ? "Budget: High to Low"
-        : "Budget: Low to High";
-    if (sortValue.startsWith("seats"))
-      return sortValue === "seats_desc"
-        ? "Seat Count: High to Low"
-        : "Seat Count: Low to High";
-    if (sortValue.startsWith("area"))
-      return sortValue === "area_desc"
-        ? "Area: High to Low"
-        : "Area: Low to High";
-    if (sortValue.startsWith("name"))
-      return sortValue === "name_desc"
-        ? "Alphabetically: Z-A"
-        : "Alphabetically: A-Z";
-    return "Recommended";
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 antialiased selection:bg-[#A054A0]/20 selection:text-[#A054A0]">
       <style jsx global>{`
         @keyframes shimmerSweep {
-          0% {
-            transform: translateX(-100%);
-          }
-
-          100% {
-            transform: translateX(100%);
-          }
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
         }
-
         .shimmer-effect {
           position: relative;
           overflow: hidden;
         }
-
         .shimmer-effect::after {
           position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
+          inset: 0;
           transform: translateX(-100%);
           background-image: linear-gradient(
             90deg,
@@ -1662,14 +1133,15 @@ function PropertiesClientContent() {
       `}</style>
 
       <Breadcrumbs items={breadcrumbs} />
-      <div className="px-4 py-4">
-        <div className="mb-5 space-y-4">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+
+      <main className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mb-6 space-y-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl lg:text-3xl">
                 {filters.isAi ? (
-                  <span className="flex flex-wrap items-center gap-2">
-                    <Sparkles className="h-5 w-5 shrink-0 text-[#A054A0] sm:h-6 sm:w-6" />
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 shrink-0 text-[#A054A0]" />
                     AI Recommended Properties
                   </span>
                 ) : resolvedCity ? (
@@ -1678,8 +1150,7 @@ function PropertiesClientContent() {
                   "All Commercial Properties"
                 )}
               </h1>
-
-              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+              <p className="mt-1 text-xs font-medium text-slate-500 sm:text-sm">
                 {loading
                   ? "Searching properties..."
                   : `${totalProperties.toLocaleString("en-IN")} properties found${totalProperties > ITEMS_PER_PAGE
@@ -1690,40 +1161,37 @@ function PropertiesClientContent() {
             </div>
 
             <form
-              onSubmit={(event) => {
-                event.preventDefault();
+              onSubmit={(e) => {
+                e.preventDefault();
                 handleApplyAiSearch();
               }}
-              className="flex w-full min-w-0 flex-col gap-2 rounded-2xl border border-[#E9D9EC] bg-white p-2 shadow-sm sm:flex-row xl:max-w-2xl"
+              className="flex w-full flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm transition-all focus-within:border-[#A054A0] focus-within:ring-2 focus-within:ring-[#A054A0]/10 sm:flex-row lg:max-w-xl"
             >
-              <div className="flex min-w-0 flex-1 items-center gap-2 px-2">
+              <div className="flex flex-1 items-center gap-2 px-2">
                 <Sparkles className="h-5 w-5 shrink-0 text-[#A054A0]" />
-
                 <input
                   type="text"
                   value={aiPromptDraft}
-                  onChange={(event) => setAiPromptDraft(event.target.value)}
+                  onChange={(e) => setAiPromptDraft(e.target.value)}
                   placeholder="Describe your ideal office space..."
                   aria-label="Search properties using AI"
-                  className="w-full min-w-0 bg-transparent py-2.5 text-sm text-slate-800 outline-none placeholder:text-slate-400"
+                  className="w-full bg-transparent py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400"
                 />
-
                 {aiPromptDraft && (
                   <button
                     type="button"
                     onClick={() => setAiPromptDraft("")}
                     aria-label="Clear AI search"
-                    className="shrink-0 rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 )}
               </div>
-
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#884188] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:py-2.5"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#884188] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Search className="h-4 w-4" />
                 Apply
@@ -1738,13 +1206,12 @@ function PropertiesClientContent() {
                 setSidebarTab("filters");
                 setShowFilters(true);
               }}
-              aria-label="Open property filters"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
             >
               <SlidersHorizontal className="h-4 w-4 shrink-0" />
               Filters
               {activeChips.length > 0 && (
-                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] font-bold text-slate-900">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1.5 text-[11px] font-bold text-slate-900">
                   {activeChips.length}
                 </span>
               )}
@@ -1756,13 +1223,12 @@ function PropertiesClientContent() {
                 setSidebarTab("sort");
                 setShowFilters(true);
               }}
-              aria-label="Sort properties"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
             >
               <ArrowUpDown className="h-4 w-4 shrink-0" />
               Sort
               {sortValue && (
-                <span className="max-w-[90px] truncate rounded-full bg-[#A054A0]/10 px-2 py-0.5 text-[10px] font-semibold text-[#A054A0]">
+                <span className="rounded-full bg-[#A054A0]/10 px-2 py-0.5 text-[10px] font-semibold text-[#A054A0]">
                   Active
                 </span>
               )}
@@ -1771,161 +1237,138 @@ function PropertiesClientContent() {
         </div>
 
         {activeChips.length > 0 && (
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-5 flex flex-wrap items-center gap-2">
             {activeChips.map((chip) => (
               <button
                 key={`${chip.key}-${chip.label}`}
                 onClick={() => clearFilter(chip.key)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 hover:bg-amber-200"
+                className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-[#A054A0] ring-1 ring-inset ring-[#A054A0]/20 transition-all hover:bg-purple-100"
               >
                 {chip.label}
-
-                <X className="h-3 w-3" />
+                <X className="h-3.5 w-3.5" />
               </button>
             ))}
-
             <button
               onClick={clearAll}
-              className="text-xs text-slate-500 underline hover:text-slate-800"
+              className="ml-1 text-xs font-semibold text-slate-500 hover:text-slate-900 hover:underline"
             >
               Clear all
             </button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
           <aside
             className={
               showFilters
-                ? "fixed inset-0 z-[200] bg-slate-950/50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent"
+                ? "fixed inset-0 z-[200] bg-slate-950/50 backdrop-blur-sm transition-opacity lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:backdrop-blur-none"
                 : "hidden lg:block"
             }
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowFilters(false);
+            }}
           >
             <div
-              className={`border border-slate-200 bg-white p-4 ${showFilters
-                  ? "absolute inset-y-0 right-0 h-full w-[min(88vw,360px)] max-w-full overflow-y-auto rounded-l-2xl shadow-2xl pt-20 lg:relative lg:inset-auto lg:h-auto lg:w-auto lg:overflow-visible lg:rounded-xl lg:shadow-none lg:pt-4"
-                  : "rounded-xl lg:sticky lg:top-24"
+              className={`border-slate-200 bg-white shadow-xl lg:sticky lg:top-24 lg:rounded-2xl lg:border lg:p-5 lg:shadow-sm ${showFilters
+                ? "fixed inset-y-0 right-0 z-[210] flex w-full max-w-xs flex-col overflow-y-auto p-5 sm:max-w-sm"
+                : ""
                 }`}
             >
-              <div className="mb-4 flex items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex w-full items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-sm">
-                    <button
-                      type="button"
-                      onClick={() => setSidebarTab("filters")}
-                      className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${sidebarTab === "filters"
-                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                          : "text-slate-500 hover:text-slate-800"
-                        }`}
-                    >
-                      <SlidersHorizontal className="h-4 w-4 shrink-0" />
-
-                      <span>Filters</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSidebarTab("sort")}
-                      className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${sidebarTab === "sort"
-                          ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                          : "text-slate-500 hover:text-slate-800"
-                        }`}
-                    >
-                      <ArrowUpDown className="h-4 w-4 shrink-0" />
-
-                      <span>Sort</span>
-                    </button>
-                  </div>
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div className="flex w-full items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setSidebarTab("filters")}
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${sidebarTab === "filters"
+                      ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-500 hover:text-slate-800"
+                      }`}
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    Filters
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSidebarTab("sort")}
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${sidebarTab === "sort"
+                      ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-500 hover:text-slate-800"
+                      }`}
+                  >
+                    <ArrowUpDown className="h-3.5 w-3.5" />
+                    Sort
+                  </button>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setShowFilters(false)}
-                  aria-label="Close filters"
-                  className="shrink-0 rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+                  className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 lg:hidden"
+                  aria-label="Close menu"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               {sidebarTab === "sort" ? (
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    {SORT_CATEGORIES.map((cat) => {
-                      const isSelected =
-                        cat.id === "recommended"
-                          ? !sortValue
-                          : sortValue.startsWith(cat.id);
-                      const isDesc = sortValue.endsWith("_desc");
+                <div className="space-y-2">
+                  {SORT_CATEGORIES.map((cat) => {
+                    const isSelected =
+                      cat.id === "recommended"
+                        ? !sortValue
+                        : sortValue.startsWith(cat.id);
+                    const isDesc = sortValue.endsWith("_desc");
 
-                      return (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          onClick={() => handleCategoryClick(cat)}
-                          aria-pressed={isSelected}
-                          className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all duration-200 ${isSelected
-                              ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#7B3D7B] shadow-sm"
-                              : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => handleCategoryClick(cat)}
+                        className={`group flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all ${isSelected
+                          ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#A054A0] shadow-sm"
+                          : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
+                          }`}
+                      >
+                        <span
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold transition-colors ${isSelected
+                            ? "border-[#A054A0]/30 bg-[#A054A0]/10 text-[#A054A0]"
+                            : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-600"
                             }`}
                         >
-                          <span
-                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${isSelected
-                                ? "border-[#A054A0]/20 bg-[#A054A0]/10 text-[#A054A0]"
-                                : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
-                              }`}
-                          >
-                            {cat.id === "recommended" ? (
-                              <ArrowUpDown className="h-4 w-4" />
-                            ) : cat.id === "name" ? (
-                              <span className="text-sm font-medium">A-Z</span>
-                            ) : isSelected && isDesc ? (
-                              <ArrowDown className="h-4 w-4" />
-                            ) : (
-                              <ArrowUp className="h-4 w-4" />
+                          {cat.id === "recommended" ? (
+                            <ArrowUpDown className="h-4 w-4" />
+                          ) : cat.id === "name" ? (
+                            "A-Z"
+                          ) : isSelected && isDesc ? (
+                            <ArrowDown className="h-4 w-4" />
+                          ) : (
+                            <ArrowUp className="h-4 w-4" />
+                          )}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold">
+                            {cat.label}
+                            {cat.id !== "recommended" && isSelected && (
+                              <span className="ml-1 text-[10px] opacity-75">
+                                {cat.id === "name"
+                                  ? isDesc
+                                    ? "(Z-A)"
+                                    : "(A-Z)"
+                                  : isDesc
+                                    ? "(High to Low)"
+                                    : "(Low to High)"}
+                              </span>
                             )}
-                          </span>
-
-                          <span className="min-w-0 flex-1">
-                            <span
-                              className={`block text-sm font-normal leading-5 ${isSelected ? "text-[#7B3D7B]" : "text-slate-700"
-                                }`}
-                            >
-                              {cat.label}
-                              {cat.id !== "recommended" && isSelected && (
-                                <span className="ml-1.5 text-[10px] text-[#A054A0] font-medium">
-                                  {cat.id === "name"
-                                    ? isDesc
-                                      ? "(Z-A)"
-                                      : "(A-Z)"
-                                    : isDesc
-                                      ? "(High to Low)"
-                                      : "(Low to High)"}
-                                </span>
-                              )}
-                            </span>
-                          </span>
-
-                          <span
-                            className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${isSelected
-                                ? "border-[#A054A0]"
-                                : "border-slate-300 group-hover:border-slate-400"
-                              }`}
-                          >
-                            {isSelected && (
-                              <span className="h-2.5 w-2.5 rounded-full bg-[#A054A0]" />
-                            )}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
                   {sortValue && (
                     <button
                       type="button"
                       onClick={() => handleSortChange("")}
-                      className="w-full rounded-lg border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                      className="mt-3 w-full rounded-xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                     >
                       Reset to Recommended
                     </button>
@@ -1934,17 +1377,15 @@ function PropertiesClientContent() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                       City
                     </label>
-
                     <select
                       value={resolvedCity}
                       onChange={(e) => handleCityChange(e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     >
                       <option value="">All Cities</option>
-
                       {cities.map((cityOption) => (
                         <option key={cityOption} value={cityOption}>
                           {cityOption}
@@ -1954,127 +1395,99 @@ function PropertiesClientContent() {
                   </div>
 
                   <div className="relative">
-                    <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                       Micromarket
                     </label>
-
                     <button
                       type="button"
                       disabled={!resolvedCity || micromarketsLoading}
                       onClick={() => setShowMicromarkets(!showMicromarkets)}
-                      className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${!resolvedCity
-                          ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                          : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0]"
+                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-xs font-medium transition-all ${!resolvedCity
+                        ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400"
+                        : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
                         }`}
                     >
                       <span className="truncate">
                         {micromarketsLoading
-                          ? "Loading micromarkets..."
+                          ? "Loading..."
                           : selectedMicromarkets.length === 0
                             ? "All Micromarkets"
                             : `${selectedMicromarkets.length} selected`}
                       </span>
-
                       <ChevronDown
                         className={`h-4 w-4 shrink-0 transition-transform ${showMicromarkets ? "rotate-180" : ""
                           }`}
                       />
                     </button>
 
-                    {showMicromarkets &&
-                      resolvedCity &&
-                      !micromarketsLoading && (
-                        <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+                    {showMicromarkets && resolvedCity && !micromarketsLoading && (
+                      <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                        <button
+                          type="button"
+                          onClick={selectAllMicromarkets}
+                          className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2 text-xs font-medium hover:bg-slate-50"
+                        >
+                          <span
+                            className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${selectedMicromarkets.length === 0
+                              ? "border-[#A054A0] bg-[#A054A0]"
+                              : "border-slate-300"
+                              }`}
+                          >
+                            {selectedMicromarkets.length === 0 && (
+                              <Check className="h-2.5 w-2.5 text-white" />
+                            )}
+                          </span>
+                          All Micromarkets
+                        </button>
+                        <div className="max-h-48 overflow-y-auto">
+                          {micromarkets.map((market) => {
+                            const id = String(market.id);
+                            const selected = selectedMicromarkets.includes(id);
+                            return (
+                              <button
+                                key={id}
+                                type="button"
+                                onClick={() => toggleMicromarket(id)}
+                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium hover:bg-slate-50"
+                              >
+                                <span
+                                  className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border ${selected
+                                    ? "border-[#A054A0] bg-[#A054A0]"
+                                    : "border-slate-300"
+                                    }`}
+                                >
+                                  {selected && (
+                                    <Check className="h-2.5 w-2.5 text-white" />
+                                  )}
+                                </span>
+                                <span className="truncate">{market.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="border-t border-slate-100 p-2">
                           <button
                             type="button"
-                            onClick={selectAllMicromarkets}
-                            className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
+                            onClick={() => setShowMicromarkets(false)}
+                            className="w-full rounded-lg bg-slate-900 py-1.5 text-xs font-semibold text-white"
                           >
-                            <span
-                              className={`flex h-4 w-4 items-center justify-center rounded border ${selectedMicromarkets.length === 0
-                                  ? "border-[#A054A0] bg-[#A054A0]"
-                                  : "border-slate-300"
-                                }`}
-                            >
-                              {selectedMicromarkets.length === 0 && (
-                                <Check className="h-3 w-3 text-white" />
-                              )}
-                            </span>
-
-                            <span className="font-medium text-slate-800">
-                              All Micromarkets
-                            </span>
+                            Done
                           </button>
-
-                          <div className="max-h-64 overflow-y-auto">
-                            {micromarkets.length === 0 ? (
-                              <div className="px-3 py-3 text-sm text-slate-500">
-                                No micromarkets found
-                              </div>
-                            ) : (
-                              micromarkets.map((market) => {
-                                const id = String(market.id);
-
-                                const selected =
-                                  selectedMicromarkets.includes(id);
-
-                                return (
-                                  <button
-                                    key={id}
-                                    type="button"
-                                    onClick={() => toggleMicromarket(id)}
-                                    className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-slate-50"
-                                  >
-                                    <span
-                                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected
-                                          ? "border-[#A054A0] bg-[#A054A0]"
-                                          : "border-slate-300"
-                                        }`}
-                                    >
-                                      {selected && (
-                                        <Check className="h-3 w-3 text-white" />
-                                      )}
-                                    </span>
-
-                                    <span
-                                      className={`truncate ${selected
-                                          ? "font-medium text-slate-900"
-                                          : "text-slate-700"
-                                        }`}
-                                    >
-                                      {market.name}
-                                    </span>
-                                  </button>
-                                );
-                              })
-                            )}
-                          </div>
-
-                          <div className="border-t border-slate-100 p-2">
-                            <button
-                              type="button"
-                              onClick={() => setShowMicromarkets(false)}
-                              className="w-full rounded-md bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-800"
-                            >
-                              Done
-                            </button>
-                          </div>
                         </div>
-                      )}
+                      </div>
+                    )}
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                       Office Type
                     </label>
-
                     <select
                       value={filters.type === "ai" ? "" : filters.type}
                       onChange={(e) => updateFilter("type", e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-[#A054A0] focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     >
                       <option value="">All Types</option>
-
                       {OFFICE_TYPES.map((type) => (
                         <option key={type} value={type}>
                           {type}
@@ -2086,45 +1499,36 @@ function PropertiesClientContent() {
                   {isCoworking ? (
                     <>
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                           Required Seats
                         </label>
-
                         <div className="relative">
                           <Users className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
                           <input
                             type="number"
                             min="0"
                             value={filters.seats}
-                            onChange={(e) =>
-                              updateFilter("seats", e.target.value)
-                            }
+                            onChange={(e) => updateFilter("seats", e.target.value)}
                             placeholder="e.g. 50"
-                            className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
-
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                           Min Seat Price / month ({filters.currency})
                         </label>
-
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
+                          <span className="absolute left-3 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center">
                             {renderCurrencyIcon()}
                           </span>
-
                           <input
                             type="number"
                             min="0"
                             value={filters.minBudget}
-                            onChange={(e) =>
-                              updateFilter("minBudget", e.target.value)
-                            }
-                            placeholder="Min seat price"
-                            className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                            onChange={(e) => updateFilter("minBudget", e.target.value)}
+                            placeholder="Min price"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -2132,196 +1536,127 @@ function PropertiesClientContent() {
                   ) : (
                     <>
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                           Min Rent / month ({filters.currency})
                         </label>
-
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md bg-slate-50">
+                          <span className="absolute left-3 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center">
                             {renderCurrencyIcon()}
                           </span>
-
                           <input
                             type="number"
                             min="0"
                             value={filters.minBudget}
-                            onChange={(e) =>
-                              updateFilter("minBudget", e.target.value)
-                            }
+                            onChange={(e) => updateFilter("minBudget", e.target.value)}
                             placeholder="Min rent"
-                            className="w-full rounded-lg border border-slate-300 py-2 pl-11 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
-
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                          Min Area (
-                          {filters.areaUnit === "sqm" ? "sq.m" : "sq.ft"})
+                        <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                          Min Area ({areaUnitLabel})
                         </label>
-
                         <div className="relative">
                           <Maximize2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
                           <input
                             type="number"
                             min="0"
                             value={filters.area}
-                            onChange={(e) =>
-                              updateFilter("area", e.target.value)
-                            }
-                            placeholder={
-                              filters.areaUnit === "sqm"
-                                ? "Enter area"
-                                : "e.g. 2000"
-                            }
-                            className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#A054A0] focus:outline-none"
+                            onChange={(e) => updateFilter("area", e.target.value)}
+                            placeholder="e.g. 2000"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
                     </>
                   )}
 
-                  {/* {filters.isAi && (
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        AI Query
-                      </label>
-
-                      <textarea
-                        value={filters.prompt}
-                        onChange={(e) => updateFilter("prompt", e.target.value)}
-                        rows={3}
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-[#A054A0] focus:outline-none"
-                      />
-                    </div>
-                  )} */}
-
                   <button
                     onClick={clearAll}
-                    className="w-full rounded-lg border border-slate-300 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    className="w-full rounded-xl border border-slate-200 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                   >
-                    Clear All
+                    Clear All Filters
                   </button>
                 </div>
               )}
             </div>
           </aside>
 
-          <div className="mb-4 hidden items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm sm:flex lg:hidden">
-            <div className="flex min-w-0 items-center gap-2 text-sm text-slate-600">
-              <ArrowUpDown className="h-4 w-4 shrink-0 text-[#A054A0]" />
-
-              <span className="truncate">
-                Sorted by{" "}
-                <span className="font-semibold text-slate-900">
-                  {getActiveSortDisplayLabel()}
-                </span>
-              </span>
-            </div>
-
-            {filters.sort && (
-              <button
-                type="button"
-                onClick={() => handleSortChange("")}
-                className="shrink-0 text-xs font-semibold text-[#A054A0] hover:underline"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-
-          <div>
+          <div className="min-w-0 flex-1">
             {loading ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {[...Array(6)].map((_, idx) => (
                   <PropertyCardSkeleton key={idx} />
                 ))}
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-red-200 bg-white py-16 text-center">
-                <Search className="mx-auto mb-3 h-12 w-12 text-red-300" />
-
-                <h3 className="text-lg font-semibold text-slate-900">
+              <div className="rounded-2xl border border-red-100 bg-white p-8 text-center shadow-sm">
+                <Search className="mx-auto mb-3 h-10 w-10 text-red-400" />
+                <h3 className="text-base font-semibold text-slate-900">
                   Unable to load properties
                 </h3>
-
-                <p className="mx-auto mt-1 max-w-2xl text-sm text-slate-500">
-                  {error}
-                </p>
+                <p className="mt-1 text-xs text-slate-500">{error}</p>
               </div>
             ) : totalProperties === 0 ? (
-              <>
-                <div className="mb-8">
-                  <h2 className="text-lg font-semibold text-[#241B2B] sm:text-xl">
+              <div className="space-y-8">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 className="text-base font-semibold text-slate-900">
                     No search results found for your search.
                   </h2>
-
-                  <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#7D7482]">
-                    We couldn&apos;t find a property matching your selected
-                    requirements. Please explore other properties near you.
+                  <p className="mt-1 text-xs text-slate-500">
+                    We couldn&apos;t find a property matching your selected requirements. Please explore other properties near you.
                   </p>
                 </div>
 
                 {suggestionsLoading ? (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                     {[...Array(3)].map((_, idx) => (
                       <PropertyCardSkeleton key={idx} />
                     ))}
                   </div>
                 ) : suggestedProperties.length > 0 ? (
-                  <>
-                    <div className="mb-5 flex items-center gap-2">
+                  <section className="space-y-4">
+                    <div className="flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-[#A054A0]" />
-
-                      <h3 className="text-lg font-semibold text-slate-900">
+                      <h3 className="text-base font-semibold text-slate-900">
                         Other properties you may consider
                       </h3>
                     </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                      {suggestedProperties.map((property, index) => (
-                        <div key={getPropertyId(property)} className="relative">
-                          <PropertyCard
-                            priority={index < 3}
-                            property={property}
-                            isCompared={compareSelection.some(
-                              (item) =>
-                                getPropertyId(item) === getPropertyId(property),
-                            )}
-                            onCompareToggle={handleCompareToggle}
-                            isShortlisted={wishlistIds.some(
-                              (id) => String(id) === getPropertyId(property),
-                            )}
-                            onShortlistToggle={handleShortlistToggle}
-                          />
-                        </div>
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                      {suggestedProperties.map((property, idx) => (
+                        <PropertyCard
+                          key={getPropertyId(property)}
+                          priority={idx < 3}
+                          property={property}
+                          isCompared={compareSelection.some(
+                            (item) => getPropertyId(item) === getPropertyId(property)
+                          )}
+                          onCompareToggle={handleCompareToggle}
+                          isShortlisted={wishlistIds.some(
+                            (id) => String(id) === getPropertyId(property)
+                          )}
+                          onShortlistToggle={handleShortlistToggle}
+                        />
                       ))}
                     </div>
-                  </>
-                ) : (
-                  <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
-                    We couldn&apos;t find any nearby alternative properties at
-                    the moment.
-                  </div>
-                )}
-              </>
+                  </section>
+                ) : null}
+              </div>
             ) : (
-              <>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {paginatedProperties.map((property, index) => (
+              <div className="space-y-10">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {properties.map((property, idx) => (
                     <PropertyCard
-                      key={property.id || property.rowId || property.ROWID}
-                      priority={index < 3}
+                      key={getPropertyId(property)}
+                      priority={idx < 3}
                       property={property}
                       isCompared={compareSelection.some(
-                        (item) =>
-                          getPropertyId(item) === getPropertyId(property),
+                        (item) => getPropertyId(item) === getPropertyId(property)
                       )}
                       onCompareToggle={handleCompareToggle}
                       isShortlisted={wishlistIds.some(
-                        (item) =>
-                          getPropertyId(item) === getPropertyId(property),
+                        (item) => getPropertyId(item) === getPropertyId(property)
                       )}
                       onShortlistToggle={handleShortlistToggle}
                     />
@@ -2329,22 +1664,19 @@ function PropertiesClientContent() {
                 </div>
 
                 {totalPages > 1 && (
-                  <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pb-8">
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 pt-2">
                     <button
                       type="button"
                       onClick={() => goToPage(safeCurrentPage - 1)}
                       disabled={safeCurrentPage === 1}
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-[#A054A0] hover:text-[#A054A0] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Previous
                     </button>
 
-                    {getPaginationPages().map((page, index) =>
+                    {getPaginationPages().map((page, idx) =>
                       typeof page === "string" ? (
-                        <span
-                          key={`${page}-${index}`}
-                          className="px-1 text-sm text-slate-400"
-                        >
+                        <span key={`${page}-${idx}`} className="px-1 text-xs text-slate-400">
                           ...
                         </span>
                       ) : (
@@ -2352,365 +1684,276 @@ function PropertiesClientContent() {
                           key={page}
                           type="button"
                           onClick={() => goToPage(page)}
-                          aria-current={
-                            page === safeCurrentPage ? "page" : undefined
-                          }
-                          className={`min-w-10 rounded-lg px-3 py-2 text-sm font-medium transition ${page === safeCurrentPage
-                              ? "bg-[#A054A0] text-white shadow-sm"
-                              : "border border-slate-200 bg-white text-slate-700 hover:border-[#A054A0] hover:text-[#A054A0]"
+                          className={`min-w-[36px] rounded-xl py-2 text-xs font-semibold transition ${page === safeCurrentPage
+                            ? "bg-[#A054A0] text-white shadow-sm"
+                            : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                             }`}
                         >
                           {page}
                         </button>
-                      ),
+                      )
                     )}
 
                     <button
                       type="button"
                       onClick={() => goToPage(safeCurrentPage + 1)}
                       disabled={safeCurrentPage === totalPages}
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-[#A054A0] hover:text-[#A054A0] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Next
                     </button>
                   </div>
                 )}
 
-                {safeCurrentPage === totalPages &&
-                  !suggestionsLoading &&
-                  suggestedProperties.length > 0 && (
-                    <section className="mt-10 border-t border-slate-200 pt-9">
-                      <div className="mb-5">
-                        <div className="flex items-center justify-center gap-2">
-                          <Sparkles className="h-5 w-5 text-[#A054A0]" />
-
-                          <h2 className="text-xl font-semibold text-slate-900 sm:text-xl">
-                            More properties you may consider
-                          </h2>
-                        </div>
-
-                        <p className="text-center text-base leading-6 text-slate-600">
-                          Explore additional properties that are similar to your
-                          search.
-                        </p>
+                {/* Always show suggested properties lying out of / below the filter results */}
+                {!suggestionsLoading && suggestedProperties.length > 0 && (
+                  <section className="border-t border-slate-200 pt-10">
+                    <div className="mb-5 text-center sm:text-left">
+                      <div className="flex items-center justify-center gap-2 sm:justify-start">
+                        <Sparkles className="h-5 w-5 text-[#A054A0]" />
+                        <h2 className="text-lg font-semibold text-slate-900">
+                          More properties you may consider
+                        </h2>
                       </div>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Explore additional properties that are similar to your search.
+                      </p>
+                    </div>
 
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        {suggestedProperties.map((property) => {
-                          const propertyId = getPropertyId(property);
-
-                          return (
-                            <div key={propertyId} className="relative">
-                              <PropertyCard
-                                property={property}
-                                isCompared={compareSelection.some(
-                                  (item) => getPropertyId(item) === propertyId,
-                                )}
-                                onCompareToggle={handleCompareToggle}
-                                isShortlisted={wishlistIds.some(
-                                  (id) => String(id) === propertyId,
-                                )}
-                                onShortlistToggle={handleShortlistToggle}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </section>
-                  )}
-              </>
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                      {suggestedProperties.map((property) => {
+                        const propertyId = getPropertyId(property);
+                        return (
+                          <div key={propertyId} className="relative">
+                            <PropertyCard
+                              property={property}
+                              isCompared={compareSelection.some(
+                                (item) => getPropertyId(item) === propertyId
+                              )}
+                              onCompareToggle={handleCompareToggle}
+                              isShortlisted={wishlistIds.some(
+                                (id) => String(id) === propertyId
+                              )}
+                              onShortlistToggle={handleShortlistToggle}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
+              </div>
             )}
           </div>
         </div>
+      </main>
 
-        {compareSelection.length > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 z-[150] border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:px-4">
-            <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">
-                  {compareSelection.length} of {MAX_COMPARE_PROPERTIES}{" "}
-                  properties selected
-                </p>
+      {showSelectionBar && (
+        <div className="fixed bottom-0 inset-x-0 z-[150] border-t border-slate-200/80 bg-white/95 p-4 shadow-2xl backdrop-blur-md pb-safe">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              {/* <p className="text-xs font-bold text-slate-900">
+                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties selected
+              </p>
+              <p className="text-[11px] text-slate-500">
+                {compareSelection.length >= MIN_COMPARE_PROPERTIES
+                  ? "Ready to run side-by-side comparison."
+                  : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length} more to compare.`}
+              </p> */}
+              <p className="text-xs font-bold text-slate-900">
+                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties selected for comparison
+              </p>
 
-                <p className="mt-0.5 text-xs text-slate-500">
-                  {compareSelection.length >= MIN_COMPARE_PROPERTIES
-                    ? "Ready to compare your selected properties."
-                    : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length
-                    } more property${MIN_COMPARE_PROPERTIES - compareSelection.length === 1
-                      ? ""
-                      : "ies"
-                    } to compare.`}
-                </p>
-              </div>
+              <p className="text-[11px] text-slate-500">
+                {hasShortlistedProperties
+                  ? `${wishlistIds.length} properties shortlisted`
+                  : compareSelection.length >= MIN_COMPARE_PROPERTIES
+                    ? "Ready to run side-by-side comparison."
+                    : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length} more to compare.`}
+              </p>
+            </div>
 
-              <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-                <button
-                  type="button"
-                  onClick={clearCompareSelection}
-                  className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none"
-                >
-                  Clear
-                </button>
-
-                <button
-                  type="button"
-                  onClick={openComparePage}
-                  disabled={
-                    compareSelection.length < MIN_COMPARE_PROPERTIES ||
-                    compareSelection.length > MAX_COMPARE_PROPERTIES
-                  }
-                  className="flex-1 rounded-lg bg-[#A054A0] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#8F478F] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none sm:flex-none"
-                >
-                  Compare Properties
-                </button>
-                <button
-                  type="button"
-                  onClick={openEnquiryForm}
-                  disabled={!compareSelection.length}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/5 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 sm:text-sm"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Raise Enquiry
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={clearCompareSelection}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                onClick={openComparePage}
+                disabled={compareSelection.length < MIN_COMPARE_PROPERTIES}
+                className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#884188] disabled:opacity-50"
+              >
+                Compare Now
+              </button>
+              <button
+                type="button"
+                onClick={openEnquiryForm}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-purple-50"
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                Raise Enquiry
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
       {isEnquiryOpen && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/55 px-3 py-4 backdrop-blur-sm sm:px-5"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              closeEnquiryForm();
-            }
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) closeEnquiryForm();
           }}
         >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="property-enquiry-title"
-            className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl"
-          >
-            <header className="flex items-start justify-between border-b border-slate-100 px-5 py-5 sm:px-7">
+          <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 p-5">
               <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-[#A054A0]" />
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#A054A0]">
-                    Property Enquiry
-                  </span>
-                </div>
-
-                <h2
-                  id="property-enquiry-title"
-                  className="text-xl font-semibold text-slate-900 sm:text-2xl"
-                >
-                  Tell us about your requirement
+                <h2 className="text-lg font-bold text-slate-900">
+                  Property Enquiry
                 </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Our team will contact you about your selected properties.
+                <p className="text-xs text-slate-500">
+                  Submit details to receive callback for selected properties.
                 </p>
               </div>
-
               <button
                 type="button"
                 onClick={closeEnquiryForm}
-                disabled={isSubmittingEnquiry}
-                aria-label="Close enquiry form"
-                className="rounded-full p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+                className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
               >
                 <X className="h-5 w-5" />
               </button>
-            </header>
+            </div>
 
-            <div className="max-h-[calc(92vh-105px)] overflow-y-auto px-5 py-5 sm:px-7">
+            <div className="flex-1 overflow-y-auto p-5">
               {enquirySuccess ? (
-                <div className="flex min-h-[300px] flex-col items-center justify-center text-center">
-                  <CheckCircle2 className="h-14 w-14 text-emerald-600" />
-
-                  <h3 className="mt-4 text-2xl font-semibold text-slate-900">
-                    Enquiry submitted
+                <div className="py-8 text-center">
+                  <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
+                  <h3 className="mt-3 text-lg font-bold text-slate-900">
+                    Enquiry Received
                   </h3>
-
-                  <p className="mt-2 text-sm text-slate-500">
-                    Thank you. Your enquiry was accepted by the API. Our team
-                    will contact you shortly.
+                  <p className="mt-1 text-xs text-slate-500">
+                    Our advisors will reach out with pricing and floor plans.
                   </p>
-
                   <button
                     type="button"
                     onClick={closeEnquiryForm}
-                    className="mt-6 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white hover:bg-[#864286]"
+                    className="mt-5 rounded-xl bg-[#A054A0] px-6 py-2.5 text-xs font-semibold text-white"
                   >
-                    Done
+                    Close
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleEnquirySubmit} className="space-y-5">
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                      Selected properties ({enquirySelection.length})
-                    </p>
-
-                    <div className="space-y-2">
-                      {enquirySelection.map((property, index) => (
-                        <div
-                          key={`${getPropertyId(property)}-${index}`}
-                          className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
-                        >
-                          <p className="text-sm font-semibold text-slate-900">
-                            {property?.name ||
-                              property?.Property_Name ||
-                              property?.propertyName ||
-                              property?.Name ||
-                              "Selected Property"}
-                          </p>
-
-                          <p className="mt-1 text-xs text-slate-500">
-                            {[
-                              getEnquiryPropertyCity(property),
-                              property?.micromarket ||
-                              property?.Micromarket ||
-                              property?.Micro_Market ||
-                              property?.area ||
-                              "",
-                            ]
-                              .filter(Boolean)
-                              .join(" • ")}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <label className="block">
-                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
-                        First name *
-                      </span>
+                <form onSubmit={handleEnquirySubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-700">
+                        First Name *
+                      </label>
                       <input
                         required
                         name="firstName"
                         value={enquiryForm.firstName}
                         onChange={handleEnquiryChange}
-                        autoComplete="given-name"
-                        placeholder="First name"
-                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
                       />
-                    </label>
-
-                    <label className="block">
-                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
-                        Last name *
-                      </span>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-700">
+                        Last Name *
+                      </label>
                       <input
                         required
                         name="lastName"
                         value={enquiryForm.lastName}
                         onChange={handleEnquiryChange}
-                        autoComplete="family-name"
-                        placeholder="Last name"
-                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
                       />
-                    </label>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <label className="block">
-                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-700">
                         Email *
-                      </span>
+                      </label>
                       <input
                         required
                         type="email"
                         name="email"
                         value={enquiryForm.email}
                         onChange={handleEnquiryChange}
-                        autoComplete="email"
-                        placeholder="you@company.com"
-                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
                       />
-                    </label>
-
-                    <label className="block">
-                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-700">
                         Phone *
-                      </span>
+                      </label>
                       <input
                         required
                         type="tel"
                         name="phone"
                         value={enquiryForm.phone}
                         onChange={handleEnquiryChange}
-                        autoComplete="tel"
-                        placeholder="+91 98765 43210"
-                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
                       />
-                    </label>
+                    </div>
                   </div>
 
-                  <label className="block">
-                    <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">
                       Company
-                    </span>
+                    </label>
                     <input
                       name="company"
                       value={enquiryForm.company}
                       onChange={handleEnquiryChange}
-                      autoComplete="organization"
-                      placeholder="Company name"
-                      className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
                     />
-                  </label>
+                  </div>
 
-                  <label className="block">
-                    <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-700">
                       Message
-                    </span>
+                    </label>
                     <textarea
                       name="message"
+                      rows={3}
                       value={enquiryForm.message}
                       onChange={handleEnquiryChange}
-                      rows={4}
-                      placeholder="Tell us about your requirement..."
-                      className="w-full resize-y rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
                     />
-                  </label>
+                  </div>
 
                   {enquiryError && (
-                    <div
-                      role="alert"
-                      className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-                    >
+                    <div className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-600">
                       {enquiryError}
                     </div>
                   )}
 
-                  <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+                  <div className="flex justify-end gap-2 pt-2">
                     <button
                       type="button"
                       onClick={closeEnquiryForm}
-                      disabled={isSubmittingEnquiry}
-                      className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-600"
                     >
                       Cancel
                     </button>
-
                     <button
                       type="submit"
                       disabled={isSubmittingEnquiry}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#A054A0] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#884188] disabled:opacity-50"
                     >
                       {isSubmittingEnquiry ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Creating enquiry...
-                        </>
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <>
                           Submit Enquiry
-                          <ArrowRight className="h-4 w-4" />
+                          <ArrowRight className="h-3.5 w-3.5" />
                         </>
                       )}
                     </button>
@@ -2718,15 +1961,16 @@ function PropertiesClientContent() {
                 </form>
               )}
             </div>
-          </section>
+          </div>
         </div>
       )}
     </div>
   );
 }
+
 export default function PropertiesClient() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
       <PropertiesClientContent />
     </Suspense>
   );

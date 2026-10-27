@@ -292,11 +292,11 @@ export default function CityPageClient({ city, slug }) {
               />
 
               {/* CITY HEADING */}
-              <div className="shrink-0 border-b border-gray-200">
+              <div className="shrink-0 border-b border-gray-200 bg-white">
                 <div
                   className="
-                    px-4 py-5
-                    sm:px-6 sm:py-6
+                    px-4 py-6
+                    sm:px-6 sm:py-7
                     md:px-8
                     lg:px-10
                     xl:px-10
@@ -333,6 +333,7 @@ export default function CityPageClient({ city, slug }) {
                         flex w-fit max-w-full shrink-0
                         items-center gap-2 rounded-xl
                         border border-gray-300 px-4 py-2.5
+                        bg-white shadow-sm
                       "
                     >
                       <Building2
@@ -354,8 +355,8 @@ export default function CityPageClient({ city, slug }) {
               <div className="min-w-0 bg-[#fafafa]">
                 <div
                   className="
-                    px-4 py-6
-                    sm:px-6 sm:py-7
+                    px-4 py-8
+                    sm:px-6 sm:py-9
                     md:px-8
                     lg:px-10
                     xl:px-10
@@ -374,9 +375,9 @@ export default function CityPageClient({ city, slug }) {
                     <>
                       <div
                         className="
-                          grid min-w-0 grid-cols-1 gap-4
+                          grid min-w-0 grid-cols-1 gap-6
                           sm:grid-cols-2
-                          lg:gap-5
+                          lg:gap-6
                           2xl:grid-cols-3
                         "
                       >
@@ -400,18 +401,18 @@ export default function CityPageClient({ city, slug }) {
                         ))}
                       </div>
 
-                      <div className="flex justify-center py-8">
+                      <div className="flex justify-center py-10">
                         <Link
                           href={`/properties?city=${encodeURIComponent(city)}`}
                           className="
                             group inline-flex max-w-full
                             items-center justify-center gap-3
-                            rounded-xl bg-[#A054A0] px-5 py-3.5
+                            rounded-xl bg-[#A054A0] px-6 py-3.5
                             text-center text-sm font-semibold text-white
                             shadow-lg shadow-[#A054A0]/10
                             transition-all duration-300
                             hover:-translate-y-0.5 hover:shadow-xl
-                            sm:px-7
+                            sm:px-8
                           "
                         >
                           <span className="break-words">
@@ -436,7 +437,7 @@ export default function CityPageClient({ city, slug }) {
             {/* RIGHT: DESKTOP CITY FAQS */}
             <aside
               className="
-                hidden min-w-0 border-l border-gray-100
+                hidden min-w-0 border-l border-gray-200
                 bg-[#fafafa] xl:block
               "
             >
@@ -446,10 +447,10 @@ export default function CityPageClient({ city, slug }) {
                   max-h-[calc(100vh-80px)]
                   w-full overflow-x-hidden overflow-y-auto
                   overscroll-y-contain
-                  px-3 py-4
+                  p-5
                   [scrollbar-width:thin]
                   [scrollbar-color:#d8c4d8_transparent]
-                  2xl:px-4 2xl:py-5
+                  2xl:p-6
                 "
               >
                 {loadingKyc ? (
@@ -467,7 +468,7 @@ export default function CityPageClient({ city, slug }) {
         </div>
 
         {/* MOBILE / TABLET CITY FAQS */}
-        <section className="block min-w-0 border-t border-gray-100 bg-[#fafafa] xl:hidden">
+        <section className="block min-w-0 border-t border-gray-200 bg-[#fafafa] xl:hidden">
           <div
             className="
               mx-auto w-full max-w-5xl min-w-0
@@ -493,14 +494,13 @@ export default function CityPageClient({ city, slug }) {
         {compareSelection.length > 0 && (
           <div
             className="
-              fixed bottom-4 left-1/2 z-[40]
+              fixed bottom-5 left-1/2 z-[40]
               w-[calc(100%-1.5rem)] max-w-3xl
               -translate-x-1/2 rounded-2xl
-              border border-gray-200 bg-white/95 p-3
+              border border-gray-200 bg-white/95 p-4
               shadow-[0_20px_60px_rgba(0,0,0,0.15)]
               backdrop-blur-xl
-              sm:bottom-5 sm:w-[calc(100%-2rem)] sm:p-4
-              md:p-5
+              sm:bottom-6 sm:w-[calc(100%-2rem)] sm:p-5
             "
           >
             <div
@@ -542,7 +542,7 @@ export default function CityPageClient({ city, slug }) {
                   className="
                     inline-flex flex-1 items-center justify-center
                     gap-2 rounded-xl border border-gray-200
-                    px-3 py-2.5 text-sm font-medium text-gray-600
+                    px-4 py-2.5 text-sm font-medium text-gray-600
                     transition hover:bg-gray-50
                     sm:flex-none sm:px-4
                   "
@@ -607,7 +607,7 @@ function CityFAQs({ kyc, city }) {
         className="
           border-b border-slate-100
           bg-gradient-to-br from-white to-[#fcf5fc]
-          px-4 py-4 sm:px-5 sm:py-5
+          px-5 py-5
         "
       >
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#A054A0]">
@@ -630,7 +630,7 @@ function CityFAQs({ kyc, city }) {
 
       {/* SINGLE-OPEN FAQ LIST */}
       {faqs.length > 0 ? (
-        <div className="divide-y divide-slate-200 px-4 sm:px-5">
+        <div className="divide-y divide-slate-200 px-5">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
             const answerId = `city-faq-answer-${index}`;
@@ -647,12 +647,11 @@ function CityFAQs({ kyc, city }) {
                   aria-controls={answerId}
                   className="
                     group flex w-full min-w-0 items-center
-                    gap-3 py-3.5 text-left
+                    gap-3 py-4 text-left
                     transition-colors duration-200
                     focus-visible:outline-none
                     focus-visible:ring-2 focus-visible:ring-inset
                     focus-visible:ring-[#A054A0]
-                    sm:py-4
                   "
                 >
                   {/* PURPLE DOT */}
@@ -702,8 +701,7 @@ function CityFAQs({ kyc, city }) {
                   <div
                     id={answerId}
                     className="
-                      min-w-0 pb-4 pl-5 pr-1
-                      sm:pb-5 sm:pl-6
+                      min-w-0 pb-5 pl-6 pr-1
                     "
                   >
                     <p
@@ -721,7 +719,7 @@ function CityFAQs({ kyc, city }) {
           })}
         </div>
       ) : (
-        <div className="px-4 py-5 sm:px-5">
+        <div className="px-5 py-6">
           <p className="text-sm leading-6 text-slate-500">
             No FAQs are available for {city} yet.
           </p>
@@ -736,8 +734,7 @@ function FAQSkeleton() {
     <div
       className="
         w-full min-w-0 animate-pulse overflow-hidden
-        rounded-2xl border border-gray-200 bg-white p-4
-        sm:p-5
+        rounded-2xl border border-gray-200 bg-white p-5
       "
     >
       <div className="h-3 w-20 rounded bg-gray-100" />
@@ -761,7 +758,6 @@ function FAQSkeleton() {
     </div>
   );
 }
-
 
 function EmptyProperties({ city }) {
   return (
@@ -787,10 +783,9 @@ function EmptyProperties({ city }) {
   );
 }
 
-
 function PropertyGridSkeleton() {
   return (
-    <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5 2xl:grid-cols-3">
+    <div className="grid min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 2xl:grid-cols-3">
       {Array.from({ length: 9 }).map((_, index) => (
         <div
           key={index}

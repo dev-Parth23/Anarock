@@ -34,10 +34,25 @@ const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
 const SORT_CATEGORIES = [
   { id: "recommended", label: "Recommended", value: "" },
-  { id: "budget", label: "Budget", ascVal: "budget_asc", descVal: "budget_desc" },
-  { id: "seats", label: "Seat Count", ascVal: "seats_asc", descVal: "seats_desc" },
+  {
+    id: "budget",
+    label: "Budget",
+    ascVal: "budget_asc",
+    descVal: "budget_desc",
+  },
+  {
+    id: "seats",
+    label: "Seat Count",
+    ascVal: "seats_asc",
+    descVal: "seats_desc",
+  },
   { id: "area", label: "Area", ascVal: "area_asc", descVal: "area_desc" },
-  { id: "name", label: "Alphabetically", ascVal: "name_asc", descVal: "name_desc" },
+  {
+    id: "name",
+    label: "Alphabetically",
+    ascVal: "name_asc",
+    descVal: "name_desc",
+  },
 ];
 
 function PropertyCardSkeleton() {
@@ -231,16 +246,27 @@ function PropertiesClientContent() {
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
-
+  const [isExclusiveLeadOpen, setIsExclusiveLeadOpen] = useState(false);
+  const [isSubmittingExclusiveLead, setIsSubmittingExclusiveLead] =
+    useState(false);
+  const [exclusiveLeadSuccess, setExclusiveLeadSuccess] = useState(false);
+  const [exclusiveLeadError, setExclusiveLeadError] = useState("");
+  const [exclusiveLeadForm, setExclusiveLeadForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    company: "",
+  });
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
   const [enquirySelection, setEnquirySelection] = useState([]);
   const [compareSelection, setCompareSelection] = useState([]);
   const [suggestedProperties, setSuggestedProperties] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchCompleted, setSearchCompleted] = useState(false);
   const [totalProperties, setTotalProperties] = useState(0);
   const [totalPagesFromApi, setTotalPagesFromApi] = useState(1);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cities, setCities] = useState([]);
   const [micromarkets, setMicromarkets] = useState([]);
@@ -309,18 +335,13 @@ function PropertiesClientContent() {
     setAppliedAiPrompt(prompt);
   }, [searchParams]);
 
-
   const handleApplyAiSearch = () => {
     const prompt = aiPromptDraft.trim();
-
     if (!prompt) {
       setError("Please describe the office space you are looking for.");
       return;
     }
-
     const params = new URLSearchParams(searchParams.toString());
-
-    // Remove stale AI-extracted filters before processing a new prompt.
     [
       "city",
       "micromarket",
@@ -343,10 +364,22 @@ function PropertiesClientContent() {
     setError("");
     setAppliedAiPrompt(prompt);
 
-    router.push(
-      `/properties?${params.toString()}`,
-      { scroll: false }
-    );
+    try {
+      const searchedCity =
+        searchParams.get("city") ||
+        resolvedCity ||
+        "";
+
+      if (searchedCity) {
+        localStorage.setItem(
+          "anarock_last_searched_city",
+          JSON.stringify(searchedCity)
+        );
+      }
+    } catch (error) {
+      console.warn("Unable to save last searched city:", error);
+    }
+    router.push(`/properties?${params.toString()}`, { scroll: false });
   };
 
   const handleConfirmAiCity = (city) => {
@@ -358,7 +391,6 @@ function PropertiesClientContent() {
     setProperties([]);
     setSuggestedProperties([]);
   };
-
 
   const openEnquiryForm = () => {
     if (!compareSelection.length) {
@@ -423,9 +455,7 @@ function PropertiesClientContent() {
       const selectedProperties = resolvedSelection.map((prop) => {
         const crmId = String(getCRMPropertyId(prop) || "").trim();
         if (!crmId || !/^\d+$/.test(crmId)) {
-          throw new Error(
-            "A selected property is missing its CRM record ID."
-          );
+          throw new Error("A selected property is missing its CRM record ID.");
         }
         return { id: crmId };
       });
@@ -482,7 +512,7 @@ function PropertiesClientContent() {
         throw new Error(
           data?.message ||
           data?.error ||
-          `CRM did not confirm lead creation. HTTP ${response.status}.`
+          `CRM did not confirm lead creation. HTTP ${response.status}.`,
         );
       }
 
@@ -498,10 +528,108 @@ function PropertiesClientContent() {
     } catch (err) {
       console.error("[ENQUIRY] Lead creation failed:", err);
       setEnquiryError(
-        err?.message || "Unable to submit your enquiry. Please try again."
+        err?.message || "Unable to submit your enquiry. Please try again.",
       );
     } finally {
       setIsSubmittingEnquiry(false);
+    }
+  };
+
+  const handleExclusiveLeadChange = (e) => {
+    const { name, value } = e.target;
+
+    setExclusiveLeadForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const closeExclusiveLeadForm = () => {
+    if (isSubmittingExclusiveLead) return;
+
+    setIsExclusiveLeadOpen(false);
+    setExclusiveLeadError("");
+    setExclusiveLeadSuccess(false);
+  };
+
+  const handleExclusiveLeadSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isSubmittingExclusiveLead) return;
+
+    const name = exclusiveLeadForm.name.trim();
+    const phone = exclusiveLeadForm.phone.trim();
+    const email = exclusiveLeadForm.email.trim();
+    const company = exclusiveLeadForm.company.trim();
+
+    if (!name) {
+      setExclusiveLeadError("Please enter your name.");
+      return;
+    }
+
+    if (!phone) {
+      setExclusiveLeadError("Please enter your phone number.");
+      return;
+    }
+
+    setIsSubmittingExclusiveLead(true);
+    setExclusiveLeadError("");
+
+    try {
+      const savedLocation = getStoredUserLocation() || {};
+
+      const payload = {
+        name,
+        phone,
+        email,
+        company,
+        source: "Exclusive Properties Enquiry",
+        requirementCity: getLastSearchedCityFromStorage() || resolvedCity || filters.city || "",
+        requirementType: filters.type || "",
+        location: {
+          street: savedLocation.street || "",
+          city: savedLocation.city || "",
+          state: savedLocation.state || "",
+          country: savedLocation.country || "",
+          postalCode: savedLocation.postalCode || "",
+        },
+      };
+
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || data?.success !== true || !data?.leadId) {
+        throw new Error(
+          data?.message ||
+          data?.error ||
+          `Unable to submit your request. HTTP ${response.status}.`,
+        );
+      }
+
+      setExclusiveLeadSuccess(true);
+      setExclusiveLeadForm({
+        name: "",
+        phone: "",
+        email: "",
+        company: "",
+      });
+    } catch (err) {
+      console.error("[EXCLUSIVE PROPERTIES] Lead submission failed:", err);
+
+      setExclusiveLeadError(
+        err?.message || "Unable to submit your request. Please try again.",
+      );
+    } finally {
+      setIsSubmittingExclusiveLead(false);
     }
   };
 
@@ -514,7 +642,7 @@ function PropertiesClientContent() {
       const id = getPropertyId(property);
       if (id) toggleWishlist(property);
     },
-    [toggleWishlist]
+    [toggleWishlist],
   );
 
   const handleCompareToggle = useCallback((property) => {
@@ -558,7 +686,7 @@ function PropertiesClientContent() {
     try {
       localStorage.setItem(
         COMPARE_STORAGE_KEY,
-        JSON.stringify(compareSelection)
+        JSON.stringify(compareSelection),
       );
     } catch (e) {
       console.error("Failed to save comparison properties:", e);
@@ -595,7 +723,7 @@ function PropertiesClientContent() {
   const resolvedCity = useMemo(() => {
     if (!filters.city) return "";
     const match = cities.find(
-      (c) => toUrlValue(c) === filters.city.toLowerCase()
+      (c) => toUrlValue(c) === filters.city.toLowerCase(),
     );
     return match || filters.city;
   }, [filters.city, cities]);
@@ -642,7 +770,7 @@ function PropertiesClientContent() {
         return selectedNames.some(
           (selected) =>
             selected === String(market.name).trim().toLowerCase() ||
-            selected === marketSlug
+            selected === marketSlug,
         );
       })
       .map((market) => String(market.id));
@@ -654,7 +782,7 @@ function PropertiesClientContent() {
       .map(
         (id) =>
           micromarkets.find((item) => String(item.id) === String(id))?.name ||
-          ""
+          "",
       )
       .filter(Boolean);
   }, [selectedMicromarkets, micromarkets]);
@@ -664,6 +792,9 @@ function PropertiesClientContent() {
 
     async function fetchPropertiesWithRetry(retries = 1) {
       setLoading(true);
+      setSearchCompleted(false);
+      setSuggestedProperties([]);
+      setSuggestionsLoading(false);
       setError("");
 
       try {
@@ -690,7 +821,7 @@ function PropertiesClientContent() {
             amount,
             filters.currency,
             "INR",
-            exchangeRates
+            exchangeRates,
           );
 
           params.set(key, String(Math.round(converted)));
@@ -702,11 +833,7 @@ function PropertiesClientContent() {
           const amount = Number(value);
           if (!Number.isFinite(amount)) return;
 
-          const converted = convertArea(
-            amount,
-            filters.areaUnit,
-            "sqft"
-          );
+          const converted = convertArea(amount, filters.areaUnit, "sqft");
 
           params.set(key, String(Math.round(converted)));
         };
@@ -738,10 +865,7 @@ function PropertiesClientContent() {
         }
 
         if (selectedMicromarketNames.length) {
-          params.set(
-            "micromarket",
-            selectedMicromarketNames.join(",")
-          );
+          params.set("micromarket", selectedMicromarketNames.join(","));
         }
 
         if (sortValue) {
@@ -767,22 +891,17 @@ function PropertiesClientContent() {
               ...Object.fromEntries(params.entries()),
               mode: "ai",
               prompt,
-              ...(aiConfirmedCity
-                ? { confirmedCity: aiConfirmedCity }
-                : {}),
+              ...(aiConfirmedCity ? { confirmedCity: aiConfirmedCity } : {}),
             }),
             cache: "no-store",
             signal: controller.signal,
           })
-          : await fetch(
-            `/api/properties?${params.toString()}`,
-            {
-              method: "GET",
-              headers: { Accept: "application/json" },
-              cache: "no-store",
-              signal: controller.signal,
-            }
-          );
+          : await fetch(`/api/properties?${params.toString()}`, {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            cache: "no-store",
+            signal: controller.signal,
+          });
 
         const data = await response.json().catch(() => ({}));
 
@@ -790,11 +909,7 @@ function PropertiesClientContent() {
 
         // Ask for city clarification before showing results when
         // the same micromarket exists in multiple cities.
-        if (
-          shouldUseAi &&
-          data.needsClarification &&
-          data.clarification
-        ) {
+        if (shouldUseAi && data.needsClarification && data.clarification) {
           setAiClarification(data.clarification);
           setProperties([]);
           setTotalProperties(0);
@@ -806,9 +921,7 @@ function PropertiesClientContent() {
         }
 
         if (!response.ok || !data.success) {
-          throw new Error(
-            data.error || "Failed to fetch properties"
-          );
+          throw new Error(data.error || "Failed to fetch properties");
         }
 
         // Apply Gemini's extracted filters to the URL once.
@@ -819,9 +932,7 @@ function PropertiesClientContent() {
           !searchParams.has("aiResolved")
         ) {
           const interpreted = data.interpretedQuery;
-          const nextParams = new URLSearchParams(
-            searchParams.toString()
-          );
+          const nextParams = new URLSearchParams(searchParams.toString());
 
           nextParams.set("mode", "ai");
           nextParams.set("prompt", prompt);
@@ -841,22 +952,14 @@ function PropertiesClientContent() {
           };
 
           if (interpreted.city) {
-            setIfMissing(
-              "city",
-              toUrlValue(interpreted.city)
-            );
+            setIfMissing("city", toUrlValue(interpreted.city));
           }
 
-          setIfMissing(
-            "micromarket",
-            interpreted.micromarket
-          );
+          setIfMissing("micromarket", interpreted.micromarket);
 
           setIfMissing(
             "type",
-            interpreted.type
-              ? toUrlValue(interpreted.type)
-              : ""
+            interpreted.type ? toUrlValue(interpreted.type) : "",
           );
 
           setIfMissing("area", interpreted.minArea);
@@ -871,31 +974,23 @@ function PropertiesClientContent() {
 
           setLoading(false);
 
-          if (
-            nextParams.toString() !== searchParams.toString()
-          ) {
-            router.replace(
-              `/properties?${nextParams.toString()}`,
-              { scroll: false }
-            );
+          if (nextParams.toString() !== searchParams.toString()) {
+            router.replace(`/properties?${nextParams.toString()}`, {
+              scroll: false,
+            });
             return;
           }
         }
 
         setAiClarification(null);
 
-        setProperties(
-          Array.isArray(data.data) ? data.data : []
-        );
+        setProperties(Array.isArray(data.data) ? data.data : []);
 
-        setTotalProperties(
-          Number(data.total || 0)
-        );
+        setTotalProperties(Number(data.total || 0));
 
-        setTotalPagesFromApi(
-          Math.max(1, Number(data.totalPages || 1))
-        );
+        setTotalPagesFromApi(Math.max(1, Number(data.totalPages || 1)));
 
+        setSearchCompleted(true);
         setLoading(false);
       } catch (err) {
         if (err?.name === "AbortError") return;
@@ -911,14 +1006,9 @@ function PropertiesClientContent() {
           return;
         }
 
-        console.error(
-          "[PropertiesClient] Fetch failed:",
-          err
-        );
+        console.error("[PropertiesClient] Fetch failed:", err);
 
-        setError(
-          err?.message || "Failed to fetch properties"
-        );
+        setError(err?.message || "Failed to fetch properties");
 
         setProperties([]);
         setTotalProperties(0);
@@ -956,7 +1046,20 @@ function PropertiesClientContent() {
   ]);
 
   useEffect(() => {
-    if (loading || aiClarification) return;
+    const isLastResultsPage = currentPage >= Math.max(1, totalPagesFromApi);
+
+    const hasPrimaryResults = totalProperties > 0;
+
+    if (
+      loading ||
+      !searchCompleted ||
+      aiClarification ||
+      (hasPrimaryResults && !isLastResultsPage)
+    ) {
+      setSuggestedProperties([]);
+      setSuggestionsLoading(false);
+      return;
+    }
 
     const controller = new AbortController();
 
@@ -975,10 +1078,7 @@ function PropertiesClientContent() {
         }
 
         if (selectedMicromarketNames.length) {
-          params.set(
-            "micromarket",
-            selectedMicromarketNames.join(",")
-          );
+          params.set("micromarket", selectedMicromarketNames.join(","));
         }
 
         const addConvertedBudget = (key, value) => {
@@ -991,7 +1091,7 @@ function PropertiesClientContent() {
             amount,
             filters.currency,
             "INR",
-            exchangeRates
+            exchangeRates,
           );
 
           params.set(key, String(Math.round(converted)));
@@ -1003,11 +1103,7 @@ function PropertiesClientContent() {
           const amount = Number(value);
           if (!Number.isFinite(amount)) return;
 
-          const converted = convertArea(
-            amount,
-            filters.areaUnit,
-            "sqft"
-          );
+          const converted = convertArea(amount, filters.areaUnit, "sqft");
 
           params.set(key, String(Math.round(converted)));
         };
@@ -1037,8 +1133,6 @@ function PropertiesClientContent() {
             }
           }
         }
-
-        // Never show a primary result again in suggestions.
         const excludeIds = properties
           .map((property) => getPropertyId(property))
           .filter(Boolean);
@@ -1054,9 +1148,8 @@ function PropertiesClientContent() {
             headers: { Accept: "application/json" },
             cache: "no-store",
             signal: controller.signal,
-          }
+          },
         );
-
 
         const responseText = await response.text();
 
@@ -1077,25 +1170,20 @@ function PropertiesClientContent() {
               : "The API returned an empty response.");
 
           throw new Error(
-            `Suggestions API failed (HTTP ${response.status}): ${details}`
+            `Suggestions API failed (HTTP ${response.status}): ${details}`,
           );
         }
-
 
         if (controller.signal.aborted) return;
 
         const primaryIds = new Set(
-          properties
-            .map((property) => getPropertyId(property))
-            .filter(Boolean)
+          properties.map((property) => getPropertyId(property)).filter(Boolean),
         );
 
         const uniqueSuggestions = [];
         const seenIds = new Set(primaryIds);
 
-        for (const property of Array.isArray(data.data)
-          ? data.data
-          : []) {
+        for (const property of Array.isArray(data.data) ? data.data : []) {
           const id = getPropertyId(property);
 
           if (!id || seenIds.has(id)) continue;
@@ -1107,10 +1195,7 @@ function PropertiesClientContent() {
         setSuggestedProperties(uniqueSuggestions);
       } catch (err) {
         if (err?.name !== "AbortError") {
-          console.error(
-            "[PropertiesClient] Suggestions failed:",
-            err
-          );
+          console.error("[PropertiesClient] Suggestions failed:", err);
           setSuggestedProperties([]);
         }
       } finally {
@@ -1140,9 +1225,8 @@ function PropertiesClientContent() {
     selectedMicromarketNames,
     exchangeRates,
     isCoworking,
+    searchCompleted,
   ]);
-
-
 
   const updateFilter = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -1173,7 +1257,7 @@ function PropertiesClientContent() {
 
       router.push(
         `/properties${params.toString() ? `?${params.toString()}` : ""}`,
-        { scroll: false }
+        { scroll: false },
       );
 
       return;
@@ -1205,7 +1289,7 @@ function PropertiesClientContent() {
 
     router.push(
       `/properties${params.toString() ? `?${params.toString()}` : ""}`,
-      { scroll: false }
+      { scroll: false },
     );
   };
 
@@ -1216,7 +1300,7 @@ function PropertiesClientContent() {
 
     params.delete("page");
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
     setShowFilters(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1244,7 +1328,7 @@ function PropertiesClientContent() {
     params.delete("micromarket");
     params.delete("page");
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
     setShowMicromarkets(false);
   };
@@ -1259,16 +1343,17 @@ function PropertiesClientContent() {
       .map(
         (selectedId) =>
           micromarkets.find((item) => String(item.id) === String(selectedId))
-            ?.name || ""
+            ?.name || "",
       )
       .filter(Boolean);
 
     const params = new URLSearchParams(searchParams.toString());
-    if (selectedNames.length) params.set("micromarket", selectedNames.join(","));
+    if (selectedNames.length)
+      params.set("micromarket", selectedNames.join(","));
     else params.delete("micromarket");
 
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
   };
 
@@ -1276,7 +1361,7 @@ function PropertiesClientContent() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("micromarket");
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
     setShowMicromarkets(false);
   };
@@ -1286,7 +1371,7 @@ function PropertiesClientContent() {
     params.delete(key);
     params.delete("page");
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
   };
 
@@ -1311,16 +1396,28 @@ function PropertiesClientContent() {
   };
 
   const getCurrencySymbol = (value) => {
-    switch (String(value || "").trim().toUpperCase()) {
-      case "USD": return "$";
-      case "EUR": return "€";
-      case "GBP": return "£";
-      case "AED": return "د.إ";
-      case "SGD": return "S$";
-      case "AUD": return "A$";
-      case "CAD": return "C$";
+    switch (
+    String(value || "")
+      .trim()
+      .toUpperCase()
+    ) {
+      case "USD":
+        return "$";
+      case "EUR":
+        return "€";
+      case "GBP":
+        return "£";
+      case "AED":
+        return "د.إ";
+      case "SGD":
+        return "S$";
+      case "AUD":
+        return "A$";
+      case "CAD":
+        return "C$";
       case "INR":
-      default: return "₹";
+      default:
+        return "₹";
     }
   };
 
@@ -1353,7 +1450,7 @@ function PropertiesClientContent() {
     },
     filters.minBudget !== "" && {
       label: `Min ${isCoworking ? "Seat Price" : "Rent"}: ${currencySymbol}${formatRawNumber(
-        filters.minBudget
+        filters.minBudget,
       )}`,
       key: "minBudget",
     },
@@ -1386,7 +1483,7 @@ function PropertiesClientContent() {
     else params.set("page", String(nextPage));
 
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
     );
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -1418,8 +1515,12 @@ function PropertiesClientContent() {
     <div className="min-h-screen bg-slate-50 antialiased selection:bg-[#A054A0]/20 selection:text-[#A054A0]">
       <style jsx global>{`
         @keyframes shimmerSweep {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
         }
         .shimmer-effect {
           position: relative;
@@ -1729,62 +1830,67 @@ function PropertiesClientContent() {
                       />
                     </button>
 
-                    {showMicromarkets && resolvedCity && !micromarketsLoading && (
-                      <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-                        <button
-                          type="button"
-                          onClick={selectAllMicromarkets}
-                          className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2 text-xs font-medium hover:bg-slate-50"
-                        >
-                          <span
-                            className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${selectedMicromarkets.length === 0
-                              ? "border-[#A054A0] bg-[#A054A0]"
-                              : "border-slate-300"
-                              }`}
-                          >
-                            {selectedMicromarkets.length === 0 && (
-                              <Check className="h-2.5 w-2.5 text-white" />
-                            )}
-                          </span>
-                          All Micromarkets
-                        </button>
-                        <div className="max-h-48 overflow-y-auto">
-                          {micromarkets.map((market) => {
-                            const id = String(market.id);
-                            const selected = selectedMicromarkets.includes(id);
-                            return (
-                              <button
-                                key={id}
-                                type="button"
-                                onClick={() => toggleMicromarket(id)}
-                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium hover:bg-slate-50"
-                              >
-                                <span
-                                  className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border ${selected
-                                    ? "border-[#A054A0] bg-[#A054A0]"
-                                    : "border-slate-300"
-                                    }`}
-                                >
-                                  {selected && (
-                                    <Check className="h-2.5 w-2.5 text-white" />
-                                  )}
-                                </span>
-                                <span className="truncate">{market.name}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <div className="border-t border-slate-100 p-2">
+                    {showMicromarkets &&
+                      resolvedCity &&
+                      !micromarketsLoading && (
+                        <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
                           <button
                             type="button"
-                            onClick={() => setShowMicromarkets(false)}
-                            className="w-full rounded-lg bg-slate-900 py-1.5 text-xs font-semibold text-white"
+                            onClick={selectAllMicromarkets}
+                            className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2 text-xs font-medium hover:bg-slate-50"
                           >
-                            Done
+                            <span
+                              className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${selectedMicromarkets.length === 0
+                                ? "border-[#A054A0] bg-[#A054A0]"
+                                : "border-slate-300"
+                                }`}
+                            >
+                              {selectedMicromarkets.length === 0 && (
+                                <Check className="h-2.5 w-2.5 text-white" />
+                              )}
+                            </span>
+                            All Micromarkets
                           </button>
+                          <div className="max-h-48 overflow-y-auto">
+                            {micromarkets.map((market) => {
+                              const id = String(market.id);
+                              const selected =
+                                selectedMicromarkets.includes(id);
+                              return (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() => toggleMicromarket(id)}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium hover:bg-slate-50"
+                                >
+                                  <span
+                                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border ${selected
+                                      ? "border-[#A054A0] bg-[#A054A0]"
+                                      : "border-slate-300"
+                                      }`}
+                                  >
+                                    {selected && (
+                                      <Check className="h-2.5 w-2.5 text-white" />
+                                    )}
+                                  </span>
+                                  <span className="truncate">
+                                    {market.name}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div className="border-t border-slate-100 p-2">
+                            <button
+                              type="button"
+                              onClick={() => setShowMicromarkets(false)}
+                              className="w-full rounded-lg bg-slate-900 py-1.5 text-xs font-semibold text-white"
+                            >
+                              Done
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
 
                   <div>
@@ -1817,7 +1923,9 @@ function PropertiesClientContent() {
                             type="number"
                             min="0"
                             value={filters.seats}
-                            onChange={(e) => updateFilter("seats", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("seats", e.target.value)
+                            }
                             placeholder="e.g. 50"
                             className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
@@ -1835,7 +1943,9 @@ function PropertiesClientContent() {
                             type="number"
                             min="0"
                             value={filters.minBudget}
-                            onChange={(e) => updateFilter("minBudget", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("minBudget", e.target.value)
+                            }
                             placeholder="Min price"
                             className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
@@ -1856,7 +1966,9 @@ function PropertiesClientContent() {
                             type="number"
                             min="0"
                             value={filters.minBudget}
-                            onChange={(e) => updateFilter("minBudget", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("minBudget", e.target.value)
+                            }
                             placeholder="Min rent"
                             className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
@@ -1872,7 +1984,9 @@ function PropertiesClientContent() {
                             type="number"
                             min="0"
                             value={filters.area}
-                            onChange={(e) => updateFilter("area", e.target.value)}
+                            onChange={(e) =>
+                              updateFilter("area", e.target.value)
+                            }
                             placeholder="e.g. 2000"
                             className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
@@ -1914,11 +2028,12 @@ function PropertiesClientContent() {
                     No search results found for your search.
                   </h2>
                   <p className="mt-1 text-xs text-slate-500">
-                    We couldn&apos;t find a property matching your selected requirements. Please explore other properties near you.
+                    We couldn&apos;t find a property matching your selected
+                    requirements. Please explore other properties near you.
                   </p>
                 </div>
 
-                {suggestionsLoading ? (
+                {searchCompleted && suggestionsLoading ? (
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                     {[...Array(3)].map((_, idx) => (
                       <PropertyCardSkeleton key={idx} />
@@ -1939,11 +2054,12 @@ function PropertiesClientContent() {
                           priority={idx < 3}
                           property={property}
                           isCompared={compareSelection.some(
-                            (item) => getPropertyId(item) === getPropertyId(property)
+                            (item) =>
+                              getPropertyId(item) === getPropertyId(property),
                           )}
                           onCompareToggle={handleCompareToggle}
                           isShortlisted={wishlistIds.some(
-                            (id) => String(id) === getPropertyId(property)
+                            (id) => String(id) === getPropertyId(property),
                           )}
                           onShortlistToggle={handleShortlistToggle}
                         />
@@ -1961,11 +2077,13 @@ function PropertiesClientContent() {
                       priority={idx < 3}
                       property={property}
                       isCompared={compareSelection.some(
-                        (item) => getPropertyId(item) === getPropertyId(property)
+                        (item) =>
+                          getPropertyId(item) === getPropertyId(property),
                       )}
                       onCompareToggle={handleCompareToggle}
                       isShortlisted={wishlistIds.some(
-                        (item) => getPropertyId(item) === getPropertyId(property)
+                        (item) =>
+                          getPropertyId(item) === getPropertyId(property),
                       )}
                       onShortlistToggle={handleShortlistToggle}
                     />
@@ -1985,7 +2103,10 @@ function PropertiesClientContent() {
 
                     {getPaginationPages().map((page, idx) =>
                       typeof page === "string" ? (
-                        <span key={`${page}-${idx}`} className="px-1 text-xs text-slate-400">
+                        <span
+                          key={`${page}-${idx}`}
+                          className="px-1 text-xs text-slate-400"
+                        >
                           ...
                         </span>
                       ) : (
@@ -2000,7 +2121,7 @@ function PropertiesClientContent() {
                         >
                           {page}
                         </button>
-                      )
+                      ),
                     )}
 
                     <button
@@ -2014,49 +2135,89 @@ function PropertiesClientContent() {
                   </div>
                 )}
 
-                {/* Always show suggested properties lying out of / below the filter results */}
-                {!suggestionsLoading && suggestedProperties.length > 0 && (
-                  <section className="border-t border-slate-200 pt-10">
-                    <div className="mb-5 text-center sm:text-left">
-                      <div className="flex items-center justify-center gap-2 sm:justify-start">
-                        <Sparkles className="h-5 w-5 text-[#A054A0]" />
-                        <h2 className="text-lg font-semibold text-slate-900">
-                          More properties you may consider
-                        </h2>
-                      </div>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Explore additional properties that are similar to your search.
-                      </p>
-                    </div>
+                {safeCurrentPage === totalPages &&
+                  searchCompleted &&
+                  !loading &&
+                  !aiClarification &&
+                  !suggestionsLoading &&
+                  suggestedProperties.length > 0 && (
+                    <section className="border-t border-slate-200 pt-10">
+                      <div className="mb-8 overflow-hidden rounded-2xl border border-[#A054A0]/20 bg-gradient-to-br from-white via-purple-50/70 to-white p-5 shadow-sm sm:p-7">
+                        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#A054A0]/10">
+                              <Sparkles className="h-5 w-5 text-[#A054A0]" />
+                            </div>
 
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                      {suggestedProperties.map((property) => {
-                        const propertyId = getPropertyId(property);
-                        return (
-                          <div key={propertyId} className="relative">
-                            <PropertyCard
-                              property={property}
-                              isCompared={compareSelection.some(
-                                (item) => getPropertyId(item) === propertyId
-                              )}
-                              onCompareToggle={handleCompareToggle}
-                              isShortlisted={wishlistIds.some(
-                                (id) => String(id) === propertyId
-                              )}
-                              onShortlistToggle={handleShortlistToggle}
-                            />
+                            <div>
+                              <h3 className="text-base font-bold text-slate-900 sm:text-lg">
+                                Looking for something exclusive?
+                              </h3>
+
+                              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+                                We haven&apos;t listed all available properties
+                                here. Connect with our property advisors to
+                                discover exclusive office spaces tailored to
+                                your requirements.
+                              </p>
+                            </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-                )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setExclusiveLeadError("");
+                              setExclusiveLeadSuccess(false);
+                              setIsExclusiveLeadOpen(true);
+                            }}
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#884188] focus:outline-none focus:ring-2 focus:ring-[#A054A0]/40 focus:ring-offset-2"
+                          >
+                            Find Exclusive Properties
+                            <ArrowRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mb-5 text-center sm:text-left">
+                        <div className="flex items-center justify-center gap-2 sm:justify-start">
+                          <Sparkles className="h-5 w-5 text-[#A054A0]" />
+                          <h2 className="text-lg font-semibold text-slate-900">
+                            More properties you may consider
+                          </h2>
+                        </div>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Explore additional properties that are similar to your
+                          search.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                        {suggestedProperties.map((property) => {
+                          const propertyId = getPropertyId(property);
+                          return (
+                            <div key={propertyId} className="relative">
+                              <PropertyCard
+                                property={property}
+                                isCompared={compareSelection.some(
+                                  (item) => getPropertyId(item) === propertyId,
+                                )}
+                                onCompareToggle={handleCompareToggle}
+                                isShortlisted={wishlistIds.some(
+                                  (id) => String(id) === propertyId,
+                                )}
+                                onShortlistToggle={handleShortlistToggle}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
               </div>
             )}
           </div>
         </div>
       </main>
-
 
       {aiClarification && (
         <div
@@ -2162,13 +2323,13 @@ function PropertiesClientContent() {
         </div>
       )}
 
-
       {showSelectionBar && (
         <div className="fixed bottom-0 inset-x-0 z-[150] border-t border-slate-200/80 bg-white/95 p-4 shadow-2xl backdrop-blur-md pb-safe">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-bold text-slate-900">
-                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties selected for comparison
+                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties
+                selected for comparison
               </p>
 
               <p className="text-[11px] text-slate-500">
@@ -2365,6 +2526,201 @@ function PropertiesClientContent() {
                       )}
                     </button>
                   </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isExclusiveLeadOpen && (
+        <div
+          className="fixed inset-0 z-[250] flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) closeExclusiveLeadForm();
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="exclusive-lead-title"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
+              <div>
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-[#A054A0]">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Exclusive Property Assistance
+                </div>
+
+                <h2
+                  id="exclusive-lead-title"
+                  className="text-xl font-bold text-slate-900"
+                >
+                  Find your ideal office space
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Share your contact details and our property advisors will help
+                  you explore more options.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeExclusiveLeadForm}
+                disabled={isSubmittingExclusiveLead}
+                aria-label="Close exclusive properties form"
+                className="shrink-0 rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-5 sm:p-6">
+              {exclusiveLeadSuccess ? (
+                <div className="py-7 text-center">
+                  <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-500" />
+
+                  <h3 className="mt-4 text-lg font-bold text-slate-900">
+                    Thank you for reaching out!
+                  </h3>
+
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500">
+                    Your request has been received. Our property advisors will
+                    connect with you about suitable office spaces.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={closeExclusiveLeadForm}
+                    className="mt-6 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#884188]"
+                  >
+                    Continue Exploring
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleExclusiveLeadSubmit}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label
+                      htmlFor="exclusive-name"
+                      className="mb-1.5 block text-sm font-medium text-slate-700"
+                    >
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+
+                    <input
+                      id="exclusive-name"
+                      name="name"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      maxLength={160}
+                      value={exclusiveLeadForm.name}
+                      onChange={handleExclusiveLeadChange}
+                      placeholder="Enter your full name"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="exclusive-phone"
+                      className="mb-1.5 block text-sm font-medium text-slate-700"
+                    >
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+
+                    <input
+                      id="exclusive-phone"
+                      name="phone"
+                      type="tel"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      required
+                      maxLength={30}
+                      value={exclusiveLeadForm.phone}
+                      onChange={handleExclusiveLeadChange}
+                      placeholder="Enter your phone number"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="exclusive-email"
+                      className="mb-1.5 block text-sm font-medium text-slate-700"
+                    >
+                      Email Address                    </label>
+
+                    <input
+                      id="exclusive-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      maxLength={254}
+                      value={exclusiveLeadForm.email}
+                      onChange={handleExclusiveLeadChange}
+                      placeholder="you@company.com"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="exclusive-company"
+                      className="mb-1.5 block text-sm font-medium text-slate-700"
+                    >
+                      Company Name
+                    </label>
+
+                    <input
+                      id="exclusive-company"
+                      name="company"
+                      type="text"
+                      autoComplete="organization"
+                      maxLength={150}
+                      value={exclusiveLeadForm.company}
+                      onChange={handleExclusiveLeadChange}
+                      placeholder="Enter your company name"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                    />
+                  </div>
+
+                  {exclusiveLeadError && (
+                    <div
+                      role="alert"
+                      className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700"
+                    >
+                      {exclusiveLeadError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingExclusiveLead}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#884188] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSubmittingExclusiveLead ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Submitting Request...
+                      </>
+                    ) : (
+                      <>
+                        Connect with an Advisor
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <p className="text-center text-xs leading-5 text-slate-400">
+                    Your details will be used to respond to your property
+                    enquiry.
+                  </p>
                 </form>
               )}
             </div>

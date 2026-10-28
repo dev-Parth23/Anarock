@@ -33,7 +33,6 @@ const MENU = "absolute left-0 right-0 top-full z-[100] mt-2 flex flex-col overfl
 const MENU_LIST = "max-h-[clamp(160px,30vh,260px)] overflow-y-auto overscroll-contain p-1.5";
 const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] focus-visible:ring-offset-2";
 
-
 function Field({ label, innerRef, className = "", children }) {
   return (
     <div className={`relative min-w-0 ${className}`} ref={innerRef}>
@@ -144,6 +143,7 @@ export default function HeroSection({ consentGranted, locationData }) {
   const micromarketDropdownRef = useRef(null);
   const officeTypeDropdownRef = useRef(null);
   const locationAutoSelectedRef = useRef(false);
+
   const formatNumberWithCommas = (value) => {
     const rawValue = String(value || "").replace(/\D/g, "");
     if (!rawValue) return "";
@@ -161,6 +161,7 @@ export default function HeroSection({ consentGranted, locationData }) {
   const normalizedOfficeType = officeType.trim().toLowerCase();
   const isCoworking = normalizedOfficeType === "managed office/co-working";
   const isRentBased = !isCoworking;
+
   const handleOfficeTypeChange = (val) => {
     const newType = typeof val === "string" ? val : val?.target?.value || "";
     setOfficeType(newType);
@@ -168,6 +169,7 @@ export default function HeroSection({ consentGranted, locationData }) {
     setArea("");
     setSeats("");
   };
+
   const toggleMicromarket = (micromarketName) => {
     setSelectedMicromarkets((current) => {
       if (current.includes(micromarketName)) {
@@ -176,10 +178,12 @@ export default function HeroSection({ consentGranted, locationData }) {
       return [...current, micromarketName];
     });
   };
+
   const clearMicromarkets = () => {
     setSelectedMicromarkets([]);
     setMicromarketSearch("");
   };
+
   useEffect(() => {
     const controller = new AbortController();
     const fetchCities = async () => {
@@ -214,14 +218,12 @@ export default function HeroSection({ consentGranted, locationData }) {
           ].sort((a, b) => a.localeCompare(b));
           setCityOptions(cities);
         } else {
-          console.error("Invalid cities API response:", data);
           setCityOptions([]);
         }
       } catch (error) {
         if (error?.name === "AbortError") {
           return;
         }
-        console.error("Failed to fetch cities:", error);
         if (!controller.signal.aborted) {
           setCityOptions([]);
         }
@@ -236,6 +238,7 @@ export default function HeroSection({ consentGranted, locationData }) {
       controller.abort();
     };
   }, []);
+
   useEffect(() => {
     if (locationAutoSelectedRef.current) {
       return;
@@ -260,6 +263,7 @@ export default function HeroSection({ consentGranted, locationData }) {
       locationAutoSelectedRef.current = true;
     }
   }, [locationData?.city, cityOptions]);
+
   useEffect(() => {
     if (!city) {
       setMicromarkets([]);
@@ -413,11 +417,7 @@ export default function HeroSection({ consentGranted, locationData }) {
     }
 
     const queryString = params.toString();
-
-    const searchUrl = queryString
-      ? `/properties?${queryString}`
-      : "/properties";
-
+    const searchUrl = queryString ? `/properties?${queryString}` : "/properties";
     router.push(searchUrl);
   };
 
@@ -434,19 +434,24 @@ export default function HeroSection({ consentGranted, locationData }) {
       case "USD":
       case "SGD":
         return <DollarSign className="h-4 w-4 text-[#A054A0]" />;
-
       case "EUR":
         return <Euro className="h-4 w-4 text-[#A054A0]" />;
-
       case "AED":
         return <span className="text-xs font-bold text-[#A054A0]">د.إ</span>;
-
       default:
         return <IndianRupee className="h-4 w-4 text-[#A054A0]" />;
     }
   };
 
-  const micromarketTriggerText = loadingMicromarkets ? "Loading..." : city ? selectedMicromarkets.length === 0 ? "All Micro Markets" : selectedMicromarkets.length === 1 ? selectedMicromarkets[0] : `${selectedMicromarkets.length} Micro Markets Selected` : "Select City First";
+  const micromarketTriggerText = loadingMicromarkets
+    ? "Loading..."
+    : city
+      ? selectedMicromarkets.length === 0
+        ? "All Micro Markets"
+        : selectedMicromarkets.length === 1
+          ? selectedMicromarkets[0]
+          : `${selectedMicromarkets.length} Micro Markets Selected`
+      : "Select City First";
 
   const renderSubmitButton = (extraClass = "") => (
     <button type="submit" disabled={loading} className={`group inline-flex ${CONTROL_H} items-center justify-center gap-2.5 rounded-xl bg-[#A054A0] px-6 text-[12px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_10px_28px_rgba(160,84,160,.28)] transition-all duration-200 hover:bg-[#914891] hover:shadow-[0_14px_34px_rgba(160,84,160,.38)] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-70 sm:text-[13px] ${FOCUS_RING} ${extraClass}`}>
@@ -488,21 +493,11 @@ export default function HeroSection({ consentGranted, locationData }) {
         <div className="absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-[#160B17] via-[#160B17]/80 to-transparent" />
 
         <div className="pointer-events-none absolute left-1/2 top-[10%] h-[260px] w-[260px] -translate-x-1/2 bg-[#A054A0]/20 blur-[100px] sm:h-[420px] sm:w-[420px] lg:h-[560px] lg:w-[560px]" />
-
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.045]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)",
-            backgroundSize: "72px 72px",
-          }}
-        />
       </div>
 
-      {/* ------------------------------- Content -------------------------------- */}
       <section className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col items-center justify-start gap-[clamp(1.25rem,3vh,2.5rem)] px-4 pb-8 pt-14 sm:px-6 sm:pb-12 lg:min-h-dvh lg:px-8 lg:pb-8 lg:pt-16 xl:px-10">
         <header className="w-full max-w-[980px] shrink-0 text-center">
-          <div className="mb-[clamp(0.75rem,2.2vh,1.5rem)] inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,.12)] backdrop-blur-xl sm:px-4 sm:py-2 [@media(max-height:620px)]:hidden">
+          <div className="mb-[clamp(0.75rem,2.2vh,1.5rem)] inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,.12)] backdrop-blur-xl sm:px-4 sm:py-2">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#A054A0] shadow-[0_0_24px_rgba(160,84,160,.45)]">
               <Sparkles className="h-3.5 w-3.5 text-white" />
             </span>
@@ -524,6 +519,7 @@ export default function HeroSection({ consentGranted, locationData }) {
             workspaces aligned with your business requirements.
           </p>
         </header>
+
         <div className="relative z-30 w-full max-w-[1100px] shrink-0 rounded-xl border border-white/85 bg-white/95 shadow-2xl backdrop-blur-xl">
           <div className="flex justify-center px-4 pt-[clamp(1rem,2.6vh,1.75rem)] sm:px-6">
             <div
@@ -609,7 +605,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                   )}
                 </Field>
 
-                {/* Micromarket */}
                 <Field label="Micro market" innerRef={micromarketDropdownRef}>
                   <SelectTrigger
                     icon={MapPin}
@@ -676,7 +671,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                   )}
                 </Field>
 
-                {/* Property Type */}
                 <Field
                   label="Property Type"
                   innerRef={officeTypeDropdownRef}
@@ -721,9 +715,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                   )}
                 </Field>
 
-                {/* ----- Row 2 ----- */}
-
-                {/* Seats / Area */}
                 {isCoworking ? (
                   <Field label="Seats Required">
                     <IconInput
@@ -744,7 +735,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                   </Field>
                 )}
 
-                {/* Rent / Seat Price */}
                 <Field
                   label={
                     isRentBased ? `Rent/${areaUnit}/month` : "Seat Price/month"
@@ -760,7 +750,6 @@ export default function HeroSection({ consentGranted, locationData }) {
                   />
                 </Field>
 
-                {/* CTA: sixth cell keeps the 3 x 2 grid balanced */}
                 <div className="flex items-end sm:col-span-2 lg:col-span-1">
                   {renderSubmitButton("w-full")}
                 </div>

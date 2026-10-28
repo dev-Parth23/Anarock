@@ -514,7 +514,7 @@ function CityFAQs({ kyc, city }) {
       </div>
 
       {faqs.length > 0 ? (
-        <div className="divide-y divide-[#EEF0F4] px-4 sm:px-5">
+        <div className="divide-y divide-[#00000057] px-4 sm:px-5">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
             const answerId = `city-faq-answer-${index}`;
@@ -575,7 +575,10 @@ function CityFAQs({ kyc, city }) {
                       `}
                       aria-hidden="true"
                     >
-                      {isOpen ? (<Minus size={16} strokeWidth={2} />) : (<Plus size={16} strokeWidth={2} />)}
+                      {isOpen ? (<Minus size={16} strokeWidth={2} />
+                      ) : (
+                        <Plus size={16} strokeWidth={2} />
+                      )}
                     </span>
                   </button>
                 </h3>

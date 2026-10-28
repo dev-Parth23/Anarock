@@ -253,7 +253,8 @@ function PropertiesClientContent() {
   const [enquirySuccess, setEnquirySuccess] = useState(false);
   const [aiPromptDraft, setAiPromptDraft] = useState("");
   const [appliedAiPrompt, setAppliedAiPrompt] = useState("");
-
+  const [aiClarification, setAiClarification] = useState(null);
+  const [aiConfirmedCity, setAiConfirmedCity] = useState("");
   const hasShortlistedProperties = wishlistIds.length > 0;
   const hasComparedProperties = compareSelection.length > 0;
   const showSelectionBar = hasShortlistedProperties || hasComparedProperties;
@@ -308,26 +309,56 @@ function PropertiesClientContent() {
     setAppliedAiPrompt(prompt);
   }, [searchParams]);
 
+
   const handleApplyAiSearch = () => {
     const prompt = aiPromptDraft.trim();
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("page");
 
-    if (prompt) {
-      params.set("mode", "ai");
-      params.set("prompt", prompt);
-      params.delete("type");
-    } else {
-      params.delete("mode");
-      params.delete("prompt");
+    if (!prompt) {
+      setError("Please describe the office space you are looking for.");
+      return;
     }
 
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Remove stale AI-extracted filters before processing a new prompt.
+    [
+      "city",
+      "micromarket",
+      "type",
+      "minBudget",
+      "maxBudget",
+      "area",
+      "maxArea",
+      "seats",
+      "maxSeats",
+      "page",
+      "aiResolved",
+    ].forEach((key) => params.delete(key));
+
+    params.set("mode", "ai");
+    params.set("prompt", prompt);
+
+    setAiConfirmedCity("");
+    setAiClarification(null);
+    setError("");
     setAppliedAiPrompt(prompt);
+
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      `/properties?${params.toString()}`,
       { scroll: false }
     );
   };
+
+  const handleConfirmAiCity = (city) => {
+    const selectedCity = String(city || "").trim();
+    if (!selectedCity) return;
+    setAiConfirmedCity(selectedCity);
+    setAiClarification(null);
+    setError("");
+    setProperties([]);
+    setSuggestedProperties([]);
+  };
+
 
   const openEnquiryForm = () => {
     if (!compareSelection.length) {
@@ -631,65 +662,100 @@ function PropertiesClientContent() {
   useEffect(() => {
     const controller = new AbortController();
 
-    async function fetchProperties() {
+    async function fetchPropertiesWithRetry(retries = 1) {
       setLoading(true);
       setError("");
 
       try {
         const params = new URLSearchParams();
+
         params.set("page", String(currentPage));
         params.set("pageSize", String(ITEMS_PER_PAGE));
-        if (resolvedCity) params.set("city", resolvedCity);
+
+        if (resolvedCity) {
+          params.set("city", resolvedCity);
+        }
+
         if (filters.type && filters.type !== "ai") {
-          params.set("type", filters.type.toLowerCase());
-        }
-        if (filters.minBudget !== "") {
-          const value = Number(filters.minBudget);
-          if (Number.isFinite(value)) {
-            const converted = convertCurrency(
-              value,
-              filters.currency,
-              "INR",
-              exchangeRates
-            );
-            params.set("minBudget", String(Math.round(converted)));
-          }
+          params.set("type", filters.type);
         }
 
-        if (!isCoworking && filters.area !== "") {
-          const enteredArea = Number(filters.area);
-          if (Number.isFinite(enteredArea)) {
-            const areaInSqft = convertArea(
-              enteredArea,
-              filters.areaUnit,
-              "sqft"
-            );
-            params.set("area", String(Math.round(areaInSqft)));
-          }
+        const addConvertedBudget = (key, value) => {
+          if (value === "" || value == null) return;
+
+          const amount = Number(value);
+          if (!Number.isFinite(amount)) return;
+
+          const converted = convertCurrency(
+            amount,
+            filters.currency,
+            "INR",
+            exchangeRates
+          );
+
+          params.set(key, String(Math.round(converted)));
+        };
+
+        const addConvertedArea = (key, value) => {
+          if (value === "" || value == null) return;
+
+          const amount = Number(value);
+          if (!Number.isFinite(amount)) return;
+
+          const converted = convertArea(
+            amount,
+            filters.areaUnit,
+            "sqft"
+          );
+
+          params.set(key, String(Math.round(converted)));
+        };
+
+        addConvertedBudget("minBudget", filters.minBudget);
+        addConvertedBudget("maxBudget", filters.maxBudget);
+
+        if (!isCoworking) {
+          addConvertedArea("area", filters.area);
+          addConvertedArea("maxArea", filters.maxArea);
         }
 
-        if (isCoworking && filters.seats !== "") {
-          const enteredSeats = Number(filters.seats);
-          if (Number.isFinite(enteredSeats)) {
-            params.set("seats", String(Math.round(enteredSeats)));
+        if (isCoworking) {
+          if (filters.seats !== "") {
+            const seats = Number(filters.seats);
+
+            if (Number.isFinite(seats)) {
+              params.set("seats", String(Math.round(seats)));
+            }
+          }
+
+          if (filters.maxSeats !== "") {
+            const seats = Number(filters.maxSeats);
+
+            if (Number.isFinite(seats)) {
+              params.set("maxSeats", String(Math.round(seats)));
+            }
           }
         }
 
         if (selectedMicromarketNames.length) {
-          params.set("micromarket", selectedMicromarketNames.join(","));
+          params.set(
+            "micromarket",
+            selectedMicromarketNames.join(",")
+          );
         }
 
-        if (sortValue) params.set("sort", sortValue);
+        if (sortValue) {
+          params.set("sort", sortValue);
+        }
 
         const prompt = appliedAiPrompt.trim();
-        const shouldUseAi = Boolean(prompt);
+        const shouldUseAi = Boolean(filters.isAi && prompt);
 
         if (shouldUseAi) {
           params.set("mode", "ai");
           params.set("prompt", prompt);
         }
 
-        const query = params.toString();
         const response = shouldUseAi
           ? await fetch("/api/ai-search", {
             method: "POST",
@@ -701,81 +767,168 @@ function PropertiesClientContent() {
               ...Object.fromEntries(params.entries()),
               mode: "ai",
               prompt,
+              ...(aiConfirmedCity
+                ? { confirmedCity: aiConfirmedCity }
+                : {}),
             }),
             cache: "no-store",
             signal: controller.signal,
           })
-          : await fetch(`/api/properties?${query}`, {
-            method: "GET",
-            headers: { Accept: "application/json" },
-            cache: "no-store",
-            signal: controller.signal,
-          });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || "Failed to fetch properties");
-        }
-
-        if (filters.isAi && data.interpretedQuery) {
-          const interpreted = data.interpretedQuery;
-          const nextParams = new URLSearchParams(searchParams.toString());
-          nextParams.set("mode", "ai");
-          nextParams.set("prompt", filters.prompt || "");
-
-          const setOrDelete = (key, value) => {
-            if (value !== null && value !== undefined && value !== "") {
-              nextParams.set(key, String(value));
-            } else {
-              nextParams.delete(key);
+          : await fetch(
+            `/api/properties?${params.toString()}`,
+            {
+              method: "GET",
+              headers: { Accept: "application/json" },
+              cache: "no-store",
+              signal: controller.signal,
             }
-          };
-
-          setOrDelete(
-            "city",
-            interpreted.city ? toUrlValue(interpreted.city) : ""
           );
-          setOrDelete(
-            "micromarket",
-            interpreted.micromarket ? toUrlValue(interpreted.micromarket) : ""
-          );
-          setOrDelete(
-            "type",
-            interpreted.type ? toUrlValue(interpreted.type) : ""
-          );
-          setOrDelete("area", interpreted.minArea);
-          setOrDelete("maxArea", interpreted.maxArea);
-          setOrDelete("seats", interpreted.minSeats);
-          setOrDelete("maxSeats", interpreted.maxSeats);
-          setOrDelete("minBudget", interpreted.minPrice);
-          setOrDelete("maxBudget", interpreted.maxPrice);
-          nextParams.delete("page");
 
-          if (nextParams.toString() !== searchParams.toString()) {
-            router.replace(`/properties?${nextParams.toString()}`, {
-              scroll: false,
-            });
-          }
-        }
+        const data = await response.json().catch(() => ({}));
 
-        setProperties(Array.isArray(data.data) ? data.data : []);
-        setTotalProperties(Number(data.total || 0));
-        setTotalPagesFromApi(Math.max(1, Number(data.totalPages || 1)));
-      } catch (err) {
-        if (err?.name !== "AbortError") {
-          console.error("[PropertiesClient] Fetch failed:", err);
-          setError(err?.message || "Failed to fetch properties");
+        if (controller.signal.aborted) return;
+
+        // Ask for city clarification before showing results when
+        // the same micromarket exists in multiple cities.
+        if (
+          shouldUseAi &&
+          data.needsClarification &&
+          data.clarification
+        ) {
+          setAiClarification(data.clarification);
           setProperties([]);
           setTotalProperties(0);
           setTotalPagesFromApi(1);
+          setSuggestedProperties([]);
+          setError("");
+          setLoading(false);
+          return;
         }
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.error || "Failed to fetch properties"
+          );
+        }
+
+        // Apply Gemini's extracted filters to the URL once.
+        // The aiResolved flag prevents repeated URL replacement.
+        if (
+          shouldUseAi &&
+          data.interpretedQuery &&
+          !searchParams.has("aiResolved")
+        ) {
+          const interpreted = data.interpretedQuery;
+          const nextParams = new URLSearchParams(
+            searchParams.toString()
+          );
+
+          nextParams.set("mode", "ai");
+          nextParams.set("prompt", prompt);
+
+          const setIfMissing = (key, value) => {
+            const current = nextParams.get(key);
+
+            if (current && current.trim()) return;
+
+            if (
+              value !== null &&
+              value !== undefined &&
+              String(value).trim() !== ""
+            ) {
+              nextParams.set(key, String(value).trim());
+            }
+          };
+
+          if (interpreted.city) {
+            setIfMissing(
+              "city",
+              toUrlValue(interpreted.city)
+            );
+          }
+
+          setIfMissing(
+            "micromarket",
+            interpreted.micromarket
+          );
+
+          setIfMissing(
+            "type",
+            interpreted.type
+              ? toUrlValue(interpreted.type)
+              : ""
+          );
+
+          setIfMissing("area", interpreted.minArea);
+          setIfMissing("maxArea", interpreted.maxArea);
+          setIfMissing("seats", interpreted.minSeats);
+          setIfMissing("maxSeats", interpreted.maxSeats);
+          setIfMissing("minBudget", interpreted.minPrice);
+          setIfMissing("maxBudget", interpreted.maxPrice);
+
+          nextParams.set("aiResolved", "1");
+          nextParams.delete("page");
+
+          setLoading(false);
+
+          if (
+            nextParams.toString() !== searchParams.toString()
+          ) {
+            router.replace(
+              `/properties?${nextParams.toString()}`,
+              { scroll: false }
+            );
+            return;
+          }
+        }
+
+        setAiClarification(null);
+
+        setProperties(
+          Array.isArray(data.data) ? data.data : []
+        );
+
+        setTotalProperties(
+          Number(data.total || 0)
+        );
+
+        setTotalPagesFromApi(
+          Math.max(1, Number(data.totalPages || 1))
+        );
+
+        setLoading(false);
+      } catch (err) {
+        if (err?.name === "AbortError") return;
+
+        // Retry once for transient network or server errors.
+        if (retries > 0) {
+          setTimeout(() => {
+            if (!controller.signal.aborted) {
+              fetchPropertiesWithRetry(retries - 1);
+            }
+          }, 1000);
+
+          return;
+        }
+
+        console.error(
+          "[PropertiesClient] Fetch failed:",
+          err
+        );
+
+        setError(
+          err?.message || "Failed to fetch properties"
+        );
+
+        setProperties([]);
+        setTotalProperties(0);
+        setTotalPagesFromApi(1);
+        setLoading(false);
       }
     }
 
-    fetchProperties();
+    fetchPropertiesWithRetry(1);
+
     return () => controller.abort();
   }, [
     currentPage,
@@ -783,8 +936,11 @@ function PropertiesClientContent() {
     selectedMicromarketNames,
     filters.type,
     filters.minBudget,
+    filters.maxBudget,
     filters.area,
+    filters.maxArea,
     filters.seats,
+    filters.maxSeats,
     filters.currency,
     filters.areaUnit,
     filters.prompt,
@@ -796,75 +952,197 @@ function PropertiesClientContent() {
     isCoworking,
     router,
     searchParams,
+    aiConfirmedCity,
   ]);
 
-  // Always fetch suggestions whenever properties or filters change, so they can always be shown outside filter results
   useEffect(() => {
-    if (loading) return;
+    if (loading || aiClarification) return;
 
     const controller = new AbortController();
 
     async function fetchSuggestions() {
       setSuggestionsLoading(true);
+
       try {
         const params = new URLSearchParams();
-        if (resolvedCity) params.set("city", resolvedCity);
+
+        if (resolvedCity) {
+          params.set("city", resolvedCity);
+        }
+
         if (filters.type && filters.type !== "ai") {
-          params.set("type", filters.type.toLowerCase());
+          params.set("type", filters.type);
         }
+
         if (selectedMicromarketNames.length) {
-          params.set("micromarket", selectedMicromarketNames.join(","));
+          params.set(
+            "micromarket",
+            selectedMicromarketNames.join(",")
+          );
         }
-        if (filters.minBudget !== "") {
-          const value = Number(filters.minBudget);
-          if (Number.isFinite(value)) {
-            const converted = convertCurrency(
-              value,
-              filters.currency,
-              "INR",
-              exchangeRates
-            );
-            params.set("minBudget", String(Math.round(converted)));
+
+        const addConvertedBudget = (key, value) => {
+          if (value === "" || value == null) return;
+
+          const amount = Number(value);
+          if (!Number.isFinite(amount)) return;
+
+          const converted = convertCurrency(
+            amount,
+            filters.currency,
+            "INR",
+            exchangeRates
+          );
+
+          params.set(key, String(Math.round(converted)));
+        };
+
+        const addConvertedArea = (key, value) => {
+          if (value === "" || value == null) return;
+
+          const amount = Number(value);
+          if (!Number.isFinite(amount)) return;
+
+          const converted = convertArea(
+            amount,
+            filters.areaUnit,
+            "sqft"
+          );
+
+          params.set(key, String(Math.round(converted)));
+        };
+
+        addConvertedBudget("minBudget", filters.minBudget);
+        addConvertedBudget("maxBudget", filters.maxBudget);
+
+        if (!isCoworking) {
+          addConvertedArea("area", filters.area);
+          addConvertedArea("maxArea", filters.maxArea);
+        }
+
+        if (isCoworking) {
+          if (filters.seats !== "") {
+            const seats = Number(filters.seats);
+
+            if (Number.isFinite(seats)) {
+              params.set("seats", String(Math.round(seats)));
+            }
+          }
+
+          if (filters.maxSeats !== "") {
+            const seats = Number(filters.maxSeats);
+
+            if (Number.isFinite(seats)) {
+              params.set("maxSeats", String(Math.round(seats)));
+            }
           }
         }
 
+        // Never show a primary result again in suggestions.
         const excludeIds = properties
-          .map((p) => getPropertyId(p))
+          .map((property) => getPropertyId(property))
           .filter(Boolean);
-        if (excludeIds.length > 0) {
+
+        if (excludeIds.length) {
           params.set("exclude", excludeIds.join(","));
         }
 
         const response = await fetch(
           `/api/properties/suggestions?${params.toString()}`,
-          { cache: "no-store", signal: controller.signal }
+          {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            cache: "no-store",
+            signal: controller.signal,
+          }
         );
-        const data = await response.json();
 
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || "Suggestions search failed");
+
+        const responseText = await response.text();
+
+        let data = {};
+
+        try {
+          data = responseText ? JSON.parse(responseText) : {};
+        } catch {
+          data = {};
         }
 
-        setSuggestedProperties(Array.isArray(data.data) ? data.data : []);
+        if (!response.ok || data.success !== true) {
+          const details =
+            data.error ||
+            data.details ||
+            (responseText
+              ? responseText.slice(0, 500)
+              : "The API returned an empty response.");
+
+          throw new Error(
+            `Suggestions API failed (HTTP ${response.status}): ${details}`
+          );
+        }
+
+
+        if (controller.signal.aborted) return;
+
+        const primaryIds = new Set(
+          properties
+            .map((property) => getPropertyId(property))
+            .filter(Boolean)
+        );
+
+        const uniqueSuggestions = [];
+        const seenIds = new Set(primaryIds);
+
+        for (const property of Array.isArray(data.data)
+          ? data.data
+          : []) {
+          const id = getPropertyId(property);
+
+          if (!id || seenIds.has(id)) continue;
+
+          seenIds.add(id);
+          uniqueSuggestions.push(property);
+        }
+
+        setSuggestedProperties(uniqueSuggestions);
       } catch (err) {
-        if (err?.name !== "AbortError") setSuggestedProperties([]);
+        if (err?.name !== "AbortError") {
+          console.error(
+            "[PropertiesClient] Suggestions failed:",
+            err
+          );
+          setSuggestedProperties([]);
+        }
       } finally {
-        if (!controller.signal.aborted) setSuggestionsLoading(false);
+        if (!controller.signal.aborted) {
+          setSuggestionsLoading(false);
+        }
       }
     }
 
     fetchSuggestions();
+
     return () => controller.abort();
   }, [
     loading,
+    aiClarification,
     properties,
     resolvedCity,
     filters.type,
     filters.minBudget,
+    filters.maxBudget,
+    filters.area,
+    filters.maxArea,
+    filters.seats,
+    filters.maxSeats,
     filters.currency,
+    filters.areaUnit,
     selectedMicromarketNames,
     exchangeRates,
+    isCoworking,
   ]);
+
+
 
   const updateFilter = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -873,30 +1151,61 @@ function PropertiesClientContent() {
       if (!value) {
         params.delete("type");
         params.delete("area");
+        params.delete("maxArea");
         params.delete("seats");
+        params.delete("maxSeats");
       } else {
         params.set("type", toUrlValue(value));
+
         const nextIsCoworking =
           normalizeValue(value) === "managed office/co-working";
-        if (nextIsCoworking) params.delete("area");
-        else params.delete("seats");
+
+        if (nextIsCoworking) {
+          params.delete("area");
+          params.delete("maxArea");
+        } else {
+          params.delete("seats");
+          params.delete("maxSeats");
+        }
       }
+
       params.delete("page");
+
       router.push(
-        `/properties${params.toString() ? `?${params.toString()}` : ""}`
+        `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+        { scroll: false }
       );
+
       return;
     }
 
-    if (value !== "") params.set(key, value);
-    else params.delete(key);
+    if (value !== "" && value !== null && value !== undefined) {
+      params.set(key, String(value));
+    } else {
+      params.delete(key);
+    }
 
-    if (key === "area" && isCoworking) params.delete("area");
-    if (key === "seats" && !isCoworking) params.delete("seats");
+    if (key === "area" && isCoworking) {
+      params.delete("area");
+    }
+
+    if (key === "maxArea" && isCoworking) {
+      params.delete("maxArea");
+    }
+
+    if (key === "seats" && !isCoworking) {
+      params.delete("seats");
+    }
+
+    if (key === "maxSeats" && !isCoworking) {
+      params.delete("maxSeats");
+    }
 
     params.delete("page");
+
     router.push(
-      `/properties${params.toString() ? `?${params.toString()}` : ""}`
+      `/properties${params.toString() ? `?${params.toString()}` : ""}`,
+      { scroll: false }
     );
   };
 
@@ -1748,18 +2057,116 @@ function PropertiesClientContent() {
         </div>
       </main>
 
+
+      {aiClarification && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-city-clarification-title"
+        >
+          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+            <div className="border-b border-slate-100 bg-purple-50/60 p-5">
+              <div className="flex items-start gap-3">
+                <Sparkles className="mt-1 h-5 w-5 shrink-0 text-[#A054A0]" />
+
+                <div className="min-w-0 flex-1">
+                  <h2
+                    id="ai-city-clarification-title"
+                    className="text-lg font-bold text-slate-900"
+                  >
+                    {aiClarification.title ||
+                      "Which city do you want to search in?"}
+                  </h2>
+
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                    {aiClarification.message ||
+                      "Choose a city to refine your property search."}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setAiClarification(null)}
+                  aria-label="Close city selection"
+                  className="rounded-full p-2 text-slate-400 hover:bg-white hover:text-slate-700"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4 p-5">
+              {aiClarification.originalQuery && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Your original search
+                  </p>
+                  <p className="mt-1 text-sm text-slate-700">
+                    {aiClarification.originalQuery}
+                  </p>
+                </div>
+              )}
+
+              <p className="text-xs font-semibold text-slate-500">
+                Select a city to continue
+              </p>
+
+              <div className="max-h-[45vh] space-y-2 overflow-y-auto">
+                {(aiClarification.options || []).map((option) => {
+                  const city =
+                    typeof option === "string"
+                      ? option
+                      : String(option?.city || "").trim();
+
+                  if (!city) return null;
+
+                  const markets = Array.isArray(option?.micromarkets)
+                    ? option.micromarkets.filter(Boolean)
+                    : [];
+
+                  return (
+                    <button
+                      key={city}
+                      type="button"
+                      onClick={() => handleConfirmAiCity(city)}
+                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4 text-left transition hover:border-[#A054A0]/50 hover:bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-[#A054A0]/30"
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-slate-900">
+                          {city}
+                        </span>
+
+                        {markets.length > 0 && (
+                          <span className="mt-1 block text-xs leading-5 text-slate-500">
+                            Matching micromarkets: {markets.join(", ")}
+                          </span>
+                        )}
+                      </span>
+
+                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-[#A054A0]" />
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setAiClarification(null)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {showSelectionBar && (
         <div className="fixed bottom-0 inset-x-0 z-[150] border-t border-slate-200/80 bg-white/95 p-4 shadow-2xl backdrop-blur-md pb-safe">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              {/* <p className="text-xs font-bold text-slate-900">
-                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties selected
-              </p>
-              <p className="text-[11px] text-slate-500">
-                {compareSelection.length >= MIN_COMPARE_PROPERTIES
-                  ? "Ready to run side-by-side comparison."
-                  : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length} more to compare.`}
-              </p> */}
               <p className="text-xs font-bold text-slate-900">
                 {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties selected for comparison
               </p>

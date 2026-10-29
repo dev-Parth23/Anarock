@@ -69,50 +69,50 @@ const leaders = [
     },
 ];
 
-const leaders2 = [
-    {
-        name: "Abbishek Sharma",
-        role: "Executive Director & Head of Operations",
-        image: "/services/leaders/Abbishek.avif",
-        linkedin: "https://in.linkedin.com/in/abbishek-sharma",
-        email: "Abbishek.Sharma@anarock.com",
-    },
-    {
-        name: "Surabhi Gupta",
-        role: "Executive Director, North India",
-        image: "/services/leaders/Surabhi.avif",
-        linkedin: "https://www.linkedin.com/in/surabhi-gupta-93a55212/",
-        email: "Surabhi.Gupta@anarock.com",
-    },
-    {
-        name: "Atul Khedkar",
-        role: "Regional Director, Mumbai",
-        image: "/services/leaders/Atul.avif",
-        linkedin: "https://www.linkedin.com/in/atul-khedkar-ba63658/",
-        email: "Atul.Khedkar@anarock.com",
-    },
-    {
-        name: "Pratik Mehta",
-        role: "Executive Director, Kolkata & Hyderabad",
-        image: "/services/leaders/Pratik.avif",
-        linkedin: "https://www.linkedin.com/in/pratik-mehta-78b76318/",
-        email: "Pratik.Mehta@anarock.com",
-    },
-    {
-        name: "Mazhar Mulani",
-        role: "Regional Director, Bangalore",
-        image: "/services/leaders/Mazhar.avif",
-        linkedin: "https://www.linkedin.com/in/mazharmulani/",
-        email: "Mazhar.Mulani@anarock.com",
-    },
-    {
-        name: "Kanchana Krishnan",
-        role: "Executive Director, Chennai",
-        image: "/services/leaders/Kanchana.avif",
-        linkedin: "https://in.linkedin.com/in/kanchana-krishnan-mrics",
-        email: "Kanchana.Krishnan@anarock.com",
-    },
-];
+// const leaders2 = [
+//     {
+//         name: "Abbishek Sharma",
+//         role: "Executive Director & Head of Operations",
+//         image: "/services/leaders/Abbishek.avif",
+//         linkedin: "https://in.linkedin.com/in/abbishek-sharma",
+//         email: "Abbishek.Sharma@anarock.com",
+//     },
+//     {
+//         name: "Surabhi Gupta",
+//         role: "Executive Director, North India",
+//         image: "/services/leaders/Surabhi.avif",
+//         linkedin: "https://www.linkedin.com/in/surabhi-gupta-93a55212/",
+//         email: "Surabhi.Gupta@anarock.com",
+//     },
+//     {
+//         name: "Atul Khedkar",
+//         role: "Regional Director, Mumbai",
+//         image: "/services/leaders/Atul.avif",
+//         linkedin: "https://www.linkedin.com/in/atul-khedkar-ba63658/",
+//         email: "Atul.Khedkar@anarock.com",
+//     },
+//     {
+//         name: "Pratik Mehta",
+//         role: "Executive Director, Kolkata & Hyderabad",
+//         image: "/services/leaders/Pratik.avif",
+//         linkedin: "https://www.linkedin.com/in/pratik-mehta-78b76318/",
+//         email: "Pratik.Mehta@anarock.com",
+//     },
+//     {
+//         name: "Mazhar Mulani",
+//         role: "Regional Director, Bangalore",
+//         image: "/services/leaders/Mazhar.avif",
+//         linkedin: "https://www.linkedin.com/in/mazharmulani/",
+//         email: "Mazhar.Mulani@anarock.com",
+//     },
+//     {
+//         name: "Kanchana Krishnan",
+//         role: "Executive Director, Chennai",
+//         image: "/services/leaders/Kanchana.avif",
+//         linkedin: "https://in.linkedin.com/in/kanchana-krishnan-mrics",
+//         email: "Kanchana.Krishnan@anarock.com",
+//     },
+// ];
 
 const companyStats = [
     { value: "3000+", label: "Employees" },
@@ -453,72 +453,92 @@ export default function AboutUsPage() {
 
             {/* Leadership */}
             <section className="border-t border-[#eae6eb] bg-[#f8f7f8] px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:px-12 lg:py-20 xl:px-16">
-                <div className="mx-auto w-full max-w-[1280px] min-w-0">
-                    <div className="mb-7 sm:mb-10">
-                        <h2 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
-                            Our Leaders
+
+
+                <div className="mx-auto w-full max-w-[1200px] px-4 py-16 sm:px-6 lg:px-8">
+                    {/* Header */}
+                    <div className="mb-14 sm:mb-20">
+                        <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#A054A0]">
+                            Executive Leadership
+                        </span>
+                        <h2 className="mt-2 text-3xl font-light tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                            The minds driving our vision.
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-                        {leaders.map((leader, index) => (
-                            <motion.article
-                                key={leader.name}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.15 }}
-                                transition={{
-                                    duration: 0.5,
-                                    delay: index * 0.08,
-                                }}
-                                className="group flex min-w-0 flex-col overflow-hidden border border-[#e9e3ea] bg-white transition-all duration-300 hover:border-[#d8c3d8] hover:shadow-[0_12px_32px_rgba(40,25,43,0.07)]"
-                            >
-                                <div className="relative flex h-[220px] shrink-0 items-end justify-center overflow-hidden bg-[#f3edf3] xs:h-[230px] sm:h-[240px] md:h-[260px] lg:h-[270px]">
-                                    <div className="absolute bottom-0 h-[165px] w-[165px] rounded-full bg-[#ead9e8] transition-transform duration-500 group-hover:scale-105 sm:h-[185px] sm:w-[185px] lg:h-[205px] lg:w-[205px]" />
+                    {/* Distinct Offset Rows Stack */}
+                    <div className="space-y-12 sm:space-y-16">
+                        {leaders.map((leader, index) => {
+                            const isEven = index % 2 === 0;
 
-                                    <Image
-                                        src={leader.image}
-                                        alt={leader.name}
-                                        width={300}
-                                        height={300}
-                                        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                                        className="relative z-10 h-[210px] w-full max-w-[300px] object-contain object-bottom transition-transform duration-500 group-hover:scale-[1.03] sm:h-[230px] md:h-[245px] lg:h-[255px]"
-                                    />
-                                </div>
+                            return (
+                                <motion.article
+                                    key={leader.name}
+                                    initial={{ opacity: 0, y: 24 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, amount: 0.15 }}
+                                    transition={{ duration: 0.5, delay: index * 0.08 }}
+                                    className="group relative grid grid-cols-1 items-center overflow-hidden rounded-2xl border border-[#e9e3ea] bg-[#faf8fa]/60 p-6 backdrop-blur-sm transition-all duration-300 hover:border-[#d8c3d8] hover:bg-white hover:shadow-[0_16px_40px_rgba(40,25,43,0.06)] sm:p-8 lg:grid-cols-12 lg:gap-12 lg:p-10"
+                                >
+                                    <div
+                                        className={`relative flex h-[220px] w-full items-end justify-center overflow-hidden rounded-xl bg-[#f2eaf2] xs:h-[250px] sm:h-[280px] lg:col-span-5 lg:h-[320px] ${isEven ? "lg:order-1" : "lg:order-2"
+                                            }`}
+                                    >
+                                        <div className="absolute bottom-0 h-[140px] w-[140px] rounded-full bg-[#e4d1e2] transition-transform duration-500 group-hover:scale-110 sm:h-[180px] sm:w-[180px]" />
 
-                                {/* Leader details */}
-                                <div className="flex flex-1 flex-col p-4 sm:p-5 lg:p-7">
-                                    <h3 className="break-words text-lg font-semibold leading-snug tracking-tight text-black sm:text-xl">
-                                        <a
-                                            href={leader.linkedin}
-                                            aria-label={`${leader.name} LinkedIn`}
-                                            className="transition-colors duration-200 hover:text-[#A054A0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
-                                        >
-                                            {leader.name}
-                                        </a>
-                                    </h3>
+                                        <Image
+                                            src={leader.image}
+                                            alt={leader.name}
+                                            width={300}
+                                            height={300}
+                                            sizes="(max-width: 1023px) 100vw, 360px"
+                                            className="relative z-10 h-[200px] w-full max-w-[260px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105 sm:h-[240px] lg:h-[290px]"
+                                        />
+                                    </div>
 
-                                    <p className="mt-1 min-h-0 break-words text-sm leading-5 text-[#A054A0] sm:min-h-[40px]">
-                                        <a
-                                            href={`mailto:${leader.email}`}
-                                            aria-label={`Email ${leader.name}`}
-                                            className="transition-colors duration-200 hover:text-[#7D397D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
-                                        >
-                                            {leader.role}
-                                        </a>
-                                    </p>
+                                    {/* Content Container */}
+                                    <div
+                                        className={`relative z-10 flex flex-col justify-center pt-6 lg:col-span-7 lg:pt-0 ${isEven ? "lg:order-2" : "lg:order-1"
+                                            }`}
+                                    >
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-semibold tracking-wider text-[#A054A0] uppercase">
+                                                <a
+                                                    href={`mailto:${leader.email}`}
+                                                    aria-label={`Email ${leader.name}`}
+                                                    className="transition-colors hover:text-[#7D397D]"
+                                                >
+                                                    {leader.role}
+                                                </a>
+                                            </span>
 
-                                    <div className="my-4 h-px shrink-0 bg-[#ece6ed] sm:my-5" />
+                                            <h3 className="text-2xl font-normal tracking-tight text-gray-900 sm:text-3xl">
+                                                <a
+                                                    href={leader.linkedin}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    aria-label={`${leader.name} LinkedIn`}
+                                                    className="transition-colors duration-200 hover:text-[#A054A0]"
+                                                >
+                                                    {leader.name}
+                                                </a>
+                                            </h3>
+                                        </div>
 
-                                    <p className="text-sm leading-6 text-black [&_strong]:font-semibold [&_strong]:text-[#A054A0]">
-                                        {leader.description}
-                                    </p>
-                                </div>
-                            </motion.article>
-                        ))}
+                                        <div className="my-5 h-px w-12 bg-[#d8c3d8] transition-all duration-300 group-hover:w-full" />
+
+                                        <p className="text-sm font-light leading-relaxed text-gray-600 sm:text-base sm:leading-7 [&_strong]:font-medium [&_strong]:text-[#A054A0]">
+                                            {leader.description}
+                                        </p>
+                                    </div>
+                                </motion.article>
+                            );
+                        })}
                     </div>
                 </div>
-                <div className="mx-auto mt-14 grid w-full max-w-[1280px] grid-cols-1 gap-x-8 gap-y-5 sm:mt-16 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-6 lg:grid-cols-3 lg:gap-x-10">
+
+
+                {/* <div className="mx-auto mt-14 grid w-full max-w-[1280px] grid-cols-1 gap-x-8 gap-y-5 sm:mt-16 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-6 lg:grid-cols-3 lg:gap-x-10">
                     {leaders2.map((leader) => (
                         <article
                             key={leader.name}
@@ -566,7 +586,7 @@ export default function AboutUsPage() {
                             </div>
                         </article>
                     ))}
-                </div>
+                </div> */}
             </section>
         </main>
     );

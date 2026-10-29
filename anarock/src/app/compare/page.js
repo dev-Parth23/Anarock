@@ -261,16 +261,20 @@ export default function ComparePage() {
   const rows = [
     {
       label: "City",
-      value: (property) => property?.city || "-",
+      value: (property) => property?.city || property?.City || "-",
     },
     {
       label: "Micromarket",
-      value: (property) => property?.micromarket || "-",
+      value: (property) =>
+        property?.micromarket ||
+        property?.Micromarket ||
+        property?.microMarket ||
+        "-",
     },
     {
       label: "Area",
       value: (property) => {
-        const area = property?.totalLeasableAreaAvailable ?? null;
+        const area = property?.areaSqft ?? property?.area ?? null;
         if (area === null || area === "") return "-";
         const numericArea = Number(area);
         return Number.isFinite(numericArea)
@@ -280,11 +284,15 @@ export default function ComparePage() {
     },
     {
       label: "Seats",
-      value: (property) => property?.NoOfSeatsOffered ?? "-",
+      value: (property) => property?.seats ?? property?.Seats ?? "-",
     },
     {
       label: "Type",
-      value: (property) => property?.officeType || "-",
+      value: (property) =>
+        property?.buildingType ||
+        property?.officeType ||
+        property?.propertyType ||
+        "-",
     },
   ];
 
@@ -394,7 +402,7 @@ export default function ComparePage() {
                 </span>
               </div>
               <h1 className="mt-1 text-2xl font-light tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
-                Property Comparison
+                Commercial Property Comparison
               </h1>
             </div>
 
@@ -430,189 +438,192 @@ export default function ComparePage() {
               </Link>
             </section>
           ) : (
-            <div className="space-y-6 overflow-x-auto">
-              <div className="min-w-[1000px] lg:min-w-full">
-                {/* Cards Section Grid */}
-                <div className="grid grid-cols-[220px_repeat(3,1fr)] gap-5 pb-6">
-                  <div className="flex flex-col justify-end pb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                      Properties Overview
-                    </span>
-                  </div>
+            <div className="space-y-6">
+              {/* Responsive Scrollable Container with edge-to-edge mobile padding fix */}
+              <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                <div className="min-w-[950px] lg:min-w-full">
+                  {/* Cards Section Grid */}
+                  <div className="grid grid-cols-[220px_repeat(3,1fr)] gap-5 pb-6">
+                    <div className="flex flex-col justify-end pb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        Properties Overview
+                      </span>
+                    </div>
 
-                  {slots.map((property, index) => {
-                    if (property) {
-                      const propertyId = getId(property);
-                      const propertyName = getName(property);
-                      const imageUrl = getImage(property);
-                      const propertyUrl = getPropertyUrl(property);
-                      const isFirstImage = index === firstValidSlotIndex;
+                    {slots.map((property, index) => {
+                      if (property) {
+                        const propertyId = getId(property);
+                        const propertyName = getName(property);
+                        const imageUrl = getImage(property);
+                        const propertyUrl = getPropertyUrl(property);
+                        const isFirstImage = index === firstValidSlotIndex;
 
-                      return (
-                        <article
-                          key={`card-slot-${index}`}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm transition-all duration-300 hover:border-[#A054A0]/30 hover:shadow-xl"
-                        >
-                          <div>
-                            <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
+                        return (
+                          <article
+                            key={`card-slot-${index}`}
+                            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm transition-all duration-300 hover:border-[#A054A0]/30 hover:shadow-xl"
+                          >
+                            <div>
+                              <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
+                                <Link
+                                  href={propertyUrl}
+                                  className="block relative h-full w-full"
+                                >
+                                  {imageUrl ? (
+                                    <Image
+                                      src={imageUrl}
+                                      alt={`${propertyName} office space`}
+                                      fill
+                                      priority={isFirstImage}
+                                      sizes="(max-width: 1024px) 33vw, 25vw"
+                                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                                      Image Unavailable
+                                    </div>
+                                  )}
+                                </Link>
+
+                                <div className="absolute left-3 top-3 z-10">
+                                  <span className="rounded-full bg-slate-950/70 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
+                                    {property?.city ||
+                                      property?.City ||
+                                      "Prime Asset"}
+                                  </span>
+                                </div>
+
+                                <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleShortlist(property)}
+                                    className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur transition hover:bg-white ${isShortlisted(property)
+                                        ? "text-[#A054A0]"
+                                        : "text-slate-600 hover:text-[#A054A0]"
+                                      }`}
+                                    title={
+                                      isShortlisted(property)
+                                        ? "Remove from Shortlist"
+                                        : "Add to Shortlist"
+                                    }
+                                  >
+                                    <Heart
+                                      className="h-3.5 w-3.5"
+                                      fill={
+                                        isShortlisted(property)
+                                          ? "currentColor"
+                                          : "none"
+                                      }
+                                    />
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => removeProperty(propertyId)}
+                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm backdrop-blur transition hover:bg-white hover:text-red-600"
+                                    title="Remove Property"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="p-4">
+                                <Link href={propertyUrl}>
+                                  <h3 className="truncate text-sm font-semibold text-slate-900 transition group-hover:text-[#A054A0]">
+                                    {propertyName}
+                                  </h3>
+                                </Link>
+                                <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
+                                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                  <span className="truncate">
+                                    {property?.micromarket ||
+                                      property?.city ||
+                                      "-"}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="p-4 pt-0">
                               <Link
                                 href={propertyUrl}
-                                className="block relative h-full w-full"
+                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-50/50 py-2 text-xs font-semibold text-slate-800 transition hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
                               >
-                                {imageUrl ? (
-                                  <Image
-                                    src={imageUrl}
-                                    alt={`${propertyName} office space`}
-                                    fill
-                                    priority={isFirstImage}
-                                    sizes="(max-width: 1024px) 33vw, 25vw"
-                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = "none";
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                                    Image Unavailable
-                                  </div>
-                                )}
+                                View Full Details
                               </Link>
-
-                              <div className="absolute left-3 top-3 z-10">
-                                <span className="rounded-full bg-slate-950/70 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
-                                  {property?.city ||
-                                    property?.City ||
-                                    "Prime Asset"}
-                                </span>
-                              </div>
-
-                              <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => toggleShortlist(property)}
-                                  className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur transition hover:bg-white ${isShortlisted(property)
-                                    ? "text-[#A054A0]"
-                                    : "text-slate-600 hover:text-[#A054A0]"
-                                    }`}
-                                  title={
-                                    isShortlisted(property)
-                                      ? "Remove from Shortlist"
-                                      : "Add to Shortlist"
-                                  }
-                                >
-                                  <Heart
-                                    className="h-3.5 w-3.5"
-                                    fill={
-                                      isShortlisted(property)
-                                        ? "currentColor"
-                                        : "none"
-                                    }
-                                  />
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => removeProperty(propertyId)}
-                                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm backdrop-blur transition hover:bg-white hover:text-red-600"
-                                  title="Remove Property"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
                             </div>
+                          </article>
+                        );
+                      }
 
-                            <div className="p-4">
-                              <Link href={propertyUrl}>
-                                <h3 className="truncate text-sm font-semibold text-slate-900 transition group-hover:text-[#A054A0]">
-                                  {propertyName}
-                                </h3>
-                              </Link>
-                              <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
-                                <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                                <span className="truncate">
-                                  {property?.micromarket ||
-                                    property?.city ||
-                                    "-"}
-                                </span>
-                              </p>
-                            </div>
+                      return (
+                        <div
+                          key={`empty-slot-${index}`}
+                          onClick={handleOpenModal}
+                          className="group border-dashed flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-slate-200/80 bg-slate-50/40 p-6 text-center transition hover:border-[#A054A0] hover:bg-[#A054A0]/[0.02]"
+                        >
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm border border-slate-100 text-slate-400 transition group-hover:scale-110 group-hover:border-[#A054A0]/30 group-hover:text-[#A054A0]">
+                            <Plus className="h-5 w-5" />
                           </div>
-
-                          <div className="p-4 pt-0">
-                            <Link
-                              href={propertyUrl}
-                              className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-50/50 py-2 text-xs font-semibold text-slate-800 transition hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
-                            >
-                              View Full Details
-                            </Link>
-                          </div>
-                        </article>
-                      );
-                    }
-
-                    return (
-                      <div
-                        key={`empty-slot-${index}`}
-                        onClick={handleOpenModal}
-                        className="group border-dashed flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-slate-200/80 bg-slate-50/40 p-6 text-center transition hover:border-[#A054A0] hover:bg-[#A054A0]/[0.02]"
-                      >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm border border-slate-100 text-slate-400 transition group-hover:scale-110 group-hover:border-[#A054A0]/30 group-hover:text-[#A054A0]">
-                          <Plus className="h-5 w-5" />
-                        </div>
-                        <span className="mt-4 text-xs font-semibold text-slate-700 group-hover:text-[#A054A0]">
-                          Add Property
-                        </span>
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          Select from Properties
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Specification Table */}
-                <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                  <div className="grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-slate-500">
-                    <div className="px-6 py-4">Specification</div>
-                    {slots.map((property, i) => (
-                      <div
-                        key={`table-header-${i}`}
-                        className="border-l border-slate-100 px-6 py-4 font-semibold text-slate-800 truncate"
-                      >
-                        {property ? (
-                          getName(property)
-                        ) : (
-                          <span className="text-slate-300 italic font-normal">
-                            -- Empty Slot --
+                          <span className="mt-4 text-xs font-semibold text-slate-700 group-hover:text-[#A054A0]">
+                            Add Property
                           </span>
-                        )}
-                      </div>
-                    ))}
+                          <p className="mt-1 text-[11px] text-slate-400">
+                            Select from inventory
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  {rows.map((row, idx) => (
-                    <div
-                      key={row.label}
-                      className={`grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-100 text-xs text-slate-800 transition last:border-b-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
-                        }`}
-                    >
-                      <div className="flex items-center px-6 py-4 font-semibold text-slate-500">
-                        {row.label}
-                      </div>
+                  {/* Specification Table */}
+                  <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+                    <div className="grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-slate-500">
+                      <div className="px-6 py-4">Specification</div>
                       {slots.map((property, i) => (
                         <div
-                          key={`row-${row.label}-${i}`}
-                          className="flex items-center border-l border-slate-100 px-6 py-4 font-medium text-slate-800 truncate"
+                          key={`table-header-${i}`}
+                          className="border-l border-slate-100 px-6 py-4 font-semibold text-slate-800 truncate"
                         >
                           {property ? (
-                            row.value(property)
+                            getName(property)
                           ) : (
-                            <span className="text-slate-300">-</span>
+                            <span className="text-slate-300 italic font-normal">
+                              -- Empty Slot --
+                            </span>
                           )}
                         </div>
                       ))}
                     </div>
-                  ))}
+
+                    {rows.map((row, idx) => (
+                      <div
+                        key={row.label}
+                        className={`grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-100 text-xs text-slate-800 transition last:border-b-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
+                          }`}
+                      >
+                        <div className="flex items-center px-6 py-4 font-semibold text-slate-500">
+                          {row.label}
+                        </div>
+                        {slots.map((property, i) => (
+                          <div
+                            key={`row-${row.label}-${i}`}
+                            className="flex items-center border-l border-slate-100 px-6 py-4 font-medium text-slate-800 truncate"
+                          >
+                            {property ? (
+                              row.value(property)
+                            ) : (
+                              <span className="text-slate-300">-</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -620,14 +631,16 @@ export default function ComparePage() {
         </div>
       </main>
 
-      {/* Property Selector Modal */}
+      {/* Property Selector Modal - Fixed z-[100] & Mobile Bottom Sheet to prevent navbar overlap */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/50 p-0 sm:p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-xl max-h-[85vh] sm:max-h-[80vh] flex flex-col rounded-t-3xl sm:rounded-2xl bg-white p-5 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
               <div>
                 <h3 className="text-base font-semibold text-slate-900">
-                  Select Property to Compare
+                  Select Asset to Compare
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Choose an additional property to analyze side-by-side
@@ -636,14 +649,15 @@ export default function ComparePage() {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                title="Close modal"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Search Bar & City Filter */}
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row shrink-0">
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
                 <input
@@ -679,7 +693,7 @@ export default function ComparePage() {
 
             {/* Micromarkets Multi-Select */}
             {availableMicromarkets.length > 0 && (
-              <div className="mt-3">
+              <div className="mt-3 shrink-0">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
                   Filter by Micromarkets ({selectedMicromarkets.length}{" "}
                   selected)
@@ -693,8 +707,8 @@ export default function ComparePage() {
                         type="button"
                         onClick={() => toggleMicromarketFilter(mm)}
                         className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${isSelected
-                          ? "bg-[#A054A0] text-white"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            ? "bg-[#A054A0] text-white"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                           }`}
                       >
                         {isSelected && <Check className="h-3 w-3" />}
@@ -706,8 +720,8 @@ export default function ComparePage() {
               </div>
             )}
 
-            {/* Property Item Cards inside Modal */}
-            <div className="mt-4 max-h-[300px] space-y-2.5 overflow-y-auto pr-1">
+            {/* Property Item Cards inside Modal (Scrollable Area) */}
+            <div className="mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1">
               {filteredModalProperties.length === 0 ? (
                 <div className="py-12 text-center text-xs text-slate-400">
                   No properties found matching your criteria.
@@ -761,12 +775,12 @@ export default function ComparePage() {
 
                         {/* Title, Location & Type Badge */}
                         <div>
-                          <h4 className="text-xs font-semibold text-slate-900 group-hover:text-[#A054A0] truncate max-w-[240px]">
+                          <h4 className="text-xs font-semibold text-slate-900 group-hover:text-[#A054A0] truncate max-w-[200px] sm:max-w-[240px]">
                             {modalName}
                           </h4>
                           <p className="mt-1 flex items-center gap-1 text-[11px] text-slate-500">
                             <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
-                            <span className="truncate">
+                            <span className="truncate max-w-[200px]">
                               {modalMicromarket}, {modalCity}
                             </span>
                           </p>
@@ -777,7 +791,7 @@ export default function ComparePage() {
                       </div>
 
                       {/* Add Button */}
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#A054A0]/10 text-[#A054A0] transition group-hover:bg-[#A054A0] group-hover:text-white">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#A054A0]/10 text-[#A054A0] transition group-hover:bg-[#A054A0] group-hover:text-white">
                         <Plus className="h-4 w-4" />
                       </div>
                     </div>

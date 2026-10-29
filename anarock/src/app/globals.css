@@ -1764,3 +1764,42 @@ svg {
 }
 
 
+@keyframes shortlist-toolbar-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, 12px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes shortlist-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shortlist-toolbar {
+  animation: shortlist-toolbar-enter 220ms ease-out both;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.shortlist-modal-enter {
+  animation: shortlist-modal-enter 180ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shortlist-toolbar,
+  .shortlist-modal-enter {
+    animation: none;
+  }
+}

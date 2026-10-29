@@ -432,8 +432,8 @@ export default function ListYourPropertyPage() {
       [field]: value,
       ...(field === "city"
         ? {
-            micromarket: "",
-          }
+          micromarket: "",
+        }
         : {}),
     }));
 

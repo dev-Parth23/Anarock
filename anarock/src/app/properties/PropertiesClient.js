@@ -2,6 +2,8 @@
 
 import { Suspense, useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import PropertyCard from "@/components/properties/PropertyCard";
 import { usePreferences } from "@/lib/preferences";
@@ -16,6 +18,7 @@ import {
   X,
   Search,
   ChevronDown,
+  GitCompare,
   Check,
   Users,
   Maximize2,
@@ -26,11 +29,33 @@ import {
   Loader2,
   CheckCircle2,
   ArrowRight,
+  Heart,
+  Building,
+  MapPin,
+  ExternalLink,
+  User,
+  Phone,
+  Building2,
+  Mail,
 } from "lucide-react";
 
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
+const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
+const IMAGE_FILES = [
+  {
+    key: "project",
+    name: "Project Picture 1",
+    filename: "Project_Picture_1.jpg",
+  },
+  {
+    key: "property-1",
+    name: "Property Photo 1",
+    filename: "Property_Photo_1.jpg",
+  },
+];
+
 const OFFICE_TYPES = ["Conventional", "Managed Office/Co-working"];
 const SORT_CATEGORIES = [
   { id: "recommended", label: "Recommended", value: "" },
@@ -57,13 +82,13 @@ const SORT_CATEGORIES = [
 
 function PropertyCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm">
-      <div className="shimmer-effect relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-100" />
-      <div className="flex flex-1 flex-col px-1 pb-1 pt-3">
+    <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-3.5 shadow-sm">
+      <div className="shimmer-effect relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100" />
+      <div className="flex flex-1 flex-col px-1.5 pb-1 pt-3.5">
         <div className="shimmer-effect h-3 w-1/3 rounded bg-slate-100" />
         <div className="shimmer-effect mt-2.5 h-5 w-4/5 rounded bg-slate-100" />
         <div className="shimmer-effect mt-2 h-3.5 w-1/2 rounded bg-slate-100" />
-        <div className="my-3.5 h-px bg-slate-100" />
+        <div className="my-4 h-px bg-slate-100" />
         <div className="grid grid-cols-2 gap-3">
           <div>
             <div className="shimmer-effect h-2.5 w-12 rounded bg-slate-100" />
@@ -109,6 +134,35 @@ const getOfficeTypeFromUrl = (value) => {
 
 const getPropertyId = (property) =>
   String(property?.id || property?.rowId || property?.ROWID || "");
+
+function getPropertySlug(property) {
+  if (!property || typeof property !== "object") return "";
+  const rawSlug = property?.slug ?? "";
+  return String(rawSlug)
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function getPropertyImageUrl(property) {
+  if (!property || typeof property !== "object") return "";
+  if (property.image) return property.image;
+  if (property.coverImage) return property.coverImage;
+  if (Array.isArray(property.images) && property.images.length > 0) {
+    return property.images[0];
+  }
+  const imageFolderPath = String(
+    property.imageFolderPath || property.Image_Folder_Path || "",
+  ).replace(/^\/+|\/+$/g, "");
+  if (!imageFolderPath) return "";
+  const projectImage = IMAGE_FILES.find((img) => img.key === "project");
+  const filename = projectImage
+    ? projectImage.filename
+    : "Project_Picture_1.jpg";
+  return `${IMAGE_BASE_URL}/${imageFolderPath}/${filename}`;
+}
 
 function getCRMPropertyId(property) {
   if (!property || typeof property !== "object") return "";
@@ -281,13 +335,22 @@ function PropertiesClientContent() {
   const [appliedAiPrompt, setAppliedAiPrompt] = useState("");
   const [aiClarification, setAiClarification] = useState(null);
   const [aiConfirmedCity, setAiConfirmedCity] = useState("");
+
   const hasShortlistedProperties = wishlistIds.length > 0;
   const hasComparedProperties = compareSelection.length > 0;
   const showSelectionBar = hasShortlistedProperties || hasComparedProperties;
 
+  const canCompare =
+    compareSelection.length >= MIN_COMPARE_PROPERTIES &&
+    compareSelection.length <= MAX_COMPARE_PROPERTIES;
+
+  const remainingToCompare = Math.max(
+    0,
+    MIN_COMPARE_PROPERTIES - compareSelection.length,
+  );
+
   const [enquiryForm, setEnquiryForm] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     phone: "",
     company: "",
@@ -365,15 +428,12 @@ function PropertiesClientContent() {
     setAppliedAiPrompt(prompt);
 
     try {
-      const searchedCity =
-        searchParams.get("city") ||
-        resolvedCity ||
-        "";
+      const searchedCity = searchParams.get("city") || resolvedCity || "";
 
       if (searchedCity) {
         localStorage.setItem(
           "anarock_last_searched_city",
-          JSON.stringify(searchedCity)
+          JSON.stringify(searchedCity),
         );
       }
     } catch (error) {
@@ -393,11 +453,33 @@ function PropertiesClientContent() {
   };
 
   const openEnquiryForm = () => {
-    if (!compareSelection.length) {
-      setEnquiryError("Please select at least one property.");
+    const shortlistedIds = new Set(wishlistIds.map(String));
+    const availableProperties = [
+      ...properties,
+      ...suggestedProperties,
+      ...compareSelection,
+    ];
+
+    const uniqueProperties = new Map();
+
+    availableProperties.forEach((property) => {
+      const id = getPropertyId(property);
+
+      if (id && shortlistedIds.has(String(id))) {
+        uniqueProperties.set(String(id), property);
+      }
+    });
+
+    const selectionToUse = Array.from(uniqueProperties.values());
+
+    if (!selectionToUse.length) {
+      setEnquiryError(
+        "Please shortlist at least one property to raise an enquiry.",
+      );
       return;
     }
-    setEnquirySelection([...compareSelection]);
+
+    setEnquirySelection(selectionToUse);
     setEnquiryError("");
     setEnquirySuccess(false);
     setIsEnquiryOpen(true);
@@ -410,6 +492,16 @@ function PropertiesClientContent() {
     setEnquirySuccess(false);
   };
 
+  const handleRemoveFromEnquiry = (propertyId) => {
+    setEnquirySelection((prev) => {
+      const updated = prev.filter((p) => getPropertyId(p) !== propertyId);
+      if (updated.length === 0) {
+        closeEnquiryForm();
+      }
+      return updated;
+    });
+  };
+
   const handleEnquiryChange = (e) => {
     const { name, value } = e.target;
     setEnquiryForm((prev) => ({ ...prev, [name]: value }));
@@ -417,12 +509,19 @@ function PropertiesClientContent() {
 
   const handleEnquirySubmit = async (e) => {
     e.preventDefault();
-    if (isSubmittingEnquiry) return;
-    if (!enquirySelection.length) {
-      setEnquiryError("Please select at least one property.");
+
+    const shortlistedIds = new Set(wishlistIds.map(String));
+
+    const shortlistedEnquirySelection = enquirySelection.filter((property) =>
+      shortlistedIds.has(String(getPropertyId(property))),
+    );
+
+    if (!shortlistedEnquirySelection.length) {
+      setEnquiryError(
+        "Please shortlist at least one property before submitting your enquiry.",
+      );
       return;
     }
-
     setIsSubmittingEnquiry(true);
     setEnquiryError("");
 
@@ -446,7 +545,7 @@ function PropertiesClientContent() {
         if (id) freshById.set(String(id), prop);
       });
 
-      const resolvedSelection = enquirySelection.map((prop) => {
+      const resolvedSelection = shortlistedEnquirySelection.map((prop) => {
         const id = getPropertyId(prop);
         const fresh = id ? freshById.get(String(id)) : null;
         return fresh ? { ...prop, ...fresh } : prop;
@@ -474,9 +573,19 @@ function PropertiesClientContent() {
 
       const savedLocation = getStoredUserLocation() || {};
 
+      const trimmedFullName = enquiryForm.fullName.trim();
+      const spaceIndex = trimmedFullName.indexOf(" ");
+      let firstName = trimmedFullName;
+      let lastName = "";
+
+      if (spaceIndex !== -1) {
+        firstName = trimmedFullName.substring(0, spaceIndex);
+        lastName = trimmedFullName.substring(spaceIndex + 1).trim();
+      }
+
       const payload = {
-        firstName: enquiryForm.firstName.trim(),
-        lastName: enquiryForm.lastName.trim(),
+        firstName,
+        lastName,
         email: enquiryForm.email.trim(),
         phone: enquiryForm.phone.trim(),
         company: enquiryForm.company.trim(),
@@ -518,8 +627,7 @@ function PropertiesClientContent() {
 
       setEnquirySuccess(true);
       setEnquiryForm({
-        firstName: "",
-        lastName: "",
+        fullName: "",
         email: "",
         phone: "",
         company: "",
@@ -584,7 +692,11 @@ function PropertiesClientContent() {
         email,
         company,
         source: "Exclusive Properties Enquiry",
-        requirementCity: getLastSearchedCityFromStorage() || resolvedCity || filters.city || "",
+        requirementCity:
+          getLastSearchedCityFromStorage() ||
+          resolvedCity ||
+          filters.city ||
+          "",
         requirementType: filters.type || "",
         location: {
           street: savedLocation.street || "",
@@ -907,8 +1019,6 @@ function PropertiesClientContent() {
 
         if (controller.signal.aborted) return;
 
-        // Ask for city clarification before showing results when
-        // the same micromarket exists in multiple cities.
         if (shouldUseAi && data.needsClarification && data.clarification) {
           setAiClarification(data.clarification);
           setProperties([]);
@@ -924,8 +1034,6 @@ function PropertiesClientContent() {
           throw new Error(data.error || "Failed to fetch properties");
         }
 
-        // Apply Gemini's extracted filters to the URL once.
-        // The aiResolved flag prevents repeated URL replacement.
         if (
           shouldUseAi &&
           data.interpretedQuery &&
@@ -995,7 +1103,6 @@ function PropertiesClientContent() {
       } catch (err) {
         if (err?.name === "AbortError") return;
 
-        // Retry once for transient network or server errors.
         if (retries > 0) {
           setTimeout(() => {
             if (!controller.signal.aborted) {
@@ -1512,7 +1619,7 @@ function PropertiesClientContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 antialiased selection:bg-[#A054A0]/20 selection:text-[#A054A0]">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_rgba(160,84,160,0.04),_transparent_50%),linear-gradient(180deg,#fcfbfd_0%,#f8f9fa_100%)] antialiased selection:bg-[#A054A0]/20 selection:text-slate-900 pb-20">
       <style jsx global>{`
         @keyframes shimmerSweep {
           0% {
@@ -1544,7 +1651,7 @@ function PropertiesClientContent() {
 
       <Breadcrumbs items={breadcrumbs} />
 
-      <main className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1600px] px-3 py-3 sm:px-3 lg:px-4">
         <div className="mb-6 space-y-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
@@ -1575,7 +1682,7 @@ function PropertiesClientContent() {
                 e.preventDefault();
                 handleApplyAiSearch();
               }}
-              className="flex w-full flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm transition-all focus-within:border-[#A054A0] focus-within:ring-2 focus-within:ring-[#A054A0]/10 sm:flex-row lg:max-w-xl"
+              className="flex w-full flex-col gap-2 rounded-2xl border border-[#A054A0]/20 bg-white/90 p-2 shadow-[0_10px_30px_-15px_rgba(160,84,160,0.12)] backdrop-blur-xl transition-all focus-within:border-[#A054A0] focus-within:ring-2 focus-within:ring-[#A054A0]/15 sm:flex-row lg:max-w-xl"
             >
               <div className="flex flex-1 items-center gap-2 px-2">
                 <Sparkles className="h-5 w-5 shrink-0 text-[#A054A0]" />
@@ -1601,7 +1708,7 @@ function PropertiesClientContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#884188] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-[#864286] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Search className="h-4 w-4" />
                 Apply
@@ -1616,7 +1723,7 @@ function PropertiesClientContent() {
                 setSidebarTab("filters");
                 setShowFilters(true);
               }}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
+              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
             >
               <SlidersHorizontal className="h-4 w-4 shrink-0" />
               Filters
@@ -1633,7 +1740,7 @@ function PropertiesClientContent() {
                 setSidebarTab("sort");
                 setShowFilters(true);
               }}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
+              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-2xl border border-slate-200/80 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
             >
               <ArrowUpDown className="h-4 w-4 shrink-0" />
               Sort
@@ -1652,7 +1759,7 @@ function PropertiesClientContent() {
               <button
                 key={`${chip.key}-${chip.label}`}
                 onClick={() => clearFilter(chip.key)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-[#A054A0] ring-1 ring-inset ring-[#A054A0]/20 transition-all hover:bg-purple-100"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#A054A0]/8 px-3.5 py-1 text-xs font-semibold text-[#A054A0] ring-1 ring-inset ring-[#A054A0]/20 transition-all hover:bg-[#A054A0]/15"
               >
                 {chip.label}
                 <X className="h-3.5 w-3.5" />
@@ -1679,17 +1786,17 @@ function PropertiesClientContent() {
             }}
           >
             <div
-              className={`border-slate-200 bg-white shadow-xl lg:sticky lg:top-24 lg:rounded-2xl lg:border lg:p-5 lg:shadow-sm ${showFilters
+              className={`border-slate-200/80 bg-white shadow-[0_12px_40px_-15px_rgba(160,84,160,0.12)] lg:sticky lg:top-24 lg:rounded-3xl lg:border lg:p-5 ${showFilters
                 ? "fixed inset-y-0 right-0 z-[210] flex w-full max-w-xs flex-col overflow-y-auto p-5 sm:max-w-sm"
                 : ""
                 }`}
             >
               <div className="mb-5 flex items-center justify-between gap-3">
-                <div className="flex w-full items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+                <div className="flex w-full items-center rounded-2xl border border-slate-200/80 bg-slate-50 p-1">
                   <button
                     type="button"
                     onClick={() => setSidebarTab("filters")}
-                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${sidebarTab === "filters"
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-all ${sidebarTab === "filters"
                       ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
                       : "text-slate-500 hover:text-slate-800"
                       }`}
@@ -1700,7 +1807,7 @@ function PropertiesClientContent() {
                   <button
                     type="button"
                     onClick={() => setSidebarTab("sort")}
-                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition-all ${sidebarTab === "sort"
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-all ${sidebarTab === "sort"
                       ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
                       : "text-slate-500 hover:text-slate-800"
                       }`}
@@ -1713,7 +1820,7 @@ function PropertiesClientContent() {
                 <button
                   type="button"
                   onClick={() => setShowFilters(false)}
-                  className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 lg:hidden"
+                  className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 lg:hidden"
                   aria-label="Close menu"
                 >
                   <X className="h-5 w-5" />
@@ -1734,13 +1841,13 @@ function PropertiesClientContent() {
                         key={cat.id}
                         type="button"
                         onClick={() => handleCategoryClick(cat)}
-                        className={`group flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all ${isSelected
+                        className={`group flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all ${isSelected
                           ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#A054A0] shadow-sm"
                           : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
                           }`}
                       >
                         <span
-                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold transition-colors ${isSelected
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-xs font-bold transition-colors ${isSelected
                             ? "border-[#A054A0]/30 bg-[#A054A0]/10 text-[#A054A0]"
                             : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-600"
                             }`}
@@ -1778,7 +1885,7 @@ function PropertiesClientContent() {
                     <button
                       type="button"
                       onClick={() => handleSortChange("")}
-                      className="mt-3 w-full rounded-xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                      className="mt-3 w-full rounded-2xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                     >
                       Reset to Recommended
                     </button>
@@ -1793,7 +1900,7 @@ function PropertiesClientContent() {
                     <select
                       value={resolvedCity}
                       onChange={(e) => handleCityChange(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/15"
                     >
                       <option value="">All Cities</option>
                       {cities.map((cityOption) => (
@@ -1812,7 +1919,7 @@ function PropertiesClientContent() {
                       type="button"
                       disabled={!resolvedCity || micromarketsLoading}
                       onClick={() => setShowMicromarkets(!showMicromarkets)}
-                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-xs font-medium transition-all ${!resolvedCity
+                      className={`flex w-full items-center justify-between rounded-2xl border px-3 py-2.5 text-left text-xs font-medium transition-all ${!resolvedCity
                         ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400"
                         : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
                         }`}
@@ -1833,14 +1940,14 @@ function PropertiesClientContent() {
                     {showMicromarkets &&
                       resolvedCity &&
                       !micromarketsLoading && (
-                        <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                        <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
                           <button
                             type="button"
                             onClick={selectAllMicromarkets}
-                            className="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2 text-xs font-medium hover:bg-slate-50"
+                            className="flex w-full items-center gap-2 border-b border-slate-100 px-3.5 py-2.5 text-xs font-medium hover:bg-slate-50"
                           >
                             <span
-                              className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${selectedMicromarkets.length === 0
+                              className={`flex h-3.5 w-3.5 items-center justify-center rounded-lg border ${selectedMicromarkets.length === 0
                                 ? "border-[#A054A0] bg-[#A054A0]"
                                 : "border-slate-300"
                                 }`}
@@ -1861,10 +1968,10 @@ function PropertiesClientContent() {
                                   key={id}
                                   type="button"
                                   onClick={() => toggleMicromarket(id)}
-                                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium hover:bg-slate-50"
+                                  className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-xs font-medium hover:bg-slate-50"
                                 >
                                   <span
-                                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border ${selected
+                                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-lg border ${selected
                                       ? "border-[#A054A0] bg-[#A054A0]"
                                       : "border-slate-300"
                                       }`}
@@ -1884,7 +1991,7 @@ function PropertiesClientContent() {
                             <button
                               type="button"
                               onClick={() => setShowMicromarkets(false)}
-                              className="w-full rounded-lg bg-slate-900 py-1.5 text-xs font-semibold text-white"
+                              className="w-full rounded-xl bg-slate-900 py-2 text-xs font-semibold text-white"
                             >
                               Done
                             </button>
@@ -1900,7 +2007,7 @@ function PropertiesClientContent() {
                     <select
                       value={filters.type === "ai" ? "" : filters.type}
                       onChange={(e) => updateFilter("type", e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/15"
                     >
                       <option value="">All Types</option>
                       {OFFICE_TYPES.map((type) => (
@@ -1918,7 +2025,7 @@ function PropertiesClientContent() {
                           Required Seats
                         </label>
                         <div className="relative">
-                          <Users className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                          <Users className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                           <input
                             type="number"
                             min="0"
@@ -1927,7 +2034,7 @@ function PropertiesClientContent() {
                               updateFilter("seats", e.target.value)
                             }
                             placeholder="e.g. 50"
-                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -1936,7 +2043,7 @@ function PropertiesClientContent() {
                           Min Seat Price / month ({filters.currency})
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center">
+                          <span className="absolute left-3.5 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center">
                             {renderCurrencyIcon()}
                           </span>
                           <input
@@ -1947,7 +2054,7 @@ function PropertiesClientContent() {
                               updateFilter("minBudget", e.target.value)
                             }
                             placeholder="Min price"
-                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -1959,7 +2066,7 @@ function PropertiesClientContent() {
                           Min Rent / month ({filters.currency})
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center">
+                          <span className="absolute left-3.5 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center">
                             {renderCurrencyIcon()}
                           </span>
                           <input
@@ -1970,7 +2077,7 @@ function PropertiesClientContent() {
                               updateFilter("minBudget", e.target.value)
                             }
                             placeholder="Min rent"
-                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -1979,7 +2086,7 @@ function PropertiesClientContent() {
                           Min Area ({areaUnitLabel})
                         </label>
                         <div className="relative">
-                          <Maximize2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                          <Maximize2 className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                           <input
                             type="number"
                             min="0"
@@ -1988,7 +2095,7 @@ function PropertiesClientContent() {
                               updateFilter("area", e.target.value)
                             }
                             placeholder="e.g. 2000"
-                            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -1997,7 +2104,7 @@ function PropertiesClientContent() {
 
                   <button
                     onClick={clearAll}
-                    className="w-full rounded-xl border border-slate-200 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                    className="w-full rounded-2xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                   >
                     Clear All Filters
                   </button>
@@ -2014,7 +2121,7 @@ function PropertiesClientContent() {
                 ))}
               </div>
             ) : error ? (
-              <div className="rounded-2xl border border-red-100 bg-white p-8 text-center shadow-sm">
+              <div className="rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
                 <Search className="mx-auto mb-3 h-10 w-10 text-red-400" />
                 <h3 className="text-base font-semibold text-slate-900">
                   Unable to load properties
@@ -2023,7 +2130,7 @@ function PropertiesClientContent() {
               </div>
             ) : totalProperties === 0 ? (
               <div className="space-y-8">
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm">
                   <h2 className="text-base font-semibold text-slate-900">
                     No search results found for your search.
                   </h2>
@@ -2096,7 +2203,7 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => goToPage(safeCurrentPage - 1)}
                       disabled={safeCurrentPage === 1}
-                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
+                      className="rounded-2xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Previous
                     </button>
@@ -2114,9 +2221,9 @@ function PropertiesClientContent() {
                           key={page}
                           type="button"
                           onClick={() => goToPage(page)}
-                          className={`min-w-[36px] rounded-xl py-2 text-xs font-semibold transition ${page === safeCurrentPage
-                            ? "bg-[#A054A0] text-white shadow-sm"
-                            : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                          className={`min-w-[36px] rounded-2xl py-2 text-xs font-semibold transition ${page === safeCurrentPage
+                            ? "bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
+                            : "border border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50"
                             }`}
                         >
                           {page}
@@ -2128,7 +2235,7 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => goToPage(safeCurrentPage + 1)}
                       disabled={safeCurrentPage === totalPages}
-                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
+                      className="rounded-2xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Next
                     </button>
@@ -2141,11 +2248,11 @@ function PropertiesClientContent() {
                   !aiClarification &&
                   !suggestionsLoading &&
                   suggestedProperties.length > 0 && (
-                    <section className="border-t border-slate-200 pt-10">
-                      <div className="mb-8 overflow-hidden rounded-2xl border border-[#A054A0]/20 bg-gradient-to-br from-white via-purple-50/70 to-white p-5 shadow-sm sm:p-7">
+                    <section className="border-t border-slate-200/80 pt-10">
+                      <div className="mb-8 overflow-hidden rounded-3xl border border-[#A054A0]/20 bg-gradient-to-br from-white via-purple-50/70 to-white p-6 shadow-sm sm:p-8">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="flex items-start gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#A054A0]/10">
+                          <div className="flex items-start gap-3.5">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#A054A0]/10">
                               <Sparkles className="h-5 w-5 text-[#A054A0]" />
                             </div>
 
@@ -2170,7 +2277,7 @@ function PropertiesClientContent() {
                               setExclusiveLeadSuccess(false);
                               setIsExclusiveLeadOpen(true);
                             }}
-                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#884188] focus:outline-none focus:ring-2 focus:ring-[#A054A0]/40 focus:ring-offset-2"
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#864286] focus:outline-none focus:ring-2 focus:ring-[#A054A0]/40 focus:ring-offset-2"
                           >
                             Find Exclusive Properties
                             <ArrowRight className="h-4 w-4" />
@@ -2226,7 +2333,7 @@ function PropertiesClientContent() {
           aria-modal="true"
           aria-labelledby="ai-city-clarification-title"
         >
-          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl">
             <div className="border-b border-slate-100 bg-purple-50/60 p-5">
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-1 h-5 w-5 shrink-0 text-[#A054A0]" />
@@ -2259,7 +2366,7 @@ function PropertiesClientContent() {
 
             <div className="space-y-4 p-5">
               {aiClarification.originalQuery && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Your original search
                   </p>
@@ -2291,7 +2398,7 @@ function PropertiesClientContent() {
                       key={city}
                       type="button"
                       onClick={() => handleConfirmAiCity(city)}
-                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4 text-left transition hover:border-[#A054A0]/50 hover:bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-[#A054A0]/30"
+                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200/80 p-4 text-left transition hover:border-[#A054A0]/50 hover:bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-[#A054A0]/30"
                     >
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold text-slate-900">
@@ -2314,7 +2421,7 @@ function PropertiesClientContent() {
               <button
                 type="button"
                 onClick={() => setAiClarification(null)}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -2324,207 +2431,377 @@ function PropertiesClientContent() {
       )}
 
       {showSelectionBar && (
-        <div className="fixed bottom-0 inset-x-0 z-[150] border-t border-slate-200/80 bg-white/95 p-4 shadow-2xl backdrop-blur-md pb-safe">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-bold text-slate-900">
-                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties
-                selected for comparison
-              </p>
+        <div className="fixed bottom-4 left-1/2 z-[90] w-[calc(100%-1.5rem)] max-w-5xl -translate-x-1/2 rounded-2xl border border-slate-400/80 bg-white/95 p-4 shadow-2xl backdrop-blur-xl sm:bottom-5 sm:w-[calc(100%-2.5rem)] sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            {" "}
+            <div className="min-w-0 flex-1">
+              {compareSelection.length > 0 ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <GitCompare className="h-5 w-5 shrink-0 text-[#A054A0]" />
+                    <p className="text-sm font-bold leading-5 text-black sm:text-base">
+                      {compareSelection.length} of {MAX_COMPARE_PROPERTIES}{" "}
+                      properties selected for comparison
+                    </p>
+                  </div>
 
-              <p className="text-[11px] text-slate-500">
-                {hasShortlistedProperties
-                  ? `${wishlistIds.length} properties shortlisted`
-                  : compareSelection.length >= MIN_COMPARE_PROPERTIES
-                    ? "Ready to run side-by-side comparison."
-                    : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length} more to compare.`}
-              </p>
+                  <p className="mt-1 pl-7 text-xs leading-5 text-slate-500 sm:text-sm">
+                    {canCompare
+                      ? "Ready to run side-by-side comparison."
+                      : `Select ${remainingToCompare === 1
+                        ? "one more property"
+                        : "at least two properties"
+                      } to compare.`}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Heart className="h-5 w-5 shrink-0 text-[#A054A0]" />
+                    <p className="text-sm font-bold leading-5 text-black sm:text-base">
+                      {wishlistIds.length} Shortlisted{" "}
+                      {wishlistIds.length === 1 ? "Property" : "Properties"}
+                    </p>
+                  </div>
+
+                  <p className="mt-1 pl-7 text-xs leading-5 text-slate-500 sm:text-sm">
+                    Select properties to compare or raise a unified enquiry.
+                  </p>
+                </>
+              )}
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={clearCompareSelection}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Clear
-              </button>
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-start lg:w-auto lg:shrink-0 lg:justify-end">
               <button
                 type="button"
                 onClick={openComparePage}
-                disabled={compareSelection.length < MIN_COMPARE_PROPERTIES}
-                className="rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#884188] disabled:opacity-50"
+                disabled={!canCompare}
+                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#A054A0] px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#864286] hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-sm sm:px-4 sm:text-sm"
               >
-                Compare Now
+                <GitCompare className="h-4 w-4 shrink-0" />
+                <span>Compare</span>
+                {compareSelection.length > 0 && (
+                  <span className="rounded-md bg-white/20 px-1.5 py-0.5 text-[11px] font-semibold">
+                    {compareSelection.length}
+                  </span>
+                )}
               </button>
+
               <button
                 type="button"
                 onClick={openEnquiryForm}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-[#A054A0] bg-white px-4 py-2 text-xs font-semibold text-[#A054A0] transition hover:bg-purple-50"
+                disabled={wishlistIds.length === 0}
+                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[#A054A0] bg-white px-3 py-2.5 text-xs font-bold text-[#A054A0] shadow-sm transition-all duration-200 hover:bg-[#A054A0]/10 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-sm"
               >
-                <MessageSquare className="h-3.5 w-3.5" />
-                Raise Enquiry
+                <MessageSquare className="h-4 w-4 shrink-0" />
+                <span>Raise Enquiry</span>
               </button>
+
+              {compareSelection.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearCompareSelection}
+                  className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-500 bg-white px-4 py-2.5 text-xs font-semibold text-black/80 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50 active:scale-[0.98] sm:col-span-1 sm:text-sm"
+                >
+                  <X className="h-4 w-4 shrink-0" />
+                  <span>Clear</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
 
+      {/* Enquiry Modal */}
       {isEnquiryOpen && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) closeEnquiryForm();
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-md transition-all duration-300"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeEnquiryForm();
+            }
           }}
         >
-          <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 p-5">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">
-                  Property Enquiry
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Submit details to receive callback for selected properties.
-                </p>
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#A054A0]/10 text-[#A054A0]">
+                  <MessageSquare className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#A054A0]">
+                    Property Enquiry
+                  </span>
+                  <h2 className="text-xl font-bold text-slate-900">
+                    Tell us about your requirement
+                  </h2>
+                </div>
               </div>
+
               <button
                 type="button"
                 onClick={closeEnquiryForm}
-                className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                disabled={isSubmittingEnquiry}
+                aria-label="Close form"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200/60 hover:text-slate-800 disabled:opacity-50"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5">
+            <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-6">
               {enquirySuccess ? (
-                <div className="py-8 text-center">
-                  <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
-                  <h3 className="mt-3 text-lg font-bold text-slate-900">
-                    Enquiry Received
+                <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                    <CheckCircle2 className="h-9 w-9" />
+                  </div>
+
+                  <h3 className="mt-5 text-2xl font-bold text-slate-900">
+                    Enquiry Submitted Successfully!
                   </h3>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Our advisors will reach out with pricing and floor plans.
+
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-600">
+                    Thank you for reaching out. Our real estate specialist has
+                    received your requirements for the selected properties and
+                    will get in touch shortly.
                   </p>
+
                   <button
                     type="button"
                     onClick={closeEnquiryForm}
-                    className="mt-5 rounded-xl bg-[#A054A0] px-6 py-2.5 text-xs font-semibold text-white"
+                    className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-[#A054A0] px-8 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#A054A0]/20 transition hover:bg-[#864286]"
                   >
-                    Close
+                    Done
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleEnquirySubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-700">
-                        First Name *
-                      </label>
-                      <input
-                        required
-                        name="firstName"
-                        value={enquiryForm.firstName}
-                        onChange={handleEnquiryChange}
-                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
-                      />
+                <form onSubmit={handleEnquirySubmit} className="space-y-6">
+                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-[#A054A0]" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                          Selected Properties
+                        </span>
+                      </div>
+                      <span className="rounded-full bg-[#A054A0] px-2.5 py-0.5 text-xs font-bold text-white shadow-xs">
+                        {enquirySelection.length}{" "}
+                        {enquirySelection.length === 1
+                          ? "Property"
+                          : "Properties"}
+                      </span>
                     </div>
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-700">
-                        Last Name *
-                      </label>
-                      <input
-                        required
-                        name="lastName"
-                        value={enquiryForm.lastName}
-                        onChange={handleEnquiryChange}
-                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
-                      />
+
+                    <div className="custom-scrollbar flex gap-3 overflow-x-auto pb-1 pt-1">
+                      {enquirySelection.map((property, index) => {
+                        const propertyId = getPropertyId(property);
+                        const propertySlug = getPropertySlug(property);
+
+                        const propertyUrl = propertySlug
+                          ? `/properties/${propertyId}/${propertySlug}`
+                          : `/properties/${propertyId}`;
+
+                        const propertyName =
+                          property?.name ?? "Selected Property";
+                        const city = property?.city ?? "";
+                        const micromarket = property?.micromarket ?? "";
+                        const coverImage = getPropertyImageUrl(property);
+
+                        return (
+                          <div
+                            key={`${propertyId}-${index}`}
+                            className="group relative flex min-w-[240px] max-w-[280px] shrink-0 items-center justify-between gap-2.5 rounded-xl border border-slate-200 bg-white p-2.5 shadow-xs transition hover:border-[#A054A0] hover:shadow-md"
+                          >
+                            <Link
+                              href={propertyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex min-w-0 flex-1 items-center gap-3"
+                              title={`View details for ${propertyName}`}
+                            >
+                              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                                {coverImage ? (
+                                  <Image
+                                    src={coverImage}
+                                    alt={propertyName}
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center text-[#A054A0]/60">
+                                    <Building className="h-5 w-5" />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1">
+                                  <p className="truncate text-xs font-bold text-slate-900 transition-colors group-hover:text-[#A054A0]">
+                                    {propertyName}
+                                  </p>
+                                  <ExternalLink className="h-3 w-3 shrink-0 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                                </div>
+
+                                {(city || micromarket) && (
+                                  <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-slate-500">
+                                    <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
+                                    <span className="truncate">
+                                      {[micromarket, city]
+                                        .filter(Boolean)
+                                        .join(", ")}
+                                    </span>
+                                  </p>
+                                )}
+                              </div>
+                            </Link>
+
+                            {enquirySelection.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleRemoveFromEnquiry(propertyId);
+                                }}
+                                title="Remove from enquiry"
+                                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-700">
-                        Email *
-                      </label>
-                      <input
-                        required
-                        type="email"
-                        name="email"
-                        value={enquiryForm.email}
-                        onChange={handleEnquiryChange}
-                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-700">
-                        Phone *
-                      </label>
-                      <input
-                        required
-                        type="tel"
-                        name="phone"
-                        value={enquiryForm.phone}
-                        onChange={handleEnquiryChange}
-                        className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
-                      />
-                    </div>
-                  </div>
+                  <div className="space-y-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Your Contact Information
+                    </p>
 
-                  <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-700">
-                      Company
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                          Full Name <span className="text-red-500">*</span>
+                        </span>
+                        <div className="relative">
+                          <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                          <input
+                            required
+                            name="fullName"
+                            value={enquiryForm.fullName}
+                            onChange={handleEnquiryChange}
+                            autoComplete="name"
+                            placeholder="John Doe"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                          />
+                        </div>
+                      </label>
+
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                          Phone Number <span className="text-red-500">*</span>
+                        </span>
+                        <div className="relative">
+                          <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                          <input
+                            required
+                            type="tel"
+                            name="phone"
+                            value={enquiryForm.phone}
+                            onChange={handleEnquiryChange}
+                            autoComplete="tel"
+                            placeholder="+91 98765 43210"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                          />
+                        </div>
+                      </label>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                          Company Name
+                        </span>
+                        <div className="relative">
+                          <Building2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                          <input
+                            name="company"
+                            value={enquiryForm.company}
+                            onChange={handleEnquiryChange}
+                            autoComplete="organization"
+                            placeholder="Your company name"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                          />
+                        </div>
+                      </label>
+
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                          Email Address
+                        </span>
+                        <div className="relative">
+                          <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type="email"
+                            name="email"
+                            value={enquiryForm.email}
+                            onChange={handleEnquiryChange}
+                            autoComplete="email"
+                            placeholder="john@example.com"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-sm text-slate-900 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                          />
+                        </div>
+                      </label>
+                    </div>
+
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-semibold text-slate-700">
+                        Message
+                      </span>
+                      <textarea
+                        name="message"
+                        value={enquiryForm.message}
+                        onChange={handleEnquiryChange}
+                        rows={3}
+                        placeholder="Tell us about your requirement..."
+                        className="w-full resize-none rounded-xl border border-slate-200 bg-white p-3.5 text-sm text-slate-900 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/20"
+                      />
                     </label>
-                    <input
-                      name="company"
-                      value={enquiryForm.company}
-                      onChange={handleEnquiryChange}
-                      className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-700">
-                      Message
-                    </label>
-                    <textarea
-                      name="message"
-                      rows={3}
-                      value={enquiryForm.message}
-                      onChange={handleEnquiryChange}
-                      className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-[#A054A0]"
-                    />
                   </div>
 
                   {enquiryError && (
-                    <div className="rounded-xl bg-red-50 p-3 text-xs font-medium text-red-600">
+                    <div
+                      role="alert"
+                      className="rounded-xl border border-red-200 bg-red-50/80 p-3.5 text-xs font-medium text-red-700"
+                    >
                       {enquiryError}
                     </div>
                   )}
 
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={closeEnquiryForm}
-                      className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-600"
-                    >
-                      Cancel
-                    </button>
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={isSubmittingEnquiry}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#A054A0] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#884188] disabled:opacity-50"
+                      className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#A054A0]/25 transition hover:bg-[#864286] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isSubmittingEnquiry ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Submitting Enquiry...
+                        </>
                       ) : (
                         <>
                           Submit Enquiry
-                          <ArrowRight className="h-3.5 w-3.5" />
+                          <ArrowRight className="h-4 w-4" />
                         </>
                       )}
                     </button>
+
+                    <p className="mt-3 text-center text-[11px] text-slate-400">
+                      By submitting, you agree to be contacted by our advisors
+                      regarding your selected property shortlist.
+                    </p>
                   </div>
                 </form>
               )}
@@ -2594,7 +2871,7 @@ function PropertiesClientContent() {
                   <button
                     type="button"
                     onClick={closeExclusiveLeadForm}
-                    className="mt-6 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#884188]"
+                    className="mt-6 rounded-2xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#864286]"
                   >
                     Continue Exploring
                   </button>
@@ -2622,7 +2899,7 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.name}
                       onChange={handleExclusiveLeadChange}
                       placeholder="Enter your full name"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
@@ -2645,7 +2922,7 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.phone}
                       onChange={handleExclusiveLeadChange}
                       placeholder="Enter your phone number"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
@@ -2654,7 +2931,8 @@ function PropertiesClientContent() {
                       htmlFor="exclusive-email"
                       className="mb-1.5 block text-sm font-medium text-slate-700"
                     >
-                      Email Address                    </label>
+                      Email Address
+                    </label>
 
                     <input
                       id="exclusive-email"
@@ -2665,7 +2943,7 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.email}
                       onChange={handleExclusiveLeadChange}
                       placeholder="you@company.com"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
@@ -2686,14 +2964,14 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.company}
                       onChange={handleExclusiveLeadChange}
                       placeholder="Enter your company name"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
                   {exclusiveLeadError && (
                     <div
                       role="alert"
-                      className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700"
+                      className="rounded-2xl border border-red-100 bg-red-50 p-3 text-sm text-red-700"
                     >
                       {exclusiveLeadError}
                     </div>
@@ -2702,7 +2980,7 @@ function PropertiesClientContent() {
                   <button
                     type="submit"
                     disabled={isSubmittingExclusiveLead}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#884188] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#A054A0] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isSubmittingExclusiveLead ? (
                       <>

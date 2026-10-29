@@ -248,7 +248,7 @@ function PhoneInput({
             </button>
 
             {countryOpen && (
-              <div className="absolute left-0 top-[calc(100%+8px)] z-[9999] w-[310px] max-w-[calc(100vw-20px)] overflow-hidden rounded-2xl border border-white/90 bg-white/95 shadow-2xl backdrop-blur-2xl">
+              <div className="absolute left-0 top-[calc(100%+8px)] z-[9999] w-[310px] max-w-[calc(100vw-20px)] overflow-hidden rounded-xl border border-white/90 bg-white/95 shadow-2xl backdrop-blur-2xl">
                 <div className="border-b border-black/10 p-3">
                   <div className="flex items-center gap-2 rounded-xl border border-[#A054A0]/20 bg-white/70 px-3 shadow-inner">
                     <Search size={14} className="shrink-0 text-black/40" />
@@ -265,7 +265,7 @@ function PhoneInput({
                       <button
                         type="button"
                         onClick={() => setCountrySearch("")}
-                        className="flex h-5 w-5 items-center justify-center rounded-lg hover:bg-black/10"
+                        className="flex h-5 w-5 items-center justify-center rounded-xl hover:bg-black/10"
                       >
                         <span className="text-black">×</span>
                       </button>
@@ -379,7 +379,7 @@ function JourneyCard({ item, index }) {
               transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
             }
         }
-        className="relative flex h-full min-h-[300px] flex-col overflow-hidden rounded-2xl border border-white/85 bg-white/95 p-5 shadow-xl backdrop-blur-xl transition-[border-color,box-shadow] duration-500 hover:border-[#A054A0] hover:shadow-2xl min-[400px]:min-h-[310px] min-[600px]:min-h-[320px] md:min-h-[340px] md:p-6 xl:min-h-[370px] xl:p-7 2xl:min-h-[390px] 2xl:p-8"
+        className="relative flex h-full min-h-[300px] flex-col overflow-hidden rounded-xl border border-white/85 bg-white/95 p-5 shadow-xl backdrop-blur-xl transition-[border-color,box-shadow] duration-500 hover:border-[#A054A0] hover:shadow-2xl min-[400px]:min-h-[310px] min-[600px]:min-h-[320px] md:min-h-[340px] md:p-6 xl:min-h-[370px] xl:p-7 2xl:min-h-[390px] 2xl:p-8"
       >
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#A054A0]/[0.05] via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" aria-hidden="true" />
         <div className="relative z-10 flex items-start justify-between">
@@ -457,7 +457,7 @@ function PremiumDropdown({ id, name, value, placeholder, options, onChange }) {
           : "pointer-events-none scale-[0.98] opacity-0"
           }`}
       >
-        <div className="overflow-hidden rounded-2xl border border-white/90 bg-white/95 p-1.5 shadow-2xl backdrop-blur-2xl">
+        <div className="overflow-hidden rounded-xl border border-white/90 bg-white/95 p-1.5 shadow-2xl backdrop-blur-2xl">
           <div className="max-h-64 overflow-y-auto overscroll-contain p-1.5 space-y-1">
             {options.map((option) => {
               const isSelected = value === option.value;
@@ -800,7 +800,7 @@ export default function HomePage() {
                 <Link
                   key={city.slug}
                   href={`/kyc/city/${city.slug}`}
-                  className="group relative isolate w-full min-w-0 overflow-hidden rounded-2xl border border-[#A054A0]/20 bg-white shadow-xl transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#A054A0] hover:shadow-2xl aspect-square min-[600px]:aspect-auto min-[600px]:w-[calc(50%-0.625rem)] min-[600px]:rounded-2xl md:w-[calc(33.333%-0.85rem)] lg:w-[calc(25%-0.9375rem)] xl:w-[calc(20%-1rem)]"
+                  className="group relative isolate w-full min-w-0 overflow-hidden rounded-xl border border-[#A054A0]/20 bg-white shadow-xl transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#A054A0] hover:shadow-2xl aspect-square min-[600px]:aspect-auto min-[600px]:w-[calc(50%-0.625rem)] min-[600px]:rounded-xl md:w-[calc(33.333%-0.85rem)] lg:w-[calc(25%-0.9375rem)] xl:w-[calc(20%-1rem)]"
                 >
                   <div className="relative h-full aspect-square overflow-hidden bg-[#A054A0]/5 min-[600px]:h-auto min-[600px]:aspect-[4/3] lg:aspect-square">
                     <img

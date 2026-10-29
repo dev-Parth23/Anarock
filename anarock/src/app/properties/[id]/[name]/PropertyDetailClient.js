@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PropertyCard from "@/components/properties/PropertyCard";
+import Breadcrumbs from "@/components/common/Breadcrumbs";
 import {
   ChevronLeft,
   MapPin,
@@ -18,123 +19,69 @@ import {
   CalendarDays,
   TrainFront,
   Plane,
+  Heart,
   ArrowUpRight,
-  CloudCog,
+  Sparkles,
+  Building,
 } from "lucide-react";
+
 const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
 const AUTO_SCROLL_INTERVAL = 25000;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
+
 const IMAGE_FILES = [
-  {
-    key: "project",
-    name: "Project Picture 1",
-    filename: "Project_Picture_1.jpg",
-  },
-  {
-    key: "floor-plan",
-    name: "Floor Plan 1",
-    filename: "Floor_Plan_1.jpg",
-  },
-  {
-    key: "property-1",
-    name: "Property Photo 1",
-    filename: "Property_Photo_1.jpg",
-  },
-  {
-    key: "property-2",
-    name: "Property Photo 2",
-    filename: "Property_Photo_2.jpg",
-  },
-  {
-    key: "property-3",
-    name: "Property Photo 3",
-    filename: "Property_Photo_3.jpg",
-  },
-  {
-    key: "property-4",
-    name: "Property Photo 4",
-    filename: "Property_Photo_4.jpg",
-  },
-  {
-    key: "property-5",
-    name: "Property Photo 5",
-    filename: "Property_Photo_5.jpg",
-  },
-  {
-    key: "property-6",
-    name: "Property Photo 6",
-    filename: "Property_Photo_6.jpg",
-  },
-  {
-    key: "property-7",
-    name: "Property Photo 7",
-    filename: "Property_Photo_7.jpg",
-  },
-  {
-    key: "property-8",
-    name: "Property Photo 8",
-    filename: "Property_Photo_8.jpg",
-  },
-  {
-    key: "property-9",
-    name: "Property Photo 9",
-    filename: "Property_Photo_9.jpg",
-  },
-  {
-    key: "property-10",
-    name: "Property Photo 10",
-    filename: "Property_Photo_10.jpg",
-  },
+  { key: "project", name: "Project Picture 1", filename: "Project_Picture_1.jpg" },
+  { key: "floor-plan", name: "Floor Plan 1", filename: "Floor_Plan_1.jpg" },
+  { key: "property-1", name: "Property Photo 1", filename: "Property_Photo_1.jpg" },
+  { key: "property-2", name: "Property Photo 2", filename: "Property_Photo_2.jpg" },
+  { key: "property-3", name: "Property Photo 3", filename: "Property_Photo_3.jpg" },
+  { key: "property-4", name: "Property Photo 4", filename: "Property_Photo_4.jpg" },
+  { key: "property-5", name: "Property Photo 5", filename: "Property_Photo_5.jpg" },
+  { key: "property-6", name: "Property Photo 6", filename: "Property_Photo_6.jpg" },
+  { key: "property-7", name: "Property Photo 7", filename: "Property_Photo_7.jpg" },
+  { key: "property-8", name: "Property Photo 8", filename: "Property_Photo_8.jpg" },
+  { key: "property-9", name: "Property Photo 9", filename: "Property_Photo_9.jpg" },
+  { key: "property-10", name: "Property Photo 10", filename: "Property_Photo_10.jpg" },
 ];
+
 const getValue = (property, keys, fallback = "-") => {
   for (const key of keys) {
     const value = property?.[key];
-
     if (value !== null && value !== undefined && String(value).trim() !== "") {
       return value;
     }
   }
-
   return fallback;
 };
+
 const normalizeType = (value) => {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
+  return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
 };
+
 const isCoworkingProperty = (property) => {
   const type = normalizeType(
     property?.officeType ||
     property?.office_type ||
     property?.propertyType ||
     property?.property_type ||
-    property?.type,
+    property?.type
   );
-
   return (
     type.includes("cowork") ||
     type.includes("co-working") ||
     type.includes("managed office")
   );
 };
+
 const formatDisplayValue = (value) => {
-  if (value === null || value === undefined || value === "") {
-    return "-";
-  }
-
-  if (Array.isArray(value)) {
-    return value.length ? value.join(", ") : "-";
-  }
-
-  if (typeof value === "object") {
-    return Object.values(value).join(", ") || "-";
-  }
-
+  if (value === null || value === undefined || value === "") return "-";
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "-";
+  if (typeof value === "object") return Object.values(value).join(", ") || "-";
   return String(value);
 };
+
 const getPropertyId = (item) => {
   return String(
     item?.id ||
@@ -146,37 +93,44 @@ const getPropertyId = (item) => {
     item?.Property_ID ||
     item?.projectId ||
     item?.Project_ID ||
-    "",
+    ""
   ).trim();
 };
+
 function DetailField({ label, value, icon: Icon }) {
   return (
-    <div className="min-w-0">
-      <div className="flex items-center gap-2">
-        {Icon && <Icon className="h-4 w-4 shrink-0 text-[#A054A0]" />}
-
-        <p className="text-sm font-semibold leading-5 text-slate-900">
+    <div className="group relative flex min-w-0 items-center gap-3.5 rounded-2xl border border-[#A054A0]/10 bg-white/80 p-4 shadow-[0_2px_12px_-4px_rgba(160,84,160,0.06)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#A054A0]/30 hover:bg-white hover:shadow-[0_12px_24px_-10px_rgba(160,84,160,0.15)] sm:gap-4 sm:p-4.5">
+      {Icon && (
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#A054A0]/10 text-[#A054A0] transition-transform duration-300 group-hover:scale-105">
+          <Icon className="h-4.5 w-4.5" />
+        </div>
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#A054A0]/80">
           {label}
         </p>
+        <p className="mt-1 break-words text-xs font-semibold text-slate-800 sm:text-sm">
+          {formatDisplayValue(value)}
+        </p>
       </div>
-
-      <p className="mt-1.5 break-words text-sm leading-6 text-slate-600">
-        {formatDisplayValue(value)}
-      </p>
     </div>
   );
 }
+
 function DetailSection({ title, children }) {
   return (
-    <section className="border-t border-slate-200 pt-6 first:border-t-0 first:pt-0">
-      <h3 className="mb-5 text-base font-bold text-slate-900 sm:text-lg">
-        {title}
-      </h3>
-
+    <section className="relative border-t border-slate-100 pt-6 first:border-t-0 first:pt-0 sm:pt-8">
+      <div className="mb-4 flex items-center gap-2.5">
+        <div className="h-1.5 w-1.5 rounded-full bg-[#A054A0]/70" />
+        <h3 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+          {title}
+        </h3>
+      </div>
       {children}
     </section>
   );
 }
+
 export default function PropertyDetailClient({ propertyId }) {
   const [property, setProperty] = useState(null);
   const [gallery, setGallery] = useState([]);
@@ -186,12 +140,46 @@ export default function PropertyDetailClient({ propertyId }) {
   const [failedImages, setFailedImages] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [, setIsContactModalOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [compareSelection, setCompareSelection] = useState([]);
+  const [isTitleVisible, setIsTitleVisible] = useState(true);
+
+  const similarSectionRef = useRef(null);
   const thumbnailContainerRef = useRef(null);
   const thumbnailRefs = useRef({});
   const autoScrollTimeoutRef = useRef(null);
+
+  // Smart scroll handler: visible only at the top and hides before reaching similar/recommended properties
+  useEffect(() => {
+    let frameId = null;
+
+    const handleScroll = () => {
+      if (frameId !== null) return;
+
+      frameId = window.requestAnimationFrame(() => {
+        const currentY = Math.max(0, window.scrollY);
+        let shouldShow = currentY < 100;
+
+        if (similarSectionRef.current) {
+          const rect = similarSectionRef.current.getBoundingClientRect();
+          // Hide sticky header as soon as similar properties section approaches the viewport
+          if (rect.top <= window.innerHeight * 0.8) {
+            shouldShow = false;
+          }
+        }
+
+        setIsTitleVisible(shouldShow);
+        frameId = null;
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
+  }, []);
+
   useEffect(() => {
     if (!propertyId) return;
     const controller = new AbortController();
@@ -201,10 +189,7 @@ export default function PropertyDetailClient({ propertyId }) {
         setError("");
         const response = await fetch(
           `/api/properties/${encodeURIComponent(propertyId)}`,
-          {
-            cache: "no-store",
-            signal: controller.signal,
-          },
+          { cache: "no-store", signal: controller.signal }
         );
 
         const data = await response.json();
@@ -213,7 +198,7 @@ export default function PropertyDetailClient({ propertyId }) {
         }
         const propertyData = data.data;
         const imageFolderPath = String(
-          propertyData.imageFolderPath || "",
+          propertyData.imageFolderPath || ""
         ).replace(/^\/+|\/+$/g, "");
         const images = imageFolderPath
           ? IMAGE_FILES.map((image) => ({
@@ -228,22 +213,19 @@ export default function PropertyDetailClient({ propertyId }) {
         setGallery(images);
         setActiveImg("project");
         setFailedImages(new Set());
+
         if (propertyData.city) {
           try {
             const relatedResponse = await fetch(
               `/api/properties?city=${encodeURIComponent(propertyData.city)}`,
-              {
-                cache: "no-store",
-                signal: controller.signal,
-              },
+              { cache: "no-store", signal: controller.signal }
             );
             const relatedData = await relatedResponse.json();
             if (relatedData.success) {
               const currentId = getPropertyId(propertyData);
               const relatedProperties = (relatedData.data || []).filter(
-                (item) => getPropertyId(item) !== currentId,
+                (item) => getPropertyId(item) !== currentId
               );
-
               setRelated(relatedProperties);
             }
           } catch (relatedError) {
@@ -255,7 +237,6 @@ export default function PropertyDetailClient({ propertyId }) {
       } catch (err) {
         if (err.name !== "AbortError") {
           console.error(err);
-
           setError(err?.message || "Unable to load property");
         }
       } finally {
@@ -269,6 +250,7 @@ export default function PropertyDetailClient({ propertyId }) {
       controller.abort();
     };
   }, [propertyId]);
+
   const { row1, row2 } = useMemo(() => {
     const r1 = [];
     const r2 = [];
@@ -279,23 +261,19 @@ export default function PropertyDetailClient({ propertyId }) {
         r2.push(item);
       }
     });
-
-    return {
-      row1: r1,
-      row2: r2,
-    };
+    return { row1: r1, row2: r2 };
   }, [related]);
+
   useEffect(() => {
     if (!property) return;
-
     const syncWishlist = () => {
       try {
         const wishlist = JSON.parse(
-          localStorage.getItem("anarock_wishlist_properties") || "[]",
+          localStorage.getItem("anarock_wishlist_properties") || "[]"
         );
         const currentId = getPropertyId(property);
         setIsWishlisted(
-          wishlist.some((item) => getPropertyId(item) === currentId),
+          wishlist.some((item) => getPropertyId(item) === currentId)
         );
       } catch (err) {
         console.error("Wishlist sync failed:", err);
@@ -310,134 +288,100 @@ export default function PropertyDetailClient({ propertyId }) {
       window.removeEventListener("storage", syncWishlist);
     };
   }, [property]);
+
   const handleWishlist = (item) => {
     if (!item) return;
-
     try {
       const storageKey = "anarock_wishlist_properties";
       const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
       const currentId = getPropertyId(item);
       if (!currentId) return;
       const exists = existing.some(
-        (wishlistItem) => getPropertyId(wishlistItem) === currentId,
+        (wishlistItem) => getPropertyId(wishlistItem) === currentId
       );
-
       const updated = exists
         ? existing.filter(
-          (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
+          (wishlistItem) => getPropertyId(wishlistItem) !== currentId
         )
         : [...existing, item];
 
       setIsWishlisted(!exists);
-
       localStorage.setItem(storageKey, JSON.stringify(updated));
-
       window.dispatchEvent(new Event("wishlist-updated"));
     } catch (err) {
       console.error("Wishlist update failed:", err);
     }
   };
+
   useEffect(() => {
     const loadCompareSelection = () => {
       try {
         const saved = localStorage.getItem(COMPARE_STORAGE_KEY);
-
         if (!saved) {
           setCompareSelection([]);
           return;
         }
-
         const parsed = JSON.parse(saved);
-
         if (!Array.isArray(parsed)) {
           setCompareSelection([]);
           return;
         }
         const unique = [];
         const seenIds = new Set();
-
         for (const item of parsed) {
           const id = getPropertyId(item);
-
-          if (!id || seenIds.has(id)) {
-            continue;
-          }
-
+          if (!id || seenIds.has(id)) continue;
           seenIds.add(id);
           unique.push(item);
         }
-
         setCompareSelection(unique.slice(-MAX_COMPARE_PROPERTIES));
       } catch (err) {
         console.error("Failed to load compare selection:", err);
-
         setCompareSelection([]);
       }
     };
-
     loadCompareSelection();
     window.addEventListener("compare-updated", loadCompareSelection);
     window.addEventListener("storage", loadCompareSelection);
-
     return () => {
       window.removeEventListener("compare-updated", loadCompareSelection);
-
       window.removeEventListener("storage", loadCompareSelection);
     };
   }, []);
-  const currentPropertyId = useMemo(() => {
-    return getPropertyId(property);
-  }, [property]);
+
+  const currentPropertyId = useMemo(() => getPropertyId(property), [property]);
   const isCompared = useMemo(() => {
     if (!currentPropertyId) return false;
-
     return compareSelection.some(
-      (item) => getPropertyId(item) === currentPropertyId,
+      (item) => getPropertyId(item) === currentPropertyId
     );
   }, [compareSelection, currentPropertyId]);
+
   const handleCompareToggle = useCallback(() => {
     if (!property) return;
-
     const propertyId = getPropertyId(property);
-
-    if (!propertyId) {
-      console.warn("Cannot compare property without ID");
-      return;
-    }
+    if (!propertyId) return;
 
     setCompareSelection((previousSelection) => {
       const alreadySelected = previousSelection.some(
-        (item) => getPropertyId(item) === propertyId,
+        (item) => getPropertyId(item) === propertyId
       );
-
-      let updatedSelection;
-
-      if (alreadySelected) {
-        updatedSelection = previousSelection.filter(
-          (item) => getPropertyId(item) !== propertyId,
-        );
-      } else {
-        updatedSelection = [...previousSelection, property].slice(
-          -MAX_COMPARE_PROPERTIES,
-        );
-      }
+      let updatedSelection = alreadySelected
+        ? previousSelection.filter((item) => getPropertyId(item) !== propertyId)
+        : [...previousSelection, property].slice(-MAX_COMPARE_PROPERTIES);
 
       try {
-        localStorage.setItem(
-          COMPARE_STORAGE_KEY,
-          JSON.stringify(updatedSelection),
-        );
+        localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(updatedSelection));
         window.dispatchEvent(new Event("compare-updated"));
       } catch (err) {
         console.error("Failed to save compare selection:", err);
       }
-
       return updatedSelection;
     });
   }, [property]);
+
   const clearCompareSelection = useCallback(() => {
     setCompareSelection([]);
-
     try {
       localStorage.removeItem(COMPARE_STORAGE_KEY);
       window.dispatchEvent(new Event("compare-updated"));
@@ -445,6 +389,7 @@ export default function PropertyDetailClient({ propertyId }) {
       console.error("Failed to clear compare selection:", err);
     }
   }, []);
+
   const openComparePage = useCallback(() => {
     if (
       compareSelection.length < MIN_COMPARE_PROPERTIES ||
@@ -452,29 +397,27 @@ export default function PropertyDetailClient({ propertyId }) {
     ) {
       return;
     }
-
     try {
-      localStorage.setItem(
-        COMPARE_STORAGE_KEY,
-        JSON.stringify(compareSelection),
-      );
-
+      localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(compareSelection));
       window.location.href = "/compare";
     } catch (err) {
       console.error("Failed to open compare page:", err);
     }
   }, [compareSelection]);
+
   const availableGallery = useMemo(() => {
     return gallery.filter((image) => !failedImages.has(image.key));
   }, [gallery, failedImages]);
+
   const activeImage =
     availableGallery.find((image) => image.key === activeImg)?.url ||
     property?.image ||
     "";
   const activeIndex = Math.max(
     0,
-    availableGallery.findIndex((image) => image.key === activeImg),
+    availableGallery.findIndex((image) => image.key === activeImg)
   );
+
   const handleImageError = (imageKey) => {
     setFailedImages((previous) => {
       const next = new Set(previous);
@@ -482,38 +425,25 @@ export default function PropertyDetailClient({ propertyId }) {
       return next;
     });
     if (activeImg === imageKey) {
-      const currentIndex = availableGallery.findIndex(
-        (img) => img.key === imageKey,
-      );
-      const nextImage =
-        availableGallery[currentIndex + 1] ||
-        availableGallery[currentIndex - 1];
-      if (nextImage) {
-        setActiveImg(nextImage.key);
-      }
+      const currentIndex = availableGallery.findIndex((img) => img.key === imageKey);
+      const nextImage = availableGallery[currentIndex + 1] || availableGallery[currentIndex - 1];
+      if (nextImage) setActiveImg(nextImage.key);
     }
   };
+
   const scrollThumbnailToTop = useCallback((imageKey) => {
     const container = thumbnailContainerRef.current;
     const thumbnail = thumbnailRefs.current[imageKey];
-    if (!container || !thumbnail) {
-      return;
-    }
+    if (!container || !thumbnail) return;
 
     if (window.innerWidth >= 768) {
       const targetTop = thumbnail.offsetTop - container.offsetTop;
-      container.scrollTo({
-        top: Math.max(0, targetTop),
-        behavior: "smooth",
-      });
+      container.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
     } else {
-      thumbnail.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
+      thumbnail.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     }
   }, []);
+
   const selectImage = useCallback(
     (imageKey) => {
       setActiveImg(imageKey);
@@ -521,53 +451,40 @@ export default function PropertyDetailClient({ propertyId }) {
         scrollThumbnailToTop(imageKey);
       });
     },
-    [scrollThumbnailToTop],
+    [scrollThumbnailToTop]
   );
+
   const goToNextImage = useCallback(() => {
     if (!availableGallery.length) return;
     const nextIndex = (activeIndex + 1) % availableGallery.length;
     const nextImage = availableGallery[nextIndex];
-    if (nextImage) {
-      selectImage(nextImage.key);
-    }
+    if (nextImage) selectImage(nextImage.key);
   }, [activeIndex, availableGallery, selectImage]);
+
   const goToPreviousImage = useCallback(() => {
     if (!availableGallery.length) return;
-    const previousIndex =
-      (activeIndex - 1 + availableGallery.length) % availableGallery.length;
+    const previousIndex = (activeIndex - 1 + availableGallery.length) % availableGallery.length;
     const previousImage = availableGallery[previousIndex];
-    if (previousImage) {
-      selectImage(previousImage.key);
-    }
+    if (previousImage) selectImage(previousImage.key);
   }, [activeIndex, availableGallery, selectImage]);
+
   useEffect(() => {
-    if (availableGallery.length <= 1) {
-      return;
-    }
-    autoScrollTimeoutRef.current = setTimeout(
-      goToNextImage,
-      AUTO_SCROLL_INTERVAL,
-    );
+    if (availableGallery.length <= 1) return;
+    autoScrollTimeoutRef.current = setTimeout(goToNextImage, AUTO_SCROLL_INTERVAL);
     return () => {
-      if (autoScrollTimeoutRef.current) {
-        clearTimeout(autoScrollTimeoutRef.current);
-      }
+      if (autoScrollTimeoutRef.current) clearTimeout(autoScrollTimeoutRef.current);
     };
   }, [activeImg, availableGallery.length, goToNextImage]);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "ArrowRight") {
-        goToNextImage();
-      }
-      if (event.key === "ArrowLeft") {
-        goToPreviousImage();
-      }
+      if (event.key === "ArrowRight") goToNextImage();
+      if (event.key === "ArrowLeft") goToPreviousImage();
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goToNextImage, goToPreviousImage]);
+
   const propertyDetails = useMemo(() => {
     if (!property) return {};
     return {
@@ -593,115 +510,172 @@ export default function PropertyDetailClient({ propertyId }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="text-lg text-slate-600">Loading property...</div>
+      <div className="flex min-h-screen items-center justify-center bg-[#fcfbfd]">
+        <div className="flex items-center gap-2.5 text-xs font-semibold text-[#A054A0]">
+          <Building className="h-5 w-5 animate-pulse text-[#A054A0]" />
+          Loading property details...
+        </div>
       </div>
     );
   }
+
   if (error || !property) {
     const isAuthError =
       error?.toLowerCase().includes("oauth") ||
       error?.toLowerCase().includes("token");
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <div className="max-w-md text-center">
-          <h1 className="mb-2 text-2xl font-semibold text-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-[#fcfbfd] px-4">
+        <div className="max-w-md rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-[0_10px_30px_-15px_rgba(160,84,160,0.15)]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#A054A0]/10 text-[#A054A0]">
+            <Building className="h-6 w-6" />
+          </div>
+          <h1 className="mt-4 text-lg font-bold text-slate-900">
             {isAuthError ? "Unable to load property" : "Property not found"}
           </h1>
-
-          <p className="text-slate-500">
+          <p className="mt-1.5 text-xs text-slate-500">
             {isAuthError
               ? "There was a temporary problem connecting to the property database. Please try again."
               : error || "Unable to load property details."}
           </p>
+          <Link
+            href="/properties"
+            className="mt-5 inline-flex min-h-[40px] items-center justify-center rounded-xl bg-[#A054A0] px-5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#864286]"
+          >
+            Explore Properties
+          </Link>
         </div>
       </div>
     );
   }
-  /* MAIN UI */
+
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto w-full max-w-[85vw] px-4 pb-6 sm:pb-6 sm:px-8 lg:px-8">
-        {/* PROPERTY DETAILS */}
-        <div className="relative">
-          <div className="sticky top-[72px] z-40 mb-6 border rounded-b-xl border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6 sm:py-5 lg:px-8">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <>
+      <Breadcrumbs
+        items={[
+          { label: "Properties", href: "/properties" },
+          { label: property.name || "Property Detail" },
+        ]}
+      />
+
+      <main className={`min-h-screen overflow-x-clip px-3 py-4 sm:px-5 sm:py-6 lg:px-8 xl:px-10 ${compareSelection.length > 0 ? "pb-24 sm:pb-28" : "pb-12 sm:pb-16"
+        }`}>
+        <style jsx global>{`
+          @keyframes propertyImageFade {
+            from { opacity: 0.5; transform: scale(1.01); }
+            to { opacity: 1; transform: scale(1); }
+          }
+          @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          html { scroll-behavior: smooth; }
+          ::selection { background: rgba(160, 84, 160, 0.15); color: #1a1a1a; }
+          .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+          .scrollbar-none::-webkit-scrollbar { display: none; }
+          @media (prefers-reduced-motion: no-preference) {
+            main > div > section { animation: fadeInSlide 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+            main > div > section:nth-of-type(2) { animation-delay: 60ms; }
+            main > div > section:nth-of-type(3) { animation-delay: 100ms; }
+          }
+        `}</style>
+
+        <div className="mx-auto w-full min-w-0 max-w-[1500px]">
+          {/* Minimal Sticky Header Title Bar */}
+          <div
+            className={`sticky top-[60px] z-40 mb-4 overflow-hidden rounded-2xl border border-[#A054A0]/15 bg-white/90 px-3.5 py-3.5 shadow-[0_12px_30px_-15px_rgba(160,84,160,0.12)] backdrop-blur-xl transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none sm:top-[68px] sm:mb-6 sm:px-6 sm:py-4 ${isTitleVisible
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-[calc(100%+12px)] pointer-events-none opacity-0 shadow-none"
+              }`}
+            aria-hidden={!isTitleVisible}
+          >
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0 flex-1">
-                <div className="mb-1.5 flex flex-wrap items-center gap-2 text-xs font-normal text-slate-500 sm:text-sm">
-                  {property.city && <span>{property.city}</span>}
+                <div className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A054A0]">
+                  {property.city && (
+                    <span className="rounded-full bg-[#A054A0]/8 px-2.5 py-0.5 ring-1 ring-[#A054A0]/15">
+                      {property.city}
+                    </span>
+                  )}
                   {property.micromarket && (
                     <>
                       <span className="text-slate-300">•</span>
-                      <span>{property.micromarket}</span>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-slate-700">
+                        {property.micromarket}
+                      </span>
                     </>
                   )}
-
                   {propertyDetails.propertyType && (
                     <>
                       <span className="text-slate-300">•</span>
-                      <span>{propertyDetails.propertyType}</span>
+                      <span className="rounded-full bg-slate-50 px-2.5 py-0.5 text-slate-600">
+                        {propertyDetails.propertyType}
+                      </span>
                     </>
                   )}
                 </div>
-                <h1 className="truncate text-lg font-bold tracking-tight text-slate-900 sm:text-2xl md:text-2xl">
+                <h1 className="break-words text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                   {property.name}
                 </h1>
 
                 {property.address && (
-                  <div className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-slate-500 sm:text-sm">
-                    <MapPin className="h-4 w-4 shrink-0 text-[#A054A0]" />
-
+                  <div className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-slate-500">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-[#A054A0]" />
                     <p className="truncate">{property.address}</p>
                   </div>
                 )}
               </div>
-              <div className="flex w-full shrink-0 items-center gap-2 sm:gap-3 lg:w-auto">
+
+              <div className="flex w-full min-w-0 shrink-0 items-center gap-2.5 lg:w-auto">
                 <button
                   type="button"
                   onClick={handleCompareToggle}
-                  className={`inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isCompared
-                    ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
-                    : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
+                  className={`group inline-flex min-h-[40px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl border px-4 py-2 text-xs font-semibold shadow-xs transition-all duration-200 active:scale-95 sm:flex-none ${isCompared
+                    ? "border-[#A054A0] bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/20"
+                    : "border-slate-200/80 bg-white text-slate-700 hover:border-[#A054A0]/50 hover:text-[#A054A0]"
                     }`}
                   aria-pressed={isCompared}
                 >
-                  {isCompared ? (
-                    <X className="h-4 w-4" />
-                  ) : (
-                    <GitCompare className="h-4 w-4" />
-                  )}
-                  {isCompared ? "Compared" : "Compare"}
+                  {isCompared ? <X className="h-3.5 w-3.5" /> : <GitCompare className="h-3.5 w-3.5 text-[#A054A0]" />}
+                  <span>{isCompared ? "Compared" : "Compare"}</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => handleWishlist(property)}
-                  className={`inline-flex h-10 flex-1 items-center justify-center rounded-xl border px-4 text-sm font-medium shadow-sm transition sm:h-11 sm:flex-none sm:px-5 ${isWishlisted
-                    ? "border-[#A054A0] bg-[#A054A0] text-white hover:bg-[#8d438d]"
-                    : "border-slate-300 bg-white text-slate-900 hover:border-[#A054A0] hover:text-[#A054A0]"
+                  className={`group inline-flex min-h-[40px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl border px-4 py-2 text-xs font-semibold shadow-xs transition-all duration-200 active:scale-95 sm:flex-none ${isWishlisted
+                    ? "border-[#A054A0] bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/20"
+                    : "border-slate-200/80 bg-white text-slate-700 hover:border-[#A054A0]/50 hover:text-[#A054A0]"
                     }`}
                 >
-                  {isWishlisted ? "Shortlisted" : "Shortlist"}
+                  <Heart
+                    className={`h-3.5 w-3.5 ${isWishlisted ? "fill-white text-white" : "text-[#A054A0]"
+                      }`}
+                  />
+                  <span>{isWishlisted ? "Shortlisted" : "Shortlist"}</span>
                 </button>
               </div>
             </div>
           </div>
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:rounded-xl">
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6">
-              <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-900 sm:text-base">
-                Property Media Gallery
-              </h2>
 
-              <div className="text-xs font-medium text-slate-500 sm:text-sm">
-                {availableGallery.length} image
-                {availableGallery.length === 1 ? "" : "s"} found
+          {/* Minimal Media Gallery Section */}
+          <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_10px_30px_-15px_rgba(160,84,160,0.1)] ring-1 ring-slate-100">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-[#fcfbfd] px-4 py-3 sm:px-6 sm:py-3.5">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-[#A054A0]" />
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-800">
+                  Media Gallery
+                </h2>
               </div>
+              <span className="rounded-full bg-[#A054A0]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#A054A0]">
+                {availableGallery.length} {availableGallery.length === 1 ? "Image" : "Images"}
+              </span>
             </div>
 
-            <div className="p-3 sm:p-5">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="p-3 sm:p-5 lg:p-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_300px] lg:grid-cols-[minmax(0,1fr)_340px]">
                 <div
-                  className="group relative overflow-hidden rounded-xl bg-slate-100"
+                  className="group relative overflow-hidden rounded-xl bg-slate-50 shadow-xs ring-1 ring-slate-200/50"
                   onMouseEnter={() => {
                     if (autoScrollTimeoutRef.current) {
                       clearTimeout(autoScrollTimeoutRef.current);
@@ -711,12 +685,12 @@ export default function PropertyDetailClient({ propertyId }) {
                     if (availableGallery.length > 1) {
                       autoScrollTimeoutRef.current = setTimeout(
                         goToNextImage,
-                        AUTO_SCROLL_INTERVAL,
+                        AUTO_SCROLL_INTERVAL
                       );
                     }
                   }}
                 >
-                  <div className="relative aspect-[4/3] min-h-[280px] w-full sm:aspect-[16/10] md:aspect-[4/3] lg:aspect-[16/10]">
+                  <div className="relative aspect-[16/10] min-h-[220px] w-full sm:min-h-[280px]">
                     {activeImage ? (
                       <Image
                         key={activeImg}
@@ -724,24 +698,24 @@ export default function PropertyDetailClient({ propertyId }) {
                         alt={property.name || "Property image"}
                         fill
                         priority
-                        className="object-cover transition-opacity duration-500"
+                        className="object-cover [animation:propertyImageFade_350ms_ease_both] motion-reduce:[animation:none]"
                         sizes="(max-width: 767px) 100vw, 70vw"
                         onError={() => handleImageError(activeImg)}
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-slate-400">
+                      <div className="flex h-full items-center justify-center text-xs text-slate-400">
                         Image unavailable
                       </div>
                     )}
 
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/65 to-transparent" />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent" />
 
-                    <div className="absolute bottom-4 left-4 max-w-[80%] text-sm font-semibold text-white drop-shadow-md sm:text-base">
-                      {availableGallery.find((img) => img.key === activeImg)
-                        ?.name || "Property Photo"}
+                    <div className="absolute bottom-3 left-3 max-w-[80%] text-xs font-semibold text-white drop-shadow-xs sm:text-sm">
+                      {availableGallery.find((img) => img.key === activeImg)?.name ||
+                        "Property Photo"}
                     </div>
 
-                    <div className="absolute right-4 top-4 rounded-full bg-black/65 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+                    <div className="absolute right-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-xs">
                       {activeIndex + 1} / {availableGallery.length}
                     </div>
 
@@ -751,32 +725,32 @@ export default function PropertyDetailClient({ propertyId }) {
                           type="button"
                           onClick={goToPreviousImage}
                           aria-label="Previous image"
-                          className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
+                          className="absolute left-2.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-xs transition hover:bg-[#A054A0] md:opacity-0 md:group-hover:opacity-100"
                         >
-                          <ChevronLeft className="h-5 w-5" />
+                          <ChevronLeft className="h-4 w-4" />
                         </button>
 
                         <button
                           type="button"
                           onClick={goToNextImage}
                           aria-label="Next image"
-                          className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white shadow-lg backdrop-blur-md transition hover:bg-black/75 md:opacity-0 md:group-hover:opacity-100"
+                          className="absolute right-2.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-xs transition hover:bg-[#A054A0] md:opacity-0 md:group-hover:opacity-100"
                         >
-                          <ChevronRight className="h-5 w-5" />
+                          <ChevronRight className="h-4 w-4" />
                         </button>
                       </>
                     )}
                   </div>
                 </div>
 
+                {/* Minimal Thumbnails */}
                 <div className="min-w-0">
                   <div
                     ref={thumbnailContainerRef}
-                    className="hidden h-full max-h-[620px] flex-col gap-3 overflow-y-auto pr-1 md:flex"
+                    className="hidden h-full max-h-[460px] flex-col gap-2.5 overflow-y-auto pr-1 md:flex scrollbar-none"
                   >
                     {availableGallery.map((image) => {
                       const isActive = activeImg === image.key;
-
                       return (
                         <button
                           key={image.key}
@@ -787,22 +761,10 @@ export default function PropertyDetailClient({ propertyId }) {
                           onClick={() => selectImage(image.key)}
                           aria-label={`View ${image.name}`}
                           aria-current={isActive ? "true" : undefined}
-                          className={`
-                              group
-                              relative
-                              w-full
-                              shrink-0
-                              overflow-hidden
-                              rounded-xl
-                              border-2
-                              text-left
-                              transition-all
-                              duration-300
-                              ${isActive
-                              ? "border-[#A054A0] shadow-md"
-                              : "border-transparent bg-slate-50 hover:border-slate-300"
-                            }
-                            `}
+                          className={`group relative w-full shrink-0 overflow-hidden rounded-xl border transition-all duration-200 ${isActive
+                            ? "border-[#A054A0] ring-1 ring-[#A054A0]/40 shadow-xs"
+                            : "border-transparent bg-slate-50 hover:border-slate-200"
+                            }`}
                         >
                           <div className="relative aspect-[16/9] w-full">
                             <Image
@@ -810,27 +772,15 @@ export default function PropertyDetailClient({ propertyId }) {
                               alt={image.name}
                               fill
                               className="object-cover"
-                              sizes="380px"
+                              sizes="320px"
                               onError={() => handleImageError(image.key)}
                             />
-
                             <div
-                              className={`
-                                  absolute
-                                  inset-0
-                                  transition
-                                  ${isActive
-                                  ? "bg-[#A054A0]/10"
-                                  : "bg-black/0 group-hover:bg-black/10"
-                                }
-                                `}
+                              className={`absolute inset-0 transition ${isActive
+                                ? "bg-[#A054A0]/10"
+                                : "bg-black/0 group-hover:bg-black/10"
+                                }`}
                             />
-                          </div>
-
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-8">
-                            {/* <p className="truncate text-xs font-medium text-white">
-                              {image.name}
-                            </p> */}
                           </div>
                         </button>
                       );
@@ -840,11 +790,10 @@ export default function PropertyDetailClient({ propertyId }) {
                   <div className="md:hidden">
                     <div
                       ref={thumbnailContainerRef}
-                      className="flex gap-2 overflow-x-auto pb-1"
+                      className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none"
                     >
                       {availableGallery.map((image) => {
                         const isActive = activeImg === image.key;
-
                         return (
                           <button
                             key={image.key}
@@ -855,33 +804,20 @@ export default function PropertyDetailClient({ propertyId }) {
                             onClick={() => selectImage(image.key)}
                             aria-label={`View ${image.name}`}
                             aria-current={isActive ? "true" : undefined}
-                            className={`
-                                relative
-                                h-20
-                                w-28
-                                shrink-0
-                                overflow-hidden
-                                rounded-xl
-                                border-2
-                                transition-all
-                                ${isActive
-                                ? "border-[#A054A0] shadow-md"
-                                : "border-transparent opacity-75"
-                              }
-                              `}
+                            className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border transition-all ${isActive
+                              ? "border-[#A054A0] ring-1 ring-[#A054A0]/40 shadow-xs"
+                              : "border-transparent opacity-80 hover:opacity-100"
+                              }`}
                           >
                             <Image
                               src={image.url}
                               alt={image.name}
                               fill
                               className="object-cover"
-                              sizes="112px"
+                              sizes="96px"
                               onError={() => handleImageError(image.key)}
                             />
-
-                            {isActive && (
-                              <div className="absolute inset-0 bg-[#A054A0]/15" />
-                            )}
+                            {isActive && <div className="absolute inset-0 bg-[#A054A0]/15" />}
                           </button>
                         );
                       })}
@@ -892,22 +828,21 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
           </section>
 
-          <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:rounded-xl sm:p-7 lg:p-8">
-            <DetailSection title="Property details">
+          {/* Minimal Detailed Information Section */}
+          <section className="mt-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_10px_30px_-15px_rgba(160,84,160,0.1)] ring-1 ring-slate-100 sm:mt-6 sm:p-7 lg:mt-8 lg:p-8">
+            <DetailSection title="Property Details">
               {propertyDetails.isCoworking ? (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
                   <DetailField
                     label="Operator Name"
                     value={propertyDetails.managedBy}
                     icon={Building2}
                   />
-
                   <DetailField
                     label="Offered Seats"
                     value={propertyDetails.offeredSeats}
                     icon={Users}
                   />
-
                   <DetailField
                     label="Seat Price"
                     value={
@@ -919,19 +854,17 @@ export default function PropertyDetailClient({ propertyId }) {
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
                   <DetailField
                     label="Area Available"
                     value={hasArea ? formatArea(areaValue, unit) : "-"}
                     icon={Building2}
                   />
-
                   <DetailField
                     label="Typical Floor"
                     value={propertyDetails.towerFloor}
                     icon={Layers3}
                   />
-
                   <DetailField
                     label="Availability Timeline"
                     value={propertyDetails.availability}
@@ -950,21 +883,19 @@ export default function PropertyDetailClient({ propertyId }) {
               )}
             </DetailSection>
 
-            <div className="mt-7">
+            <div className="mt-6 sm:mt-7">
               <DetailSection title="Project Specifications">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
                   <DetailField
-                    label="Building certification"
+                    label="Building Certification"
                     value={propertyDetails.buildingCertification}
                     icon={Building2}
                   />
-
                   <DetailField
                     label="Building Structure"
                     value={propertyDetails.buildingStructure}
                     icon={Layers3}
                   />
-
                   <DetailField
                     label="Year of Construction"
                     value={propertyDetails.yearOfCompletion}
@@ -974,16 +905,16 @@ export default function PropertyDetailClient({ propertyId }) {
               </DetailSection>
             </div>
 
-            <div className="mt-7">
-              <DetailSection title="Connectivity">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 sm:mt-7">
+              <DetailSection title="Connectivity & Location">
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
                   <DetailField
                     label="Nearby Metro"
                     value={propertyDetails.nearbyMetro}
                     icon={TrainFront}
                   />
                   <DetailField
-                    label="Airport"
+                    label="Airport Distance"
                     value={propertyDetails.airport}
                     icon={Plane}
                   />
@@ -991,200 +922,181 @@ export default function PropertyDetailClient({ propertyId }) {
               </DetailSection>
             </div>
           </section>
+
+          {/* SIMILAR PROPERTIES (Ref referenced here to trigger sticky title hiding) */}
+          {related.length > 0 && (
+            <section ref={similarSectionRef} className="mt-10 sm:mt-14 lg:mt-16">
+              <div className="mb-4 flex items-end justify-between gap-3 sm:mb-6">
+                <div>
+                  <div className="mb-1.5 flex items-center gap-1.5">
+                    <Building className="h-3.5 w-3.5 text-[#A054A0]" />
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A054A0]">
+                      Explore More
+                    </span>
+                  </div>
+                  <h2 className="text-lg font-bold tracking-tight text-slate-900 sm:text-2xl">
+                    Similar Properties
+                  </h2>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Explore other commercial listings in this location.
+                  </p>
+                </div>
+
+                <Link
+                  href="/properties"
+                  className="group inline-flex min-h-[36px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-[#A054A0]/50 hover:bg-[#A054A0]/5 hover:text-[#A054A0]"
+                >
+                  <span>View All</span>
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                </Link>
+              </div>
+
+              <div className="space-y-4">
+                {row1.length > 0 && (
+                  <div className="-mx-1 flex gap-3.5 overflow-x-auto px-1 pb-3 pt-1 snap-x snap-mandatory scrollbar-none sm:gap-4">
+                    {row1.map((item) => (
+                      <div
+                        key={getPropertyId(item)}
+                        className="w-[min(80vw,300px)] shrink-0 snap-start sm:w-[300px] lg:w-[330px]"
+                      >
+                        <PropertyCard
+                          property={item}
+                          isCompared={compareSelection.some(
+                            (selected) => getPropertyId(selected) === getPropertyId(item)
+                          )}
+                          onCompareToggle={(selectedProperty) => {
+                            if (!selectedProperty) return;
+                            const selectedId = getPropertyId(selectedProperty);
+                            if (!selectedId) return;
+
+                            setCompareSelection((previousSelection) => {
+                              const alreadySelected = previousSelection.some(
+                                (selected) => getPropertyId(selected) === selectedId
+                              );
+                              const updatedSelection = alreadySelected
+                                ? previousSelection.filter(
+                                  (selected) => getPropertyId(selected) !== selectedId
+                                )
+                                : [...previousSelection, selectedProperty].slice(
+                                  -MAX_COMPARE_PROPERTIES
+                                );
+
+                              try {
+                                localStorage.setItem(
+                                  COMPARE_STORAGE_KEY,
+                                  JSON.stringify(updatedSelection)
+                                );
+                                window.dispatchEvent(new Event("compare-updated"));
+                              } catch (error) {
+                                console.error("Failed to update compare selection:", error);
+                              }
+                              return updatedSelection;
+                            });
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {row2.length > 0 && (
+                  <div className="-mx-1 flex gap-3.5 overflow-x-auto px-1 pb-3 pt-1 snap-x snap-mandatory scrollbar-none sm:gap-4">
+                    {row2.map((item) => (
+                      <div
+                        key={getPropertyId(item)}
+                        className="w-[min(80vw,300px)] shrink-0 snap-start sm:w-[300px] lg:w-[330px]"
+                      >
+                        <PropertyCard
+                          property={item}
+                          isCompared={compareSelection.some(
+                            (selected) => getPropertyId(selected) === getPropertyId(item)
+                          )}
+                          onCompareToggle={(selectedProperty) => {
+                            if (!selectedProperty) return;
+                            const selectedId = getPropertyId(selectedProperty);
+                            if (!selectedId) return;
+
+                            setCompareSelection((previousSelection) => {
+                              const alreadySelected = previousSelection.some(
+                                (selected) => getPropertyId(selected) === selectedId
+                              );
+                              const updatedSelection = alreadySelected
+                                ? previousSelection.filter(
+                                  (selected) => getPropertyId(selected) !== selectedId
+                                )
+                                : [...previousSelection, selectedProperty].slice(
+                                  -MAX_COMPARE_PROPERTIES
+                                );
+
+                              try {
+                                localStorage.setItem(
+                                  COMPARE_STORAGE_KEY,
+                                  JSON.stringify(updatedSelection)
+                                );
+                                window.dispatchEvent(new Event("compare-updated"));
+                              } catch (error) {
+                                console.error("Failed to update compare selection:", error);
+                              }
+                              return updatedSelection;
+                            });
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
         </div>
 
-        {/* SIMILAR PROPERTIES */}
-        {related.length > 0 && (
-          <section className="mt-12 sm:mt-14">
-            <div className="mb-5 flex items-end justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">
-                  Similar Properties
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Explore other properties in this location.
+        {/* Minimal Floating Action Bar */}
+        {compareSelection.length > 0 && (
+          <div className="fixed bottom-3 left-1/2 z-[150] w-[calc(100%-1.25rem)] max-w-3xl -translate-x-1/2 rounded-2xl border border-[#A054A0]/20 bg-white/95 p-3.5 shadow-[0_20px_50px_-20px_rgba(160,84,160,0.25)] backdrop-blur-xl ring-1 ring-slate-100 sm:bottom-5 sm:w-[calc(100%-2rem)] sm:p-4">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <GitCompare className="h-4 w-4 shrink-0 text-[#A054A0]" />
+                  <p className="text-xs font-semibold text-slate-900">
+                    {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties selected for comparison
+                  </p>
+                </div>
+                <p className="mt-0.5 text-[11px] text-slate-500">
+                  {compareSelection.length >= MIN_COMPARE_PROPERTIES
+                    ? "Ready to compare side-by-side."
+                    : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length} more property to compare.`}
                 </p>
               </div>
 
-              <Link
-                href="/properties"
-                aria-label="View all properties"
-                className="inline-flex items-center justify-center"
-              >
-                <ArrowUpRight className="h-5 w-5 text-slate-400 transition-transform duration-200 hover:translate-x-0.5 hover:-translate-y-0.5" />
-              </Link>
-            </div>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={openComparePage}
+                  disabled={
+                    compareSelection.length < MIN_COMPARE_PROPERTIES ||
+                    compareSelection.length > MAX_COMPARE_PROPERTIES
+                  }
+                  className="inline-flex min-h-[38px] w-full items-center justify-center gap-1.5 rounded-xl bg-[#A054A0] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                >
+                  <GitCompare className="h-3.5 w-3.5 shrink-0" />
+                  <span>Compare Properties</span>
+                </button>
 
-            <div className="space-y-6">
-              {row1.length > 0 && (
-                <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
-                  {row1.map((item) => (
-                    <div
-                      key={getPropertyId(item)}
-                      className="w-[280px] shrink-0 snap-start sm:w-[320px] lg:w-[350px]"
-                    >
-                      <PropertyCard
-                        property={item}
-                        isCompared={compareSelection.some(
-                          (selected) =>
-                            getPropertyId(selected) === getPropertyId(item),
-                        )}
-                        onCompareToggle={(selectedProperty) => {
-                          if (!selectedProperty) return;
-
-                          const selectedId = getPropertyId(selectedProperty);
-
-                          if (!selectedId) return;
-
-                          setCompareSelection((previousSelection) => {
-                            const alreadySelected = previousSelection.some(
-                              (selected) =>
-                                getPropertyId(selected) === selectedId,
-                            );
-
-                            const updatedSelection = alreadySelected
-                              ? previousSelection.filter(
-                                (selected) =>
-                                  getPropertyId(selected) !== selectedId,
-                              )
-                              : [...previousSelection, selectedProperty].slice(
-                                -MAX_COMPARE_PROPERTIES,
-                              );
-
-                            try {
-                              localStorage.setItem(
-                                COMPARE_STORAGE_KEY,
-                                JSON.stringify(updatedSelection),
-                              );
-
-                              window.dispatchEvent(
-                                new Event("compare-updated"),
-                              );
-                            } catch (error) {
-                              console.error(
-                                "Failed to update compare selection:",
-                                error,
-                              );
-                            }
-
-                            return updatedSelection;
-                          });
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-              {row2.length > 0 && (
-                <div className="flex gap-5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none">
-                  {row2.map((item) => (
-                    <div
-                      key={getPropertyId(item)}
-                      className="w-[280px] shrink-0 snap-start sm:w-[320px] lg:w-[350px]"
-                    >
-                      <PropertyCard
-                        property={item}
-                        isCompared={compareSelection.some(
-                          (selected) =>
-                            getPropertyId(selected) === getPropertyId(item),
-                        )}
-                        onCompareToggle={(selectedProperty) => {
-                          if (!selectedProperty) return;
-
-                          const selectedId = getPropertyId(selectedProperty);
-
-                          if (!selectedId) return;
-
-                          setCompareSelection((previousSelection) => {
-                            const alreadySelected = previousSelection.some(
-                              (selected) =>
-                                getPropertyId(selected) === selectedId,
-                            );
-
-                            const updatedSelection = alreadySelected
-                              ? previousSelection.filter(
-                                (selected) =>
-                                  getPropertyId(selected) !== selectedId,
-                              )
-                              : [...previousSelection, selectedProperty].slice(
-                                -MAX_COMPARE_PROPERTIES,
-                              );
-
-                            try {
-                              localStorage.setItem(
-                                COMPARE_STORAGE_KEY,
-                                JSON.stringify(updatedSelection),
-                              );
-
-                              window.dispatchEvent(
-                                new Event("compare-updated"),
-                              );
-                            } catch (error) {
-                              console.error(
-                                "Failed to update compare selection:",
-                                error,
-                              );
-                            }
-
-                            return updatedSelection;
-                          });
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-      </div>
-
-      {compareSelection.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-[150] border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:px-4">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-900">
-                {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties
-                selected
-              </p>
-
-              <p className="mt-0.5 text-xs text-slate-500">
-                {compareSelection.length >= MIN_COMPARE_PROPERTIES
-                  ? "Ready to compare your selected properties."
-                  : `Select ${MIN_COMPARE_PROPERTIES - compareSelection.length
-                  } more property${MIN_COMPARE_PROPERTIES - compareSelection.length === 1
-                    ? ""
-                    : "ies"
-                  } to compare.`}
-              </p>
-            </div>
-            <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-              <button
-                type="button"
-                onClick={clearCompareSelection}
-                className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-none"
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                onClick={openComparePage}
-                disabled={
-                  compareSelection.length < MIN_COMPARE_PROPERTIES ||
-                  compareSelection.length > MAX_COMPARE_PROPERTIES
-                }
-                className="flex-1 rounded-lg bg-[#A054A0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8d438d] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
-              >
-                <span className="inline-flex items-center gap-2">
-                  <GitCompare className="h-4 w-4" />
-                  Compare Properties
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={clearCompareSelection}
+                  className="inline-flex min-h-[38px] w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:w-auto"
+                >
+                  <X className="h-3.5 w-3.5 shrink-0" />
+                  Clear
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </main>
+        )}
+      </main>
+    </>
   );
 }

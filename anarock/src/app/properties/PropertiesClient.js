@@ -2447,7 +2447,7 @@ function PropertiesClientContent() {
 
                   <p className="mt-1 pl-7 text-xs leading-5 text-slate-500 sm:text-sm">
                     {canCompare
-                      ? "Ready to run side-by-side comparison."
+                      ? "Ready to compare side-by-side."
                       : `Select ${remainingToCompare === 1
                         ? "one more property"
                         : "at least two properties"
@@ -2536,6 +2536,7 @@ function PropertiesClientContent() {
                   </h2>
                 </div>
               </div>
+
 
               <button
                 type="button"

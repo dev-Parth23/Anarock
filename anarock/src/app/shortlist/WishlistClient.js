@@ -734,11 +734,9 @@ export default function WishlistClient() {
                       <MessageSquare className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#A054A0]">
-                          Property Enquiry
-                        </span>
-                      </div>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#A054A0]">
+                        Property Enquiry
+                      </span>
                       <h2 className="text-xl font-bold text-slate-900">
                         Tell us about your requirement
                       </h2>

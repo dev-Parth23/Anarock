@@ -1060,7 +1060,7 @@ function MethodSelection({ onSelect, onBack }) {
       <div className="grid gap-5 md:grid-cols-2">
         <MethodCard
           icon={<FileCheck2 size={24} />}
-          title="Fill it myself"
+          title="I'll Complete the Listing "
           description="Complete the property details yourself. You'll be able to review everything before submitting."
           features={[
             "Complete property information",
@@ -1072,7 +1072,7 @@ function MethodSelection({ onSelect, onBack }) {
 
         <MethodCard
           icon={<Phone size={24} />}
-          title="Request a callback"
+          title="I'd Like Assistance"
           description="Our property team will contact you and help complete the listing."
           features={[
             "Choose a convenient time",
@@ -1760,7 +1760,7 @@ function Field({
           onChange={(event) => onChange(event.target.value)}
           className={[
             "h-12 w-full rounded-xl border bg-white/85 px-4 text-sm outline-none shadow-[0_6px_25px_rgba(15,23,42,0.03)] backdrop-blur transition-all",
-            icon ? "pl-11" : "",
+            icon ? "" : "",
             suffix ? "pr-20" : "",
             error
               ? "border-red-300 focus:border-red-400"

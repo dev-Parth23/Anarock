@@ -43,6 +43,18 @@ const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
+const IMAGE_EXTENSIONS = [
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "avif",
+  "gif",
+  "bmp",
+  "tif",
+  "tiff",
+  "svg",
+];
 const IMAGE_FILES = [
   {
     key: "project",
@@ -82,7 +94,7 @@ const SORT_CATEGORIES = [
 
 function PropertyCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-3.5 shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800/25 bg-white p-3.5 shadow-sm">
       <div className="shimmer-effect relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100" />
       <div className="flex flex-1 flex-col px-1.5 pb-1 pt-3.5">
         <div className="shimmer-effect h-3 w-1/3 rounded bg-slate-100" />
@@ -1619,7 +1631,7 @@ function PropertiesClientContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_rgba(160,84,160,0.04),_transparent_50%),linear-gradient(180deg,#fcfbfd_0%,#f8f9fa_100%)] antialiased selection:bg-[#A054A0]/20 selection:text-slate-900 pb-20">
+    <div className="min-h-screen  selection:bg-[#A054A0]/20 selection:text-slate-900 pb-20">
       <style jsx global>{`
         @keyframes shimmerSweep {
           0% {
@@ -1740,7 +1752,7 @@ function PropertiesClientContent() {
                 setSidebarTab("sort");
                 setShowFilters(true);
               }}
-              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-2xl border border-slate-200/80 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
+              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-2xl border border-slate-800/25 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
             >
               <ArrowUpDown className="h-4 w-4 shrink-0" />
               Sort
@@ -1759,7 +1771,7 @@ function PropertiesClientContent() {
               <button
                 key={`${chip.key}-${chip.label}`}
                 onClick={() => clearFilter(chip.key)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#A054A0]/8 px-3.5 py-1 text-xs font-semibold text-[#A054A0] ring-1 ring-inset ring-[#A054A0]/20 transition-all hover:bg-[#A054A0]/15"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#A054A0]/8 px-3.5 py-1 text-xs font-semibold text-[#A054A0] ring-1 ring-inset ring-[#A054A0]/20 transition-all hover:bg-[#A054A0]/15"
               >
                 {chip.label}
                 <X className="h-3.5 w-3.5" />
@@ -1786,13 +1798,13 @@ function PropertiesClientContent() {
             }}
           >
             <div
-              className={`border-slate-200/80 bg-white shadow-[0_12px_40px_-15px_rgba(160,84,160,0.12)] lg:sticky lg:top-24 lg:rounded-3xl lg:border lg:p-5 ${showFilters
+              className={`border-slate-800/25 bg-white shadow-[0_12px_40px_-15px_rgba(160,84,160,0.12)] lg:sticky lg:top-24 lg:rounded-2xl lg:border lg:p-5 ${showFilters
                 ? "fixed inset-y-0 right-0 z-[210] flex w-full max-w-xs flex-col overflow-y-auto p-5 sm:max-w-sm"
                 : ""
                 }`}
             >
               <div className="mb-5 flex items-center justify-between gap-3">
-                <div className="flex w-full items-center rounded-2xl border border-slate-200/80 bg-slate-50 p-1">
+                <div className="flex w-full items-center rounded-2xl border border-slate-800/25 bg-slate-50 p-1">
                   <button
                     type="button"
                     onClick={() => setSidebarTab("filters")}
@@ -2121,7 +2133,7 @@ function PropertiesClientContent() {
                 ))}
               </div>
             ) : error ? (
-              <div className="rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
+              <div className="rounded-2xl border border-red-100 bg-white p-8 text-center shadow-sm">
                 <Search className="mx-auto mb-3 h-10 w-10 text-red-400" />
                 <h3 className="text-base font-semibold text-slate-900">
                   Unable to load properties
@@ -2130,7 +2142,7 @@ function PropertiesClientContent() {
               </div>
             ) : totalProperties === 0 ? (
               <div className="space-y-8">
-                <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm">
+                <div className="rounded-2xl border border-slate-800/25 bg-white p-6 shadow-sm">
                   <h2 className="text-base font-semibold text-slate-900">
                     No search results found for your search.
                   </h2>
@@ -2203,7 +2215,7 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => goToPage(safeCurrentPage - 1)}
                       disabled={safeCurrentPage === 1}
-                      className="rounded-2xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
+                      className="rounded-2xl border border-slate-800/25 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Previous
                     </button>
@@ -2223,7 +2235,7 @@ function PropertiesClientContent() {
                           onClick={() => goToPage(page)}
                           className={`min-w-[36px] rounded-2xl py-2 text-xs font-semibold transition ${page === safeCurrentPage
                             ? "bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
-                            : "border border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50"
+                            : "border border-slate-800/25 bg-white text-slate-700 hover:bg-slate-50"
                             }`}
                         >
                           {page}
@@ -2235,7 +2247,7 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => goToPage(safeCurrentPage + 1)}
                       disabled={safeCurrentPage === totalPages}
-                      className="rounded-2xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
+                      className="rounded-2xl border border-slate-800/25 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Next
                     </button>
@@ -2248,8 +2260,8 @@ function PropertiesClientContent() {
                   !aiClarification &&
                   !suggestionsLoading &&
                   suggestedProperties.length > 0 && (
-                    <section className="border-t border-slate-200/80 pt-10">
-                      <div className="mb-8 overflow-hidden rounded-3xl border border-[#A054A0]/20 bg-gradient-to-br from-white via-purple-50/70 to-white p-6 shadow-sm sm:p-8">
+                    <section className="border-t border-slate-800/25 pt-10">
+                      <div className="mb-8 overflow-hidden rounded-2xl border border-[#A054A0]/20 bg-gradient-to-br from-white via-purple-50/70 to-white p-6 shadow-sm sm:p-8">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-start gap-3.5">
                             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#A054A0]/10">
@@ -2333,7 +2345,7 @@ function PropertiesClientContent() {
           aria-modal="true"
           aria-labelledby="ai-city-clarification-title"
         >
-          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl">
+          <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-800/25 bg-white shadow-2xl">
             <div className="border-b border-slate-100 bg-purple-50/60 p-5">
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-1 h-5 w-5 shrink-0 text-[#A054A0]" />
@@ -2398,7 +2410,7 @@ function PropertiesClientContent() {
                       key={city}
                       type="button"
                       onClick={() => handleConfirmAiCity(city)}
-                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200/80 p-4 text-left transition hover:border-[#A054A0]/50 hover:bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-[#A054A0]/30"
+                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-800/25 p-4 text-left transition hover:border-[#A054A0]/50 hover:bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-[#A054A0]/30"
                     >
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold text-slate-900">
@@ -2521,7 +2533,7 @@ function PropertiesClientContent() {
             }
           }}
         >
-          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-2xl">
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#A054A0]/10 text-[#A054A0]">
@@ -2576,7 +2588,7 @@ function PropertiesClientContent() {
                 </div>
               ) : (
                 <form onSubmit={handleEnquirySubmit} className="space-y-6">
-                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                  <div className="rounded-2xl border border-slate-800/25 bg-slate-50/70 p-4">
                     <div className="mb-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Building className="h-4 w-4 text-[#A054A0]" />
@@ -2822,7 +2834,7 @@ function PropertiesClientContent() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="exclusive-lead-title"
-            className="my-auto w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
           >
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
               <div>

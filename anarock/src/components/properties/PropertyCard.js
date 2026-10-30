@@ -275,7 +275,7 @@ function PropertyCard({
         </div>
 
         <h3
-          className="line-clamp-2 min-h-[35px] text-[16px] font-semibold leading-none tracking-[0.025em] text-black transition-colors duration-300 group-hover:text-[#A054A0] sm:text-[18px]"
+          className="line-clamp-2 min-h-[42px] text-[15px] flex items-center font-semibold leading-5 tracking-[0.025em] text-black transition-colors duration-300 group-hover:text-[#A054A0] sm:text-[18px]"
           title={propertyName}
         >
           {propertyName}
@@ -291,17 +291,17 @@ function PropertyCard({
           </p>
         </div>
 
-        <div className="my-3 h-px bg-[#EEE9E4]" />
+        <div className="my-2 h-px" />
 
         <div className="grid grid-cols-2 gap-3">
           {isCoworking ? (
             <>
               <div className="min-w-0 border-l border-[#EEE9E4] pl-3 sm:pl-4">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A054A0]">
                   Operator
                 </p>
                 <p
-                  className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]"
+                  className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-black sm:text-[13px]"
                   title={String(operator)}
                 >
                   {operator}
@@ -309,10 +309,10 @@ function PropertyCard({
               </div>
 
               <div className="min-w-0">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#a054a0]">
                   Seats Offered
                 </p>
-                <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">
+                <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-black sm:text-[13px]">
                   {seatsOffered}
                 </p>
               </div>
@@ -320,11 +320,11 @@ function PropertyCard({
           ) : (
             <>
               <div className="min-w-0">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A054A0]">
                   Developer
                 </p>
                 <p
-                  className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]"
+                  className="mt-1.5 line-clamp-2 text-xs font-semibold leading-[1.6] text-black sm:text-[13px]"
                   title={String(developer)}
                 >
                   {developer}
@@ -332,10 +332,10 @@ function PropertyCard({
               </div>
 
               <div className="min-w-0 border-l border-[#EEE9E4] pl-3 sm:pl-4">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A69BAA]">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A054A0]">
                   Area
                 </p>
-                <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-[#302538] sm:text-[13px]">
+                <p className="mt-1.5 truncate text-xs font-semibold leading-[1.6] text-black sm:text-[13px]">
                   {hasArea ? formatArea(areaValue, unit) : "-"}
                 </p>
               </div>
@@ -343,12 +343,23 @@ function PropertyCard({
           )}
         </div>
 
-        <div className="mt-3 flex items-center justify-center gap-2">
-          <span className="h-px w-4 bg-[#DCCBE2]" />
-          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#9A88A5] transition-colors duration-300 group-hover:text-[#A054A0]">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+            }
+          }}
+          className="group inline-flex mt-2 min-h-[36px] w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-800/25 bg-white px-3.5 py-1.5 text-xs font-semibold text-black shadow-xs transition-all duration-200 hover:border-[#A054A0]/50 hover:bg-[#A054A0]/5 hover:text-[#A054A0] active:scale-[0.98]"
+        >
+          <span className="h-px w-4 bg-[#DCCBE2] transition-colors group-hover:bg-[#A054A0]/40" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em]">
             View Property Details
-          </p>
-          <span className="h-px w-4 bg-[#DCCBE2]" />
+          </span>
+          <span className="h-px w-4 bg-[#DCCBE2] transition-colors group-hover:bg-[#A054A0]/40" />
         </div>
       </Link>
     </article>

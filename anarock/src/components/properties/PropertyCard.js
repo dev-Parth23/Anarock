@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, MapPin, Building2 } from "lucide-react";
@@ -17,19 +17,62 @@ function createSlug(value) {
     .replace(/^-+|-+$/g, "");
 }
 
-function getStratusImageUrl(imageFolderPath, filename) {
-  if (!imageFolderPath || !filename) return "";
+const STRATUS_IMAGE_EXTENSIONS = [
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "avif",
+  "tif",
+  "tiff",
+];
+
+function getStratusImageCandidates(imageFolderPath, filename) {
+  if (!imageFolderPath || !filename) return [];
 
   const folder = String(imageFolderPath)
     .trim()
     .replace(/^\/+/, "")
     .replace(/\/+$/, "");
 
-  if (!folder) return "";
+  if (!folder) return [];
 
-  return `https://property-images.zohostratus.in/${folder}/${encodeURIComponent(
-    filename,
-  )}`;
+  const originalName = String(filename).trim();
+  const match = originalName.match(/^(.*)\.([^.]+)$/);
+
+  const baseName = match ? match[1] : originalName;
+  const originalExtension = match ? match[2] : "";
+
+  const extensions = [
+    ...(originalExtension ? [originalExtension] : []),
+    ...STRATUS_IMAGE_EXTENSIONS.filter(
+      (ext) => ext.toLowerCase() !== originalExtension.toLowerCase()
+    ),
+  ];
+
+  const filenames = [
+    ...new Set(
+      extensions.flatMap((ext) => {
+        const names = [`${baseName}.${ext}`];
+        const uppercase = ext.toUpperCase();
+
+        if (uppercase !== ext) {
+          names.push(`${baseName}.${uppercase}`);
+        }
+
+        return names;
+      })
+    ),
+  ];
+
+  return filenames.map((name) => {
+    const encodedPath = name
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/");
+
+    return `https://property-images.zohostratus.in/${folder}/${encodedPath}`;
+  });
 }
 
 function normalizeFieldName(value) {
@@ -71,7 +114,7 @@ function PropertyCard({
   const { unit } = usePreferences();
   const { ids, toggle } = useWishlist();
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [imageCandidateIndex, setImageCandidateIndex] = useState(0);
   const getPropertyId = (value) => String(value?.id || value?.rowId || value?.ROWID || value?.ID || "");
   const propertyId = getPropertyId(property);
   const contextWishlisted = ids.some((id) => String(id) === propertyId);
@@ -85,49 +128,42 @@ function PropertyCard({
     )}`
     : "/properties";
 
-  const imageUrl = getStratusImageUrl(
-    property?.imageFolderPath || property?.ImageFolderPath,
-    "Project_Picture_1.jpg",
+  const imageCandidates = useMemo(
+    () =>
+      getStratusImageCandidates(
+        property?.ImageFolderPath,
+        "Project_Picture_1.jpg"
+      ),
+    [property?.imageFolderPath, property?.ImageFolderPath]
   );
 
+  const imageUrl = imageCandidates[imageCandidateIndex] || "";
+
+  const imageError = imageCandidateIndex >= imageCandidates.length;
+
+  useEffect(() => {
+    setImageLoaded(false);
+    setImageCandidateIndex(0);
+  }, [propertyId, imageCandidates.join("|")]);
+
+  const handleImageError = () => {
+    setImageLoaded(false);
+    setImageCandidateIndex((current) => current + 1);
+  };
+
   const city = property?.city || property?.City || "";
-  const micromarket =
-    property?.micromarket ||
-    property?.area ||
-    "";
-
+  const micromarket = property?.micromarket || property?.area || "";
   const location = [city, micromarket].filter(Boolean).join(" • ");
-
-  const propertyType = String(
-    getFirstValue(
-      property,
-      ["officeType", "type"],
-      "",
-    ),
-  )
+  const propertyType = String(getFirstValue(property, ["officeType", "type"], "",),)
     .trim()
     .toLowerCase();
 
-  const isCoworking =
-    propertyType.includes("cowork") || propertyType.includes("managed office");
-
-  const developer = getFirstValue(
-    property,
-    ["developer"],
-    "-",
-  );
-
-  const areaValue = Number(
-    property?.totalLeasableAreaAvailable,
-  );
+  const isCoworking = propertyType.includes("cowork") || propertyType.includes("managed office");
+  const developer = getFirstValue(property, ["developer"], "-",);
+  const areaValue = Number(property?.totalLeasableAreaAvailable,);
   const hasArea = Number.isFinite(areaValue) && areaValue > 0;
-
   const seatsOffered = getFirstValue(
-    property,
-    [
-      "NoOfSeatsOffered",
-    ],
-    "-",
+    property, ["NoOfSeatsOffered",], "-",
   );
 
   const operator = getFirstValue(
@@ -156,7 +192,7 @@ function PropertyCard({
   };
 
   return (
-    <article className="group relative z-0 flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8E3DC] transition-all duration-500 ease-out hover:z-20 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(39,29,23,0.10)]">
+    <article className="group relative z-0 flex flex-col overflow-hidden rounded-2xl border border-[#E8E3DC] transition-all duration-500 ease-out hover:z-20 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(39,29,23,0.10)]">
       <div className="relative overflow-hidden p-2.5 sm:p-3">
         <div className="relative aspect-[3/2] w-full overflow-hidden rounded-xl">
           <Link
@@ -177,8 +213,7 @@ function PropertyCard({
                 loading={priority ? undefined : "lazy"}
                 unoptimized
                 onLoad={() => setImageLoaded(true)}
-                onError={() => setImageError(true)}
-                className={`object-cover transition-all duration-500 ease-out group-hover:scale-[1.035] ${imageLoaded ? "opacity-100" : "opacity-0"
+                onError={handleImageError} className={`object-cover transition-all duration-500 ease-out group-hover:scale-[1.035] ${imageLoaded ? "opacity-100" : "opacity-0"
                   }`}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />

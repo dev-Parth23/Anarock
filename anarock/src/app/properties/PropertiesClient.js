@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState, useMemo, useCallback } from "react";
+import {
+  Suspense,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -37,6 +44,7 @@ import {
   Phone,
   Building2,
   Mail,
+
 } from "lucide-react";
 
 const MAX_COMPARE_PROPERTIES = 3;
@@ -94,8 +102,8 @@ const SORT_CATEGORIES = [
 
 function PropertyCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800/25 bg-white p-3.5 shadow-sm">
-      <div className="shimmer-effect relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100" />
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-800/25 bg-white p-3.5 shadow-sm">
+      <div className="shimmer-effect relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-100" />
       <div className="flex flex-1 flex-col px-1.5 pb-1 pt-3.5">
         <div className="shimmer-effect h-3 w-1/3 rounded bg-slate-100" />
         <div className="shimmer-effect mt-2.5 h-5 w-4/5 rounded bg-slate-100" />
@@ -309,6 +317,11 @@ function getStoredUserLocation() {
 
 function PropertiesClientContent() {
   const { currency, unit, exchangeRates } = usePreferences();
+  const [suggestionsHasMore, setSuggestionsHasMore] = useState(false);
+  const [suggestionsPage, setSuggestionsPage] = useState(1);
+
+  const suggestionsSentinelRef = useRef(null);
+  const suggestionsRequestRef = useRef(false);
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -1164,96 +1177,436 @@ function PropertiesClientContent() {
     aiConfirmedCity,
   ]);
 
-  useEffect(() => {
-    const isLastResultsPage = currentPage >= Math.max(1, totalPagesFromApi);
+  // useEffect(() => {
+  //   const isLastResultsPage = currentPage >= Math.max(1, totalPagesFromApi);
 
-    const hasPrimaryResults = totalProperties > 0;
+  //   const hasPrimaryResults = totalProperties > 0;
+
+  //   if (
+  //     loading ||
+  //     !searchCompleted ||
+  //     aiClarification ||
+  //     (hasPrimaryResults && !isLastResultsPage)
+  //   ) {
+  //     setSuggestedProperties([]);
+  //     setSuggestionsLoading(false);
+  //     return;
+  //   }
+
+  //   const controller = new AbortController();
+
+  //   async function fetchSuggestions() {
+  //     setSuggestionsLoading(true);
+
+  //     try {
+  //       const params = new URLSearchParams();
+
+  //       if (resolvedCity) {
+  //         params.set("city", resolvedCity);
+  //       }
+
+  //       if (filters.type && filters.type !== "ai") {
+  //         params.set("type", filters.type);
+  //       }
+
+  //       if (selectedMicromarketNames.length) {
+  //         params.set("micromarket", selectedMicromarketNames.join(","));
+  //       }
+
+  //       const addConvertedBudget = (key, value) => {
+  //         if (value === "" || value == null) return;
+
+  //         const amount = Number(value);
+  //         if (!Number.isFinite(amount)) return;
+
+  //         const converted = convertCurrency(
+  //           amount,
+  //           filters.currency,
+  //           "INR",
+  //           exchangeRates,
+  //         );
+
+  //         params.set(key, String(Math.round(converted)));
+  //       };
+
+  //       const addConvertedArea = (key, value) => {
+  //         if (value === "" || value == null) return;
+
+  //         const amount = Number(value);
+  //         if (!Number.isFinite(amount)) return;
+
+  //         const converted = convertArea(amount, filters.areaUnit, "sqft");
+
+  //         params.set(key, String(Math.round(converted)));
+  //       };
+
+  //       addConvertedBudget("minBudget", filters.minBudget);
+  //       addConvertedBudget("maxBudget", filters.maxBudget);
+
+  //       if (!isCoworking) {
+  //         addConvertedArea("area", filters.area);
+  //         addConvertedArea("maxArea", filters.maxArea);
+  //       }
+
+  //       if (isCoworking) {
+  //         if (filters.seats !== "") {
+  //           const seats = Number(filters.seats);
+
+  //           if (Number.isFinite(seats)) {
+  //             params.set("seats", String(Math.round(seats)));
+  //           }
+  //         }
+
+  //         if (filters.maxSeats !== "") {
+  //           const seats = Number(filters.maxSeats);
+
+  //           if (Number.isFinite(seats)) {
+  //             params.set("maxSeats", String(Math.round(seats)));
+  //           }
+  //         }
+  //       }
+  //       const excludeIds = properties
+  //         .map((property) => getPropertyId(property))
+  //         .filter(Boolean);
+
+  //       if (excludeIds.length) {
+  //         params.set("exclude", excludeIds.join(","));
+  //       }
+
+  //       const response = await fetch(
+  //         `/api/properties/suggestions?${params.toString()}`,
+  //         {
+  //           method: "GET",
+  //           headers: { Accept: "application/json" },
+  //           cache: "no-store",
+  //           signal: controller.signal,
+  //         },
+  //       );
+
+  //       const responseText = await response.text();
+
+  //       let data = {};
+
+  //       try {
+  //         data = responseText ? JSON.parse(responseText) : {};
+  //       } catch {
+  //         data = {};
+  //       }
+
+  //       if (!response.ok || data.success !== true) {
+  //         const details =
+  //           data.error ||
+  //           data.details ||
+  //           (responseText
+  //             ? responseText.slice(0, 500)
+  //             : "The API returned an empty response.");
+
+  //         throw new Error(
+  //           `Suggestions API failed (HTTP ${response.status}): ${details}`,
+  //         );
+  //       }
+
+  //       if (controller.signal.aborted) return;
+
+  //       const primaryIds = new Set(
+  //         properties.map((property) => getPropertyId(property)).filter(Boolean),
+  //       );
+
+  //       const uniqueSuggestions = [];
+  //       const seenIds = new Set(primaryIds);
+
+  //       for (const property of Array.isArray(data.data) ? data.data : []) {
+  //         const id = getPropertyId(property);
+
+  //         if (!id || seenIds.has(id)) continue;
+
+  //         seenIds.add(id);
+  //         uniqueSuggestions.push(property);
+  //       }
+
+  //       setSuggestedProperties(uniqueSuggestions);
+  //     } catch (err) {
+  //       if (err?.name !== "AbortError") {
+  //         console.error("[PropertiesClient] Suggestions failed:", err);
+  //         setSuggestedProperties([]);
+  //       }
+  //     } finally {
+  //       if (!controller.signal.aborted) {
+  //         setSuggestionsLoading(false);
+  //       }
+  //     }
+  //   }
+
+  //   fetchSuggestions();
+
+  //   return () => controller.abort();
+  // }, [
+  //   loading,
+  //   aiClarification,
+  //   properties,
+  //   resolvedCity,
+  //   filters.type,
+  //   filters.minBudget,
+  //   filters.maxBudget,
+  //   filters.area,
+  //   filters.maxArea,
+  //   filters.seats,
+  //   filters.maxSeats,
+  //   filters.currency,
+  //   filters.areaUnit,
+  //   selectedMicromarketNames,
+  //   exchangeRates,
+  //   isCoworking,
+  //   searchCompleted,
+  // ]);
+
+  const loadMoreSuggestions = useCallback(async () => {
+    if (
+      suggestionsRequestRef.current ||
+      suggestionsLoading ||
+      !suggestionsHasMore
+    ) {
+      return;
+    }
+
+    suggestionsRequestRef.current = true;
+    setSuggestionsLoading(true);
+
+    try {
+      const params = new URLSearchParams({
+        page: String(suggestionsPage + 1),
+        pageSize: String(ITEMS_PER_PAGE),
+      });
+
+      if (resolvedCity) params.set("city", resolvedCity);
+
+      if (filters.type && filters.type !== "ai") {
+        params.set("type", filters.type);
+      }
+
+      if (selectedMicromarketNames.length) {
+        params.set(
+          "micromarket",
+          selectedMicromarketNames.join(",")
+        );
+      }
+
+      const toINR = (value) => {
+        const amount = Number(value);
+
+        return Number.isFinite(amount)
+          ? String(
+            Math.round(
+              convertCurrency(
+                amount,
+                filters.currency,
+                "INR",
+                exchangeRates
+              )
+            )
+          )
+          : "";
+      };
+
+      if (filters.minBudget !== "") {
+        params.set("minBudget", toINR(filters.minBudget));
+      }
+
+      if (filters.maxBudget !== "") {
+        params.set("maxBudget", toINR(filters.maxBudget));
+      }
+
+      if (!isCoworking) {
+        if (filters.area !== "") {
+          params.set(
+            "area",
+            String(
+              Math.round(
+                convertArea(
+                  Number(filters.area),
+                  filters.areaUnit,
+                  "sqft"
+                )
+              )
+            )
+          );
+        }
+
+        if (filters.maxArea !== "") {
+          params.set(
+            "maxArea",
+            String(
+              Math.round(
+                convertArea(
+                  Number(filters.maxArea),
+                  filters.areaUnit,
+                  "sqft"
+                )
+              )
+            )
+          );
+        }
+      } else {
+        if (filters.seats !== "") {
+          params.set("seats", filters.seats);
+        }
+
+        if (filters.maxSeats !== "") {
+          params.set("maxSeats", filters.maxSeats);
+        }
+      }
+
+      const exclude = [
+        ...properties,
+        ...suggestedProperties,
+      ]
+        .map(getPropertyId)
+        .filter(Boolean);
+
+      if (exclude.length) {
+        params.set("exclude", exclude.join(","));
+      }
+
+      const response = await fetch(
+        `/api/properties/suggestions?${params.toString()}`,
+        { cache: "no-store" }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.error || "Unable to load more properties"
+        );
+      }
+
+      const existing = new Set(exclude);
+
+      const next = (data.data || []).filter((property) => {
+        const id = getPropertyId(property);
+
+        if (!id || existing.has(id)) return false;
+
+        existing.add(id);
+        return true;
+      });
+
+      setSuggestedProperties((previous) => [
+        ...previous,
+        ...next,
+      ]);
+
+      setSuggestionsPage(
+        Number(data.page || suggestionsPage + 1)
+      );
+
+      setSuggestionsHasMore(Boolean(data.hasMore));
+    } catch (error) {
+      console.error(
+        "[PropertiesClient] Load more suggestions failed:",
+        error
+      );
+    } finally {
+      suggestionsRequestRef.current = false;
+      setSuggestionsLoading(false);
+    }
+  }, [
+    suggestionsLoading,
+    suggestionsHasMore,
+    suggestionsPage,
+    properties,
+    suggestedProperties,
+    resolvedCity,
+    filters,
+    selectedMicromarketNames,
+    exchangeRates,
+    isCoworking,
+  ]);
+
+  useEffect(() => {
+    const isLastResultsPage =
+      currentPage >= Math.max(1, totalPagesFromApi);
 
     if (
       loading ||
       !searchCompleted ||
       aiClarification ||
-      (hasPrimaryResults && !isLastResultsPage)
+      (totalProperties > 0 && !isLastResultsPage)
     ) {
       setSuggestedProperties([]);
+      setSuggestionsPage(1);
+      setSuggestionsHasMore(false);
       setSuggestionsLoading(false);
       return;
     }
 
     const controller = new AbortController();
+    let active = true;
 
     async function fetchSuggestions() {
       setSuggestionsLoading(true);
+      setSuggestedProperties([]);
+      setSuggestionsPage(1);
 
       try {
         const params = new URLSearchParams();
 
-        if (resolvedCity) {
-          params.set("city", resolvedCity);
-        }
+        params.set("page", "1");
+        params.set("pageSize", String(ITEMS_PER_PAGE));
+
+        if (resolvedCity) params.set("city", resolvedCity);
 
         if (filters.type && filters.type !== "ai") {
           params.set("type", filters.type);
         }
 
         if (selectedMicromarketNames.length) {
-          params.set("micromarket", selectedMicromarketNames.join(","));
+          params.set(
+            "micromarket",
+            selectedMicromarketNames.join(",")
+          );
         }
 
-        const addConvertedBudget = (key, value) => {
+        const addConverted = (key, value, converter) => {
           if (value === "" || value == null) return;
 
           const amount = Number(value);
-          if (!Number.isFinite(amount)) return;
 
-          const converted = convertCurrency(
-            amount,
-            filters.currency,
-            "INR",
-            exchangeRates,
-          );
-
-          params.set(key, String(Math.round(converted)));
+          if (Number.isFinite(amount)) {
+            params.set(
+              key,
+              String(
+                Math.round(
+                  converter ? converter(amount) : amount
+                )
+              )
+            );
+          }
         };
 
-        const addConvertedArea = (key, value) => {
-          if (value === "" || value == null) return;
+        addConverted("minBudget", filters.minBudget, (v) =>
+          convertCurrency(v, filters.currency, "INR", exchangeRates)
+        );
 
-          const amount = Number(value);
-          if (!Number.isFinite(amount)) return;
-
-          const converted = convertArea(amount, filters.areaUnit, "sqft");
-
-          params.set(key, String(Math.round(converted)));
-        };
-
-        addConvertedBudget("minBudget", filters.minBudget);
-        addConvertedBudget("maxBudget", filters.maxBudget);
+        addConverted("maxBudget", filters.maxBudget, (v) =>
+          convertCurrency(v, filters.currency, "INR", exchangeRates)
+        );
 
         if (!isCoworking) {
-          addConvertedArea("area", filters.area);
-          addConvertedArea("maxArea", filters.maxArea);
+          addConverted("area", filters.area, (v) =>
+            convertArea(v, filters.areaUnit, "sqft")
+          );
+
+          addConverted("maxArea", filters.maxArea, (v) =>
+            convertArea(v, filters.areaUnit, "sqft")
+          );
+        } else {
+          addConverted("seats", filters.seats);
+          addConverted("maxSeats", filters.maxSeats);
         }
 
-        if (isCoworking) {
-          if (filters.seats !== "") {
-            const seats = Number(filters.seats);
-
-            if (Number.isFinite(seats)) {
-              params.set("seats", String(Math.round(seats)));
-            }
-          }
-
-          if (filters.maxSeats !== "") {
-            const seats = Number(filters.maxSeats);
-
-            if (Number.isFinite(seats)) {
-              params.set("maxSeats", String(Math.round(seats)));
-            }
-          }
-        }
         const excludeIds = properties
-          .map((property) => getPropertyId(property))
+          .map(getPropertyId)
           .filter(Boolean);
 
         if (excludeIds.length) {
@@ -1263,73 +1616,62 @@ function PropertiesClientContent() {
         const response = await fetch(
           `/api/properties/suggestions?${params.toString()}`,
           {
-            method: "GET",
-            headers: { Accept: "application/json" },
             cache: "no-store",
             signal: controller.signal,
-          },
+          }
         );
 
-        const responseText = await response.text();
-
-        let data = {};
-
-        try {
-          data = responseText ? JSON.parse(responseText) : {};
-        } catch {
-          data = {};
-        }
+        const data = await response.json().catch(() => ({}));
 
         if (!response.ok || data.success !== true) {
-          const details =
-            data.error ||
-            data.details ||
-            (responseText
-              ? responseText.slice(0, 500)
-              : "The API returned an empty response.");
-
           throw new Error(
-            `Suggestions API failed (HTTP ${response.status}): ${details}`,
+            data.error ||
+            `Suggestions API failed (${response.status})`
           );
         }
 
-        if (controller.signal.aborted) return;
+        if (!active) return;
 
-        const primaryIds = new Set(
-          properties.map((property) => getPropertyId(property)).filter(Boolean),
-        );
+        const seen = new Set(excludeIds);
 
-        const uniqueSuggestions = [];
-        const seenIds = new Set(primaryIds);
+        const unique = (Array.isArray(data.data) ? data.data : [])
+          .filter((property) => {
+            const id = getPropertyId(property);
 
-        for (const property of Array.isArray(data.data) ? data.data : []) {
-          const id = getPropertyId(property);
+            if (!id || seen.has(id)) return false;
 
-          if (!id || seenIds.has(id)) continue;
+            seen.add(id);
+            return true;
+          });
 
-          seenIds.add(id);
-          uniqueSuggestions.push(property);
-        }
-
-        setSuggestedProperties(uniqueSuggestions);
-      } catch (err) {
-        if (err?.name !== "AbortError") {
-          console.error("[PropertiesClient] Suggestions failed:", err);
-          setSuggestedProperties([]);
+        setSuggestedProperties(unique);
+        setSuggestionsPage(Number(data.page || 1));
+        setSuggestionsHasMore(Boolean(data.hasMore));
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          console.error(
+            "[PropertiesClient] Suggestions failed:",
+            error
+          );
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setSuggestionsLoading(false);
-        }
+        if (active) setSuggestionsLoading(false);
       }
     }
 
     fetchSuggestions();
 
-    return () => controller.abort();
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [
     loading,
+    searchCompleted,
     aiClarification,
+    currentPage,
+    totalPagesFromApi,
+    totalProperties,
     properties,
     resolvedCity,
     filters.type,
@@ -1344,8 +1686,28 @@ function PropertiesClientContent() {
     selectedMicromarketNames,
     exchangeRates,
     isCoworking,
-    searchCompleted,
   ]);
+
+  useEffect(() => {
+    const node = suggestionsSentinelRef.current;
+
+    if (!node || !suggestionsHasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          loadMoreSuggestions();
+        }
+      },
+      {
+        rootMargin: "700px 0px",
+      }
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [loadMoreSuggestions, suggestionsHasMore]);
 
   const updateFilter = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -1694,7 +2056,7 @@ function PropertiesClientContent() {
                 e.preventDefault();
                 handleApplyAiSearch();
               }}
-              className="flex w-full flex-col gap-2 rounded-2xl border border-[#A054A0]/20 bg-white/90 p-2 shadow-[0_10px_30px_-15px_rgba(160,84,160,0.12)] backdrop-blur-xl transition-all focus-within:border-[#A054A0] focus-within:ring-2 focus-within:ring-[#A054A0]/15 sm:flex-row lg:max-w-xl"
+              className="flex w-full flex-col gap-2 rounded-xl border border-[#A054A0]/20 bg-white/90 p-2 shadow-[0_10px_30px_-15px_rgba(160,84,160,0.12)] backdrop-blur-xl transition-all focus-within:border-[#A054A0] focus-within:ring-2 focus-within:ring-[#A054A0]/15 sm:flex-row lg:max-w-xl"
             >
               <div className="flex flex-1 items-center gap-2 px-2">
                 <Sparkles className="h-5 w-5 shrink-0 text-[#A054A0]" />
@@ -1735,7 +2097,7 @@ function PropertiesClientContent() {
                 setSidebarTab("filters");
                 setShowFilters(true);
               }}
-              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
+              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
             >
               <SlidersHorizontal className="h-4 w-4 shrink-0" />
               Filters
@@ -1752,7 +2114,7 @@ function PropertiesClientContent() {
                 setSidebarTab("sort");
                 setShowFilters(true);
               }}
-              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-2xl border border-slate-800/25 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
+              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-800/25 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-[#A054A0]/40 hover:text-[#A054A0] active:scale-[0.98]"
             >
               <ArrowUpDown className="h-4 w-4 shrink-0" />
               Sort
@@ -1798,13 +2160,13 @@ function PropertiesClientContent() {
             }}
           >
             <div
-              className={`border-slate-800/25 bg-white shadow-[0_12px_40px_-15px_rgba(160,84,160,0.12)] lg:sticky lg:top-24 lg:rounded-2xl lg:border lg:p-5 ${showFilters
+              className={`border-slate-800/25 bg-white shadow-[0_12px_40px_-15px_rgba(160,84,160,0.12)] lg:sticky lg:top-24 lg:rounded-xl lg:border lg:p-5 ${showFilters
                 ? "fixed inset-y-0 right-0 z-[210] flex w-full max-w-xs flex-col overflow-y-auto p-5 sm:max-w-sm"
                 : ""
                 }`}
             >
               <div className="mb-5 flex items-center justify-between gap-3">
-                <div className="flex w-full items-center rounded-2xl border border-slate-800/25 bg-slate-50 p-1">
+                <div className="flex w-full items-center rounded-xl border border-slate-800/25 bg-slate-50 p-1">
                   <button
                     type="button"
                     onClick={() => setSidebarTab("filters")}
@@ -1853,7 +2215,7 @@ function PropertiesClientContent() {
                         key={cat.id}
                         type="button"
                         onClick={() => handleCategoryClick(cat)}
-                        className={`group flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all ${isSelected
+                        className={`group flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all ${isSelected
                           ? "border-[#A054A0]/30 bg-[#A054A0]/5 text-[#A054A0] shadow-sm"
                           : "border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50"
                           }`}
@@ -1897,7 +2259,7 @@ function PropertiesClientContent() {
                     <button
                       type="button"
                       onClick={() => handleSortChange("")}
-                      className="mt-3 w-full rounded-2xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                      className="mt-3 w-full rounded-xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                     >
                       Reset to Recommended
                     </button>
@@ -1912,7 +2274,7 @@ function PropertiesClientContent() {
                     <select
                       value={resolvedCity}
                       onChange={(e) => handleCityChange(e.target.value)}
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/15"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/15"
                     >
                       <option value="">All Cities</option>
                       {cities.map((cityOption) => (
@@ -1921,6 +2283,10 @@ function PropertiesClientContent() {
                         </option>
                       ))}
                     </select>
+
+
+
+
                   </div>
 
                   <div className="relative">
@@ -1931,7 +2297,7 @@ function PropertiesClientContent() {
                       type="button"
                       disabled={!resolvedCity || micromarketsLoading}
                       onClick={() => setShowMicromarkets(!showMicromarkets)}
-                      className={`flex w-full items-center justify-between rounded-2xl border px-3 py-2.5 text-left text-xs font-medium transition-all ${!resolvedCity
+                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition-all ${!resolvedCity
                         ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400"
                         : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
                         }`}
@@ -1952,7 +2318,7 @@ function PropertiesClientContent() {
                     {showMicromarkets &&
                       resolvedCity &&
                       !micromarketsLoading && (
-                        <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                        <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
                           <button
                             type="button"
                             onClick={selectAllMicromarkets}
@@ -2019,7 +2385,7 @@ function PropertiesClientContent() {
                     <select
                       value={filters.type === "ai" ? "" : filters.type}
                       onChange={(e) => updateFilter("type", e.target.value)}
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/15"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 outline-none transition focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/15"
                     >
                       <option value="">All Types</option>
                       {OFFICE_TYPES.map((type) => (
@@ -2046,7 +2412,7 @@ function PropertiesClientContent() {
                               updateFilter("seats", e.target.value)
                             }
                             placeholder="e.g. 50"
-                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -2066,7 +2432,7 @@ function PropertiesClientContent() {
                               updateFilter("minBudget", e.target.value)
                             }
                             placeholder="Min price"
-                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -2089,7 +2455,7 @@ function PropertiesClientContent() {
                               updateFilter("minBudget", e.target.value)
                             }
                             placeholder="Min rent"
-                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -2107,7 +2473,7 @@ function PropertiesClientContent() {
                               updateFilter("area", e.target.value)
                             }
                             placeholder="e.g. 2000"
-                            className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-xs font-medium text-slate-800 outline-none focus:border-[#A054A0]"
                           />
                         </div>
                       </div>
@@ -2116,7 +2482,7 @@ function PropertiesClientContent() {
 
                   <button
                     onClick={clearAll}
-                    className="w-full rounded-2xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                    className="w-full rounded-xl border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                   >
                     Clear All Filters
                   </button>
@@ -2133,7 +2499,7 @@ function PropertiesClientContent() {
                 ))}
               </div>
             ) : error ? (
-              <div className="rounded-2xl border border-red-100 bg-white p-8 text-center shadow-sm">
+              <div className="rounded-xl border border-red-100 bg-white p-8 text-center shadow-sm">
                 <Search className="mx-auto mb-3 h-10 w-10 text-red-400" />
                 <h3 className="text-base font-semibold text-slate-900">
                   Unable to load properties
@@ -2142,7 +2508,7 @@ function PropertiesClientContent() {
               </div>
             ) : totalProperties === 0 ? (
               <div className="space-y-8">
-                <div className="rounded-2xl border border-slate-800/25 bg-white p-6 shadow-sm">
+                <div className="rounded-xl border border-slate-800/25 bg-white p-6 shadow-sm">
                   <h2 className="text-base font-semibold text-slate-900">
                     No search results found for your search.
                   </h2>
@@ -2215,7 +2581,7 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => goToPage(safeCurrentPage - 1)}
                       disabled={safeCurrentPage === 1}
-                      className="rounded-2xl border border-slate-800/25 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
+                      className="rounded-xl border border-slate-800/25 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Previous
                     </button>
@@ -2233,7 +2599,7 @@ function PropertiesClientContent() {
                           key={page}
                           type="button"
                           onClick={() => goToPage(page)}
-                          className={`min-w-[36px] rounded-2xl py-2 text-xs font-semibold transition ${page === safeCurrentPage
+                          className={`min-w-[36px] rounded-xl py-2 text-xs font-semibold transition ${page === safeCurrentPage
                             ? "bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
                             : "border border-slate-800/25 bg-white text-slate-700 hover:bg-slate-50"
                             }`}
@@ -2247,7 +2613,7 @@ function PropertiesClientContent() {
                       type="button"
                       onClick={() => goToPage(safeCurrentPage + 1)}
                       disabled={safeCurrentPage === totalPages}
-                      className="rounded-2xl border border-slate-800/25 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
+                      className="rounded-xl border border-slate-800/25 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-40"
                     >
                       Next
                     </button>
@@ -2261,10 +2627,10 @@ function PropertiesClientContent() {
                   !suggestionsLoading &&
                   suggestedProperties.length > 0 && (
                     <section className="border-t border-slate-800/25 pt-10">
-                      <div className="mb-8 overflow-hidden rounded-2xl border border-[#A054A0]/20 bg-gradient-to-br from-white via-purple-50/70 to-white p-6 shadow-sm sm:p-8">
+                      <div className="mb-8 overflow-hidden rounded-xl border border-[#A054A0]/20 bg-gradient-to-br from-white via-purple-50/70 to-white p-6 shadow-sm sm:p-8">
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-start gap-3.5">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#A054A0]/10">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#A054A0]/10">
                               <Sparkles className="h-5 w-5 text-[#A054A0]" />
                             </div>
 
@@ -2289,7 +2655,7 @@ function PropertiesClientContent() {
                               setExclusiveLeadSuccess(false);
                               setIsExclusiveLeadOpen(true);
                             }}
-                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#864286] focus:outline-none focus:ring-2 focus:ring-[#A054A0]/40 focus:ring-offset-2"
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#864286] focus:outline-none focus:ring-2 focus:ring-[#A054A0]/40 focus:ring-offset-2"
                           >
                             Find Exclusive Properties
                             <ArrowRight className="h-4 w-4" />
@@ -2336,6 +2702,17 @@ function PropertiesClientContent() {
             )}
           </div>
         </div>
+        <div
+          ref={suggestionsSentinelRef}
+          className="h-8 w-full"
+          aria-hidden="true"
+        />
+
+        {suggestionsLoading && suggestionsHasMore && (
+          <p className="py-5 text-center text-sm text-slate-500">
+            Loading more properties…
+          </p>
+        )}
       </main>
 
       {aiClarification && (
@@ -2345,7 +2722,7 @@ function PropertiesClientContent() {
           aria-modal="true"
           aria-labelledby="ai-city-clarification-title"
         >
-          <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-800/25 bg-white shadow-2xl">
+          <div className="w-full max-w-lg overflow-hidden rounded-xl border border-slate-800/25 bg-white shadow-2xl">
             <div className="border-b border-slate-100 bg-purple-50/60 p-5">
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-1 h-5 w-5 shrink-0 text-[#A054A0]" />
@@ -2378,7 +2755,7 @@ function PropertiesClientContent() {
 
             <div className="space-y-4 p-5">
               {aiClarification.originalQuery && (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Your original search
                   </p>
@@ -2410,7 +2787,7 @@ function PropertiesClientContent() {
                       key={city}
                       type="button"
                       onClick={() => handleConfirmAiCity(city)}
-                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-800/25 p-4 text-left transition hover:border-[#A054A0]/50 hover:bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-[#A054A0]/30"
+                      className="group flex w-full items-center justify-between gap-3 rounded-xl border border-slate-800/25 p-4 text-left transition hover:border-[#A054A0]/50 hover:bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-[#A054A0]/30"
                     >
                       <span className="min-w-0">
                         <span className="block text-sm font-semibold text-slate-900">
@@ -2433,7 +2810,7 @@ function PropertiesClientContent() {
               <button
                 type="button"
                 onClick={() => setAiClarification(null)}
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -2443,7 +2820,7 @@ function PropertiesClientContent() {
       )}
 
       {showSelectionBar && (
-        <div className="fixed bottom-4 left-1/2 z-[90] w-[calc(100%-1.5rem)] max-w-5xl -translate-x-1/2 rounded-2xl border border-slate-400/80 bg-white/95 p-4 shadow-2xl backdrop-blur-xl sm:bottom-5 sm:w-[calc(100%-2.5rem)] sm:p-5">
+        <div className="fixed bottom-4 left-1/2 z-[90] w-[calc(100%-1.5rem)] max-w-5xl -translate-x-1/2 rounded-xl border border-slate-400/80 bg-white/95 p-4 shadow-2xl backdrop-blur-xl sm:bottom-5 sm:w-[calc(100%-2.5rem)] sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {" "}
             <div className="min-w-0 flex-1">
@@ -2533,10 +2910,10 @@ function PropertiesClientContent() {
             }
           }}
         >
-          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl">
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-slate-100 bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#A054A0]/10 text-[#A054A0]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A054A0]/10 text-[#A054A0]">
                   <MessageSquare className="h-5 w-5" />
                 </div>
                 <div>
@@ -2564,7 +2941,7 @@ function PropertiesClientContent() {
             <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-6">
               {enquirySuccess ? (
                 <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
                     <CheckCircle2 className="h-9 w-9" />
                   </div>
 
@@ -2588,7 +2965,7 @@ function PropertiesClientContent() {
                 </div>
               ) : (
                 <form onSubmit={handleEnquirySubmit} className="space-y-6">
-                  <div className="rounded-2xl border border-slate-800/25 bg-slate-50/70 p-4">
+                  <div className="rounded-xl border border-slate-800/25 bg-slate-50/70 p-4">
                     <div className="mb-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Building className="h-4 w-4 text-[#A054A0]" />
@@ -2834,7 +3211,7 @@ function PropertiesClientContent() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="exclusive-lead-title"
-            className="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl"
           >
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
               <div>
@@ -2884,7 +3261,7 @@ function PropertiesClientContent() {
                   <button
                     type="button"
                     onClick={closeExclusiveLeadForm}
-                    className="mt-6 rounded-2xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#864286]"
+                    className="mt-6 rounded-xl bg-[#A054A0] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#864286]"
                   >
                     Continue Exploring
                   </button>
@@ -2912,7 +3289,7 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.name}
                       onChange={handleExclusiveLeadChange}
                       placeholder="Enter your full name"
-                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
@@ -2935,7 +3312,7 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.phone}
                       onChange={handleExclusiveLeadChange}
                       placeholder="Enter your phone number"
-                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
@@ -2956,7 +3333,7 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.email}
                       onChange={handleExclusiveLeadChange}
                       placeholder="you@company.com"
-                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
@@ -2977,14 +3354,14 @@ function PropertiesClientContent() {
                       value={exclusiveLeadForm.company}
                       onChange={handleExclusiveLeadChange}
                       placeholder="Enter your company name"
-                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#A054A0] focus:ring-2 focus:ring-[#A054A0]/10"
                     />
                   </div>
 
                   {exclusiveLeadError && (
                     <div
                       role="alert"
-                      className="rounded-2xl border border-red-100 bg-red-50 p-3 text-sm text-red-700"
+                      className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700"
                     >
                       {exclusiveLeadError}
                     </div>
@@ -2993,7 +3370,7 @@ function PropertiesClientContent() {
                   <button
                     type="submit"
                     disabled={isSubmittingExclusiveLead}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#A054A0] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#A054A0] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#864286] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isSubmittingExclusiveLead ? (
                       <>

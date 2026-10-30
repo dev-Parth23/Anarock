@@ -1,4 +1,3 @@
-
 "use client";
 
 import { usePreferences } from "@/lib/preferences";
@@ -145,8 +144,8 @@ function DetailSection({ title, children }) {
 export default function PropertyDetailClient({ propertyId }) {
   const [property, setProperty] = useState(null);
   const [gallery, setGallery] = useState([]);
-  const [activeImg, setActiveImg] = useState("project");
   const [related, setRelated] = useState([]);
+  const [activeImg, setActiveImg] = useState("project");
   const { unit, currency } = usePreferences();
   const [failedImages, setFailedImages] = useState(new Set());
   const [imageExtensionIndexes, setImageExtensionIndexes] = useState({});
@@ -155,13 +154,11 @@ export default function PropertyDetailClient({ propertyId }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [compareSelection, setCompareSelection] = useState([]);
   const [isTitleVisible, setIsTitleVisible] = useState(true);
-
   const similarSectionRef = useRef(null);
   const thumbnailContainerRef = useRef(null);
   const thumbnailRefs = useRef({});
   const autoScrollTimeoutRef = useRef(null);
 
-  // Smart scroll handler: visible only at the top and hides before reaching similar/recommended properties
   useEffect(() => {
     let frameId = null;
 
@@ -174,7 +171,6 @@ export default function PropertyDetailClient({ propertyId }) {
 
         if (similarSectionRef.current) {
           const rect = similarSectionRef.current.getBoundingClientRect();
-          // Hide sticky header as soon as similar properties section approaches the viewport
           if (rect.top <= window.innerHeight * 0.8) {
             shouldShow = false;
           }
@@ -215,7 +211,6 @@ export default function PropertyDetailClient({ propertyId }) {
         const images = imageFolderPath
           ? IMAGE_FILES.map((image) => {
             const baseName = image.filename.replace(/\.[^/.]+$/, "");
-
             const originalExtension = image.filename
               .split(".")
               .pop()
@@ -240,6 +235,7 @@ export default function PropertyDetailClient({ propertyId }) {
             };
           })
           : [];
+
         setProperty({
           ...propertyData,
           image: images.find((image) => image.key === "project")?.url || "",
@@ -247,24 +243,75 @@ export default function PropertyDetailClient({ propertyId }) {
         setGallery(images);
         setActiveImg("project");
         setImageExtensionIndexes({});
-        if (propertyData.city) {
-          try {
-            const relatedResponse = await fetch(
-              `/api/properties?city=${encodeURIComponent(propertyData.city)}`,
-              { cache: "no-store", signal: controller.signal }
+
+        // Fetch ALL properties from the database to enable intelligent priority sorting & no dead-ends
+        try {
+          const allResponse = await fetch(`/api/properties`, {
+            cache: "no-store",
+            signal: controller.signal,
+          });
+          const allData = await allResponse.json();
+
+          if (allData.success) {
+            const currentId = getPropertyId(propertyData);
+            const otherProperties = (allData.data || []).filter(
+              (item) => getPropertyId(item) !== currentId
             );
-            const relatedData = await relatedResponse.json();
-            if (relatedData.success) {
-              const currentId = getPropertyId(propertyData);
-              const relatedProperties = (relatedData.data || []).filter(
-                (item) => getPropertyId(item) !== currentId
+
+            // Prioritization logic:
+            // 1. Same City
+            // 2. Same Micromarket
+            // 3. Similar Type / Rent / Area proximity
+            const scoredProperties = otherProperties.map((item) => {
+              let score = 0;
+
+              // City match gets highest primary boost
+              if (
+                propertyData.city &&
+                item.city &&
+                item.city.trim().toLowerCase() === propertyData.city.trim().toLowerCase()
+              ) {
+                score += 100;
+              }
+
+              // Micromarket match gets secondary boost
+              if (
+                propertyData.micromarket &&
+                item.micromarket &&
+                item.micromarket.trim().toLowerCase() === propertyData.micromarket.trim().toLowerCase()
+              ) {
+                score += 50;
+              }
+
+              // Property Type match
+              const currentType = normalizeType(
+                propertyData.officeType || propertyData.propertyType || propertyData.type
               );
-              setRelated(relatedProperties);
-            }
-          } catch (relatedError) {
-            if (relatedError.name !== "AbortError") {
-              console.error("Related properties error:", relatedError);
-            }
+              const itemType = normalizeType(
+                item.officeType || item.propertyType || item.type
+              );
+              if (currentType && itemType && currentType === itemType) {
+                score += 25;
+              }
+
+              // Rent / Price proximity check (closer rent values get small incremental score)
+              const currentRent = Number(propertyData.quotedRent || propertyData.monthlyCostPerSeat || 0);
+              const itemRent = Number(item.quotedRent || item.monthlyCostPerSeat || 0);
+              if (currentRent > 0 && itemRent > 0) {
+                const diffRatio = Math.abs(currentRent - itemRent) / currentRent;
+                if (diffRatio < 0.5) score += 10;
+              }
+
+              return { item, score };
+            });
+
+            // Sort by score descending so highest priority items appear first, but ALL properties remain included
+            scoredProperties.sort((a, b) => b.score - a.score);
+            setRelated(scoredProperties.map((p) => p.item));
+          }
+        } catch (relatedError) {
+          if (relatedError.name !== "AbortError") {
+            console.error("All properties fetch error:", relatedError);
           }
         }
       } catch (err) {
@@ -446,10 +493,8 @@ export default function PropertyDetailClient({ propertyId }) {
 
   const getImageSrc = (image) => {
     if (!image) return "";
-
     const candidates = image.candidates || [image.url];
     const index = imageExtensionIndexes[image.key] || 0;
-
     return candidates[index] || candidates[0] || "";
   };
 
@@ -478,11 +523,11 @@ export default function PropertyDetailClient({ propertyId }) {
       (image) => image.key === activeImg
     )
   );
+
   const handleImageError = (imageKey) => {
     const image = gallery.find(
       (item) => item.key === imageKey
     );
-
     if (!image) return;
 
     const candidates = image.candidates || [image.url];
@@ -492,7 +537,6 @@ export default function PropertyDetailClient({ propertyId }) {
         ...previous,
         [imageKey]: currentIndex + 1,
       }));
-
       return;
     }
     setFailedImages((previous) => {
@@ -504,7 +548,6 @@ export default function PropertyDetailClient({ propertyId }) {
       const currentIndexInGallery = availableGallery.findIndex(
         (img) => img.key === imageKey
       );
-
       const nextImage =
         availableGallery[currentIndexInGallery + 1] ||
         availableGallery[currentIndexInGallery - 1];
@@ -728,7 +771,7 @@ export default function PropertyDetailClient({ propertyId }) {
                   onClick={() => handleWishlist(property)}
                   className={`group inline-flex min-h-[40px] min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2 text-base font-semibold shadow-sm transition-all duration-200 active:scale-[0.98] sm:flex-none ${isWishlisted
                     ? "border-[#A054A0] bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
-                    : "border-slate-800/15 bg-white text-slate-700 hover:border-[#A054A0]/50 hover:text-[#A054A0]"
+                    : "border-slate-800/15 bg-white text-black hover:border-[#A054A0]/50 hover:text-[#A054A0]"
                     }`}
                 >
                   <Heart
@@ -991,7 +1034,7 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
           </section>
 
-          {/* SIMILAR PROPERTIES (Ref referenced here to trigger sticky title hiding) */}
+          {/* SIMILAR PROPERTIES / ALL PROPERTIES SORTED BY PRIORITY */}
           {related.length > 0 && (
             <section ref={similarSectionRef} className="mt-10 sm:mt-14 lg:mt-16">
               <div className="mb-4 flex items-end justify-between gap-3 sm:mb-6">
@@ -1003,10 +1046,10 @@ export default function PropertyDetailClient({ propertyId }) {
                     </span>
                   </div>
                   <h2 className="text-lg font-bold tracking-tight text-black sm:text-2xl">
-                    Similar Properties
+                    You Might Also Be Interested In
                   </h2>
                   <p className="mt-0.5 text-xs text-slate-500">
-                    Explore other commercial listings in this location.
+                    Showing all available listings prioritized by location, type, and rent.
                   </p>
                 </div>
 
@@ -1070,7 +1113,7 @@ export default function PropertyDetailClient({ propertyId }) {
                   </div>
                 )}
                 {row2.length > 0 && (
-                  <div className="-mx-1 flex gap-3.5 overflow-x-auto px-1 pb-3 pt-1 snap-x snap-mandatory scrollbar-none sm:gap-4">
+                  <div className=" flex gap-3.5 overflow-x-auto px-1 pb-3 pt-1 snap-x snap-mandatory scrollbar-none sm:gap-4">
                     {row2.map((item) => (
                       <div
                         key={getPropertyId(item)}
@@ -1120,7 +1163,6 @@ export default function PropertyDetailClient({ propertyId }) {
           )}
         </div>
 
-        {/* Action Bar matching exact design & layout from reference */}
         {compareSelection.length > 0 && (
           <div className="fixed bottom-4 left-1/2 z-[90] w-[calc(100%-1.5rem)] max-w-5xl -translate-x-1/2 rounded-lg border border-slate-400/80 bg-white/95 p-4 shadow-2xl backdrop-blur-xl sm:bottom-5 sm:w-[calc(100%-2.5rem)] sm:p-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -1146,7 +1188,7 @@ export default function PropertyDetailClient({ propertyId }) {
                     compareSelection.length < MIN_COMPARE_PROPERTIES ||
                     compareSelection.length > MAX_COMPARE_PROPERTIES
                   }
-                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#A054A0] px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#864286] hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-sm sm:px-4 sm:text-sm"
+                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#A054A0] px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#864286] hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:hover:shadow-sm sm:px-4 sm:text-sm"
                 >
                   <GitCompare className="h-4 w-4 shrink-0" />
                   <span>Compare</span>

@@ -1,5 +1,5 @@
-"use client";
 
+"use client";
 import Image from "next/image";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
@@ -34,10 +34,40 @@ const createSlug = (value) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-export default function ComparePage() {
-  const { unit } = usePreferences();
-  const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
+function DynamicPropertyImage({ folder, alt, priority, className }) {
+  const extensions = [".jpg", ".png", ".jpeg", ".webp"];
+  const [extIndex, setExtIndex] = useState(0);
+  const [hasError, setHasError] = useState(false);
 
+  if (!folder || hasError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
+        Image Unavailable
+      </div>
+    );
+  }
+
+  const currentUrl = `https://property-images.zohostratus.in/${folder}/Project_Picture_1${extensions[extIndex]}`;
+
+  return (
+    <img
+      src={currentUrl}
+      alt={alt}
+      className={className}
+      onError={() => {
+        if (extIndex < extensions.length - 1) {
+          setExtIndex((prev) => prev + 1);
+        } else {
+          setHasError(true);
+        }
+      }}
+    />
+  );
+}
+
+export default function ComparePage() {
+  const { unit, currency, exchangeRates } = usePreferences();
+  const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const [isMounted, setIsMounted] = useState(false);
   const [properties, setProperties] = useState([]);
   const [allProperties, setAllProperties] = useState([]);
@@ -45,8 +75,9 @@ export default function ComparePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCityFilter, setSelectedCityFilter] = useState("all");
   const [selectedMicromarkets, setSelectedMicromarkets] = useState([]);
+  const [showThirdSlotSkeleton, setShowThirdSlotSkeleton] = useState(false);
 
-  // Ensure client-side localStorage execution matches server rendering initially to prevent hydration errors
+
   useEffect(() => {
     setIsMounted(true);
     try {
@@ -60,10 +91,8 @@ export default function ComparePage() {
     }
   }, []);
 
-  // Dynamic SEO, GEO, and Schema Injection for Single-File Architecture
   useEffect(() => {
     document.title = "Commercial Property Comparison & Office Space Analytics | Compare Workspaces";
-
     const setMetaTag = (name, content, isProperty = false) => {
       const attr = isProperty ? "property" : "name";
       let element = document.querySelector(`meta[${attr}="${name}"]`);
@@ -74,24 +103,18 @@ export default function ComparePage() {
       }
       element.setAttribute("content", content);
     };
-
     setMetaTag("description", "Compare commercial real estate, managed offices, and coworking spaces side-by-side. Analyze pricing, seating capacity, micro-markets, and square footage.");
     setMetaTag("keywords", "commercial property comparison, office space comparison, coworking space analytics, managed offices comparison, corporate real estate comparison");
-
-    // GEO Targeting Tags
     setMetaTag("geo.region", "IN-DL");
     setMetaTag("geo.placename", "New Delhi, Mumbai, Bengaluru, India");
     setMetaTag("geo.position", "28.6139;77.2090");
     setMetaTag("ICBM", "28.6139, 77.2090");
-
-    // Open Graph / Social Tags
     setMetaTag("og:title", "Commercial Property Comparison & Office Space Analytics", true);
     setMetaTag("og:description", "Evaluate and compare commercial properties and managed workspaces side-by-side with advanced portfolio analysis.", true);
     setMetaTag("og:type", "website", true);
     setMetaTag("og:url", window.location.href, true);
     setMetaTag("og:site_name", "Anarock Commercial Real Estate", true);
 
-    // Structured Data (JSON-LD) for Search Engine Rich Results
     const scriptId = "json-ld-compare-seo";
     let scriptElement = document.getElementById(scriptId);
     if (!scriptElement) {
@@ -114,9 +137,7 @@ export default function ComparePage() {
   }, []);
 
   const getId = (property) =>
-    String(
-      property?.id || property?.rowId || property?.ROWID || property?.ID || "",
-    );
+    String(property?.id || property?.rowId || property?.ROWID || property?.ID || "");
 
   const isShortlisted = (property) => {
     const propertyId = getId(property);
@@ -187,20 +208,15 @@ export default function ComparePage() {
     };
   }, []);
 
-  const getName = (property) =>
-    property?.name ||
-    property?.Property_Name ||
-    property?.propertyName ||
-    property?.Name ||
-    "Property";
+  useEffect(() => {
+    if (properties.length < 2) {
+      setShowThirdSlotSkeleton(false);
+    }
+  }, [properties.length]);
 
+  const getName = (property) => property?.name;
   const getPropertySlug = (property) => {
-    const existingSlug =
-      property?.slug ||
-      property?.Slug ||
-      property?.propertySlug ||
-      property?.Property_Slug;
-
+    const existingSlug = property?.slug;
     return existingSlug ? String(existingSlug) : createSlug(getName(property));
   };
 
@@ -211,21 +227,10 @@ export default function ComparePage() {
     return `/properties/${encodeURIComponent(id)}/${encodeURIComponent(slug)}`;
   };
 
-  const getImage = (property) => {
-    const folder = String(
-      property?.imageFolderPath ||
-      property?.ImageFolderPath ||
-      property?.image_folder_path ||
-      property?.Image_Folder_Path ||
-      property?.folder ||
-      property?.Folder ||
-      "",
-    )
+  const getFolder = (property) => {
+    return String(property?.ImageFolderPath || "")
       .trim()
       .replace(/^\/+|\/+$/g, "");
-
-    if (!folder) return "";
-    return `https://property-images.zohostratus.in/${folder}/Project_Picture_1.jpg`;
   };
 
   const removeProperty = (id) => {
@@ -249,54 +254,210 @@ export default function ComparePage() {
   const addPropertyToCompare = (property) => {
     if (properties.length >= MAX_COMPARE_PROPERTIES) return;
     const propertyId = getId(property);
-
     if (properties.some((p) => getId(p) === propertyId)) return;
-
     const updated = [...properties, property];
     setProperties(updated);
     localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(updated));
     setIsModalOpen(false);
+    setShowThirdSlotSkeleton(false);
   };
 
-  const rows = [
+  const isCoworking = (property) => {
+    const type = String(property?.officeType || "").toLowerCase();
+    return (
+      type.includes("coworking") ||
+      type.includes("co-working") ||
+      type.includes("managed") ||
+      type.includes("flexible")
+    );
+  };
+
+  const isConventional = (property) => {
+    return !isCoworking(property);
+  };
+
+  const activeProperties = properties.filter(Boolean);
+  const allAreCoworking = activeProperties.length > 0 && activeProperties.every(isCoworking);
+  const allAreConventional = activeProperties.length > 0 && activeProperties.every(isConventional);
+
+  const CURRENCY_SYMBOLS = {
+    INR: "₹",
+    USD: "$",
+    AED: "د.إ",
+    EUR: "€",
+    GBP: "£",
+    SGD: "S$",
+  };
+
+  const renderCurrencyValue = (val) => {
+    if (val === null || val === undefined || val === "" || val === "-") {
+      return "-";
+    }
+
+    // Convert source value into a number.
+    const numericVal =
+      typeof val === "number"
+        ? val
+        : Number(String(val).replace(/[^0-9.-]/g, ""));
+
+    if (!Number.isFinite(numericVal) || numericVal <= 0) {
+      return val;
+    }
+
+    const activeCurrency = currency || "INR";
+    const symbol = CURRENCY_SYMBOLS[activeCurrency] || activeCurrency;
+
+    // Exchange rates are based on INR.
+    // Example: 1 INR = 0.012 USD.
+    const rate = Number(exchangeRates?.[activeCurrency] ?? 1);
+
+    // Avoid displaying incorrectly converted values if a rate is unavailable.
+    if (!Number.isFinite(rate) || rate <= 0) {
+      return (
+        <span className="text-xs text-slate-500">
+          Exchange rate unavailable
+        </span>
+      );
+    }
+
+    // Property prices are assumed to be stored in INR.
+    const convertedValue = numericVal * rate;
+
+    const formattedAmount = new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(convertedValue);
+
+    return (
+      <span className="inline-flex items-center gap-2">
+        <span title={activeCurrency} className="inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-lg  px-1.5 text-xs font-bold text-[#A054A0]">
+          {symbol}
+        </span>
+        <span className="font-semibold text-slate-800 tabular-nums">
+          {formattedAmount}
+        </span>
+      </span>
+    );
+  };
+
+  const allRows = [
     {
       label: "City",
+      show: true,
       value: (property) => property?.city || property?.City || "-",
     },
     {
       label: "Micromarket",
+      show: true,
       value: (property) =>
         property?.micromarket ||
         property?.Micromarket ||
-        property?.microMarket ||
         "-",
     },
     {
+      label: "Type",
+      show: true,
+      value: (property) => property?.officeType || "-",
+    },
+    {
       label: "Area",
+      show: !allAreCoworking,
       value: (property) => {
+        if (!isConventional(property)) return "-";
         const area = property?.totalLeasableAreaAvailable ?? null;
-        if (area === null || area === "") return "-";
+        if (area === null || area === "" || Number(area) === 0) return "-";
         const numericArea = Number(area);
-        return Number.isFinite(numericArea)
+        return Number.isFinite(numericArea) && numericArea > 0
           ? formatArea(numericArea, unit)
           : "-";
       },
     },
     {
-      label: "Seats",
-      value: (property) => property?.NoOfSeatsOffered ?? "-",
+      label: `Rent (${currency || "INR"})`,
+      show: !allAreCoworking,
+      value: (property) => {
+        if (!isConventional(property)) return "-";
+        return renderCurrencyValue(property?.QuotedRent);
+      },
     },
     {
-      label: "Type",
+      label: "Developer",
+      show: !allAreCoworking,
+      value: (property) => {
+        if (!isConventional(property)) return "-";
+        return property?.developer || "-";
+      },
+    },
+    {
+      label: "Seats",
+      show: !allAreConventional,
+      value: (property) => {
+        if (!isCoworking(property)) return "-";
+        return property?.NoOfSeatsOffered || "-";
+      },
+    },
+    {
+      label: `Price (${currency || "INR"})`,
+      show: !allAreConventional,
+      value: (property) => {
+        if (!isCoworking(property)) return "-";
+        return renderCurrencyValue(property?.monthlyCostPerSeat);
+      },
+    },
+    {
+      label: "Operator",
+      show: !allAreConventional,
+      value: (property) => {
+        if (!isCoworking(property)) return "-";
+        return property?.operator || property?.OperatorName || "-";
+      },
+    },
+    {
+      label: "Distance from Metro",
+      show: true,
       value: (property) =>
-        property?.buildingType ||
-        property?.officeType ||
-        property?.propertyType ||
-        "-",
+        property?.distanceFromMetro || "-",
+    },
+    {
+      label: "Proposed Floor",
+      show: true,
+      value: (property) => property?.floor || "-",
+    },
+    {
+      label: "Inclusions",
+      show: true,
+      value: (property) =>
+        property?.inclusions || "-",
+    },
+    {
+      label: "Exclusions",
+      show: true,
+      value: (property) =>
+        property?.exclusions || "-",
     },
   ];
 
-  const slots = [0, 1, 2].map((i) => properties[i] || null);
+  const rows = allRows.filter((r) => r.show);
+  const activeCount = properties.length;
+  let slots = [];
+  let gridColumnsClass = "grid-cols-[220px_1fr]";
+
+  if (activeCount === 1) {
+    slots = [properties[0], null];
+    gridColumnsClass = "grid-cols-[220px_repeat(2,1fr)]";
+  } else if (activeCount === 2) {
+    if (showThirdSlotSkeleton) {
+      slots = [properties[0], properties[1], null];
+      gridColumnsClass = "grid-cols-[220px_repeat(3,1fr)]";
+    } else {
+      slots = [properties[0], properties[1]];
+      gridColumnsClass = "grid-cols-[220px_repeat(2,1fr)]";
+    }
+  } else {
+    slots = [properties[0], properties[1], properties[2]];
+    gridColumnsClass = "grid-cols-[220px_repeat(3,1fr)]";
+  }
+
   const firstValidSlotIndex = slots.findIndex((p) => p !== null);
 
   const availableCities = useMemo(() => {
@@ -406,13 +567,25 @@ export default function ComparePage() {
               </h1>
             </div>
 
-            <Link
-              href="/properties"
-              className="group inline-flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-white/80 px-4 py-2.5 text-xs font-semibold text-black backdrop-blur transition hover:border-[#A054A0] hover:text-[#A054A0] hover:shadow-md"
-            >
-              Browse Properties
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </Link>
+            <div className="flex items-center gap-3">
+              {properties.length === 2 && !showThirdSlotSkeleton && (
+                <button
+                  type="button"
+                  onClick={() => setShowThirdSlotSkeleton(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#A054A0] bg-[#A054A0]/5 px-4 py-2.5 text-xs font-semibold text-[#A054A0] transition hover:bg-[#A054A0]/10"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Another Property
+                </button>
+              )}
+              <Link
+                href="/properties"
+                className="group inline-flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-white/80 px-4 py-2.5 text-xs font-semibold text-black backdrop-blur transition hover:border-[#A054A0] hover:text-[#A054A0] hover:shadow-md"
+              >
+                Browse Properties
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </Link>
+            </div>
           </section>
 
           {!isMounted ? (
@@ -439,11 +612,9 @@ export default function ComparePage() {
             </section>
           ) : (
             <div className="space-y-6">
-              {/* Responsive Scrollable Container with edge-to-edge mobile padding fix */}
               <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
                 <div className="min-w-[950px] lg:min-w-full">
-                  {/* Cards Section Grid */}
-                  <div className="grid grid-cols-[220px_repeat(3,1fr)] gap-5 pb-6">
+                  <div className={`grid ${gridColumnsClass} gap-5 pb-6 transition-all duration-300`}>
                     <div className="flex flex-col justify-end pb-2">
                       <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
                         Properties Overview
@@ -454,7 +625,7 @@ export default function ComparePage() {
                       if (property) {
                         const propertyId = getId(property);
                         const propertyName = getName(property);
-                        const imageUrl = getImage(property);
+                        const folder = getFolder(property);
                         const propertyUrl = getPropertyUrl(property);
                         const isFirstImage = index === firstValidSlotIndex;
 
@@ -469,23 +640,12 @@ export default function ComparePage() {
                                   href={propertyUrl}
                                   className="block relative h-full w-full"
                                 >
-                                  {imageUrl ? (
-                                    <Image
-                                      src={imageUrl}
-                                      alt={`${propertyName} office space`}
-                                      fill
-                                      priority={isFirstImage}
-                                      sizes="(max-width: 1024px) 33vw, 25vw"
-                                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                      onError={(e) => {
-                                        e.currentTarget.style.display = "none";
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                                      Image Unavailable
-                                    </div>
-                                  )}
+                                  <DynamicPropertyImage
+                                    folder={folder}
+                                    alt={`${propertyName} office space`}
+                                    priority={isFirstImage}
+                                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                  />
                                 </Link>
 
                                 <div className="absolute left-3 top-3 z-10">
@@ -582,7 +742,7 @@ export default function ComparePage() {
 
                   {/* Specification Table */}
                   <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                    <div className="grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-slate-800">
+                    <div className={`grid ${gridColumnsClass} border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-slate-800 transition-all duration-300`}>
                       <div className="px-6 py-4">Specification</div>
                       {slots.map((property, i) => (
                         <div
@@ -592,9 +752,12 @@ export default function ComparePage() {
                           {property ? (
                             getName(property)
                           ) : (
-                            <span className="text-slate-500 italic font-normal">
-                              -- Empty Slot --
-                            </span>
+                            <button
+                              onClick={handleOpenModal}
+                              className="text-[#A054A0] hover:underline font-normal inline-flex items-center gap-1"
+                            >
+                              <Plus className="h-3 w-3" /> Add Property Slot {i + 1}
+                            </button>
                           )}
                         </div>
                       ))}
@@ -603,7 +766,7 @@ export default function ComparePage() {
                     {rows.map((row, idx) => (
                       <div
                         key={row.label}
-                        className={`grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-100 text-xs text-slate-800 transition last:border-b-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
+                        className={`grid ${gridColumnsClass} border-b border-slate-100 text-xs text-slate-800 transition-all duration-300 last:border-b-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
                           }`}
                       >
                         <div className="flex items-center px-6 py-4 font-semibold text-slate-800">
@@ -612,12 +775,12 @@ export default function ComparePage() {
                         {slots.map((property, i) => (
                           <div
                             key={`row-${row.label}-${i}`}
-                            className="flex items-center border-l border-slate-100 px-6 py-4 font-medium text-slate-800 truncate"
+                            className="flex items-center border-l border-slate-100 px-6 py-4 font-medium text-slate-800 whitespace-normal break-words leading-relaxed"
                           >
                             {property ? (
                               row.value(property)
                             ) : (
-                              <span className="text-slate-300">-</span>
+                              <span className="text-slate-300 italic font-normal">-- empty --</span>
                             )}
                           </div>
                         ))}
@@ -631,16 +794,14 @@ export default function ComparePage() {
         </div>
       </main>
 
-      {/* Property Selector Modal - Fixed z-[100] & Mobile Bottom Sheet to prevent navbar overlap */}
+      {/* Property Selector Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/50 p-0 sm:p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-xl max-h-[85vh] sm:max-h-[80vh] flex flex-col rounded-t-3xl sm:rounded-2xl bg-white p-5 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
               <div>
                 <h3 className="text-base font-semibold text-slate-900">
-                  Select Asset to Compare
+                  Select Property to Compare
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Choose an additional property to analyze side-by-side
@@ -656,7 +817,6 @@ export default function ComparePage() {
               </button>
             </div>
 
-            {/* Search Bar & City Filter */}
             <div className="mt-4 flex flex-col gap-3 sm:flex-row shrink-0">
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
@@ -691,12 +851,10 @@ export default function ComparePage() {
               </div>
             </div>
 
-            {/* Micromarkets Multi-Select */}
             {availableMicromarkets.length > 0 && (
               <div className="mt-3 shrink-0">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Filter by Micromarkets ({selectedMicromarkets.length}{" "}
-                  selected)
+                  Filter by Micromarkets ({selectedMicromarkets.length} selected)
                 </label>
                 <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
                   {availableMicromarkets.map((mm) => {
@@ -720,7 +878,6 @@ export default function ComparePage() {
               </div>
             )}
 
-            {/* Property Item Cards inside Modal (Scrollable Area) */}
             <div className="mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1">
               {filteredModalProperties.length === 0 ? (
                 <div className="py-12 text-center text-xs text-slate-400">
@@ -728,7 +885,7 @@ export default function ComparePage() {
                 </div>
               ) : (
                 filteredModalProperties.map((property) => {
-                  const modalImg = getImage(property);
+                  const folder = getFolder(property);
                   const modalName = getName(property);
                   const modalCity = property?.city || property?.City || "-";
                   const modalMicromarket =
@@ -736,11 +893,7 @@ export default function ComparePage() {
                     property?.Micromarket ||
                     property?.microMarket ||
                     "-";
-                  const modalType =
-                    property?.buildingType ||
-                    property?.officeType ||
-                    property?.propertyType ||
-                    "Managed Office/Co-working";
+                  const modalType = property?.officeType || "";
 
                   return (
                     <div
@@ -749,31 +902,13 @@ export default function ComparePage() {
                       className="group flex cursor-pointer items-center justify-between rounded-2xl border border-slate-200/80 bg-white p-3 transition-all hover:border-[#A054A0] hover:shadow-md"
                     >
                       <div className="flex items-center gap-3.5">
-                        {/* Image Thumbnail Container */}
                         <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
-                          {modalImg ? (
-                            <img
-                              src={modalImg}
-                              alt={modalName}
-                              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                                if (e.currentTarget.nextElementSibling) {
-                                  e.currentTarget.nextElementSibling.style.display =
-                                    "flex";
-                                }
-                              }}
-                            />
-                          ) : null}
-                          <div
-                            className={`h-full w-full items-center justify-center bg-slate-100 text-slate-400 ${modalImg ? "hidden" : "flex"
-                              }`}
-                          >
-                            <ImageIcon className="h-5 w-5" />
-                          </div>
+                          <DynamicPropertyImage
+                            folder={folder}
+                            alt={modalName}
+                            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                          />
                         </div>
-
-                        {/* Title, Location & Type Badge */}
                         <div>
                           <h4 className="text-xs font-semibold text-slate-900 group-hover:text-[#A054A0] truncate max-w-[200px] sm:max-w-[240px]">
                             {modalName}
@@ -790,7 +925,6 @@ export default function ComparePage() {
                         </div>
                       </div>
 
-                      {/* Add Button */}
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#A054A0]/10 text-[#A054A0] transition group-hover:bg-[#A054A0] group-hover:text-white">
                         <Plus className="h-4 w-4" />
                       </div>

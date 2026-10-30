@@ -121,7 +121,6 @@ function DetailSection({ title, children }) {
   return (
     <section className="relative border-t border-slate-100 pt-6 first:border-t-0 first:pt-0 sm:pt-8">
       <div className="mb-4 flex items-center gap-2.5">
-        <div className="h-1.5 w-1.5 rounded-full bg-[#A054A0]/70" />
         <h3 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
           {title}
         </h3>
@@ -593,14 +592,14 @@ export default function PropertyDetailClient({ propertyId }) {
               <div className="min-w-0 flex-1">
                 <div className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A054A0]">
                   {property.city && (
-                    <span className="rounded-full bg-[#A054A0]/8 px-2.5 py-0.5 ring-1 ring-[#A054A0]/15">
+                    <span className="rounded-md bg-[#A054A0]/8 px-2.5 py-0.5 ring-1 ring-[#A054A0]/15">
                       {property.city}
                     </span>
                   )}
                   {property.micromarket && (
                     <>
                       <span className="text-slate-300">•</span>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-slate-700">
+                      <span className="rounded-md bg-slate-100 px-2.5 py-0.5 text-slate-700">
                         {property.micromarket}
                       </span>
                     </>
@@ -608,7 +607,7 @@ export default function PropertyDetailClient({ propertyId }) {
                   {propertyDetails.propertyType && (
                     <>
                       <span className="text-slate-300">•</span>
-                      <span className="rounded-full bg-slate-50 px-2.5 py-0.5 text-slate-600">
+                      <span className="rounded-md bg-slate-50 px-2.5 py-0.5 text-slate-600">
                         {propertyDetails.propertyType}
                       </span>
                     </>
@@ -660,18 +659,6 @@ export default function PropertyDetailClient({ propertyId }) {
 
           {/* Minimal Media Gallery Section */}
           <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_10px_30px_-15px_rgba(160,84,160,0.1)] ring-1 ring-slate-100">
-            <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-[#fcfbfd] px-4 py-3 sm:px-6 sm:py-3.5">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-3.5 w-3.5 text-[#A054A0]" />
-                <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-800">
-                  Media Gallery
-                </h2>
-              </div>
-              <span className="rounded-full bg-[#A054A0]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#A054A0]">
-                {availableGallery.length} {availableGallery.length === 1 ? "Image" : "Images"}
-              </span>
-            </div>
-
             <div className="p-3 sm:p-5 lg:p-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_300px] lg:grid-cols-[minmax(0,1fr)_340px]">
                 <div

@@ -274,7 +274,7 @@ export default function ComparePage() {
     {
       label: "Area",
       value: (property) => {
-        const area = property?.areaSqft ?? property?.area ?? null;
+        const area = property?.totalLeasableAreaAvailable ?? null;
         if (area === null || area === "") return "-";
         const numericArea = Number(area);
         return Number.isFinite(numericArea)
@@ -284,7 +284,7 @@ export default function ComparePage() {
     },
     {
       label: "Seats",
-      value: (property) => property?.seats ?? property?.Seats ?? "-",
+      value: (property) => property?.NoOfSeatsOffered ?? "-",
     },
     {
       label: "Type",
@@ -408,7 +408,7 @@ export default function ComparePage() {
 
             <Link
               href="/properties"
-              className="group inline-flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-white/80 px-4 py-2.5 text-xs font-semibold text-slate-800 backdrop-blur transition hover:border-[#A054A0] hover:text-[#A054A0] hover:shadow-md"
+              className="group inline-flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-white/80 px-4 py-2.5 text-xs font-semibold text-black backdrop-blur transition hover:border-[#A054A0] hover:text-[#A054A0] hover:shadow-md"
             >
               Browse Properties
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -445,7 +445,7 @@ export default function ComparePage() {
                   {/* Cards Section Grid */}
                   <div className="grid grid-cols-[220px_repeat(3,1fr)] gap-5 pb-6">
                     <div className="flex flex-col justify-end pb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
                         Properties Overview
                       </span>
                     </div>
@@ -489,7 +489,7 @@ export default function ComparePage() {
                                 </Link>
 
                                 <div className="absolute left-3 top-3 z-10">
-                                  <span className="rounded-full bg-slate-950/70 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
+                                  <span className="rounded-full bg-slate-950/50 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
                                     {property?.city ||
                                       property?.City ||
                                       "Prime Asset"}
@@ -501,8 +501,8 @@ export default function ComparePage() {
                                     type="button"
                                     onClick={() => toggleShortlist(property)}
                                     className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur transition hover:bg-white ${isShortlisted(property)
-                                        ? "text-[#A054A0]"
-                                        : "text-slate-600 hover:text-[#A054A0]"
+                                      ? "text-[#A054A0]"
+                                      : "text-slate-600 hover:text-[#A054A0]"
                                       }`}
                                     title={
                                       isShortlisted(property)
@@ -537,8 +537,8 @@ export default function ComparePage() {
                                     {propertyName}
                                   </h3>
                                 </Link>
-                                <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
-                                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-700">
+                                  <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-700" />
                                   <span className="truncate">
                                     {property?.micromarket ||
                                       property?.city ||
@@ -582,7 +582,7 @@ export default function ComparePage() {
 
                   {/* Specification Table */}
                   <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                    <div className="grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <div className="grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-slate-800">
                       <div className="px-6 py-4">Specification</div>
                       {slots.map((property, i) => (
                         <div
@@ -592,7 +592,7 @@ export default function ComparePage() {
                           {property ? (
                             getName(property)
                           ) : (
-                            <span className="text-slate-300 italic font-normal">
+                            <span className="text-slate-500 italic font-normal">
                               -- Empty Slot --
                             </span>
                           )}
@@ -606,7 +606,7 @@ export default function ComparePage() {
                         className={`grid grid-cols-[220px_repeat(3,1fr)] border-b border-slate-100 text-xs text-slate-800 transition last:border-b-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
                           }`}
                       >
-                        <div className="flex items-center px-6 py-4 font-semibold text-slate-500">
+                        <div className="flex items-center px-6 py-4 font-semibold text-slate-800">
                           {row.label}
                         </div>
                         {slots.map((property, i) => (
@@ -707,8 +707,8 @@ export default function ComparePage() {
                         type="button"
                         onClick={() => toggleMicromarketFilter(mm)}
                         className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${isSelected
-                            ? "bg-[#A054A0] text-white"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          ? "bg-[#A054A0] text-white"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                           }`}
                       >
                         {isSelected && <Check className="h-3 w-3" />}
@@ -778,13 +778,13 @@ export default function ComparePage() {
                           <h4 className="text-xs font-semibold text-slate-900 group-hover:text-[#A054A0] truncate max-w-[200px] sm:max-w-[240px]">
                             {modalName}
                           </h4>
-                          <p className="mt-1 flex items-center gap-1 text-[11px] text-slate-500">
-                            <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                          <p className="mt-1 flex items-center gap-1 text-[11px] text-slate-800">
+                            <MapPin className="h-3 w-3 text-slate-800 shrink-0" />
                             <span className="truncate max-w-[200px]">
                               {modalMicromarket}, {modalCity}
                             </span>
                           </p>
-                          <span className="mt-1.5 inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                          <span className="mt-1.5 inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-800">
                             {modalType}
                           </span>
                         </div>

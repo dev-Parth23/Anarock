@@ -11,36 +11,50 @@ async function fetchCities() {
   const tokenInfo = await getZohoAccessToken();
 
   const url = `${tokenInfo.apiDomain}/crm/v8/City?fields=id,Name,Active_on_Website`;
+
   const response = await zohoFetch(url, { method: "GET" });
-  console.log(response);
-  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error(
-      data?.message || "Failed to fetch cities from Zoho CRM."
-    );
+    console.error("[Cities API] Zoho request failed:", {
+      status: response.status,
+    });
+
+    throw new Error("CITY_UPSTREAM_FAILED");
   }
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("CITY_INVALID_UPSTREAM_RESPONSE");
+  }
+
   const records = Array.isArray(data?.data) ? data.data : [];
+
   const cities = records
     .filter(
       (record) =>
         record.Active_on_Website === true ||
-        record.Active_on_Website === "true"
+        record.Active_on_Website === "true",
     )
     .map((record) => String(record.Name || "").trim())
     .filter(Boolean);
 
   return [...new Set(cities)].sort((a, b) =>
-    a.localeCompare(b, undefined, { sensitivity: "base" })
+    a.localeCompare(b, undefined, { sensitivity: "base" }),
   );
 }
+
 export async function GET() {
   try {
     const cities = await getOrFetchCache(
       "zoho:cities:website-active",
       fetchCities,
       CACHE_TTL,
-      { staleWhileRevalidate: true }
+      { staleWhileRevalidate: true },
     );
+
     return NextResponse.json(
       {
         success: true,
@@ -53,21 +67,24 @@ export async function GET() {
           "Cache-Control":
             "public, s-maxage=21600, stale-while-revalidate=86400",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("[Cities API] Failed:", {
-      message: error?.message,
-      status: error?.status,
+      code: error?.message || "UNKNOWN_ERROR",
+      status: error?.status || null,
     });
 
     return NextResponse.json(
       {
         success: false,
         cities: [],
-        message: error?.message || "Unable to fetch cities.",
+        message: "Unable to fetch cities right now. Please try again.",
       },
-      { status: 502 }
+      {
+        status: 502,
+        headers: { "Cache-Control": "no-store" },
+      },
     );
   }
 }

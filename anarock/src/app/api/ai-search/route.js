@@ -5,7 +5,6 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_PAGE_SIZE = 50;
-const MAX_PROMPT_LENGTH = 1000;
 const CACHE_TTL = 5 * 60 * 1000;
 
 const queryCache =
@@ -1246,13 +1245,8 @@ function sortResults(results, sort) {
 
 export async function POST(request) {
     try {
-        const body = await request.json();
-
-        const prompt = str(body.prompt).slice(
-            0,
-            MAX_PROMPT_LENGTH
-        );
-
+        const body = await request.json().catch(() => ({}));
+        const prompt = str(body.prompt).slice(0, 1000);
         if (!prompt) {
             return NextResponse.json(
                 {

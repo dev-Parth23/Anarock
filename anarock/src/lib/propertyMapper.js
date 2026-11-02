@@ -7,16 +7,20 @@ const num = (value) => {
   if (value === null || value === undefined || value === "") {
     return null;
   }
+
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 };
 
 const folderPath = (value) => {
-  if (!value) return "";
+  if (!value || typeof value !== "string") return "";
+
   let folder = String(value).trim();
-  if (!folder.endsWith("/")) {
+
+  if (folder && !folder.endsWith("/")) {
     folder += "/";
   }
+
   return folder;
 };
 
@@ -24,13 +28,13 @@ export function mapProperty(row) {
   if (!row || typeof row !== "object") {
     return null;
   }
+
   const folder = folderPath(row.ImageFolderPath);
+
   return {
-    ...row,
     id: String(row.ROWID || ""),
     rowId: String(row.ROWID || ""),
     slug: clean(row.PropertyName),
-
     availabilityType: clean(row.AvailabilityType),
     type: clean(row.OfficeType),
     officeType: clean(row.OfficeType),
@@ -45,6 +49,8 @@ export function mapProperty(row) {
     longitude: num(row.Longitude),
     distanceFromMetro: clean(row.DistanceFromMetro),
     distanceFromAirport: clean(row.DistanceFromAirport),
+    ImageFolderPath: folder,
+    imageFolderPath: folder,
     buildingType: clean(row.BuildingType),
     buildingName: clean(row.BuildingName),
     techPark: clean(row.TechPark),
@@ -106,10 +112,5 @@ export function mapProperty(row) {
     projectHighlights: clean(row.ProjectHighlights),
     centerHighlights: clean(row.CenterHighlights),
     aiAttributes: clean(row.AIAttributes),
-    crmID: clean(row.crmID),
-    creatorID: clean(row.CREATORID),
-    createdTime: clean(row.CREATEDTIME),
-    modifiedTime: clean(row.MODIFIEDTIME),
-    imageFolderPath: folder,
   };
 }

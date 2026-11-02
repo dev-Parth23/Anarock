@@ -1158,7 +1158,11 @@ export default function HomePage() {
           </motion.div>
         </div>
       )}
+      {/* FAQ */}
 
+      <section>
+        <h2>FAQ</h2>
+      </section>
       <CookieConsent
         onConsentGiven={() => {
           setConsentGranted(true);

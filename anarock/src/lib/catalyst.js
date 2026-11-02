@@ -44,7 +44,7 @@ function getZohoAccountsUrl() {
 }
 
 function getEnvironment() {
-  return String(process.env.ENVIRONMENT || "Production" || "Development").trim();
+  return String(process.env.ENVIRONMENT || "Production").trim();
 }
 
 function getRequestTimeout() {

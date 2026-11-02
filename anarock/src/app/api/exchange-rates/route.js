@@ -1,13 +1,9 @@
-
 import { NextResponse } from "next/server";
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
 const ALLOWED_CURRENCIES = ["INR", "AED", "USD", "EUR", "SGD"];
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const CACHE_TTL = 60 * 60 * 1000;
 const CACHE_KEY = "__anarockInrExchangeRates";
-
 function getCache() {
   if (!globalThis[CACHE_KEY]) {
     globalThis[CACHE_KEY] = {
@@ -22,9 +18,9 @@ function getCache() {
 }
 
 async function fetchExchangeRates() {
-  const quotes = ALLOWED_CURRENCIES
-    .filter((currency) => currency !== "INR")
-    .join(",");
+  const quotes = ALLOWED_CURRENCIES.filter(
+    (currency) => currency !== "INR",
+  ).join(",");
 
   const url =
     "https://api.frankfurter.dev/v2/rates" +
@@ -36,24 +32,24 @@ async function fetchExchangeRates() {
   });
 
   const responseText = await response.text();
-  console.log(response);
   let rows;
 
   try {
     rows = responseText ? JSON.parse(responseText) : [];
   } catch {
-    throw new Error("Frankfurter returned an invalid response.");
+    throw new Error("Frankfurter returned an invalid JSON response.");
   }
 
   if (!response.ok) {
     throw new Error(
-      rows?.message ||
-      `Frankfurter returned HTTP ${response.status}.`
+      rows?.message || `Frankfurter returned HTTP ${response.status}.`,
     );
   }
 
   if (!Array.isArray(rows)) {
-    throw new Error("Invalid exchange-rate data.");
+    throw new Error(
+      "Invalid exchange-rate data format received from provider.",
+    );
   }
 
   const rates = { INR: 1 };
@@ -72,14 +68,12 @@ async function fetchExchangeRates() {
   }
 
   const missingCurrencies = ALLOWED_CURRENCIES.filter(
-    (currency) =>
-      currency !== "INR" &&
-      !Number.isFinite(rates[currency])
+    (currency) => currency !== "INR" && !Number.isFinite(rates[currency]),
   );
 
   if (missingCurrencies.length > 0) {
-    throw new Error(
-      `Missing rates for: ${missingCurrencies.join(", ")}`
+    console.warn(
+      `[ExchangeRates] Missing rates for: ${missingCurrencies.join(", ")}. Using defaults where available.`,
     );
   }
 
@@ -94,11 +88,7 @@ export async function GET() {
   const cache = getCache();
 
   try {
-    // Reuse rates for one hour within this server instance.
-    if (
-      cache.rates &&
-      Date.now() - cache.fetchedAt < CACHE_TTL
-    ) {
+    if (cache.rates && Date.now() - cache.fetchedAt < CACHE_TTL) {
       return NextResponse.json({
         success: true,
         base: "INR",
@@ -109,8 +99,6 @@ export async function GET() {
         cached: true,
       });
     }
-
-    // Reuse an in-progress request to prevent duplicate fetches.
     if (!cache.fetchPromise) {
       cache.fetchPromise = fetchExchangeRates()
         .then((result) => {
@@ -137,7 +125,7 @@ export async function GET() {
       cached: false,
     });
   } catch (error) {
-    console.error("Exchange rate API error:", error);
+    console.error("[ExchangeRates] API error:", error?.message || error);
     if (cache.rates) {
       return NextResponse.json({
         success: true,
@@ -158,7 +146,7 @@ export async function GET() {
         message: "Unable to fetch exchange rates.",
         rates: { INR: 1 },
       },
-      { status: 502 }
+      { status: 502 },
     );
   }
 }

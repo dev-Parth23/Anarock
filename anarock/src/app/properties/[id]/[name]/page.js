@@ -1,37 +1,118 @@
 import PropertyDetailClient from "./PropertyDetailClient";
+import { getPropertyById } from "@/lib/propertiesCache";
+import { notFound } from "next/navigation";
+
 export const runtime = "nodejs";
-export async function generateMetadata({ params }) {
-  const { id, name } = params;
-  const propertyName = decodeURIComponent(
-    String(name || "Commercial Property"),
+
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://anarock.com"
+).replace(/\/+$/, "");
+
+function createSlug(value) {
+  return (
+    String(value || "commercial-property")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 100) || "commercial-property"
   );
+}
+
+function getPropertyName(property, fallback = "") {
+  return String(
+    property?.name ||
+    property?.Name ||
+    property?.projectName ||
+    property?.Project_Name ||
+    fallback ||
+    "Commercial Property",
+  ).trim();
+}
+
+async function resolveProperty(params) {
+  const resolvedParams = await params;
+  const id = String(resolvedParams?.id || "").trim();
+
+  if (!id || id.length > 100 || /[\r\n]/.test(id)) {
+    return {
+      id: "",
+      property: null,
+      name: "Commercial Property",
+    };
+  }
+
+  try {
+    const property = await getPropertyById(id);
+
+    return {
+      id,
+      property,
+      name: getPropertyName(property, resolvedParams?.name),
+    };
+  } catch (error) {
+    console.error(
+      "[Property Detail Page] Property lookup failed:",
+      error?.message || error,
+    );
+
+    return {
+      id,
+      property: null,
+      name: getPropertyName(null, resolvedParams?.name),
+    };
+  }
+}
+
+export async function generateMetadata({ params }) {
+  const { id, property, name } = await resolveProperty(params);
+
+  if (!property) {
+    return {
+      title: "Property Not Found | Anarock",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const slug = createSlug(name);
+  const canonicalUrl = `${SITE_URL}/properties/${encodeURIComponent(id)}/${slug}`;
+
+  const city = property.city || property.City || "";
+  const micromarket = property.micromarket || property.Micromarket || "";
+
+  const locationText = [micromarket, city].filter(Boolean).join(", ");
+
+  const description = [
+    `Explore ${name}.`,
+    locationText ? `Located in ${locationText}.` : "",
+    "View property details, commercial office space information, and availability with Anarock.",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return {
-    title: `${propertyName} | Commercial Office Space & Real Estate | Anarock`,
-    description: `Explore ${propertyName}, premier commercial property, shared office, and coworking space. Find top real estate listings, office spaces for rent across Mumbai, Bengaluru, Gurugram, Noida, Pune, and Hyderabad.`,
+    title: `${name} | Commercial Property | Anarock`,
+    description,
     keywords: [
-      "property",
-      "real estate",
+      name,
       "commercial property",
+      "commercial real estate",
       "commercial office space",
-      "shared office",
-      "coworking space",
-      "managed office space",
       "office space for rent",
-      "commercial real estate listings",
-      "property for lease",
-      "commercial property Mumbai",
-      "office space Bengaluru",
-      "commercial real estate Gurugram",
-      "property for sale Noida",
-      "commercial spaces Pune",
-      "real estate Hyderabad",
-      "commercial property Chennai",
-      "office spaces Delhi NCR",
-    ],
+      "managed office space",
+      "coworking space",
+      city,
+      micromarket,
+    ].filter(Boolean),
+
     alternates: {
-      canonical: `/properties/${id}/${name || ""}`,
+      canonical: canonicalUrl,
     },
+
     robots: {
       index: true,
       follow: true,
@@ -43,23 +124,30 @@ export async function generateMetadata({ params }) {
         "max-snippet": -1,
       },
     },
+
     openGraph: {
-      title: `${propertyName} | Commercial Office Space & Real Estate`,
-      description: `Discover details, floor plans, and pricing for ${propertyName}. Premium commercial properties, shared offices, and coworking spaces.`,
-      url: `/properties/${id}/${name || ""}`,
-      siteName: "Anarock Property Portal",
+      title: `${name} | Commercial Property | Anarock`,
+      description,
+      url: canonicalUrl,
+      siteName: "Anarock",
       locale: "en_IN",
       type: "website",
     },
+
     twitter: {
       card: "summary_large_image",
-      title: `${propertyName} | Real Estate & Commercial Property`,
-      description: `View details, pricing, and availability for ${propertyName} across top commercial hubs.`,
+      title: `${name} | Commercial Property | Anarock`,
+      description,
     },
   };
 }
 
-export default function PropertyDetailPage({ params }) {
-  const { id } = params;
-  return <PropertyDetailClient propertyId={String(id)} />;
+export default async function PropertyDetailPage({ params }) {
+  const { id, property } = await resolveProperty(params);
+
+  if (!property) {
+    notFound();
+  }
+
+  return <PropertyDetailClient propertyId={id} />;
 }

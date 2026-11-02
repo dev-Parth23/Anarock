@@ -8,11 +8,7 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/api/",
-          "/admin/",
-          "/wishlist",
-        ],
+        disallow: ["/api/", "/admin/"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

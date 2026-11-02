@@ -1,0 +1,8 @@
+AnarockCRM connector, read-only (getOrganization, getModules, getFields, getRecordCount, getRecords limit 3, COQL) - run 2026-11-02
+Org: Anarock Property Consultants Pvt. Ltd., id 1164552000000020813, production, Asia/Kolkata, Professional edition, 101 users purchased, paid expiry 2026-12-22.
+Modules (API-supported custom): Properties, City, Micromarkets, Property_Options, Verifications, Employee, IRF, Invoicings, Competition_Tracker; standard: Leads, Contacts, Accounts, Deals (55 modules total).
+Counts: Leads 1521 (run 4: 1460); Properties 7571; Properties Push_to_Website=true 177 (run 4: 393); Push_to_Website=true AND Has_Images=true 177.
+Fields: Properties 97 (84 custom) incl. Push_to_Website, Has_Images, AI_Attributes_from_Images, SPOC_Name, SPOC_Number, Quoted_Rent_INR_SF_Month, Achievable_Rent_INR_SF_Month. Leads 60 (21 custom) incl. Requirement_City, Requirement_Type, Requirement_Details, Interested_Properties, Prompt, Sublead_Source, Lead_Owner_Team, Zip_Code. Code also references 'Postal_Code' (not a CRM field name).
+Sample (3 most recently modified Properties): names/city/micromarket/availability only; Push_to_Website=false for all three; no contact fields were read.
+Not done / failed: COQL 'group by' queries rejected (INVALID_QUERY) so per-city and per-source breakdowns are not available; criteria 'is_not_empty' on AI_Attributes_from_Images rejected, so how many published rows carry AI attributes is NOT verified.
+No create/update/upsert tool was called.

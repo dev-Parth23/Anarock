@@ -1,0 +1,12 @@
+== ZAP install attempt 2026-11-02T07:53:31Z
+openjdk version "21.0.12.1" 2026-08-18
+OpenJDK Runtime Environment (build 21.0.12.1+1-1-24.04.4-Ubuntu)
+http=200 size=234364899
+total 228880
+drwxr-xr-x 2 root root      4096 Nov  2 07:53 .
+drwx------ 5 root root      4096 Nov  2 07:53 ..
+-rw-r--r-- 1 root root 234364899 Nov  2 07:53 zap.tgz
+zap/zap.tgz: gzip compressed data, original size modulo 2^32 270561792 gzip compressed data, unknown method, ASCII, was 
+ZAP_2.16.1/
+ZAP_2.16.1/README
+ZAP_2.16.1/zap-2.16.1.jar

@@ -1,0 +1,164 @@
+# API/runtime tests 2026-11-02T08:13:19Z target=http://localhost:3111 curl=8.5.0
+## Pages & routing
+FAIL  PG     GET /                                                                    expected=200 actual=500
+FAIL  PG     GET /aboutus                                                             expected=200 actual=500
+FAIL  PG     GET /properties                                                          expected=200 actual=500
+FAIL  PG     GET /compare                                                             expected=200 actual=500
+FAIL  PG     GET /shortlist                                                           expected=200 actual=500
+FAIL  PG     GET /services                                                            expected=200 actual=500
+FAIL  PG     GET /list-your-property                                                  expected=200 actual=500
+FAIL  PG     GET /kyc/city/delhi                                                      expected=200 actual=500
+FAIL  PG     GET /kyc/city/mumbai                                                     expected=200 actual=500
+FAIL  PG     GET /kyc/city/bengaluru                                                  expected=200 actual=500
+FAIL  PG     GET /kyc/city/pune                                                       expected=200 actual=500
+FAIL  PG     GET /kyc/city/chennai                                                    expected=200 actual=500
+FAIL  PG     GET /kyc/city/hyderabad                                                  expected=200 actual=500
+FAIL  PG     GET /kyc/city/kolkata                                                    expected=200 actual=500
+FAIL  PG     GET /kyc/city/noida                                                      expected=200 actual=500
+FAIL  PG     GET /kyc/city/gurugram                                                   expected=200 actual=500
+FAIL  PG     GET /unknown-route                                                       expected=404 actual=500
+FAIL  PG     GET /properties/abc/xyz (non-existent property) should be 404            expected=404 actual=500
+## SEO
+FAIL  SEO    sitemap contains property/detail URLs                                    expected=yes actual=no
+FAIL  SEO    sitemap domain equals request host (NEXT_PUBLIC_BASE_URL set)            expected=yes actual=no
+FAIL  SEO    robots.txt references sitemap                                            expected=yes actual=no
+FAIL  SEO    robots.txt disallow paths exist as routes (/wishlist)                    expected=200 actual=500
+FAIL  SEO    home has <title>                                                         expected=yes actual=no
+FAIL  SEO    home has name="description"                                              expected=yes actual=no
+FAIL  SEO    home has rel="canonical"                                                 expected=yes actual=no
+FAIL  SEO    home has property="og:title"                                             expected=yes actual=no
+FAIL  SEO    home has name="twitter:card"                                             expected=yes actual=no
+FAIL  SEO    home has application/ld+json                                             expected=yes actual=no
+PASS  SEO    /properties HTML is server-rendered with listings (not 'Loading properties') expected=yes actual=yes
+FAIL  SEO    property detail has its own meta description (differs from home)         expected=yes actual=no
+FAIL  SEO    property detail JSON-LD is a listing type (RealEstateListing/Product/Offer) expected=yes actual=no
+FAIL  SEO    canonical of /properties points to itself (not homepage)                 expected=yes actual=no
+      canonical=
+FAIL  SEO    canonical of /properties/1/test-property points to itself (not homepage) expected=yes actual=no
+      canonical=
+FAIL  SEO    canonical of /services points to itself (not homepage)                   expected=yes actual=no
+      canonical=
+FAIL  SEO    canonical of /kyc/city/delhi points to itself (not homepage)             expected=yes actual=no
+      canonical=
+FAIL  SEO    canonical of /list-your-property points to itself (not homepage)         expected=yes actual=no
+      canonical=
+## Security headers (GET /)
+FAIL  HDR    header present: content-security-policy                                  expected=yes actual=no
+FAIL  HDR    header present: strict-transport-security                                expected=yes actual=no
+FAIL  HDR    header present: x-frame-options                                          expected=yes actual=no
+FAIL  HDR    header present: x-content-type-options                                   expected=yes actual=no
+FAIL  HDR    header present: referrer-policy                                          expected=yes actual=no
+FAIL  HDR    header present: permissions-policy                                       expected=yes actual=no
+FAIL  HDR    X-Powered-By not exposed                                                 expected=yes actual=no
+## Injection / reflection
+PASS  XSS    slug with HTML is escaped in <title>                                     expected=yes actual=yes
+      title rendered: 
+FAIL  XSS    /api/wishlist reflects sessionId only as JSON                            expected=application/json actual=text/html
+## /api/leads (validation) - invalid inputs only
+FAIL  LEAD   missing name                                                             expected=400 actual=500
+FAIL  LEAD   invalid phone                                                            expected=400 actual=500
+FAIL  LEAD   invalid email                                                            expected=400 actual=500
+FAIL  LEAD   wrong content-type                                                       expected=415 actual=500
+FAIL  LEAD   malformed JSON should be 400                                             expected=400 actual=500
+FAIL  LEAD   first name > 80 chars rejected                                           expected=400 actual=500
+FAIL  LEAD   60KB body with Content-Length rejected                                   expected=413 actual=500
+FAIL  LEAD   60KB chunked body (no Content-Length) should still be rejected           expected=413 actual=500
+FAIL  LEAD   honeypot returns 200 (silent) without CRM call                           expected=200 actual=500
+FAIL  LEAD   DELETE not allowed                                                       expected=405 actual=500
+## /api/lead2 and /api/lead3 (same abuse inputs)
+FAIL  LEAD2  invalid phone/email rejected with 400 (lead2)                            expected=400 actual=500
+FAIL  LEAD2  text/plain rejected with 415 (lead2)                                     expected=415 actual=500
+FAIL  LEAD2  60KB body (valid name/phone) rejected with 413 (lead2)                   expected=413 actual=500
+FAIL  LEAD   60KB body (valid name/phone) rejected with 413 (/api/leads, control)     expected=413 actual=500
+FAIL  LEAD2  cross-origin text/plain POST (no CORS preflight) rejected                expected=415 actual=500
+FAIL  LEAD3  invalid phone rejected (lead3)                                           expected=400 actual=500
+## Rate limiting (10 req/min expected)
+FAIL  RATE   /api/leads same client: 11th request is 429                              expected=429 actual=500
+      500 500 500 500 500 500 500 500 500 500 500 500 
+FAIL  RATE   /api/leads rotating X-Forwarded-For still limited                        expected=yes actual=no
+      500 500 500 500 500 500 500 500 500 500 500 500 
+FAIL  RATE   /api/lead3 same client: 11th request is 429                              expected=429 actual=500
+      500 500 500 500 500 500 500 500 500 500 500 500 
+FAIL  RATE   /api/lead3 rotating X-Forwarded-For still limited                        expected=yes actual=no
+      500 500 500 500 500 500 500 500 500 500 500 500 
+FAIL  RATE   /api/lead2 same client: limited                                          expected=yes actual=no
+      500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 
+## Run 5 additions: pages required by SoW 5.1, AI search, list-your-property, stray routes
+FAIL  PG     SoW 5.1 static page exists: GET /privacy                                 expected=200 actual=500
+FAIL  PG     SoW 5.1 static page exists: GET /terms                                   expected=200 actual=500
+FAIL  PG     SoW 5.1 static page exists: GET /contact                                 expected=200 actual=500
+FAIL  PG     stray /HomePage route (pages/ router) should not be publicly routable    expected=404 actual=500
+FAIL  AI     ai-search empty prompt -> 400                                            expected=400 actual=500
+FAIL  AI     ai-search malformed JSON -> 400 (not 500)                                expected=400 actual=500
+PASS  AI     ai-search malformed JSON error body must not leak parser internals       expected=no actual=no
+FAIL  AI     ai-search oversized prompt (20KB) rejected 400/413                       expected=yes actual=no(500)
+FAIL  RATE   /api/ai-search (paid Gemini call) is rate limited: 429 within 15 requests from one client expected=yes actual=no
+      500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 
+FAIL  LYP    list-your-property POST without multipart -> 4xx                         expected=400 actual=500
+FAIL  RATE   /api/list-your-property is rate limited: 429 within 15 requests          expected=yes actual=no
+      500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 
+PASS  API    properties?limit=100000 is capped (response < 5MB)                       expected=yes actual=yes
+FAIL  SEC    Server header/X-Powered-By version not exposed                           expected=yes actual=no
+FAIL  SEC    TRACE method not allowed on /                                            expected=yes actual=no
+FAIL  SEC    unknown /api route returns JSON/404 not stack trace                      expected=no actual=yes
+## Other APIs
+FAIL  API    exchange-rates 200                                                       expected=200 actual=500
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/usr/lib/python3.11/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+FAIL  API    exchange-rates has INR,AED,USD,EUR,SGD                                   expected=yes actual=
+FAIL  API    kyc without city -> 400                                                  expected=400 actual=500
+FAIL  API    wishlist without sessionId -> 400                                        expected=400 actual=500
+FAIL  API    location lat out of range -> 400                                         expected=400 actual=500
+FAIL  API    location malformed JSON -> 400                                           expected=400 actual=500
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/usr/lib/python3.11/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+FAIL  API    location valid coordinates (New Delhi) -> success:true city              expected=yes actual=
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/usr/lib/python3.11/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+FAIL  API    micromarkets upstream failure is not reported as success                 expected=no actual=
+PASS  API    /api/properties error body must not disclose env var names               expected=no actual=no
+PASS  API    /api/cities error body must not disclose env var names                   expected=no actual=no
+## CORS and error handling (added run 4)
+PASS  CORS   cross-origin GET to /api/properties does not echo Access-Control-Allow-Origin: * expected=no actual=no
+PASS  CORS   OPTIONS /api/leads does not allow arbitrary origin                       expected=no actual=no
+PASS  ERR    /api/properties/{id} error body must not disclose env var names          expected=no actual=no
+PASS  ERR    /api/kyc?city=delhi error body must not disclose env var names           expected=no actual=no
+FAIL  ERR    path traversal in slug does not 500                                      expected=200 actual=500
+
+# SUMMARY: PASS=10 FAIL=86 TOTAL=96

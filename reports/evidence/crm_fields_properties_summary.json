@@ -1,0 +1,681 @@
+[
+ {
+  "api_name": "Record_Status__s",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Record Status"
+ },
+ {
+  "api_name": "Name",
+  "type": "text",
+  "mandatory": true,
+  "custom": false,
+  "label": "Property Name"
+ },
+ {
+  "api_name": "Owner",
+  "type": "ownerlookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Property Owner"
+ },
+ {
+  "api_name": "Created_By",
+  "type": "ownerlookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Created By"
+ },
+ {
+  "api_name": "Modified_By",
+  "type": "ownerlookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Modified By"
+ },
+ {
+  "api_name": "Created_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Created Time"
+ },
+ {
+  "api_name": "Modified_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Modified Time"
+ },
+ {
+  "api_name": "Last_Activity_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Last Activity Time"
+ },
+ {
+  "api_name": "Tag",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Tag"
+ },
+ {
+  "api_name": "Unsubscribed_Mode",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Unsubscribed Mode"
+ },
+ {
+  "api_name": "Unsubscribed_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Unsubscribed Time"
+ },
+ {
+  "api_name": "id",
+  "type": "bigint",
+  "mandatory": false,
+  "custom": false,
+  "label": "Record Id"
+ },
+ {
+  "api_name": "Proposed_Floor",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Proposed Floor"
+ },
+ {
+  "api_name": "Handover_Timelines_Months",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Handover Timelines (Months)"
+ },
+ {
+  "api_name": "Notice_Period_For_Termination",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Notice Period For Termination (in Months)"
+ },
+ {
+  "api_name": "Escalation",
+  "type": "percent",
+  "mandatory": false,
+  "custom": true,
+  "label": "Escalation %"
+ },
+ {
+  "api_name": "Security_Deposit_in_Months",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Security Deposit (in Months)"
+ },
+ {
+  "api_name": "Occupancy_Certificate",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Occupancy Certificate"
+ },
+ {
+  "api_name": "Typical_Floor_Plan",
+  "type": "imageupload",
+  "mandatory": false,
+  "custom": true,
+  "label": "Typical Floor Plan"
+ },
+ {
+  "api_name": "Project_Picture",
+  "type": "imageupload",
+  "mandatory": false,
+  "custom": true,
+  "label": "Project Picture"
+ },
+ {
+  "api_name": "Tenant_Profile",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Tenant Profile"
+ },
+ {
+  "api_name": "Parking_Ratio",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Parking Ratio"
+ },
+ {
+  "api_name": "Project_Highlights",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Project Highlights"
+ },
+ {
+  "api_name": "Ownership_Structure",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Ownership Structure"
+ },
+ {
+  "api_name": "Center_Area_SF",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Center Area (SF)"
+ },
+ {
+  "api_name": "No_of_seats_offered",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "No. of seats offered"
+ },
+ {
+  "api_name": "Center_Seating_Capacity",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Center Seating Capacity"
+ },
+ {
+  "api_name": "Configuration",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Configuration"
+ },
+ {
+  "api_name": "Size_per_Workstation",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Size per Workstation"
+ },
+ {
+  "api_name": "Monthly_Car_Parking_Charges",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "Monthly Car Parking Charges"
+ },
+ {
+  "api_name": "Monthly_Cost_per_Seat_INR_seat_month",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "Monthly Cost per Seat (INR/seat/month)"
+ },
+ {
+  "api_name": "Tech_Park",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Tech Park"
+ },
+ {
+  "api_name": "One_Time_Setup_Cost_INR_seat",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "One Time Setup Cost (INR/seat)"
+ },
+ {
+  "api_name": "Address",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Address"
+ },
+ {
+  "api_name": "No_of_credits_provided",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "No. of Credits provided"
+ },
+ {
+  "api_name": "Building_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Building Name"
+ },
+ {
+  "api_name": "Standard_Operating_Hours",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Standard Operating Hours"
+ },
+ {
+  "api_name": "Longitude",
+  "type": "double",
+  "mandatory": false,
+  "custom": true,
+  "label": "Longitude"
+ },
+ {
+  "api_name": "Charges_for_Meeting_Conference_rooms",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Charges for Meeting/Conference rooms"
+ },
+ {
+  "api_name": "Building_Structure",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Building Structure"
+ },
+ {
+  "api_name": "Latitude",
+  "type": "double",
+  "mandatory": false,
+  "custom": true,
+  "label": "Latitude"
+ },
+ {
+  "api_name": "Project_Status",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Project Status"
+ },
+ {
+  "api_name": "Office_Type",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Office Type"
+ },
+ {
+  "api_name": "Offered_Space",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Offered Space"
+ },
+ {
+  "api_name": "Locked__s",
+  "type": "boolean",
+  "mandatory": false,
+  "custom": false,
+  "label": "Locked"
+ },
+ {
+  "api_name": "City",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": true,
+  "label": "City"
+ },
+ {
+  "api_name": "Micromarket",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": true,
+  "label": "Micromarket"
+ },
+ {
+  "api_name": "Inclusions",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Inclusions"
+ },
+ {
+  "api_name": "Exclusions",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Exclusions"
+ },
+ {
+  "api_name": "State_of_Handover",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "State of Handover"
+ },
+ {
+  "api_name": "Area_Offered_SF",
+  "type": "double",
+  "mandatory": false,
+  "custom": true,
+  "label": "Offered Super Area / Area Offered (SF)"
+ },
+ {
+  "api_name": "Distance_from_Metro",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Distance from Metro"
+ },
+ {
+  "api_name": "Distance_from_Airport",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Distance from Airport"
+ },
+ {
+  "api_name": "Building_Certification",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Building Certifications"
+ },
+ {
+  "api_name": "Operator",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Operator Name"
+ },
+ {
+  "api_name": "Building_Type",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Building Type"
+ },
+ {
+  "api_name": "Total_Development_Size_in_sqft",
+  "type": "double",
+  "mandatory": false,
+  "custom": true,
+  "label": "Total Development Size (in sqft)"
+ },
+ {
+  "api_name": "Account_Name",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": true,
+  "label": "Developer"
+ },
+ {
+  "api_name": "Availability",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Availability"
+ },
+ {
+  "api_name": "HVAC_System",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "HVAC System"
+ },
+ {
+  "api_name": "Total_Leasable_Area_of_Building_in_Sq_ft",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Total Leasable Area Available (in Sqft)"
+ },
+ {
+  "api_name": "SPOC_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "1st SPOC Name"
+ },
+ {
+  "api_name": "SPOC_Number",
+  "type": "phone",
+  "mandatory": false,
+  "custom": true,
+  "label": "1st SPOC Number"
+ },
+ {
+  "api_name": "Availability_Date",
+  "type": "date",
+  "mandatory": false,
+  "custom": true,
+  "label": "Availability Date"
+ },
+ {
+  "api_name": "Quoted_Rent_INR_SF_Month",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "Quoted Rent (INR/SF/Month)"
+ },
+ {
+  "api_name": "Cost_of_Modifications",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Cost of Modifications"
+ },
+ {
+  "api_name": "Power_Backup",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Power Backup"
+ },
+ {
+  "api_name": "Term_In_Months",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Term (In Months)"
+ },
+ {
+  "api_name": "Lock_in_Period_In_Months",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Lock-in Period (In Months)"
+ },
+ {
+  "api_name": "Escalation_Interval_in_Months",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Escalation Interval (in Months)"
+ },
+ {
+  "api_name": "Quoted_Efficiency",
+  "type": "percent",
+  "mandatory": false,
+  "custom": true,
+  "label": "Quoted Efficiency %"
+ },
+ {
+  "api_name": "Additional_Parking_Cost_INR_slot_month",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Additonal Parking Cost (INR/slot/month)"
+ },
+ {
+  "api_name": "Achievable_Rent_INR_SF_Month",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "Achievable Rent (INR/SF/Month)"
+ },
+ {
+  "api_name": "Est_Year_of_Completion",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Est. Year of Completion"
+ },
+ {
+  "api_name": "No_of_Elevators",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "No. of Elevators"
+ },
+ {
+  "api_name": "Floor_Plate_Sqft",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Floor Plate (SF)"
+ },
+ {
+  "api_name": "Quoted_Sale_Price_INR_SF",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Quoted Sale Price (INR/SF)"
+ },
+ {
+  "api_name": "Quoted_CAM_INR_SF_Month",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Quoted CAM (INR/SF/Month)"
+ },
+ {
+  "api_name": "Availability_Type",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Availability Type"
+ },
+ {
+  "api_name": "Location",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Location"
+ },
+ {
+  "api_name": "Unit_Number",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Unit Number"
+ },
+ {
+  "api_name": "Carpet_Area",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Carpet Area"
+ },
+ {
+  "api_name": "Floor",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Floor"
+ },
+ {
+  "api_name": "Built_up_Area",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Built-up Area"
+ },
+ {
+  "api_name": "nd_SPOC_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "2nd SPOC Name"
+ },
+ {
+  "api_name": "rd_SPOC_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "3rd SPOC Name"
+ },
+ {
+  "api_name": "rd_SPOC_Number",
+  "type": "phone",
+  "mandatory": false,
+  "custom": true,
+  "label": "3rd SPOC Number"
+ },
+ {
+  "api_name": "th_SPOC_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "4th SPOC Name"
+ },
+ {
+  "api_name": "th_SPOC_Number",
+  "type": "phone",
+  "mandatory": false,
+  "custom": true,
+  "label": "4th SPOC Number"
+ },
+ {
+  "api_name": "nd_SPOC_Number",
+  "type": "phone",
+  "mandatory": false,
+  "custom": true,
+  "label": "2nd SPOC Number"
+ },
+ {
+  "api_name": "Rent_Options",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Rent Options"
+ },
+ {
+  "api_name": "Center_Highlights",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Center Highlights"
+ },
+ {
+  "api_name": "Operators",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": true,
+  "label": "Operator"
+ },
+ {
+  "api_name": "Push_to_Website",
+  "type": "boolean",
+  "mandatory": false,
+  "custom": true,
+  "label": "Push to Website"
+ },
+ {
+  "api_name": "Other_Images",
+  "type": "imageupload",
+  "mandatory": false,
+  "custom": true,
+  "label": "Other Images"
+ },
+ {
+  "api_name": "Has_Images",
+  "type": "boolean",
+  "mandatory": false,
+  "custom": true,
+  "label": "Has Images?"
+ },
+ {
+  "api_name": "AI_Attributes_from_Images",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "AI Attributes from Images"
+ }
+]

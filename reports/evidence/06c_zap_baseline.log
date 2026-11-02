@@ -1,0 +1,29 @@
+Found Java version 21.0.12.1
+Available memory: 16091 MB
+Using JVM args: -Xmx4022m
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=40645 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+877 [main] INFO  org.parosproxy.paros.Constant - Copying default configuration to /root/.ZAP/config.xml
+1316 [main] INFO  org.parosproxy.paros.Constant - Creating directory /root/.ZAP/session
+1316 [main] INFO  org.parosproxy.paros.Constant - Creating directory /root/.ZAP/dirbuster
+1317 [main] INFO  org.parosproxy.paros.Constant - Creating directory /root/.ZAP/fuzzers
+1317 [main] INFO  org.parosproxy.paros.Constant - Creating directory /root/.ZAP/plugin
+Nov 02, 2026 7:53:56 AM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
+This ZAP installation is over a year old - its probably very out of date
+Job spider set context = anarock
+Job spider set maxDuration = 3
+Job passiveScan-wait set maxDuration = 3
+Job report set template = traditional-json
+Job report set reportDir = /tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/zap
+Job report set reportFile = zap_baseline
+Job spider started
+Job spider requesting URL http://localhost:3111
+Job spider found 303 URLs
+Job spider finished, time taken: 00:00:06
+Job passiveScan-wait started
+Job passiveScan-wait finished, time taken: 00:00:03
+Job report started
+Job report generated report /tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/zap/zap_baseline.json
+Job report finished, time taken: 00:00:00
+Automation plan succeeded!
+rc=0

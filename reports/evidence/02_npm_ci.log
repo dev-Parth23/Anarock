@@ -1,0 +1,14 @@
+== npm ci
+137 packages are looking for funding
+  run `npm fund` for details
+
+19 vulnerabilities (4 moderate, 14 high, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+rc=0

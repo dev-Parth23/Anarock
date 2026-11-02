@@ -1,0 +1,70 @@
+    at Object.get (/tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:28459)
+    at u (/tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/.next/server/app/api/wishlist/route.js:1:545)
+    at /tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:36264
+    at /tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /tmp/claude-0/-home-user-Anarock/32885b88-cdb0-5ce9-8a44-30241c00dc96/scratchpad/work/Anarock/anarock/node_modules/next/dist/server/lib/trace/tracer.js:122:103 {
+  description: "Route /api/wishlist couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (6/24) 
+   Generating static pages (12/24) 
+   Generating static pages (18/24) 
+ ✓ Generating static pages (24/24)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                               Size     First Load JS
+┌ ○ /                                     20.3 kB         162 kB
+├ ○ /_not-found                           871 B            88 kB
+├ ○ /aboutus                              8.54 kB         151 kB
+├ ƒ /api/ai-search                        0 B                0 B
+├ ƒ /api/cities                           0 B                0 B
+├ ƒ /api/exchange-rates                   0 B                0 B
+├ ƒ /api/kyc                              0 B                0 B
+├ ƒ /api/lead2                            0 B                0 B
+├ ƒ /api/lead3                            0 B                0 B
+├ ƒ /api/leads                            0 B                0 B
+├ ƒ /api/list-your-property               0 B                0 B
+├ ƒ /api/location                         0 B                0 B
+├ ƒ /api/market-stats                     0 B                0 B
+├ ƒ /api/micromarkets                     0 B                0 B
+├ ƒ /api/properties                       0 B                0 B
+├ ƒ /api/properties/[id]                  0 B                0 B
+├ ƒ /api/properties/suggestions           0 B                0 B
+├ ƒ /api/wishlist                         0 B                0 B
+├ ○ /compare                              7.05 kB         108 kB
+├ ƒ /kyc/city/bengaluru                   145 B           111 kB
+├ ƒ /kyc/city/chennai                     144 B           111 kB
+├ ƒ /kyc/city/delhi                       145 B           111 kB
+├ ƒ /kyc/city/gurugram                    145 B           111 kB
+├ ƒ /kyc/city/hyderabad                   144 B           111 kB
+├ ƒ /kyc/city/kolkata                     144 B           111 kB
+├ ƒ /kyc/city/mumbai                      144 B           111 kB
+├ ƒ /kyc/city/noida                       145 B           111 kB
+├ ƒ /kyc/city/pune                        145 B           111 kB
+├ ○ /list-your-property                   13.4 kB         142 kB
+├ ○ /properties                           14.2 kB         124 kB
+├ ƒ /properties/[id]/[name]               7.45 kB         113 kB
+├ ○ /robots.txt                           0 B                0 B
+├ ○ /services                             10.3 kB         111 kB
+├ ○ /shortlist                            7.38 kB         113 kB
+└ ○ /sitemap.xml                          0 B                0 B
++ First Load JS shared by all             87.1 kB
+  ├ chunks/23-ef097160505cec65.js         31.5 kB
+  ├ chunks/fd9d1056-1e21b18ad6cc1109.js   53.6 kB
+  └ other shared chunks (total)           1.96 kB
+
+Route (pages)                             Size     First Load JS
+─ ○ /HomePage (415 ms)                    69.9 kB         149 kB
++ First Load JS shared by all             79.3 kB
+  ├ chunks/framework-bc7c93382325fa02.js  45.2 kB
+  ├ chunks/main-e2c2803d4fe4216e.js       32.3 kB
+  └ other shared chunks (total)           1.94 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

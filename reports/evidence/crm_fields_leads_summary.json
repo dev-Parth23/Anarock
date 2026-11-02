@@ -1,0 +1,422 @@
+[
+ {
+  "api_name": "Owner",
+  "type": "ownerlookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Lead Owner"
+ },
+ {
+  "api_name": "Company",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Company"
+ },
+ {
+  "api_name": "First_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "First Name"
+ },
+ {
+  "api_name": "Last_Name",
+  "type": "text",
+  "mandatory": true,
+  "custom": false,
+  "label": "Last Name"
+ },
+ {
+  "api_name": "Designation",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Title"
+ },
+ {
+  "api_name": "Email",
+  "type": "email",
+  "mandatory": false,
+  "custom": false,
+  "label": "Email"
+ },
+ {
+  "api_name": "Phone",
+  "type": "phone",
+  "mandatory": false,
+  "custom": false,
+  "label": "Phone"
+ },
+ {
+  "api_name": "Mobile",
+  "type": "phone",
+  "mandatory": false,
+  "custom": false,
+  "label": "Mobile"
+ },
+ {
+  "api_name": "Website",
+  "type": "website",
+  "mandatory": false,
+  "custom": false,
+  "label": "Website"
+ },
+ {
+  "api_name": "Lead_Source",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Lead Source"
+ },
+ {
+  "api_name": "Lead_Status",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Lead Status"
+ },
+ {
+  "api_name": "Industry",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Industry"
+ },
+ {
+  "api_name": "Created_By",
+  "type": "ownerlookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Created By"
+ },
+ {
+  "api_name": "Modified_By",
+  "type": "ownerlookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Modified By"
+ },
+ {
+  "api_name": "Created_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Created Time"
+ },
+ {
+  "api_name": "Modified_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Modified Time"
+ },
+ {
+  "api_name": "Full_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Full Name"
+ },
+ {
+  "api_name": "Street",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Street"
+ },
+ {
+  "api_name": "City",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "City"
+ },
+ {
+  "api_name": "State",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Province"
+ },
+ {
+  "api_name": "Zip_Code",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Postal Code"
+ },
+ {
+  "api_name": "Country",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Country"
+ },
+ {
+  "api_name": "Salutation",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Salutation"
+ },
+ {
+  "api_name": "Last_Activity_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Last Activity Time"
+ },
+ {
+  "api_name": "Tag",
+  "type": "text",
+  "mandatory": false,
+  "custom": false,
+  "label": "Tag"
+ },
+ {
+  "api_name": "Converted_Date_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Converted Date Time"
+ },
+ {
+  "api_name": "Lead_Conversion_Time",
+  "type": "integer",
+  "mandatory": false,
+  "custom": false,
+  "label": "Lead Conversion Time"
+ },
+ {
+  "api_name": "Unsubscribed_Mode",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Unsubscribed Mode"
+ },
+ {
+  "api_name": "Unsubscribed_Time",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Unsubscribed Time"
+ },
+ {
+  "api_name": "Converted_Account",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Converted Account"
+ },
+ {
+  "api_name": "Converted_Contact",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Converted Contact"
+ },
+ {
+  "api_name": "Converted_Deal",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": false,
+  "label": "Converted Deal"
+ },
+ {
+  "api_name": "id",
+  "type": "bigint",
+  "mandatory": false,
+  "custom": false,
+  "label": "Record Id"
+ },
+ {
+  "api_name": "Change_Log_Time__s",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Change Log Time"
+ },
+ {
+  "api_name": "Converted__s",
+  "type": "boolean",
+  "mandatory": false,
+  "custom": false,
+  "label": "Is Converted"
+ },
+ {
+  "api_name": "Locked__s",
+  "type": "boolean",
+  "mandatory": false,
+  "custom": false,
+  "label": "Locked"
+ },
+ {
+  "api_name": "Last_Enriched_Time__s",
+  "type": "datetime",
+  "mandatory": false,
+  "custom": false,
+  "label": "Last Enriched Time"
+ },
+ {
+  "api_name": "Enrich_Status__s",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Enrich Status"
+ },
+ {
+  "api_name": "Record_Status__s",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": false,
+  "label": "Record Status"
+ },
+ {
+  "api_name": "Requirement_Details",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Requirement Details"
+ },
+ {
+  "api_name": "Referrer_Name",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Referrer Name"
+ },
+ {
+  "api_name": "Referrer_Email",
+  "type": "email",
+  "mandatory": false,
+  "custom": true,
+  "label": "Referrer Email"
+ },
+ {
+  "api_name": "Requirement_City",
+  "type": "lookup",
+  "mandatory": false,
+  "custom": true,
+  "label": "Requirement City"
+ },
+ {
+  "api_name": "Requirement_Type",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Requirement Type"
+ },
+ {
+  "api_name": "Referrer_Contact_No",
+  "type": "phone",
+  "mandatory": false,
+  "custom": true,
+  "label": "Referrer Contact No"
+ },
+ {
+  "api_name": "Referral_Share1",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Referral Share"
+ },
+ {
+  "api_name": "Requirement_Area",
+  "type": "double",
+  "mandatory": false,
+  "custom": true,
+  "label": "Requirement Area (in Sqft)"
+ },
+ {
+  "api_name": "Requirement_Rent",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "Requirement Rent (INR/Sqft/Month)"
+ },
+ {
+  "api_name": "Requirement_Seats",
+  "type": "integer",
+  "mandatory": false,
+  "custom": true,
+  "label": "Requirement  Seat Count"
+ },
+ {
+  "api_name": "Requirement_Seat_Price",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "Requirement Seat Price (INR/seat/month)"
+ },
+ {
+  "api_name": "Domain",
+  "type": "text",
+  "mandatory": false,
+  "custom": true,
+  "label": "Domain"
+ },
+ {
+  "api_name": "Future_Contact_Date",
+  "type": "date",
+  "mandatory": false,
+  "custom": true,
+  "label": "Future Contact Date"
+ },
+ {
+  "api_name": "Is_this_a_referral_given_to_other_vertical",
+  "type": "boolean",
+  "mandatory": false,
+  "custom": true,
+  "label": "Is this a referral given to other vertical ?"
+ },
+ {
+  "api_name": "Referral_Share_Amount",
+  "type": "currency",
+  "mandatory": false,
+  "custom": true,
+  "label": "Referral Share Amount"
+ },
+ {
+  "api_name": "Referral_Vertical",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Referral Vertical"
+ },
+ {
+  "api_name": "Summary",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Summary"
+ },
+ {
+  "api_name": "Lead_Owner_Team",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Lead Owner Team"
+ },
+ {
+  "api_name": "Prompt",
+  "type": "textarea",
+  "mandatory": false,
+  "custom": true,
+  "label": "Prompt"
+ },
+ {
+  "api_name": "Sublead_Source",
+  "type": "picklist",
+  "mandatory": false,
+  "custom": true,
+  "label": "Sublead Source"
+ },
+ {
+  "api_name": "Interested_Properties",
+  "type": "subform",
+  "mandatory": false,
+  "custom": true,
+  "label": "Interested Properties"
+ }
+]

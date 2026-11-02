@@ -1,0 +1,25 @@
+          Details: https://sg.run/5DO3                                                                        
+                                                                                                              
+            2┆ app.get('/x',(req,res)=>{ eval(req.query.c); res.send('<div>'+req.query.n+'</div>'); });
+   
+    ❯❱ javascript.express.security.audit.xss.direct-response-write.direct-response-write
+          ❰❰ Blocking ❱❱
+          Detected directly writing to a Response object from user-defined input. This bypasses any HTML      
+          escaping and may expose your application to a Cross-Site-scripting (XSS) vulnerability. Instead, use
+          'resp.render()' to render safely escaped HTML.                                                      
+          Details: https://sg.run/vzGl                                                                        
+                                                                                                              
+            2┆ app.get('/x',(req,res)=>{ eval(req.query.c); res.send('<div>'+req.query.n+'</div>'); });
+
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 3 (3 blocking)
+ • Rules run: 73
+ • Targets scanned: 1
+ • Parsed lines: ~100.0%
+ • No ignore information available
+Ran 73 rules on 1 file: 3 findings.

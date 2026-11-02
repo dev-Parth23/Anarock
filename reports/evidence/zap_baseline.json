@@ -1,0 +1,4382 @@
+{
+	"@programName": "ZAP",
+	"@version": "2.16.1",
+	"@generated": "Mon, 2 Nov 2026 07:54:08",
+	"site":[ 
+		{
+			"@name": "http://localhost:3111",
+			"@host": "localhost",
+			"@port": "3111",
+			"@ssl": "false",
+			"alerts": [ 
+				{
+					"pluginid": "10038",
+					"alertRef": "10038-1",
+					"alert": "Content Security Policy (CSP) Header Not Set",
+					"name": "Content Security Policy (CSP) Header Not Set",
+					"riskcode": "2",
+					"confidence": "3",
+					"riskdesc": "Medium (High)",
+					"desc": "<p>Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page \u2014 covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.</p>",
+					"instances":[ 
+						{
+							"id": "8",
+							"uri": "http://localhost:3111",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "10",
+							"uri": "http://localhost:3111/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "121",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "115",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "123",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "118",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "120",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "112",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "109",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "107",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "130",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "138",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "139",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "144",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "128",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "145",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "135",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "132",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "137",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "296",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "297",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "283",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "275",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "299",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "302",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "285",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "272",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "288",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "306",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "277",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "279",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "291",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "293",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "292",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "282",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "221",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "218",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "219",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "217",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "201",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "205",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "223",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "212",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "204",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "207",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "361",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "363",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "348",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "344",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "365",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "369",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "352",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "338",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "360",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "373",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "340",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "347",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "353",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "356",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "359",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "349",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "461",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "462",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "450",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "437",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "464",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "468",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "449",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "442",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "457",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "469",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "441",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "444",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "458",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "455",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "454",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "446",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "425",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "432",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "415",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "403",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "430",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "433",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "422",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "411",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "417",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "436",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "407",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "412",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "419",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "423",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "427",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "414",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "265",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "270",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "259",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "266",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "250",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "256",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "263",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "254",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "260",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "274",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "392",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "396",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "382",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "371",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "402",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "398",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "384",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "370",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "393",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "405",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "380",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "376",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "386",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "391",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "394",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "381",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "235",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "245",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "242",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "246",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "227",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "228",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "238",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "237",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "232",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "229",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "328",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "335",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "323",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "304",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "330",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "337",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "316",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "310",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "324",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "336",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "309",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "314",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "319",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "322",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "327",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "313",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "156",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "159",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "160",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "164",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "148",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "163",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "152",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "153",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "155",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "178",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "181",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "184",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "185",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "167",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "187",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "175",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "172",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "177",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "179",
+							"uri": "http://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "27",
+							"uri": "http://localhost:3111/aboutus",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "12",
+							"uri": "http://localhost:3111/admin",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "16",
+							"uri": "http://localhost:3111/api",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "72",
+							"uri": "http://localhost:3111/kyc/city/bengaluru",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "51",
+							"uri": "http://localhost:3111/kyc/city/chennai",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "67",
+							"uri": "http://localhost:3111/kyc/city/delhi",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "57",
+							"uri": "http://localhost:3111/kyc/city/gurugram",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "101",
+							"uri": "http://localhost:3111/kyc/city/hyderabad",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "83",
+							"uri": "http://localhost:3111/kyc/city/kolkata",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "87",
+							"uri": "http://localhost:3111/kyc/city/mumbai",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "85",
+							"uri": "http://localhost:3111/kyc/city/noida",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "91",
+							"uri": "http://localhost:3111/kyc/city/pune",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "35",
+							"uri": "http://localhost:3111/list-your-property",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "28",
+							"uri": "http://localhost:3111/privacy-policy",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "24",
+							"uri": "http://localhost:3111/properties",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "34",
+							"uri": "http://localhost:3111/rera",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "41",
+							"uri": "http://localhost:3111/shortlist",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "40",
+							"uri": "http://localhost:3111/terms-of-use",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "7",
+							"uri": "http://localhost:3111/wishlist",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "183",
+					"solution": "<p>Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/Security/CSP/Introducing_Content_Security_Policy</p><p>https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html</p><p>https://www.w3.org/TR/CSP/</p><p>https://w3c.github.io/webappsec-csp/</p><p>https://web.dev/articles/csp</p><p>https://caniuse.com/#feat=contentsecuritypolicy</p><p>https://content-security-policy.com/</p>",
+					"cweid": "693",
+					"wascid": "15",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10020",
+					"alertRef": "10020-1",
+					"alert": "Missing Anti-clickjacking Header",
+					"name": "Missing Anti-clickjacking Header",
+					"riskcode": "2",
+					"confidence": "2",
+					"riskdesc": "Medium (Medium)",
+					"desc": "<p>The response does not protect against 'ClickJacking' attacks. It should include either Content-Security-Policy with 'frame-ancestors' directive or X-Frame-Options.</p>",
+					"instances":[ 
+						{
+							"id": "1",
+							"uri": "http://localhost:3111",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "6",
+							"uri": "http://localhost:3111/",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "169",
+							"uri": "http://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "23",
+							"uri": "http://localhost:3111/aboutus",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "71",
+							"uri": "http://localhost:3111/kyc/city/bengaluru",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "48",
+							"uri": "http://localhost:3111/kyc/city/chennai",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "62",
+							"uri": "http://localhost:3111/kyc/city/delhi",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "52",
+							"uri": "http://localhost:3111/kyc/city/gurugram",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "92",
+							"uri": "http://localhost:3111/kyc/city/hyderabad",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "78",
+							"uri": "http://localhost:3111/kyc/city/kolkata",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "82",
+							"uri": "http://localhost:3111/kyc/city/mumbai",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "81",
+							"uri": "http://localhost:3111/kyc/city/noida",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "88",
+							"uri": "http://localhost:3111/kyc/city/pune",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "30",
+							"uri": "http://localhost:3111/list-your-property",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "17",
+							"uri": "http://localhost:3111/properties",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "33",
+							"uri": "http://localhost:3111/shortlist",
+							"method": "GET",
+							"param": "x-frame-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "16",
+					"solution": "<p>Modern Web browsers support the Content-Security-Policy and X-Frame-Options HTTP headers. Ensure one of them is set on all web pages returned by your site/app.</p><p>If you expect the page to be framed only by pages on your server (e.g. it's part of a FRAMESET) then you'll want to use SAMEORIGIN, otherwise if you never expect the page to be framed, you should use DENY. Alternatively consider implementing Content Security Policy's \"frame-ancestors\" directive.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options</p>",
+					"cweid": "1021",
+					"wascid": "15",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10037",
+					"alertRef": "10037",
+					"alert": "Server Leaks Information via \"X-Powered-By\" HTTP Response Header Field(s)",
+					"name": "Server Leaks Information via \"X-Powered-By\" HTTP Response Header Field(s)",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>The web/application server is leaking information via one or more \"X-Powered-By\" HTTP response headers. Access to such information may facilitate attackers identifying other frameworks/components your web application is reliant upon and the vulnerabilities such components may be subject to.</p>",
+					"instances":[ 
+						{
+							"id": "15",
+							"uri": "http://localhost:3111",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "20",
+							"uri": "http://localhost:3111/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "126",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "119",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "129",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "122",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "124",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "117",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "110",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "114",
+							"uri": "http://localhost:3111/%2Fmain.jpg&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "133",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "142",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "146",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "149",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "134",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "150",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "140",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "136",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "141",
+							"uri": "http://localhost:3111/%2Fservices%2FCampuses.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "300",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "308",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "290",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "278",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "307",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "305",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "289",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "280",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "295",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "312",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "286",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "284",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "301",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "298",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "294",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "287",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAbbishek.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "230",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "224",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "225",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "222",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "206",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "208",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "226",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "216",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "210",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "215",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAnujPuri.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "362",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "368",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "354",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "350",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "372",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "377",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "357",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "342",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "364",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "378",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "341",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "351",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "358",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "366",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "367",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "355",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FAtul.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "466",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "467",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "453",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "445",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "471",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "470",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "452",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "448",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "465",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "472",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "447",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "451",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "463",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "460",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "459",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "456",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FKanchana.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "431",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "439",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "418",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "410",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "435",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "438",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "428",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "420",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "424",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "440",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "413",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "416",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "426",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "429",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "434",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "421",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FMazhar.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "271",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "276",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "264",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "273",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "258",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "262",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "268",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "261",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "267",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "281",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPeush.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "395",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "406",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "389",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "374",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "408",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "404",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "387",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "379",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "399",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "409",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "385",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "383",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "390",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "397",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "400",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "388",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FPratik.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "239",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "248",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "244",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "255",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "234",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "236",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "249",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "247",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "241",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "231",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSanthoshKumar.png&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "334",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "345",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "331",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=128&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "311",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=16&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "333",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "346",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "321",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=256&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "320",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=32&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "332",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "339",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "318",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=48&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "317",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=64&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "325",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "326",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "329",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "315",
+							"uri": "http://localhost:3111/%2Fservices%2Fleaders%2FSurabhi.avif&w=96&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "162",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "166",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "165",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "168",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "154",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "174",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "157",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "161",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "158",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat.webp&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "180",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=1080&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "186",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=1200&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "195",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=1920&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "196",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=2048&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "171",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=384&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "190",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=3840&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "182",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=640&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "176",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=750&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "183",
+							"uri": "http://localhost:3111/%2Fservices%2Fresearch%2Fseat2.jpg&w=828&q=75",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "193",
+							"uri": "http://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "32",
+							"uri": "http://localhost:3111/aboutus",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "14",
+							"uri": "http://localhost:3111/admin",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "18",
+							"uri": "http://localhost:3111/api",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "80",
+							"uri": "http://localhost:3111/kyc/city/bengaluru",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "55",
+							"uri": "http://localhost:3111/kyc/city/chennai",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "69",
+							"uri": "http://localhost:3111/kyc/city/delhi",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "61",
+							"uri": "http://localhost:3111/kyc/city/gurugram",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "106",
+							"uri": "http://localhost:3111/kyc/city/hyderabad",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "96",
+							"uri": "http://localhost:3111/kyc/city/kolkata",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "90",
+							"uri": "http://localhost:3111/kyc/city/mumbai",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "94",
+							"uri": "http://localhost:3111/kyc/city/noida",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "98",
+							"uri": "http://localhost:3111/kyc/city/pune",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "39",
+							"uri": "http://localhost:3111/list-your-property",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "36",
+							"uri": "http://localhost:3111/privacy-policy",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "26",
+							"uri": "http://localhost:3111/properties",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "37",
+							"uri": "http://localhost:3111/rera",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "50",
+							"uri": "http://localhost:3111/shortlist",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "45",
+							"uri": "http://localhost:3111/terms-of-use",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						},
+						{
+							"id": "11",
+							"uri": "http://localhost:3111/wishlist",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "X-Powered-By: Next.js",
+							"otherinfo": ""
+						}
+					],
+					"count": "183",
+					"solution": "<p>Ensure that your web server, application server, load balancer, etc. is configured to suppress \"X-Powered-By\" headers.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/08-Fingerprint_Web_Application_Framework</p><p>https://www.troyhunt.com/2012/02/shhh-dont-let-your-response-headers.html</p>",
+					"cweid": "497",
+					"wascid": "13",
+					"sourceid": "6"
+				},
+				{
+					"pluginid": "10021",
+					"alertRef": "10021",
+					"alert": "X-Content-Type-Options Header Missing",
+					"name": "X-Content-Type-Options Header Missing",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.</p>",
+					"instances":[ 
+						{
+							"id": "13",
+							"uri": "http://localhost:3111",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "19",
+							"uri": "http://localhost:3111/",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "192",
+							"uri": "http://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "211",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fmain.jpg&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "131",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2FCampuses.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "269",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FAbbishek.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "199",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FAnujPuri.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "343",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FAtul.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "443",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FKanchana.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "401",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FMazhar.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "240",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FPeush.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "375",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FPratik.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "252",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FSanthoshKumar.png&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "303",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fleaders%2FSurabhi.avif&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "220",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fresearch%2Fseat.webp&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "233",
+							"uri": "http://localhost:3111/_next/image?q=75&url=%2Fservices%2Fresearch%2Fseat2.jpg&w=3840",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "76",
+							"uri": "http://localhost:3111/_next/static/chunks/138-d2d50b675e69b373.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "86",
+							"uri": "http://localhost:3111/_next/static/chunks/168-c0f5314924d29bef.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "58",
+							"uri": "http://localhost:3111/_next/static/chunks/23-ef097160505cec65.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "151",
+							"uri": "http://localhost:3111/_next/static/chunks/243-fd0bf9ebdb62dbac.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "116",
+							"uri": "http://localhost:3111/_next/static/chunks/379-72a98c99903f0cab.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "63",
+							"uri": "http://localhost:3111/_next/static/chunks/459-92680eaf61d6540a.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "104",
+							"uri": "http://localhost:3111/_next/static/chunks/460-8a6098c0c7b0d42d.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "102",
+							"uri": "http://localhost:3111/_next/static/chunks/541-e02ec6b0dceb7585.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "75",
+							"uri": "http://localhost:3111/_next/static/chunks/723-bedcc99ed6d2918c.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "173",
+							"uri": "http://localhost:3111/_next/static/chunks/865-8ea052c0a9398cc6.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "127",
+							"uri": "http://localhost:3111/_next/static/chunks/app/aboutus/page-5254916f06a02eaa.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "214",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/bengaluru/page-b23fe8637f15eddc.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "170",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/chennai/page-517f101c244f01ad.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "209",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/delhi/page-ff81e2a9e4c27530.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "194",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/gurugram/page-12eed6bc2bef8264.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "257",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/hyderabad/page-8df22f8f66b314e1.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "213",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/kolkata/page-0238ef3c3937dde2.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "251",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/mumbai/page-0501da68581bb269.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "243",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/noida/page-3040c8f431f08f4f.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "253",
+							"uri": "http://localhost:3111/_next/static/chunks/app/kyc/city/pune/page-2e7e683ec5cf5fb9.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "77",
+							"uri": "http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "147",
+							"uri": "http://localhost:3111/_next/static/chunks/app/list-your-property/page-4841073d14bb1b03.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "111",
+							"uri": "http://localhost:3111/_next/static/chunks/app/page-310500a505854b33.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "99",
+							"uri": "http://localhost:3111/_next/static/chunks/app/properties/error-71af80a358fd3016.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "103",
+							"uri": "http://localhost:3111/_next/static/chunks/app/properties/page-e17a2c9c3706ec4e.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "143",
+							"uri": "http://localhost:3111/_next/static/chunks/app/shortlist/page-028ee5890d2539d4.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "65",
+							"uri": "http://localhost:3111/_next/static/chunks/fd9d1056-1e21b18ad6cc1109.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "59",
+							"uri": "http://localhost:3111/_next/static/chunks/main-app-9a09929bb6661d56.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "70",
+							"uri": "http://localhost:3111/_next/static/chunks/polyfills-78c92fac7aa8fdd8.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "44",
+							"uri": "http://localhost:3111/_next/static/chunks/webpack-3b14f97bfbadf94c.js",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "56",
+							"uri": "http://localhost:3111/_next/static/css/142ac33d0566a3b0.css",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "43",
+							"uri": "http://localhost:3111/_next/static/css/da6e9b4a73108890.css",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "29",
+							"uri": "http://localhost:3111/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "31",
+							"uri": "http://localhost:3111/aboutus",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "42",
+							"uri": "http://localhost:3111/Anarock(W).svg",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "47",
+							"uri": "http://localhost:3111/Anarock.svg",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "46",
+							"uri": "http://localhost:3111/icon.png",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "79",
+							"uri": "http://localhost:3111/kyc/city/bengaluru",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "53",
+							"uri": "http://localhost:3111/kyc/city/chennai",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "68",
+							"uri": "http://localhost:3111/kyc/city/delhi",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "60",
+							"uri": "http://localhost:3111/kyc/city/gurugram",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "105",
+							"uri": "http://localhost:3111/kyc/city/hyderabad",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "95",
+							"uri": "http://localhost:3111/kyc/city/kolkata",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "89",
+							"uri": "http://localhost:3111/kyc/city/mumbai",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "93",
+							"uri": "http://localhost:3111/kyc/city/noida",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "97",
+							"uri": "http://localhost:3111/kyc/city/pune",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "38",
+							"uri": "http://localhost:3111/list-your-property",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "25",
+							"uri": "http://localhost:3111/properties",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "191",
+							"uri": "http://localhost:3111/services/research/binswanger.png",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "198",
+							"uri": "http://localhost:3111/services/research/bway.png",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "197",
+							"uri": "http://localhost:3111/services/research/hvs.png",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "200",
+							"uri": "http://localhost:3111/services/research/myhq.svg",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "203",
+							"uri": "http://localhost:3111/services/research/upflex.png",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "202",
+							"uri": "http://localhost:3111/services/research/vindico.png",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "49",
+							"uri": "http://localhost:3111/shortlist",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "3",
+							"uri": "http://localhost:3111/sitemap.xml",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						}
+					],
+					"count": "72",
+					"solution": "<p>Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.</p>",
+					"otherinfo": "<p>This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.</p><p>At \"High\" threshold this scan rule will not alert on client or server error responses.</p>",
+					"reference": "<p>https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)</p><p>https://owasp.org/www-community/Security_Headers</p>",
+					"cweid": "693",
+					"wascid": "15",
+					"sourceid": "6"
+				},
+				{
+					"pluginid": "10019",
+					"alertRef": "10019-1",
+					"alert": "Content-Type Header Missing",
+					"name": "Content-Type Header Missing",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The Content-Type header was either missing or empty.</p>",
+					"instances":[ 
+						{
+							"id": "5",
+							"uri": "http://localhost:3111/admin/",
+							"method": "GET",
+							"param": "content-type",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "4",
+							"uri": "http://localhost:3111/api/",
+							"method": "GET",
+							"param": "content-type",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "2",
+					"solution": "<p>Ensure each page is setting the specific and appropriate content-type value for the content being delivered.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)</p>",
+					"cweid": "345",
+					"wascid": "12",
+					"sourceid": "17"
+				},
+				{
+					"pluginid": "10024",
+					"alertRef": "10024",
+					"alert": "Information Disclosure - Sensitive Information in URL",
+					"name": "Information Disclosure - Sensitive Information in URL",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The request appeared to contain sensitive information leaked in the URL. This can violate PCI and most organizational compliance policies. You can configure the list of strings for this check to add or remove values specific to your environment.</p>",
+					"instances":[ 
+						{
+							"id": "188",
+							"uri": "http://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType",
+							"method": "GET",
+							"param": "email",
+							"attack": "",
+							"evidence": "zaproxy@example.com",
+							"otherinfo": "The URL contains email address(es)."
+						}
+					],
+					"count": "1",
+					"solution": "<p>Do not pass sensitive information in URIs.</p>",
+					"otherinfo": "<p>The URL contains email address(es).</p>",
+					"reference": "",
+					"cweid": "598",
+					"wascid": "13",
+					"sourceid": "339"
+				},
+				{
+					"pluginid": "10027",
+					"alertRef": "10027",
+					"alert": "Information Disclosure - Suspicious Comments",
+					"name": "Information Disclosure - Suspicious Comments",
+					"riskcode": "0",
+					"confidence": "1",
+					"riskdesc": "Informational (Low)",
+					"desc": "<p>The response appears to contain suspicious comments which may help an attacker.</p>",
+					"instances":[ 
+						{
+							"id": "74",
+							"uri": "http://localhost:3111/_next/static/chunks/138-d2d50b675e69b373.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "query",
+							"otherinfo": "The following pattern was used: \\bQUERY\\b and was detected in likely comment: \"//),h=p?d.slice(p[0].length):d;if((h.split(\"?\",1)[0]||\"\").match(/(\\/\\/|\\\\)/)){console.error(\"Invalid href '\"+d+\"' passed to next\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "84",
+							"uri": "http://localhost:3111/_next/static/chunks/168-c0f5314924d29bef.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "from",
+							"otherinfo": "The following pattern was used: \\bFROM\\b and was detected in likely comment: \"//nextjs.org/docs/messages/invalid-images-config\");let W=A.loader||D;delete A.loader,delete A.srcSet;let U=\"__next_img_default\"i\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "54",
+							"uri": "http://localhost:3111/_next/static/chunks/23-ef097160505cec65.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "query",
+							"otherinfo": "The following pattern was used: \\bQUERY\\b and was detected in likely comment: \"//n\":window.location.href);return{searchParams:e.searchParams,pathname:(0,R.hasBasePath)(e.pathname)?(0,m.removeBasePath)(e.path\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "113",
+							"uri": "http://localhost:3111/_next/static/chunks/379-72a98c99903f0cab.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "SELECT",
+							"otherinfo": "The following pattern was used: \\bSELECT\\b and was detected in likely comment: \"//\";var s=n(229);t.exports=s}()},3241:function(t,e,i){\"use strict\";i.d(e,{oO:function(){return r}});var n=i(2265),s=i(7797);func\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "100",
+							"uri": "http://localhost:3111/_next/static/chunks/541-e02ec6b0dceb7585.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "from",
+							"otherinfo": "The following pattern was used: \\bFROM\\b and was detected in likely comment: \"//property-images.zohostratus.in/\".concat(n,\"/\").concat(encodeURIComponent(t)):\"\"}((null==t?void 0:t.imageFolderPath)||(null==t?\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "125",
+							"uri": "http://localhost:3111/_next/static/chunks/app/aboutus/page-5254916f06a02eaa.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "from",
+							"otherinfo": "The following pattern was used: \\bFROM\\b and was detected in likely comment: \"//www.linkedin.com/in/theanujpuri\",email:\"\",description:(0,s.jsxs)(s.Fragment,{children:[(0,s.jsx)(\"b\",{className:\"font-semibold\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "73",
+							"uri": "http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "user",
+							"otherinfo": "The following pattern was used: \\bUSER\\b and was detected in likely comment: \"//www.linkedin.com/company/anarock-property-consultants/\",label:\"LinkedIn\",children:(0,s.jsx)(\"svg\",{viewBox:\"0 0 24 24\",classNa\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "108",
+							"uri": "http://localhost:3111/_next/static/chunks/app/page-310500a505854b33.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "select",
+							"otherinfo": "The following pattern was used: \\bSELECT\\b and was detected in likely comment: \"//images.unsplash.com/photo-1720954006045-6b801f7f919e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "64",
+							"uri": "http://localhost:3111/_next/static/chunks/fd9d1056-1e21b18ad6cc1109.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "select",
+							"otherinfo": "The following pattern was used: \\bSELECT\\b and was detected in likely comment: \"//react.dev/errors/\"+e;if(1<arguments.length){t+=\"?args[]=\"+encodeURIComponent(arguments[1]);for(var n=2;n<arguments.length;n++)\", see evidence field for the suspicious comment/snippet."
+						},
+						{
+							"id": "66",
+							"uri": "http://localhost:3111/_next/static/chunks/polyfills-78c92fac7aa8fdd8.js",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "query",
+							"otherinfo": "The following pattern was used: \\bQUERY\\b and was detected in likely comment: \"//a\"),e=t.searchParams,r=\"\";return t.pathname=\"c%20d\",e.forEach(function(t,n){e.delete(\"b\"),r+=n+t}),!e.sort||\"http://a/c%20d?a=\", see evidence field for the suspicious comment/snippet."
+						}
+					],
+					"count": "10",
+					"solution": "<p>Remove all comments that return information that may help an attacker and fix any underlying problems they refer to.</p>",
+					"otherinfo": "<p>The following pattern was used: \\bQUERY\\b and was detected in likely comment: \"//),h=p?d.slice(p[0].length):d;if((h.split(\"?\",1)[0]||\"\").match(/(\\/\\/|\\\\)/)){console.error(\"Invalid href '\"+d+\"' passed to next\", see evidence field for the suspicious comment/snippet.</p>",
+					"reference": "",
+					"cweid": "615",
+					"wascid": "13",
+					"sourceid": "142"
+				},
+				{
+					"pluginid": "10031",
+					"alertRef": "10031",
+					"alert": "User Controllable HTML Element Attribute (Potential XSS)",
+					"name": "User Controllable HTML Element Attribute (Potential XSS)",
+					"riskcode": "0",
+					"confidence": "1",
+					"riskdesc": "Informational (Low)",
+					"desc": "<p>This check looks at user-supplied input in query string parameters and POST data to identify where certain HTML attribute values might be controlled. This provides hot-spot detection for XSS (cross-site scripting) that will require further review by a security analyst to determine exploitability.</p>",
+					"instances":[ 
+						{
+							"id": "189",
+							"uri": "http://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType",
+							"method": "GET",
+							"param": "requirementArea",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "User-controlled HTML attribute values were found. Try injecting special characters to see if XSS might be possible. The page at the following URL:\n\nhttp://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType\n\nappears to include user input in:\na(n) [meta] tag [content] attribute\n\nThe user input found was:\nrequirementArea=1\n\nThe user-controlled value was:\nwidth=device-width, initial-scale=1"
+						}
+					],
+					"count": "1",
+					"solution": "<p>Validate all input and sanitize output it before writing to any HTML attributes.</p>",
+					"otherinfo": "<p>User-controlled HTML attribute values were found. Try injecting special characters to see if XSS might be possible. The page at the following URL:</p><p></p><p>http://localhost:3111/?company=ZAP&email=zaproxy%40example.com&message=Zaproxy+alias+impedit+expedita+quisquam+pariatur+exercitationem.+Nemo+rerum+eveniet+dolores+rem+quia+dignissimos.&name=ZAP&phone=9999999999&requirementArea=1&requirementCity&requirementRent=1&requirementType</p><p></p><p>appears to include user input in:</p><p>a(n) [meta] tag [content] attribute</p><p></p><p>The user input found was:</p><p>requirementArea=1</p><p></p><p>The user-controlled value was:</p><p>width=device-width, initial-scale=1</p>",
+					"reference": "<p>https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html</p>",
+					"cweid": "20",
+					"wascid": "20",
+					"sourceid": "339"
+				}
+			]
+		}
+	],
+	"sequences":[
+	]
+
+}

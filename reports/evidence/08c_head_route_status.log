@@ -1,0 +1,10 @@
+main HEAD df46295 - route status observed with `next dev -p 3111` (production build impossible; no credentials). Dev-mode only; the module error below poisons the dev compiler so some 500s are cascades, not independent page defects.
+/                      500
+/properties            500
+/aboutus               200
+/compare               200
+/list-your-property    500  (webpack: "the name `getRecordName` is defined multiple times", page.js:4207 and :6091)
+/kyc/city/delhi        500  (also /kyc/city/mumbai 500; import trace points at list-your-property/page.js)
+/sitemap.xml           200
+/api/cities            502  (no Zoho credentials, by design)
+Scripted HTTP suite against this server: 10 pass / 86 fail of 96 - INVALID as an app measurement (server could not serve most pages); kept as 08b_api_tests_HEAD_df46295_devserver_invalid.log.

@@ -1,0 +1,145 @@
+# tools: playwright-core 1.56.1 axe-core 4.10.2 (pin: playwright-core@1.56.1, axe-core@4.10.2)
+# Browser tests 2026-11-02T07:54:45.021Z target=http://localhost:3111
+
+## desktop 1366x800
+PASS  PAGE   / loads (HTTP 200, 8222ms)
+PASS  LAYOUT / no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     / no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at g (http://localhost:3111/_next/static/chunks/app/page-310500a505854b33.js:1:808)
+PASS  UI     / does not show internal env-var errors to the user  -> 
+FAIL  A11Y   / axe: no critical/serious WCAG2.1 A/AA violations  -> aria-required-parent(critical,2), color-contrast(serious,3) | all: aria-required-parent:2,color-contrast:3
+FAIL  PAGE   /aboutus loads (HTTP ERR, 45003ms)
+PASS  LAYOUT /aboutus no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /aboutus no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /aboutus does not show internal env-var errors to the user  -> 
+PASS  A11Y   /aboutus axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /properties loads (HTTP 200, 676ms)
+PASS  LAYOUT /properties no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /properties no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /properties does not show internal env-var errors to the user  -> 
+FAIL  A11Y   /properties axe: no critical/serious WCAG2.1 A/AA violations  -> select-name(critical,2) | all: select-name:2
+PASS  PAGE   /shortlist loads (HTTP 200, 594ms)
+PASS  LAYOUT /shortlist no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /shortlist no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /shortlist does not show internal env-var errors to the user  -> 
+PASS  A11Y   /shortlist axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /compare loads (HTTP 200, 613ms)
+PASS  LAYOUT /compare no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /compare no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /compare does not show internal env-var errors to the user  -> 
+PASS  A11Y   /compare axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /list-your-property loads (HTTP 200, 657ms)
+PASS  LAYOUT /list-your-property no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /list-your-property no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /list-your-property does not show internal env-var errors to the user  -> 
+FAIL  A11Y   /list-your-property axe: no critical/serious WCAG2.1 A/AA violations  -> select-name(critical,2) | all: select-name:2
+PASS  PAGE   /services loads (HTTP 200, 607ms)
+PASS  LAYOUT /services no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /services no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /services does not show internal env-var errors to the user  -> 
+PASS  A11Y   /services axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /kyc/city/delhi loads (HTTP 200, 615ms)
+PASS  LAYOUT /kyc/city/delhi no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /kyc/city/delhi no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /kyc/city/delhi does not show internal env-var errors to the user  -> 
+FAIL  A11Y   /kyc/city/delhi axe: no critical/serious WCAG2.1 A/AA violations  -> color-contrast(serious,2) | all: color-contrast:2
+PASS  PAGE   /properties/1/test-property loads (HTTP 200, 609ms)
+PASS  LAYOUT /properties/1/test-property no horizontal scroll  -> scrollWidth=1366 clientWidth=1366
+FAIL  JS     /properties/1/test-property no unexpected console/page errors  -> Error: Properties data is temporarily unavailable. Retry after 55 seconds.
+    at http://localhost:3111/_next/static/chunks/app/properties/%5Bid%5D/%5Bname%5D/p
+PASS  UI     /properties/1/test-property does not show internal env-var errors to the user  -> 
+PASS  A11Y   /properties/1/test-property axe: no critical/serious WCAG2.1 A/AA violations  -> 
+
+## Internal link crawl (home + header/footer)
+PASS  LINK   GET /  -> 200
+PASS  LINK   GET /properties  -> 200
+PASS  LINK   GET /aboutus  -> 200
+PASS  LINK   GET /#enquiry  -> 200
+PASS  LINK   GET /list-your-property  -> 200
+PASS  LINK   GET /shortlist  -> 200
+PASS  LINK   GET /kyc/city/bengaluru  -> 200
+PASS  LINK   GET /kyc/city/chennai  -> 200
+PASS  LINK   GET /kyc/city/delhi  -> 200
+PASS  LINK   GET /kyc/city/gurugram  -> 200
+PASS  LINK   GET /kyc/city/hyderabad  -> 200
+PASS  LINK   GET /kyc/city/kolkata  -> 200
+PASS  LINK   GET /kyc/city/mumbai  -> 200
+PASS  LINK   GET /kyc/city/noida  -> 200
+PASS  LINK   GET /kyc/city/pune  -> 200
+FAIL  LINK   GET /privacy-policy  -> 404
+FAIL  LINK   GET /rera  -> 404
+FAIL  LINK   GET /terms-of-use  -> 404
+      external links: 5
+PASS  SEC    target=_blank links have rel=noopener  -> 0 without
+
+## Cookie consent & storage
+PASS  COOKIE consent banner visible on first visit
+PASS  COOKIE no cookies set before consent  -> 
+
+## Home page UI form (client-side validation only; nothing is submitted)
+PASS  FORM   a lead CTA button exists on home
+
+## mobile 375x740
+PASS  PAGE   / loads (HTTP 200, 2168ms)
+PASS  LAYOUT / no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     / no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at g (http://localhost:3111/_next/static/chunks/app/page-310500a505854b33.js:1:808)
+PASS  UI     / does not show internal env-var errors to the user  -> 
+FAIL  A11Y   / axe: no critical/serious WCAG2.1 A/AA violations  -> aria-required-parent(critical,2), color-contrast(serious,3) | all: aria-required-parent:2,color-contrast:3
+FAIL  PAGE   /aboutus loads (HTTP ERR, 45002ms)
+PASS  LAYOUT /aboutus no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /aboutus no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /aboutus does not show internal env-var errors to the user  -> 
+PASS  A11Y   /aboutus axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /properties loads (HTTP 200, 647ms)
+PASS  LAYOUT /properties no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /properties no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /properties does not show internal env-var errors to the user  -> 
+PASS  A11Y   /properties axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /shortlist loads (HTTP 200, 586ms)
+PASS  LAYOUT /shortlist no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /shortlist no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /shortlist does not show internal env-var errors to the user  -> 
+PASS  A11Y   /shortlist axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /compare loads (HTTP 200, 575ms)
+PASS  LAYOUT /compare no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /compare no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /compare does not show internal env-var errors to the user  -> 
+PASS  A11Y   /compare axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /list-your-property loads (HTTP 200, 615ms)
+PASS  LAYOUT /list-your-property no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /list-your-property no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /list-your-property does not show internal env-var errors to the user  -> 
+FAIL  A11Y   /list-your-property axe: no critical/serious WCAG2.1 A/AA violations  -> select-name(critical,2) | all: select-name:2
+PASS  PAGE   /services loads (HTTP 200, 610ms)
+PASS  LAYOUT /services no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /services no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /services does not show internal env-var errors to the user  -> 
+PASS  A11Y   /services axe: no critical/serious WCAG2.1 A/AA violations  -> 
+PASS  PAGE   /kyc/city/delhi loads (HTTP 200, 598ms)
+PASS  LAYOUT /kyc/city/delhi no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /kyc/city/delhi no unexpected console/page errors  -> Exchange rate loading failed: Error: Unable to fetch exchange rates.
+    at h (http://localhost:3111/_next/static/chunks/app/layout-020b01efbf422dfe.js:1:58197)
+PASS  UI     /kyc/city/delhi does not show internal env-var errors to the user  -> 
+FAIL  A11Y   /kyc/city/delhi axe: no critical/serious WCAG2.1 A/AA violations  -> color-contrast(serious,2) | all: color-contrast:2
+PASS  PAGE   /properties/1/test-property loads (HTTP 200, 584ms)
+PASS  LAYOUT /properties/1/test-property no horizontal scroll  -> scrollWidth=375 clientWidth=375
+FAIL  JS     /properties/1/test-property no unexpected console/page errors  -> Error: Properties data is temporarily unavailable. Retry after 60 seconds.
+    at http://localhost:3111/_next/static/chunks/app/properties/%5Bid%5D/%5Bname%5D/p
+PASS  UI     /properties/1/test-property does not show internal env-var errors to the user  -> 
+PASS  A11Y   /properties/1/test-property axe: no critical/serious WCAG2.1 A/AA violations  -> 
+
+# SUMMARY: PASS=82 FAIL=30 TOTAL=112

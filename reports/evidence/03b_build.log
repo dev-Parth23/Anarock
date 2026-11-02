@@ -1,0 +1,80 @@
+ [2m6606[0m | [33;1m|[0m   
+ [2m6607[0m | [33;1m|[0m                 {step === 3 && method === "callback" && (
+ [2m6608[0m | [33;1m|[0m                   <CallbackForm
+ [2m6609[0m | [33;1m|[0m                     callbackTime={callbackTime}
+ [2m6610[0m | [33;1m|[0m                     setCallbackTime={setCallbackTime}
+ [2m6611[0m | [33;1m|[0m                     callbackConsent={callbackConsent}
+ [2m6612[0m | [33;1m|[0m                     setCallbackConsent={setCallbackConsent}
+ [2m6613[0m | [33;1m|[0m                     error={errors.callback}
+ [2m6614[0m | [33;1m|[0m                     submitError={submitError}
+ [2m6615[0m | [33;1m|[0m                     isSubmitting={isSubmitting}
+ [2m6616[0m | [33;1m|[0m                     onBack={() => setStep(2)}
+ [2m6617[0m | [33;1m|[0m                     onSubmit={handleCallbackSubmit}
+ [2m6618[0m | [33;1m|[0m                   />
+ [2m6619[0m | [33;1m|[0m                 )}
+ [2m6620[0m | [33;1m|[0m   
+ [2m6621[0m | [33;1m|[0m                 {step === 3 && method === "form" && !showReview && (
+ [2m6622[0m | [33;1m|[0m                   <ListingForm
+ [2m6623[0m | [33;1m|[0m                     form={form}
+ [2m6624[0m | [33;1m|[0m                     errors={errors}
+ [2m6625[0m | [33;1m|[0m                     updateField={updateField}
+ [2m6626[0m | [33;1m|[0m                     isCoworking={isCoworking}
+ [2m6627[0m | [33;1m|[0m                     formConsent={formConsent}
+ [2m6628[0m | [33;1m|[0m                     setFormConsent={setFormConsent}
+ [2m6629[0m | [33;1m|[0m                     cities={cities}
+ [2m6630[0m | [33;1m|[0m                     micromarkets={micromarkets}
+ [2m6631[0m | [33;1m|[0m                     citiesLoading={citiesLoading}
+ [2m6632[0m | [33;1m|[0m                     micromarketsLoading={micromarketsLoading}
+ [2m6633[0m | [33;1m|[0m                     optionsError={optionsError}
+ [2m6634[0m | [33;1m|[0m                     onBack={() => setStep(2)}
+ [2m6635[0m | [33;1m|[0m                     onContinue={handleListingContinue}
+ [2m6636[0m | [33;1m|[0m                   />
+ [2m6637[0m | [33;1m|[0m                 )}
+ [2m6638[0m | [33;1m|[0m   
+ [2m6639[0m | [33;1m|[0m                 {step === 4 && method === "form" && showReview && (
+ [2m6640[0m | [33;1m|[0m                   <ReviewSubmission
+ [2m6641[0m | [33;1m|[0m                     form={form}
+ [2m6642[0m | [33;1m|[0m                     isCoworking={isCoworking}
+ [2m6643[0m | [33;1m|[0m                     submitError={submitError}
+ [2m6644[0m | [33;1m|[0m                     isSubmitting={isSubmitting}
+ [2m6645[0m | [33;1m|[0m                     onBack={() => {
+ [2m6646[0m | [33;1m|[0m                       setShowReview(false);
+ [2m6647[0m | [33;1m|[0m                       setStep(3);
+ [2m6648[0m | [33;1m|[0m                     }}
+ [2m6649[0m | [33;1m|[0m                     onSubmit={handleFinalSubmit}
+ [2m6650[0m | [33;1m|[0m                   />
+ [2m6651[0m | [33;1m|[0m                 )}
+ [2m6652[0m | [33;1m|[0m               </motion.div>
+ [2m6653[0m | [33;1m|[0m             )}
+ [2m6654[0m | [33;1m|[0m           </AnimatePresence>
+ [2m6655[0m | [33;1m|[0m         </section>
+ [2m6656[0m | [33;1m|[0m       </main>
+ [2m6657[0m | [33;1m|[0m     );
+ [2m6658[0m | [33;1m|[0m[33;1m-[0m[33;1m>[0m }
+      : [33;1m`[0m[33;1m---[0m[33;1m-[0m [33;1mexported more than once[0m
+ [2m6659[0m |     
+ [2m6660[0m |     /* =========================================================
+ [2m6661[0m |        PROGRESS HEADER
+      `----
+
+Error: 
+  [36m>[0m Exported identifiers must be unique
+
+Stack backtrace:
+   0: <unknown>
+   1: <unknown>
+   2: <unknown>
+   3: <unknown>
+   4: _ZZN4node14ThreadPoolWork12ScheduleWorkEvENUlP9uv_work_sE_4_FUNES2_
+   5: worker
+             at /home/iojs/build/ws/out/../deps/uv/src/threadpool.c:123:5
+   6: start_thread
+             at ./nptl/pthread_create.c:447:8
+   7: __GI___clone3
+             at ./misc/../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Import trace for requested module:
+./src/app/list-your-property/page.js
+
+
+> Build failed because of webpack errors

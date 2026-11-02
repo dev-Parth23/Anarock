@@ -1,0 +1,9 @@
+anarock CLA Catalyst connector, read-only (Get_Project_By_Id, List_All_*, Get_*, Execute_Query SELECT only) - run 2026-11-02; org 60082403821, project 53125000000013053
+Project Anarock: Development + Production (default) both Active; project_type Live; created 2026-08-10.
+Functions (Production): 1 - stratus_upload (applogic, node24, 256MB, is_deployed=false, modified 2026-08-18). Source not retrievable; repo has no functions/ folder.
+Data Store (Production): Stats (mod 2026-09-29), KYC (2026-09-28), Properties (2026-08-13). Properties COUNT=177; by City: Bengaluru 100, Hyderabad 64, Mumbai 12, Noida 1; SPOCNumber IS NOT NULL = 177. Table permissions Properties: App Administrator SELECT/UPDATE/INSERT/DELETE; App User (default) SELECT/UPDATE/INSERT.
+Stratus: bucket property-images, versioning=false, encryption=false, caching Disabled, audit_consent=false, https://property-images.zohostratus.in.
+Slate Production: app anarock (16250000000011001, upload, node 22, root_path ./Catalyst); deployment 16250000000011003 status=failed, build 16250000000011007 Failed (13m8s, 2026-10-14). No newer build. Slate Development: apps Anarock (13479000000022162, cli) and nextjs (13479000000024004, cli), both created 2026-10-14.
+API Gateway: 1 rule stratus_upload (ANY, advancedio). AppSail: none. Cron: none. Auth: public_signup=true, hosted_auth=true. CORS: 127.0.0.1, crm.zoho.in, zappsusercontent.in (cors+iframe true).
+Not verifiable: function source, Stratus objects, Slate build logs/root cause of failed build, env variable names/values (deployment env list not queried this run), job pools, pipelines, Development data.
+No write/delete tool was called.

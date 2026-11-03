@@ -20,25 +20,14 @@ import {
   MessageSquare,
   MapPin,
   Building,
-  Sparkles,
+  Trash2,
   ExternalLink,
 } from "lucide-react";
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
 const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
-const IMAGE_FILES = [
-  {
-    key: "project",
-    name: "Project Picture 1",
-    filename: "Project_Picture_1.jpg",
-  },
-  {
-    key: "property-1",
-    name: "Property Photo 1",
-    filename: "Property_Photo_1.jpg",
-  },
-];
+const DEFAULT_PROPERTY_IMAGE = "Project_Picture_1.jpg";
 function getPropertyId(property) {
   if (!property) return "";
   if (typeof property === "string" || typeof property === "number") {
@@ -61,36 +50,29 @@ function getPropertySlug(property) {
 
 function getPropertyImageUrl(property) {
   if (!property || typeof property !== "object") return "";
-
   if (property.image) return property.image;
   if (property.coverImage) return property.coverImage;
   if (Array.isArray(property.images) && property.images.length > 0) {
     return property.images[0];
   }
 
-  const imageFolderPath = String(property.ImageFolderPath || "").replace(/^\/+|\/+$/g, "");
+  const imageFolderPath = String(property.ImageFolderPath || "").replace(
+    /^\/+|\/+$/g,
+    "",
+  );
+
   if (!imageFolderPath) return "";
-  const projectImage = IMAGE_FILES.find((img) => img.key === "project");
-  const filename = projectImage ? projectImage.filename : "Project_Picture_1.jpg";
-  return `${IMAGE_BASE_URL}/${imageFolderPath}/${filename}`;
+
+  return `${IMAGE_BASE_URL}/${imageFolderPath}/${DEFAULT_PROPERTY_IMAGE}`;
 }
 
 function getCRMPropertyId(property) {
   if (!property || typeof property !== "object") return "";
-
-  const possibleCRMIds = [property?.crmID];
-
-  for (const value of possibleCRMIds) {
-    const id = String(value ?? "").trim();
-    if (id) return id;
-  }
-
-  return "";
+  return String(property?.crmID ?? "").trim();
 }
 
 function safeParseJSON(value) {
   if (!value) return null;
-
   try {
     return JSON.parse(value);
   } catch {
@@ -213,7 +195,8 @@ function getSelectionKey(properties = []) {
 }
 export default function WishlistClient() {
   const router = useRouter();
-  const [enquirySubmittedSelectionKey, setEnquirySubmittedSelectionKey] = useState("");
+  const [enquirySubmittedSelectionKey, setEnquirySubmittedSelectionKey] =
+    useState("");
   const [enquirySuccess, setEnquirySuccess] = useState(false);
   const { items, count, isInitialized } = useWishlist();
   const [compareSelection, setCompareSelection] = useState([]);
@@ -228,13 +211,13 @@ export default function WishlistClient() {
     company: "",
     message: "",
   });
+
   useEffect(() => {
     if (!isInitialized || !items.length) return;
     let cancelled = false;
+    const originalSelectionKey = getSelectionKey(items);
     async function repairWishlist() {
-      const needsRepair = items.some(
-        (property) => !getPropertyId(property) || !getCRMPropertyId(property),
-      );
+      const needsRepair = items.some((property) => !getPropertyId(property) || !getCRMPropertyId(property));
       if (!needsRepair) return;
       try {
         const response = await fetch("/api/properties", {
@@ -243,79 +226,95 @@ export default function WishlistClient() {
         });
         const data = await response.json();
         if (!response.ok || !data?.success || !Array.isArray(data?.data)) {
-          throw new Error(data?.error || data?.message || "Unable to refresh shortlisted properties.",
+          throw new Error(
+            data?.error ||
+            data?.message ||
+            "Unable to refresh shortlisted properties.",
           );
         }
-
         if (cancelled) return;
-
+        const currentStoredItems = safeParseJSON(localStorage.getItem("anarock_wishlist_properties"),);
+        if (!Array.isArray(currentStoredItems) || getSelectionKey(currentStoredItems) !== originalSelectionKey) {
+          return;
+        }
         const propertyMap = new Map();
-
         data.data.forEach((property) => {
           const id = getPropertyId(property);
-          if (id) propertyMap.set(id, property);
+          if (id) {
+            propertyMap.set(id, property);
+          }
         });
-
         const repairedItems = items
           .map((oldProperty) => {
             const id = getPropertyId(oldProperty);
             if (!id) return null;
-
             return propertyMap.get(id) || oldProperty;
           })
           .filter(Boolean);
-
-        localStorage.setItem(
-          "anarock_wishlist_properties",
-          JSON.stringify(repairedItems),
+        if (cancelled) return;
+        const latestStoredItems = safeParseJSON(
+          localStorage.getItem("anarock_wishlist_properties"),
         );
-
+        if (!Array.isArray(latestStoredItems) || getSelectionKey(latestStoredItems) !== originalSelectionKey) {
+          return;
+        }
+        localStorage.setItem("anarock_wishlist_properties", JSON.stringify(repairedItems),);
         window.dispatchEvent(new Event("wishlist-updated"));
       } catch (error) {
-        console.error("[SHORTLIST] Failed to refresh shortlist:", error);
+        if (!cancelled) {
+          console.error("[SHORTLIST] Failed to refresh shortlist:", error);
+        }
       }
     }
-
     repairWishlist();
-
     return () => {
       cancelled = true;
     };
   }, [isInitialized, items]);
-
   useEffect(() => {
+    if (!isInitialized) return;
     try {
       const saved = localStorage.getItem(COMPARE_STORAGE_KEY);
-
-      if (!saved) {
+      if (!saved || !items.length) {
         setCompareSelection([]);
+        localStorage.removeItem(COMPARE_STORAGE_KEY);
         return;
       }
-
       const parsed = JSON.parse(saved);
-
-      setCompareSelection(
-        Array.isArray(parsed) ? parsed.slice(-MAX_COMPARE_PROPERTIES) : [],
+      if (!Array.isArray(parsed)) {
+        setCompareSelection([]);
+        localStorage.removeItem(COMPARE_STORAGE_KEY);
+        return;
+      }
+      const shortlistedIds = new Set(items.map(getPropertyId).filter(Boolean));
+      const validSelections = parsed
+        .filter((property) => {
+          const id = getPropertyId(property);
+          return id && shortlistedIds.has(id);
+        })
+        .slice(-MAX_COMPARE_PROPERTIES);
+      setCompareSelection(validSelections);
+      localStorage.setItem(
+        COMPARE_STORAGE_KEY,
+        JSON.stringify(validSelections),
       );
     } catch (error) {
       console.error("[COMPARE] Failed to load compare selection:", error);
       setCompareSelection([]);
+      localStorage.removeItem(COMPARE_STORAGE_KEY);
     }
-  }, []);
+  }, [isInitialized, items]);
 
   const handleCompareToggle = (property) => {
     const propertyId = getPropertyId(property);
     if (!propertyId) return;
-
     setCompareSelection((previous) => {
       const alreadySelected = previous.some(
         (item) => getPropertyId(item) === propertyId,
       );
-
       const updated = alreadySelected
         ? previous.filter((item) => getPropertyId(item) !== propertyId)
         : [...previous, property].slice(-MAX_COMPARE_PROPERTIES);
-
       localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
@@ -325,35 +324,37 @@ export default function WishlistClient() {
     setCompareSelection([]);
     localStorage.removeItem(COMPARE_STORAGE_KEY);
   };
+  const clearShortlist = () => {
+    if (!items.length) return;
+    const confirmed = window.confirm(
+      "Are you sure you want to clear all the shortlisted properties?",
+    );
+    if (!confirmed) return;
+    localStorage.removeItem("anarock_wishlist_properties");
+    localStorage.removeItem(COMPARE_STORAGE_KEY);
+    setCompareSelection([]);
+    setEnquirySelection([]);
+    setEnquirySubmittedSelectionKey("");
+    setIsEnquiryOpen(false);
+    setEnquiryError("");
+    setEnquirySuccess(false);
+    window.dispatchEvent(new Event("wishlist-updated"));
+  };
 
-  const canCompare =
-    compareSelection.length >= MIN_COMPARE_PROPERTIES &&
-    compareSelection.length <= MAX_COMPARE_PROPERTIES;
-
-  const remainingToCompare = Math.max(
-    0,
-    MIN_COMPARE_PROPERTIES - compareSelection.length,
-  );
-
+  const canCompare = compareSelection.length >= MIN_COMPARE_PROPERTIES && compareSelection.length <= MAX_COMPARE_PROPERTIES;
+  const remainingToCompare = Math.max(0, MIN_COMPARE_PROPERTIES - compareSelection.length,);
   const openComparePage = () => {
     if (!canCompare) return;
-
     localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(compareSelection));
     router.push("/compare");
   };
 
   const openEnquiryForm = () => {
     if (!items?.length) return;
-
     const currentSelectionKey = getSelectionKey(items);
-
-    if (
-      enquirySubmittedSelectionKey &&
-      enquirySubmittedSelectionKey === currentSelectionKey
-    ) {
+    if (enquirySubmittedSelectionKey && enquirySubmittedSelectionKey === currentSelectionKey) {
       return;
     }
-
     setEnquirySelection([...items]);
     setEnquiryError("");
     setEnquirySuccess(false);
@@ -362,7 +363,6 @@ export default function WishlistClient() {
 
   const closeEnquiryForm = () => {
     if (isSubmittingEnquiry) return;
-
     setIsEnquiryOpen(false);
     setEnquiryError("");
     setEnquirySuccess(false);
@@ -557,13 +557,26 @@ export default function WishlistClient() {
               </p>
             </div>
 
-            <Link
-              href="/properties"
-              className="inline-flex min-h-[44px] w-fit items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-[#A054A0] hover:text-[#A054A0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
-            >
-              Explore Properties
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/properties"
+                className="inline-flex min-h-[44px] w-fit items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-[#A054A0] hover:text-[#A054A0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
+              >
+                Explore Properties
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+
+              {items.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearShortlist}
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-slate-400 bg-white px-4 py-2.5 text-xs font-semibold text-red-600/90 shadow-sm transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                >
+                  <Trash2 className="h-4 w-4 shrink-0" />
+                  Clear Shortlist
+                </button>
+              )}
+            </div>
           </section>
 
           {items.length > 0 ? (
@@ -597,8 +610,8 @@ export default function WishlistClient() {
               </h2>
 
               <p className="mt-2 max-w-sm text-sm text-slate-500">
-                Explore available commercial listings to save
-                them to your shortlist.
+                Explore available commercial listings to save them to your
+                shortlist.
               </p>
 
               <Link

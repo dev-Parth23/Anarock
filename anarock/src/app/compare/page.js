@@ -381,7 +381,7 @@ export default function ComparePage() {
       },
     },
     {
-      label: `Price (${currency || "INR"})`,
+      label: "Price per seat",
       show: !allAreConventional,
       value: (property) => {
         if (!isCoworking(property)) return "-";
@@ -752,7 +752,7 @@ export default function ComparePage() {
                         {slots.map((property, i) => (
                           <div
                             key={`row-${row.label}-${i}`}
-                            className="flex items-center border-l border-slate-100 px-6 py-4 font-medium text-black whitespace-normal break-words leading-relaxed"
+                            className="flex items-start border-l border-slate-100 px-6 py-4 font-medium text-black whitespace-normal break-words leading-relaxed"
                           >
                             {property ? (
                               row.value(property)

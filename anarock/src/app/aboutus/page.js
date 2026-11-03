@@ -78,12 +78,12 @@ const companyStats = [
 ];
 
 const partners = [
-    { name: "BINSWANGER", IMG: "/services/research/binswanger.png" },
-    { name: "HVS", IMG: "/services/research/hvs.png" },
-    { name: "BROADENING", IMG: "/services/research/bway.png" },
-    { name: "VINDICO", IMG: "/services/research/vindico.png" },
-    { name: "myHQ", IMG: "/services/research/myhq.svg" },
-    { name: "UPFLEX", IMG: "/services/research/upflex.png" },
+    { name: "BINSWANGER", IMG: "/services/research/binswanger.png", scale: 2.2 },
+    { name: "HVS", IMG: "/services/research/hvs.png", scale: 0.75 },
+    { name: "BROADENING", IMG: "/services/research/bway.png", scale: 1.5 },
+    { name: "VINDICO", IMG: "/services/research/vindico.png", scale: 2.3 },
+    { name: "myHQ", IMG: "/services/research/myhq.svg", scale: 0.75 },
+    { name: "UPFLEX", IMG: "/services/research/upflex.png", scale: 2 },
 ];
 
 const highlights = [
@@ -249,7 +249,7 @@ export default function AboutUsPage() {
 
                         <div className="relative min-h-[280px] w-full overflow-hidden sm:min-h-[380px] md:min-h-[460px] lg:min-h-[540px]">
                             <Image
-                                src="/services/Campuses.avif"
+                                src="/services/OfficeMarket.avif"
                                 alt="Anarock commercial office workspace"
                                 fill
                                 priority
@@ -376,19 +376,43 @@ export default function AboutUsPage() {
                         </h2>
                     </div>
 
-                    <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
+                    {/* <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
                         {partners.map((partner) => (
                             <div
                                 key={partner.name}
                                 className="flex min-h-[110px] items-center justify-center rounded-sm border border-dashed border-slate-400 bg-white p-5 transition-all duration-300 hover:border-[#cda5c7] hover:shadow-sm sm:min-h-[125px]"
                             >
                                 {partner.IMG && (
+
                                     <img
                                         src={partner.IMG}
                                         alt={partner.name}
                                         loading="lazy"
-                                        className="max-h-[70px] max-w-full object-contain sm:max-h-[95px]"
+                                        className="h-[55px] w-[140px] object-contain sm:h-[65px] sm:w-[160px] lg:h-[75px] lg:w-[180px]"
                                     />
+                                )}
+                            </div>
+                        ))}
+                    </div> */}
+
+                    <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
+                        {partners.map((partner) => (
+                            <div
+                                key={partner.name}
+                                className="flex h-[150px] items-center justify-center overflow-hidden rounded-sm border border-dashed border-slate-400 bg-white p-5 transition-all duration-300 hover:border-[#cda5c7] hover:shadow-sm sm:h-[170px]"
+                            >
+                                {partner.IMG && (
+                                    <div className="flex h-[80px] w-[180px] items-center justify-center">
+                                        <img
+                                            src={partner.IMG}
+                                            alt={partner.name}
+                                            loading="lazy"
+                                            className="max-h-full max-w-full object-contain"
+                                            style={{
+                                                transform: `scale(${partner.scale || 1})`,
+                                            }}
+                                        />
+                                    </div>
                                 )}
                             </div>
                         ))}

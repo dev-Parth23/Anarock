@@ -69,12 +69,12 @@ function getPropertyType(property) {
 }
 
 function getPropertyCity(property) {
-  return normalizeMatch(getFirstValue(property, ["city", "City"]));
+  return normalizeMatch(getFirstValue(property, ["city"]));
 }
 
 function getPropertyMicromarket(property) {
   return normalizeMatch(
-    getFirstValue(property, ["micromarket", "Micromarket"]),
+    getFirstValue(property, ["micromarket"]),
   );
 }
 

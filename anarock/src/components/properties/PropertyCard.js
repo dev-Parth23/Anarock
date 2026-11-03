@@ -120,41 +120,26 @@ function PropertyCard({
   const contextWishlisted = ids.some((id) => String(id) === propertyId);
   const isWishlisted = Boolean(isShortlisted) || contextWishlisted;
   const propertyName = String(property?.name || "Property",);
-
   const propertySlug = createSlug(propertyName);
-  const propertyUrl = propertyId
-    ? `/properties/${encodeURIComponent(propertyId)}/${encodeURIComponent(
-      propertySlug,
-    )}`
-    : "/properties";
-
-  const imageCandidates = useMemo(
-    () =>
-      getStratusImageCandidates(
-        property?.ImageFolderPath,
-        "Project_Picture_1.jpg"
-      ),
-    [property?.imageFolderPath, property?.ImageFolderPath]
+  const propertyUrl = propertyId ? `/properties/${encodeURIComponent(propertyId)}/${encodeURIComponent(propertySlug,)}` : "/properties";
+  const imageCandidates = useMemo(() =>
+    getStratusImageCandidates(property?.ImageFolderPath, "Project_Picture_1.jpg"),
+    [property?.ImageFolderPath]
   );
-
   const imageUrl = imageCandidates[imageCandidateIndex] || "";
-
   const imageError = imageCandidateIndex >= imageCandidates.length;
-
   useEffect(() => {
     setImageLoaded(false);
     setImageCandidateIndex(0);
   }, [propertyId, imageCandidates.join("|")]);
-
   const handleImageError = () => {
     setImageLoaded(false);
     setImageCandidateIndex((current) => current + 1);
   };
-
-  const city = property?.city || property?.City || "";
-  const micromarket = property?.micromarket || property?.area || "";
+  const city = property?.city || "";
+  const micromarket = property?.micromarket || "";
   const location = [city, micromarket].filter(Boolean).join(" • ");
-  const propertyType = String(getFirstValue(property, ["officeType", "type"], "",),)
+  const propertyType = String(getFirstValue(property, ["officeType"], "",),)
     .trim()
     .toLowerCase();
 
@@ -162,16 +147,8 @@ function PropertyCard({
   const developer = getFirstValue(property, ["developer"], "-",);
   const areaValue = Number(property?.totalLeasableAreaAvailable,);
   const hasArea = Number.isFinite(areaValue) && areaValue > 0;
-  const seatsOffered = getFirstValue(
-    property, ["NoOfSeatsOffered",], "-",
-  );
-
-  const operator = getFirstValue(
-    property,
-    ["operator"],
-    "-",
-  );
-
+  const seatsOffered = getFirstValue(property, ["NoOfSeatsOffered",], "-",);
+  const operator = getFirstValue(property, ["operator"], "-",);
   const handleCompareClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -183,7 +160,6 @@ function PropertyCard({
     event.preventDefault();
     event.stopPropagation();
     if (!propertyId) return;
-
     if (typeof onShortlistToggle === "function") {
       onShortlistToggle(property);
       return;
@@ -226,8 +202,6 @@ function PropertyCard({
           </Link>
 
           <div className="pointer-events-none absolute inset-0 z-[11] bg-gradient-to-t from-black/[0.08] to-transparent" />
-
-          {/* COMPARE BADGE */}
           <div
             className="absolute left-3 top-3 z-[50]"
             onMouseDown={(e) => {

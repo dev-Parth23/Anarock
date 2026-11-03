@@ -148,8 +148,8 @@ const mainServices = [
     slug: "advisory-services",
   },
   {
-    title: "Enterprise Advisory Solutions",
-    slug: "enterprise-advisory-solutions",
+    title: "GCC Calculator",
+    slug: "gcc-calculator",
   },
 ];
 

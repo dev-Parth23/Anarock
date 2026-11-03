@@ -455,33 +455,21 @@ function CommercialLeasingAndAdvisoryPageContent() {
     "leasing-services": 0,
     "transaction-management": 1,
     "advisory-services": 2,
-    "enterprise-advisory-solutions": 3,
+    "gcc-calculator": 3,
   };
 
   const requestedService = searchParams.get("service");
   const [activeService, setActiveService] = useState(0);
-
   useEffect(() => {
     const selectService = (slug) => {
       const index = serviceSlugToIndex[slug];
-
       if (index === undefined) return;
-
       setActiveService(index);
-
       requestAnimationFrame(() => {
         const section = document.getElementById("our-services");
         if (!section) return;
-
-        const headerHeight =
-          document.querySelector("header")?.offsetHeight || 80;
-
-        const top =
-          section.getBoundingClientRect().top +
-          window.scrollY -
-          headerHeight -
-          12;
-
+        const headerHeight = document.querySelector("header")?.offsetHeight || 80;
+        const top = section.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
         window.scrollTo({
           top: Math.max(0, top),
           behavior: "smooth",
@@ -490,18 +478,14 @@ function CommercialLeasingAndAdvisoryPageContent() {
     };
 
     const savedSlug = sessionStorage.getItem("anarock_selected_service");
-
     if (savedSlug) {
       sessionStorage.removeItem("anarock_selected_service");
       selectService(savedSlug);
     }
-
     const handleSelection = (event) => {
       selectService(event.detail?.slug);
     };
-
     window.addEventListener("anarock-service-selected", handleSelection);
-
     return () => {
       window.removeEventListener("anarock-service-selected", handleSelection);
     };
@@ -513,21 +497,17 @@ function CommercialLeasingAndAdvisoryPageContent() {
   const [openFaq, setOpenFaq] = useState(null);
   const [businessOffset, setBusinessOffset] = useState(0);
   const [researchOffset, setResearchOffset] = useState(0);
-
   const selectedService = serviceCategories[activeService];
-
   const moveBusiness = (direction) => {
     setBusinessOffset((current) =>
       Math.max(0, Math.min(businessSegments.length - 3, current + direction)),
     );
   };
-
   const moveResearch = (direction) => {
     setResearchOffset((current) =>
       Math.max(0, Math.min(researchItems.length - 3, current + direction)),
     );
   };
-
   const breadcrumbs = [
     {
       label: "CLA Services",

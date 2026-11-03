@@ -5,7 +5,7 @@ import { getOrFetchCache } from "@/lib/cache";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const CACHE_TTL = Number(process.env.MARKET_STATS_CACHE_TTL || "3600") * 1000;
+const CACHE_TTL = Number("300") * 1000;
 
 function toNumber(value) {
   if (value === null || value === undefined || value === "") {

@@ -1,22 +1,15 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const ACCOUNTS_URL =
-  process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
-
-const DEFAULT_API_URL = process.env.ZOHO_API_URL || "https://www.zohoapis.in";
-
+const ACCOUNTS_URL = "https://accounts.zoho.in";
+const DEFAULT_API_URL = "https://www.zohoapis.in";
 const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
-
 const REQUEST_TIMEOUT_MS = 10_000;
 const CITY_CACHE_TTL_MS = 15 * 60 * 1000;
 const MAX_BODY_SIZE = 50_000;
-
 const MAX_LENGTHS = Object.freeze({
   firstName: 80,
   lastName: 80,
@@ -776,23 +769,23 @@ export async function POST(request) {
     const company = normalizeText(body?.company);
     const street = normalizeText(
       body?.Street ||
-        body?.street ||
-        body?.area ||
-        location?.street ||
-        location?.area ||
-        "",
+      body?.street ||
+      body?.area ||
+      location?.street ||
+      location?.area ||
+      "",
     );
     const addressCity = normalizeText(
       body?.City || body?.city || body?.addressCity || location?.city || "",
     );
     const state = normalizeText(
       body?.State ||
-        body?.state ||
-        body?.Province ||
-        body?.province ||
-        location?.state ||
-        location?.province ||
-        "",
+      body?.state ||
+      body?.Province ||
+      body?.province ||
+      location?.state ||
+      location?.province ||
+      "",
     );
 
     const country = normalizeText(
@@ -800,13 +793,13 @@ export async function POST(request) {
     );
     const pincode = normalizeText(
       body?.Zip_Code ||
-        body?.Postal_Code ||
-        body?.PostalCode ||
-        body?.postalCode ||
-        body?.pincode ||
-        location?.postalCode ||
-        location?.pincode ||
-        "",
+      body?.Postal_Code ||
+      body?.PostalCode ||
+      body?.postalCode ||
+      body?.pincode ||
+      location?.postalCode ||
+      location?.pincode ||
+      "",
     );
 
     const rawRequirementCity = normalizeText(
@@ -1034,8 +1027,8 @@ export async function POST(request) {
       {
         status:
           error?.httpStatus &&
-          Number(error.httpStatus) >= 400 &&
-          Number(error.httpStatus) < 600
+            Number(error.httpStatus) >= 400 &&
+            Number(error.httpStatus) < 600
             ? Number(error.httpStatus)
             : 500,
       },

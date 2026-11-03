@@ -88,10 +88,6 @@ function propertyCity(property) {
     return (
         property?.city ??
         property?.City ??
-        property?.cityName ??
-        property?.City_Name ??
-        property?.CityName ??
-        property?.city_name ??
         ""
     );
 }
@@ -101,9 +97,6 @@ function propertyMarket(property) {
         property?.micromarket ??
         property?.Micromarket ??
         property?.microMarket ??
-        property?.MicroMarket ??
-        property?.micromarketName ??
-        property?.Micromarket_Name ??
         property?.area ??
         ""
     );

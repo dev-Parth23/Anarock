@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-const ACCOUNTS_URL =
-  process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
-
-const DEFAULT_API_URL = process.env.ZOHO_API_URL || "https://www.zohoapis.in";
-
+const ACCOUNTS_URL = "https://accounts.zoho.in";
+const DEFAULT_API_URL = "https://www.zohoapis.in";
 const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
-
 let zohoTokenCache = {
   accessToken: null,
   expiresAt: 0,
@@ -54,8 +50,8 @@ async function generateZohoAccessToken() {
   if (!response.ok) {
     throw new Error(
       data?.error_description ||
-        data?.error ||
-        `Unable to generate Zoho access token. HTTP ${response.status}`,
+      data?.error ||
+      `Unable to generate Zoho access token. HTTP ${response.status}`,
     );
   }
 
@@ -301,10 +297,10 @@ export async function POST(request) {
     const company = String(body?.company || "").trim();
     const requirementDetails = String(
       body?.requirementDetails ||
-        body?.Requirement_Details ||
-        body?.message ||
-        body?.description ||
-        "",
+      body?.Requirement_Details ||
+      body?.message ||
+      body?.description ||
+      "",
     ).trim();
     const location = body?.location || {};
     const street = String(
@@ -317,11 +313,11 @@ export async function POST(request) {
 
     const province = String(
       body?.Province ||
-        body?.province ||
-        body?.state ||
-        location?.province ||
-        location?.state ||
-        "",
+      body?.province ||
+      body?.state ||
+      location?.province ||
+      location?.state ||
+      "",
     ).trim();
 
     const country = String(
@@ -330,12 +326,12 @@ export async function POST(request) {
 
     const postalCode = String(
       body?.Postal_Code ||
-        body?.PostalCode ||
-        body?.postalCode ||
-        body?.pincode ||
-        location?.postalCode ||
-        location?.pincode ||
-        "",
+      body?.PostalCode ||
+      body?.postalCode ||
+      body?.pincode ||
+      location?.postalCode ||
+      location?.pincode ||
+      "",
     ).trim();
     const rawRequirementCity = String(
       body?.requirementCity || body?.Requirement_City || "",
@@ -393,27 +389,27 @@ export async function POST(request) {
         Zip_Code: postalCode || undefined,
         ...(requirementType === "Managed Office/Co-working"
           ? {
-              Requirement_Seats:
-                body?.Requirement_Seats !== undefined
-                  ? Number(body.Requirement_Seats)
-                  : undefined,
+            Requirement_Seats:
+              body?.Requirement_Seats !== undefined
+                ? Number(body.Requirement_Seats)
+                : undefined,
 
-              Requirement_Seat_Price:
-                body?.Requirement_Seat_Price !== undefined
-                  ? Number(body.Requirement_Seat_Price)
-                  : undefined,
-            }
+            Requirement_Seat_Price:
+              body?.Requirement_Seat_Price !== undefined
+                ? Number(body.Requirement_Seat_Price)
+                : undefined,
+          }
           : {
-              Requirement_Area:
-                body?.Requirement_Area !== undefined
-                  ? Number(body.Requirement_Area)
-                  : undefined,
+            Requirement_Area:
+              body?.Requirement_Area !== undefined
+                ? Number(body.Requirement_Area)
+                : undefined,
 
-              Requirement_Rent:
-                body?.Requirement_Rent !== undefined
-                  ? Number(body.Requirement_Rent)
-                  : undefined,
-            }),
+            Requirement_Rent:
+              body?.Requirement_Rent !== undefined
+                ? Number(body.Requirement_Rent)
+                : undefined,
+          }),
       };
       if (email) {
         recordData.Email = email;

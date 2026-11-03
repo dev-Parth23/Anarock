@@ -3,15 +3,8 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-/* -------------------------------------------------------------------------- */
-/* Configuration                                                              */
-/* -------------------------------------------------------------------------- */
-
-const ACCOUNTS_URL =
-    process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in";
-
-const DEFAULT_API_URL = process.env.ZOHO_API_URL || "https://www.zohoapis.in";
+const ACCOUNTS_URL = "https://accounts.zoho.in";
+const DEFAULT_API_URL = "https://www.zohoapis.in";
 const CLIENT_ID = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
@@ -34,35 +27,19 @@ const MAX_LENGTHS = Object.freeze({
     requirementType: 100,
     message: 32000,
 });
-
-/* -------------------------------------------------------------------------- */
-/* Global Zoho state                                                          */
-/* -------------------------------------------------------------------------- */
-
 const globalZohoState = globalThis.__ANAROCK_ZOHO_AUTH_STATE || {
     tokenCache: {
         accessToken: null,
         expiresAt: 0,
         apiDomain: DEFAULT_API_URL,
     },
-
     refreshPromise: null,
-
     authFailureUntil: 0,
-
     cityCache: null,
-
     cityCacheExpiresAt: 0,
-
     cityCachePromise: null,
 };
-
 globalThis.__ANAROCK_ZOHO_AUTH_STATE = globalZohoState;
-
-/* -------------------------------------------------------------------------- */
-/* Helpers                                                                    */
-/* -------------------------------------------------------------------------- */
-
 function createRequestId() {
     try {
         return crypto.randomUUID();

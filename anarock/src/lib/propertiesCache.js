@@ -22,7 +22,7 @@ if (!g.__anarockPropertiesCache) {
 
 const state = g.__anarockPropertiesCache;
 
-const parsedTtl = Number(process.env.PROPERTIES_CACHE_TTL || "900");
+const parsedTtl = Number("600");
 const CACHE_TTL =
   Number.isFinite(parsedTtl) && parsedTtl > 0 ? parsedTtl * 1000 : 900 * 1000;
 

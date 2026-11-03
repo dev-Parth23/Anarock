@@ -26,14 +26,14 @@ function required(name) {
 }
 
 function getAccountsUrl() {
-  return (process.env.ZOHO_ACCOUNTS_URL || "https://accounts.zoho.in").replace(
+  return ("https://accounts.zoho.in").replace(
     /\/+$/,
     "",
   );
 }
 
 function getDefaultApiUrl() {
-  return (process.env.ZOHO_API_URL || "https://www.zohoapis.in").replace(
+  return ("https://www.zohoapis.in").replace(
     /\/+$/,
     "",
   );
@@ -183,8 +183,7 @@ export async function zohoFetch(url, options = {}, retryCount = 0) {
     headers,
 
     signal: getTimeoutSignal(
-      options.signal,
-      Number(process.env.ZOHO_REQUEST_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
+      options.signal, DEFAULT_TIMEOUT_MS,
     ),
 
     cache: "no-store",

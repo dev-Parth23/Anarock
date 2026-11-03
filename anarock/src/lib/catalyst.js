@@ -1,13 +1,12 @@
 import "server-only";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-export const projectId = process.env.PROJECT_ID || "53125000000013053";
-export const PROPERTIES_TABLE_ID = process.env.PROPERTIES_TABLE_ID || "53125000000038011";
-export const STATS_TABLE_ID = process.env.STATS_TABLE_ID || "Stats";
-export const KYC_TABLE_ID = process.env.KYC_TABLE_ID || "KYC";
-export const PROPERTY_IMAGES_BUCKET = process.env.PROPERTY_IMAGES_BUCKET || "property-images";
+export const projectId = "53125000000013053";
+export const PROPERTIES_TABLE_ID = "53125000000038011";
+export const STATS_TABLE_ID = "Stats";
+export const KYC_TABLE_ID = "KYC";
+export const PROPERTY_IMAGES_BUCKET = "property-images";
 const DEFAULT_CATALYST_API_URL = "https://api.catalyst.zoho.in";
-const DEFAULT_ZOHO_ACCOUNTS_URL = "https://accounts.zoho.in";
 const TOKEN_REFRESH_BUFFER_MS = 2 * 60 * 1000;
 const MAX_AUTH_RETRIES = 1;
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -38,13 +37,9 @@ function getCatalystApiUrl() {
 }
 
 function getZohoAccountsUrl() {
-  return (process.env.ZOHO_ACCOUNTS_URL || DEFAULT_ZOHO_ACCOUNTS_URL)
+  return ("https://accounts.zoho.in")
     .trim()
     .replace(/\/+$/, "");
-}
-
-function getEnvironment() {
-  return String(process.env.ENVIRONMENT || "Production").trim();
 }
 
 function getRequestTimeout() {
@@ -176,11 +171,8 @@ export async function catalystFetch(url, options = {}, retryCount = 0) {
 
   const headers = {
     ...(options.headers || {}),
-
     Authorization: `Zoho-oauthtoken ${accessToken}`,
-
-    Environment: getEnvironment(),
-
+    Environment: "Production",
     Accept: "application/json",
   };
 
@@ -398,7 +390,7 @@ async function getCatalystApp() {
     {
       project_id: projectId,
       project_key: projectKey,
-      environment: getEnvironment(),
+      environment: "Production",
       credential,
     },
     "anarock-next-server",
@@ -421,7 +413,7 @@ export function getCatalystAuthStatus() {
     isValid: hasValidAccessToken(),
     refreshInProgress: Boolean(state.accessTokenPromise),
     apiUrl: getCatalystApiUrl(),
-    environment: getEnvironment(),
+    environment: "Production",
   };
 }
 

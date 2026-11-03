@@ -60,7 +60,7 @@ Create `anarock/.env.local` with the credentials the app needs at runtime:
 | `CATALYST_PROPERTIES_TABLE_ID`                                                                      | Data Store table ID for property listings (defaults to a hard-coded ID)         |
 | `CATALYST_ACCOUNTS_URL`                                                                             | Zoho accounts domain for token refresh (defaults to `https://accounts.zoho.in`) |
 | `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` / `ZOHO_REFRESH_TOKEN`                                      | Zoho CRM OAuth credentials (Leads, City, micromarket APIs)                      |
-| `ZOHO_ACCOUNTS_URL` / `ZOHO_API_URL`                                                                | Zoho accounts/API domains (default to the `.in` data center)                    |
+|                                                                                                     |
 
 > No `.env.example` ships in the repo — populate the variables above based on your own Catalyst project and Zoho CRM OAuth client.
 

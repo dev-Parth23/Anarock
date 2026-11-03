@@ -68,17 +68,10 @@ function getPropertyImageUrl(property) {
     return property.images[0];
   }
 
-  const imageFolderPath = String(
-    property.imageFolderPath || property.Image_Folder_Path || "",
-  ).replace(/^\/+|\/+$/g, "");
-
+  const imageFolderPath = String(property.ImageFolderPath || "").replace(/^\/+|\/+$/g, "");
   if (!imageFolderPath) return "";
-
   const projectImage = IMAGE_FILES.find((img) => img.key === "project");
-  const filename = projectImage
-    ? projectImage.filename
-    : "Project_Picture_1.jpg";
-
+  const filename = projectImage ? projectImage.filename : "Project_Picture_1.jpg";
   return `${IMAGE_BASE_URL}/${imageFolderPath}/${filename}`;
 }
 

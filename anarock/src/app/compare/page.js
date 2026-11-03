@@ -137,7 +137,7 @@ export default function ComparePage() {
   }, []);
 
   const getId = (property) =>
-    String(property?.id || property?.rowId || property?.ROWID || property?.ID || "");
+    String(property?.id || "");
 
   const isShortlisted = (property) => {
     const propertyId = getId(property);
@@ -293,25 +293,13 @@ export default function ComparePage() {
     if (val === null || val === undefined || val === "" || val === "-") {
       return "-";
     }
-
-    // Convert source value into a number.
-    const numericVal =
-      typeof val === "number"
-        ? val
-        : Number(String(val).replace(/[^0-9.-]/g, ""));
-
+    const numericVal = typeof val === "number" ? val : Number(String(val).replace(/[^0-9.-]/g, ""));
     if (!Number.isFinite(numericVal) || numericVal <= 0) {
       return val;
     }
-
     const activeCurrency = currency || "INR";
     const symbol = CURRENCY_SYMBOLS[activeCurrency] || activeCurrency;
-
-    // Exchange rates are based on INR.
-    // Example: 1 INR = 0.012 USD.
     const rate = Number(exchangeRates?.[activeCurrency] ?? 1);
-
-    // Avoid displaying incorrectly converted values if a rate is unavailable.
     if (!Number.isFinite(rate) || rate <= 0) {
       return (
         <span className="text-xs text-slate-500">
@@ -319,8 +307,6 @@ export default function ComparePage() {
         </span>
       );
     }
-
-    // Property prices are assumed to be stored in INR.
     const convertedValue = numericVal * rate;
 
     const formattedAmount = new Intl.NumberFormat("en-IN", {
@@ -333,7 +319,7 @@ export default function ComparePage() {
         <span title={activeCurrency} className="inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-lg  px-1.5 text-xs font-bold text-[#A054A0]">
           {symbol}
         </span>
-        <span className="font-semibold text-slate-800 tabular-nums">
+        <span className="font-medium text-black tabular-nums">
           {formattedAmount}
         </span>
       </span>
@@ -344,15 +330,13 @@ export default function ComparePage() {
     {
       label: "City",
       show: true,
-      value: (property) => property?.city || property?.City || "-",
+      value: (property) => property?.city || "-",
     },
     {
       label: "Micromarket",
       show: true,
       value: (property) =>
-        property?.micromarket ||
-        property?.Micromarket ||
-        "-",
+        property?.micromarket || "-",
     },
     {
       label: "Type",
@@ -377,7 +361,7 @@ export default function ComparePage() {
       show: !allAreCoworking,
       value: (property) => {
         if (!isConventional(property)) return "-";
-        return renderCurrencyValue(property?.QuotedRent);
+        return renderCurrencyValue(property?.quotedRent);
       },
     },
     {
@@ -409,7 +393,7 @@ export default function ComparePage() {
       show: !allAreConventional,
       value: (property) => {
         if (!isCoworking(property)) return "-";
-        return property?.operator || property?.OperatorName || "-";
+        return property?.operator || "-";
       },
     },
     {
@@ -562,7 +546,7 @@ export default function ComparePage() {
                   Portfolio Analysis
                 </span>
               </div>
-              <h1 className="mt-1 text-2xl font-light tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+              <h1 className="mt-1 text-2xl font-light tracking-tight text-black sm:text-3xl lg:text-4xl">
                 Commercial Property Comparison
               </h1>
             </div>
@@ -597,7 +581,7 @@ export default function ComparePage() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#A054A0]/10 text-[#A054A0]">
                 <Building2 className="h-6 w-6" />
               </div>
-              <h2 className="mt-5 text-xl font-medium tracking-tight text-slate-900">
+              <h2 className="mt-5 text-xl font-medium tracking-tight text-black">
                 No Properties Selected
               </h2>
               <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-slate-500">
@@ -616,7 +600,7 @@ export default function ComparePage() {
                 <div className="min-w-[950px] lg:min-w-full">
                   <div className={`grid ${gridColumnsClass} gap-5 pb-6 transition-all duration-300`}>
                     <div className="flex flex-col justify-end pb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                      <span className="text-xs font-bold uppercase tracking-wider text-black">
                         Properties Overview
                       </span>
                     </div>
@@ -650,9 +634,7 @@ export default function ComparePage() {
 
                                 <div className="absolute left-3 top-3 z-10">
                                   <span className="rounded-full bg-slate-950/50 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
-                                    {property?.city ||
-                                      property?.City ||
-                                      "Prime Asset"}
+                                    {property?.city || "Prime Asset"}
                                   </span>
                                 </div>
 
@@ -693,7 +675,7 @@ export default function ComparePage() {
 
                               <div className="p-4">
                                 <Link href={propertyUrl}>
-                                  <h3 className="truncate text-sm font-semibold text-slate-900 transition group-hover:text-[#A054A0]">
+                                  <h3 className="truncate text-sm font-semibold text-black transition group-hover:text-[#A054A0]">
                                     {propertyName}
                                   </h3>
                                 </Link>
@@ -711,7 +693,7 @@ export default function ComparePage() {
                             <div className="p-4 pt-0">
                               <Link
                                 href={propertyUrl}
-                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-50/50 py-2 text-xs font-semibold text-slate-800 transition hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
+                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-50/50 py-2 text-xs font-semibold text-black transition hover:border-[#A054A0] hover:bg-[#A054A0] hover:text-white"
                               >
                                 View Full Details
                               </Link>
@@ -742,12 +724,12 @@ export default function ComparePage() {
 
                   {/* Specification Table */}
                   <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                    <div className={`grid ${gridColumnsClass} border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-slate-800 transition-all duration-300`}>
+                    <div className={`grid ${gridColumnsClass} border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-black transition-all duration-300`}>
                       <div className="px-6 py-4">Specification</div>
                       {slots.map((property, i) => (
                         <div
                           key={`table-header-${i}`}
-                          className="border-l border-slate-100 px-6 py-4 font-semibold text-slate-800 truncate"
+                          className="border-l border-slate-100 px-6 py-4 font-semibold text-black truncate"
                         >
                           {property ? (
                             getName(property)
@@ -766,16 +748,16 @@ export default function ComparePage() {
                     {rows.map((row, idx) => (
                       <div
                         key={row.label}
-                        className={`grid ${gridColumnsClass} border-b border-slate-100 text-xs text-slate-800 transition-all duration-300 last:border-b-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
+                        className={`grid ${gridColumnsClass} border-b border-slate-100 text-xs text-black transition-all duration-300 last:border-b-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
                           }`}
                       >
-                        <div className="flex items-center px-6 py-4 font-semibold text-slate-800">
+                        <div className="flex items-center px-6 py-4 font-semibold text-black">
                           {row.label}
                         </div>
                         {slots.map((property, i) => (
                           <div
                             key={`row-${row.label}-${i}`}
-                            className="flex items-center border-l border-slate-100 px-6 py-4 font-medium text-slate-800 whitespace-normal break-words leading-relaxed"
+                            className="flex items-center border-l border-slate-100 px-6 py-4 font-medium text-black whitespace-normal break-words leading-relaxed"
                           >
                             {property ? (
                               row.value(property)
@@ -800,7 +782,7 @@ export default function ComparePage() {
           <div className="relative w-full max-w-xl max-h-[85vh] sm:max-h-[80vh] flex flex-col rounded-t-3xl sm:rounded-2xl bg-white p-5 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
               <div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-base font-semibold text-black">
                   Select Property to Compare
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -825,7 +807,7 @@ export default function ComparePage() {
                   placeholder="Search by property name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-4 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-[#A054A0] focus:bg-white focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-4 text-xs font-medium text-black placeholder:text-slate-400 focus:border-[#A054A0] focus:bg-white focus:outline-none"
                 />
               </div>
 
@@ -887,14 +869,9 @@ export default function ComparePage() {
                 filteredModalProperties.map((property) => {
                   const folder = getFolder(property);
                   const modalName = getName(property);
-                  const modalCity = property?.city || property?.City || "-";
-                  const modalMicromarket =
-                    property?.micromarket ||
-                    property?.Micromarket ||
-                    property?.microMarket ||
-                    "-";
+                  const modalCity = property?.city || "-";
+                  const modalMicromarket = property?.micromarket || "-";
                   const modalType = property?.officeType || "";
-
                   return (
                     <div
                       key={`modal-item-${getId(property)}`}
@@ -910,16 +887,16 @@ export default function ComparePage() {
                           />
                         </div>
                         <div>
-                          <h4 className="text-xs font-semibold text-slate-900 group-hover:text-[#A054A0] truncate max-w-[200px] sm:max-w-[240px]">
+                          <h4 className="text-xs font-semibold text-black group-hover:text-[#A054A0] truncate max-w-[200px] sm:max-w-[240px]">
                             {modalName}
                           </h4>
-                          <p className="mt-1 flex items-center gap-1 text-[11px] text-slate-800">
-                            <MapPin className="h-3 w-3 text-slate-800 shrink-0" />
+                          <p className="mt-1 flex items-center gap-1 text-[11px] text-black">
+                            <MapPin className="h-3 w-3 text-black shrink-0" />
                             <span className="truncate max-w-[200px]">
                               {modalMicromarket}, {modalCity}
                             </span>
                           </p>
-                          <span className="mt-1.5 inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-800">
+                          <span className="mt-1.5 inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-black">
                             {modalType}
                           </span>
                         </div>

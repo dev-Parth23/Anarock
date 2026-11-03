@@ -50,7 +50,6 @@ export function mapProperty(row) {
     distanceFromMetro: clean(row.DistanceFromMetro),
     distanceFromAirport: clean(row.DistanceFromAirport),
     ImageFolderPath: folder,
-    imageFolderPath: folder,
     buildingType: clean(row.BuildingType),
     buildingName: clean(row.BuildingName),
     techPark: clean(row.TechPark),

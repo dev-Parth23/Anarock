@@ -3,14 +3,9 @@ import { getAllProperties } from "@/lib/propertiesCache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
 const MAX_PAGE_SIZE = 50;
 const CACHE_TTL = 5 * 60 * 1000;
-
-const queryCache =
-    globalThis.__anarockAiQueryCache ||
-    (globalThis.__anarockAiQueryCache = new Map());
-
+const queryCache = globalThis.__anarockAiQueryCache || (globalThis.__anarockAiQueryCache = new Map());
 function str(value) {
     return String(value ?? "").trim();
 }
@@ -27,7 +22,6 @@ function norm(value) {
 
 function locationNorm(value) {
     const valueNorm = norm(value);
-
     const aliases = {
         gurgaon: "gurugram",
         bangalore: "bengaluru",
@@ -37,7 +31,6 @@ function locationNorm(value) {
         madras: "chennai",
         poona: "pune",
     };
-
     return aliases[valueNorm] || valueNorm;
 }
 
@@ -45,119 +38,74 @@ function num(value) {
     if (value === null || value === undefined || value === "") {
         return null;
     }
-
     if (typeof value === "number") {
         return Number.isFinite(value) ? value : null;
     }
-
     const match = String(value)
         .replace(/,/g, "")
         .match(/-?\d+(?:\.\d+)?/);
-
     if (!match) return null;
-
     const result = Number(match[0]);
-
     return Number.isFinite(result) ? result : null;
 }
 
 function firstNumber(property, fields) {
     for (const field of fields) {
         const value = num(property?.[field]);
-
         if (value !== null) return value;
     }
-
     return null;
 }
 
 function propertyType(property) {
-    return (
-        property?.type ??
-        property?.officeType ??
-        property?.propertyType ??
-        property?.Property_Type ??
-        property?.PropertyType ??
-        property?.Office_Type ??
-        property?.OfficeType ??
-        ""
-    );
+    return property?.officeType ?? "";
 }
 
 function propertyCity(property) {
-    return (
-        property?.city ??
-        property?.City ??
-        property?.cityName ??
-        property?.City_Name ??
-        property?.CityName ??
-        property?.city_name ??
-        ""
-    );
+    return property?.city ?? "";
 }
 
 function propertyMarket(property) {
-    return (
-        property?.micromarket ??
-        property?.Micromarket ??
-        property?.microMarket ??
-        property?.MicroMarket ??
-        property?.micromarketName ??
-        property?.Micromarket_Name ??
-        property?.area ??
-        ""
-    );
+    return property?.micromarket ?? "";
 }
 
 function editDistance(a, b) {
     const left = norm(a);
     const right = norm(b);
-
     if (!left) return right.length;
     if (!right) return left.length;
-
     const previous = Array.from(
         { length: right.length + 1 },
         (_, index) => index,
     );
-
     for (let i = 1; i <= left.length; i++) {
         let diagonal = previous[0];
         previous[0] = i;
-
         for (let j = 1; j <= right.length; j++) {
             const above = previous[j];
-
             previous[j] = Math.min(
                 previous[j] + 1,
                 previous[j - 1] + 1,
                 diagonal + (left[i - 1] === right[j - 1] ? 0 : 1),
             );
-
             diagonal = above;
         }
     }
-
     return previous[right.length];
 }
 
 function fuzzyLocationMatch(actual, requested) {
     if (sameLocation(actual, requested)) return true;
-
     const actualNorm = locationNorm(actual);
     const requestedNorm = locationNorm(requested);
-
     if (!actualNorm || !requestedNorm) return false;
-
     if (Math.min(actualNorm.length, requestedNorm.length) < 4) {
         return actualNorm === requestedNorm;
     }
-
     const maxDistance = Math.max(
         1,
         Math.floor(Math.min(actualNorm.length, requestedNorm.length) * 0.3),
     );
-
     return (
         editDistance(actualNorm, requestedNorm) <= maxDistance ||
         actualNorm.includes(requestedNorm) ||
@@ -167,12 +115,9 @@ function fuzzyLocationMatch(actual, requested) {
 
 function sameLocation(actual, requested) {
     if (!requested) return true;
-
     const actualNorm = locationNorm(actual);
     const requestedNorm = locationNorm(requested);
-
     if (!actualNorm || !requestedNorm) return false;
-
     return (
         actualNorm === requestedNorm ||
         actualNorm.includes(requestedNorm) ||
@@ -182,7 +127,6 @@ function sameLocation(actual, requested) {
 
 function normalizeType(value) {
     const valueNorm = norm(value).replace(/\s/g, "");
-
     if (
         valueNorm.includes("cowork") ||
         valueNorm.includes("managedoffice") ||
@@ -201,53 +145,20 @@ function normalizeType(value) {
 }
 
 function propertyArea(property) {
-    return firstNumber(property, [
-        "totalLeasableAreaAvailable",
-        "TotalLeasableAreaAvailable",
-        "areaSqft",
-        "areaSqFt",
-        "superArea",
-        "offeredSuperArea",
-        "totalArea",
-        "Total_Area",
-        "area",
-    ]);
+    return firstNumber(property, ["totalLeasableAreaAvailable"]);
 }
 
 function propertySeats(property) {
-    return firstNumber(property, [
-        "NoOfSeatsOffered",
-        "noOfSeatsOffered",
-        "seatsOffered",
-        "seatsAvailable",
-        "centerSeatingCapacity",
-        "CenterSeatingCapacity",
-        "Number_of_Seats",
-        "Seats_Offered",
-    ]);
+    return firstNumber(property, ["NoOfSeatsOffered"]);
 }
 
 function propertyPrice(property) {
     const type = normalizeType(propertyType(property));
-
     if (type === "managedofficecoworking") {
-        return firstNumber(property, [
-            "monthlyCostPerSeat",
-            "MonthlyCostPerSeat",
-            "pricePerSeat",
-            "costPerSeat",
-        ]);
+        return firstNumber(property, ["monthlyCostPerSeat"]);
     }
-
-    return firstNumber(property, [
-        "quotedRent",
-        "QuotedRent",
-        "monthlyRent",
-        "MonthlyRent",
-        "rent",
-    ]);
+    return firstNumber(property, ["quotedRent"]);
 }
-
 function valueToSearchText(value) {
     if (value === null || value === undefined) return "";
 
@@ -271,7 +182,6 @@ function valueToSearchText(value) {
 function firstPropertyValue(property, keys) {
     for (const key of keys) {
         const value = property?.[key];
-
         if (value !== undefined && value !== null && String(value).trim() !== "") {
             return value;
         }
@@ -281,51 +191,15 @@ function firstPropertyValue(property, keys) {
 }
 
 function getAIAttributes(property) {
-    const metro = firstPropertyValue(property, [
-        "distanceFromMetro",
-        "DistanceFromMetro",
-        "distance_from_metro",
-    ]);
-
-    const airport = firstPropertyValue(property, [
-        "distanceFromAirport",
-        "DistanceFromAirport",
-        "distance_from_airport",
-    ]);
-
-    const inclusions = firstPropertyValue(property, ["inclusions", "Inclusions"]);
-
-    const exclusions = firstPropertyValue(property, ["exclusions", "Exclusions"]);
-
-    const projectHighlights = firstPropertyValue(property, [
-        "projectHighlights",
-        "ProjectHighlights",
-        "project_highlights",
-    ]);
-
-    const centerHighlights = firstPropertyValue(property, [
-        "centerHighlights",
-        "CenterHighlights",
-        "center_highlights",
-    ]);
-
-    const aiAttributes = firstPropertyValue(property, [
-        "aiAttributes",
-        "AIAttributes",
-        "AiAttributes",
-    ]);
-
-    const propertyName = firstPropertyValue(property, [
-        "propertyName",
-        "PropertyName",
-        "name",
-        "Name",
-        "projectName",
-        "ProjectName",
-    ]);
-
-    const identity = firstPropertyValue(property, ["id", "rowId", "ROWID", "ID"]);
-
+    const metro = firstPropertyValue(property, ["distanceFromMetro"]);
+    const airport = firstPropertyValue(property, ["distanceFromAirport"]);
+    const inclusions = firstPropertyValue(property, ["inclusions"]);
+    const exclusions = firstPropertyValue(property, ["exclusions"]);
+    const projectHighlights = firstPropertyValue(property, ["projectHighlights"]);
+    const centerHighlights = firstPropertyValue(property, ["centerHighlights"]);
+    const aiAttributes = firstPropertyValue(property, ["aiAttributes"]);
+    const propertyName = firstPropertyValue(property, ["name"]);
+    const identity = firstPropertyValue(property, ["id"]);
     const parts = [
         `property id ${valueToSearchText(identity)}`,
         `property name ${valueToSearchText(propertyName)}`,
@@ -430,7 +304,7 @@ function resolveCanonicalCity(properties, requestedCity) {
 
     const aliases = {
         "new delhi": ["delhi", "delhi ncr"],
-        "delhi ncr": ["delhi", "new delhi"],
+        "delhi ncr": ["delhi", "new delhi", "NCR", "ncr"],
         gurgaon: ["gurugram", "gurgaun", "gurguram", "gurugraam"],
         gurugram: ["gurgaon", "gurgaun", "gurguram", "gurugraam"],
         bangalore: [
@@ -441,7 +315,7 @@ function resolveCanonicalCity(properties, requestedCity) {
             "benglaur",
             "bengalorue",
         ],
-        bengaluru: ["bangalore", "bengalore", "banglore", "bangluru", "bengalorue"],
+        bengaluru: ["bangalore", "bengalore", "banglore", "bangluru", "bengalorue", "blr", "BLR"],
         bombay: ["mumbai"],
         mumbai: ["bombay"],
         calcutta: ["kolkata"],
@@ -912,21 +786,6 @@ function hardFilter(properties, body, extraction) {
     }
 
     diagnostics.matched = results.length;
-
-    console.log("[AI Search] Filter diagnostics:", diagnostics);
-
-    console.log("[AI Search] Applied filters:", {
-        city,
-        markets,
-        type,
-        minArea,
-        maxArea,
-        minSeats,
-        maxSeats,
-        minPrice,
-        maxPrice,
-    });
-
     return results;
 }
 

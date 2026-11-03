@@ -205,35 +205,32 @@ export default function PropertyDetailClient({ propertyId }) {
           throw new Error(data.error || "Failed to load property");
         }
         const propertyData = data.data;
-        const imageFolderPath = String(
-          propertyData.imageFolderPath || ""
-        ).replace(/^\/+|\/+$/g, "");
-        const images = imageFolderPath
-          ? IMAGE_FILES.map((image) => {
-            const baseName = image.filename.replace(/\.[^/.]+$/, "");
-            const originalExtension = image.filename
-              .split(".")
-              .pop()
-              .toLowerCase();
+        const imageFolderPath = String(propertyData.ImageFolderPath || "").replace(/^\/+|\/+$/g, "");
+        const images = imageFolderPath ? IMAGE_FILES.map((image) => {
+          const baseName = image.filename.replace(/\.[^/.]+$/, "");
+          const originalExtension = image.filename
+            .split(".")
+            .pop()
+            .toLowerCase();
 
-            const extensions = [
-              originalExtension,
-              ...IMAGE_EXTENSIONS.filter(
-                (ext) => ext !== originalExtension
-              ),
-            ];
+          const extensions = [
+            originalExtension,
+            ...IMAGE_EXTENSIONS.filter(
+              (ext) => ext !== originalExtension
+            ),
+          ];
 
-            const candidates = extensions.map(
-              (extension) =>
-                `${IMAGE_BASE_URL}/${imageFolderPath}/${baseName}.${extension}`
-            );
+          const candidates = extensions.map(
+            (extension) =>
+              `${IMAGE_BASE_URL}/${imageFolderPath}/${baseName}.${extension}`
+          );
 
-            return {
-              ...image,
-              url: candidates[0],
-              candidates,
-            };
-          })
+          return {
+            ...image,
+            url: candidates[0],
+            candidates,
+          };
+        })
           : [];
 
         setProperty({

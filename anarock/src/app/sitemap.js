@@ -15,19 +15,11 @@ const cities = [
 ];
 
 function getPropertyId(property) {
-  return String(
-    property?.id ?? property?.rowId ?? property?.ROWID ?? "",
-  ).trim();
+  return String(property?.id ?? "").trim();
 }
 
 function getPropertyName(property) {
-  return String(
-    property?.name ??
-    property?.Name ??
-    property?.projectName ??
-    property?.Project_Name ??
-    "Commercial Property",
-  ).trim();
+  return String(property?.name ?? "Commercial Property").trim();
 }
 
 function createSlug(value) {

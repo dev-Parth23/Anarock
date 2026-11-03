@@ -173,9 +173,7 @@ function getPropertyImageUrl(property) {
   if (Array.isArray(property.images) && property.images.length > 0) {
     return property.images[0];
   }
-  const imageFolderPath = String(
-    property.imageFolderPath || property.Image_Folder_Path || "",
-  ).replace(/^\/+|\/+$/g, "");
+  const imageFolderPath = String(property.ImageFolderPath || "").replace(/^\/+|\/+$/g, "");
   if (!imageFolderPath) return "";
   const projectImage = IMAGE_FILES.find((img) => img.key === "project");
   const filename = projectImage
@@ -265,26 +263,11 @@ function getRequirementTypeFromStorage() {
 }
 
 function getEnquiryPropertyCity(property) {
-  return String(
-    property?.city ??
-    property?.City ??
-    property?.cityName ??
-    property?.City_Name ??
-    property?.micromarketCity ??
-    "",
-  ).trim();
+  return String(property?.city ?? "").trim();
 }
 
 function getEnquiryPropertyType(property) {
-  return String(
-    property?.propertyType ??
-    property?.Property_Type ??
-    property?.property_type ??
-    property?.type ??
-    property?.Type ??
-    property?.officeType ??
-    "",
-  ).trim();
+  return String(property?.officeType ?? "").trim();
 }
 
 function getStoredUserLocation() {
@@ -319,15 +302,13 @@ function PropertiesClientContent() {
   const { currency, unit, exchangeRates } = usePreferences();
   const [suggestionsHasMore, setSuggestionsHasMore] = useState(false);
   const [suggestionsPage, setSuggestionsPage] = useState(1);
-
   const suggestionsSentinelRef = useRef(null);
   const suggestionsRequestRef = useRef(false);
   const { ids: wishlistIds, toggle: toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isExclusiveLeadOpen, setIsExclusiveLeadOpen] = useState(false);
-  const [isSubmittingExclusiveLead, setIsSubmittingExclusiveLead] =
-    useState(false);
+  const [isSubmittingExclusiveLead, setIsSubmittingExclusiveLead] = useState(false);
   const [exclusiveLeadSuccess, setExclusiveLeadSuccess] = useState(false);
   const [exclusiveLeadError, setExclusiveLeadError] = useState("");
   const [exclusiveLeadForm, setExclusiveLeadForm] = useState({
@@ -360,20 +341,12 @@ function PropertiesClientContent() {
   const [appliedAiPrompt, setAppliedAiPrompt] = useState("");
   const [aiClarification, setAiClarification] = useState(null);
   const [aiConfirmedCity, setAiConfirmedCity] = useState("");
-
   const hasShortlistedProperties = wishlistIds.length > 0;
   const hasComparedProperties = compareSelection.length > 0;
   const showSelectionBar = hasShortlistedProperties || hasComparedProperties;
-
-  const canCompare =
-    compareSelection.length >= MIN_COMPARE_PROPERTIES &&
+  const canCompare = compareSelection.length >= MIN_COMPARE_PROPERTIES &&
     compareSelection.length <= MAX_COMPARE_PROPERTIES;
-
-  const remainingToCompare = Math.max(
-    0,
-    MIN_COMPARE_PROPERTIES - compareSelection.length,
-  );
-
+  const remainingToCompare = Math.max(0, MIN_COMPARE_PROPERTIES - compareSelection.length,);
   const [enquiryForm, setEnquiryForm] = useState({
     fullName: "",
     email: "",
@@ -390,10 +363,8 @@ function PropertiesClientContent() {
       document.body.style.overflow = previousOverflow;
     };
   }, [showFilters]);
-
   const ITEMS_PER_PAGE = 30;
   const currentPage = Math.max(1, Number(searchParams.get("page") || "1") || 1);
-
   const filters = useMemo(() => {
     const rawType = searchParams.get("type") || "";
     const prompt = searchParams.get("prompt") || "";

@@ -403,11 +403,6 @@ export default function ComparePage() {
         property?.distanceFromMetro || "-",
     },
     {
-      label: "Proposed Floor",
-      show: true,
-      value: (property) => property?.floor || "-",
-    },
-    {
       label: "Inclusions",
       show: true,
       value: (property) =>

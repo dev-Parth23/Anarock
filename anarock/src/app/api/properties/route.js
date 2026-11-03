@@ -34,18 +34,14 @@ function parseNumber(value) {
   const cleaned = String(value)
     .replace(/[,₹$€£\s]/g, "")
     .trim();
-
   if (!cleaned) return null;
-
   const number = Number(cleaned);
-
   return Number.isFinite(number) ? number : null;
 }
 
 function firstValue(property, keys) {
   for (const key of keys) {
     const value = property?.[key];
-
     if (value !== undefined && value !== null && String(value).trim() !== "") {
       return value;
     }
@@ -55,41 +51,19 @@ function firstValue(property, keys) {
 }
 
 function propertyId(property) {
-  return String(
-    property?.id ?? property?.rowId ?? property?.ROWID ?? property?.ID ?? "",
-  ).trim();
+  return String(property?.id ?? "").trim();
 }
 
 function propertyType(property) {
-  return normalizeMatch(
-    firstValue(property, [
-      "type",
-      "Type",
-      "propertyType",
-      "PropertyType",
-      "officeType",
-      "OfficeType",
-    ]),
-  );
+  return normalizeMatch(firstValue(property, ["officeType"]));
 }
 
 function propertyCity(property) {
-  return normalizeMatch(
-    firstValue(property, ["city", "City", "cityName", "CityName"]),
-  );
+  return normalizeMatch(firstValue(property, ["city"]));
 }
 
 function propertyMicromarket(property) {
-  return normalize(
-    firstValue(property, [
-      "micromarket",
-      "Micromarket",
-      "microMarket",
-      "MicroMarket",
-      "micromarketName",
-      "MicromarketName",
-    ]),
-  )
+  return normalize(firstValue(property, ["micromarket"]))
     .replace(/[_-]+/g, " ")
     .replace(/[^\w\s/]/g, "")
     .replace(/\s+/g, " ")
@@ -97,107 +71,25 @@ function propertyMicromarket(property) {
 }
 
 function propertyName(property) {
-  return String(
-    firstValue(property, [
-      "propertyName",
-      "PropertyName",
-      "property_name",
-      "Property_Name",
-      "buildingName",
-      "BuildingName",
-      "projectName",
-      "ProjectName",
-      "name",
-      "Name",
-      "title",
-      "Title",
-    ]) || "",
-  ).trim();
+  return String(firstValue(property, ["name"]) || "").trim();
 }
-
 function propertyPrice(property) {
   const type = propertyType(property);
-
   const managedOffice =
     type.includes("managedoffice") || type.includes("coworking");
-
-  const keys = managedOffice
-    ? [
-      "monthlyCostPerSeat",
-      "MonthlyCostPerSeat",
-      "monthlyCostPerSeatInr",
-      "MonthlyCostPerSeatInr",
-      "pricePerSeat",
-      "PricePerSeat",
-      "costPerSeat",
-      "CostPerSeat",
-      "rentPerSeat",
-      "RentPerSeat",
-    ]
-    : [
-      "quotedRent",
-      "QuotedRent",
-      "monthlyRent",
-      "MonthlyRent",
-      "rent",
-      "Rent",
-      "monthlyCost",
-      "MonthlyCost",
-      "price",
-      "Price",
-    ];
-
+  const keys = managedOffice ? ["monthlyCostPerSeat"] : ["quotedRent"];
   return parseNumber(firstValue(property, keys));
 }
 
 function propertyArea(property) {
-  return parseNumber(
-    firstValue(property, [
-      "areaSqft",
-      "AreaSqft",
-      "area",
-      "Area",
-      "superArea",
-      "SuperArea",
-      "superBuiltUpArea",
-      "SuperBuiltUpArea",
-      "carpetArea",
-      "CarpetArea",
-      "builtUpArea",
-      "BuiltUpArea",
-      "floorPlate",
-      "FloorPlate",
-      "Floor_Plate",
-      "size",
-      "Size",
-    ]),
-  );
+  return parseNumber(firstValue(property, ["totalLeasableAreaAvailable"]));
 }
-
 function propertySeats(property) {
-  return parseNumber(
-    firstValue(property, [
-      "seatsOffered",
-      "SeatsOffered",
-      "noofseatsoffered",
-      "NoOfSeatsOffered",
-      "NoofSeatsOffered",
-      "noOfSeatsOffered",
-      "seatsAvailable",
-      "SeatsAvailable",
-      "availableSeats",
-      "AvailableSeats",
-      "seatCapacity",
-      "SeatCapacity",
-      "totalSeats",
-      "TotalSeats",
-    ]),
-  );
+  return parseNumber(firstValue(property, ["NoOfSeatsOffered"]));
 }
 
 function parsePositiveInteger(value, fallback, maximum = Infinity) {
   const parsed = Number(value);
-
   if (
     value === null ||
     value === undefined ||
@@ -229,34 +121,26 @@ function sortProperties(properties, sort) {
 
   const descending = sort.endsWith("_desc");
   const isNameSort = sort.startsWith("name_");
-
   function sortValue(property) {
     if (isNameSort) return propertyName(property);
-
     if (sort.startsWith("budget_")) {
       return propertyPrice(property);
     }
-
     if (sort.startsWith("area_")) {
       return propertyArea(property);
     }
-
     return propertySeats(property);
   }
 
   return [...properties].sort((a, b) => {
     const aValue = sortValue(a);
     const bValue = sortValue(b);
-
-    // Keep properties without numeric values at the end.
     if (!isNameSort) {
       if (aValue === null && bValue === null) return 0;
       if (aValue === null) return 1;
       if (bValue === null) return -1;
     }
-
     let comparison;
-
     if (isNameSort) {
       comparison = String(aValue).localeCompare(String(bValue), undefined, {
         sensitivity: "base",
@@ -278,11 +162,8 @@ function sortProperties(properties, sort) {
 
 function matchesMicromarkets(property, selectedMarkets) {
   if (!selectedMarkets.length) return true;
-
   const market = propertyMicromarket(property);
-
   if (!market) return false;
-
   return selectedMarkets.some(
     (selected) => market === selected || market.includes(selected),
   );
@@ -293,10 +174,8 @@ function cacheResponseHeaders(cacheInfo, count, total, noStore = false) {
     "Cache-Control": noStore
       ? "no-store"
       : "public, s-maxage=30, stale-while-revalidate=60",
-
     "X-Properties-Count": String(count),
     "X-Properties-Total": String(total),
-
     "X-Properties-Cache": cacheInfo.isFresh
       ? "fresh"
       : cacheInfo.isStale
@@ -307,10 +186,8 @@ function cacheResponseHeaders(cacheInfo, count, total, noStore = false) {
 
 export async function GET(request) {
   const startedAt = Date.now();
-
   try {
     const { searchParams } = new URL(request.url);
-
     const city = searchParams.get("city") || "";
     const type = searchParams.get("type") || "";
     const micromarket = searchParams.get("micromarket") || "";
@@ -319,27 +196,16 @@ export async function GET(request) {
     const seats = searchParams.get("seats") || "";
     const sort = searchParams.get("sort") || "";
     const prompt = searchParams.get("prompt") || "";
-
-    /*
-     * A "limit" parameter now activates pagination too.
-     */
     const hasPagination =
       searchParams.has("page") ||
       searchParams.has("pageSize") ||
       searchParams.has("limit");
-
     const page = parsePositiveInteger(searchParams.get("page"), 1);
-
     const pageSize = parsePositiveInteger(
       searchParams.get("pageSize") ?? searchParams.get("limit"),
       30,
       MAX_PAGE_SIZE,
     );
-
-    /*
-     * Targeted lookup for shortlist, comparison, and enquiry flows.
-     * Limit the number of requested IDs to protect the endpoint.
-     */
     const requestedIds = [
       ...new Set(
         (searchParams.get("ids") || "")
@@ -348,11 +214,9 @@ export async function GET(request) {
           .filter(Boolean),
       ),
     ].slice(0, MAX_TARGET_IDS);
-
     if (requestedIds.length > 0) {
       const data = await getPropertiesByIds(requestedIds);
       const cacheInfo = getPropertiesCacheInfo();
-
       return NextResponse.json(
         {
           success: true,
@@ -381,12 +245,7 @@ export async function GET(request) {
       );
     }
 
-    /*
-     * "ai" is a search mode, not a property type.
-     * AI ranking must be implemented separately if required.
-     */
     const indexedType = type && normalize(type) !== "ai" ? type : "";
-
     const selectedMarkets = [
       ...new Set(
         micromarket
@@ -402,11 +261,6 @@ export async function GET(request) {
           .filter(Boolean),
       ),
     ];
-
-    /*
-     * Retrieve candidates from the in-memory cache and its indexes.
-     * The cache helper handles loading and refreshing the source data.
-     */
     let filtered = await getPropertyCandidates({
       city,
       type: indexedType,
@@ -419,9 +273,6 @@ export async function GET(request) {
       );
     }
 
-    /*
-     * Minimum price filter.
-     */
     if (minBudget !== "") {
       const minimum = parseNumber(minBudget);
 
@@ -434,9 +285,6 @@ export async function GET(request) {
       }
     }
 
-    /*
-     * Minimum area filter.
-     */
     if (area !== "") {
       const minimumArea = parseNumber(area);
 
@@ -449,9 +297,6 @@ export async function GET(request) {
       }
     }
 
-    /*
-     * Minimum seat count filter.
-     */
     if (seats !== "") {
       const minimumSeats = parseNumber(seats);
 
@@ -464,10 +309,6 @@ export async function GET(request) {
       }
     }
 
-    /*
-     * The prompt is not sent to an AI model here.
-     * Avoid logging potentially sensitive free-text search input.
-     */
     void prompt;
 
     filtered = sortProperties(filtered, sort);

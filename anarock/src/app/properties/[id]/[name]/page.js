@@ -21,14 +21,7 @@ function createSlug(value) {
 }
 
 function getPropertyName(property, fallback = "") {
-  return String(
-    property?.name ||
-    property?.Name ||
-    property?.projectName ||
-    property?.Project_Name ||
-    fallback ||
-    "Commercial Property",
-  ).trim();
+  return String(property?.name || "Commercial Property").trim();
 }
 
 async function resolveProperty(params) {
@@ -80,12 +73,9 @@ export async function generateMetadata({ params }) {
 
   const slug = createSlug(name);
   const canonicalUrl = `${SITE_URL}/properties/${encodeURIComponent(id)}/${slug}`;
-
   const city = property.city || property.City || "";
   const micromarket = property.micromarket || property.Micromarket || "";
-
   const locationText = [micromarket, city].filter(Boolean).join(", ");
-
   const description = [
     `Explore ${name}.`,
     locationText ? `Located in ${locationText}.` : "",

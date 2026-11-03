@@ -211,22 +211,16 @@ function getRequirementTypeFromStorage() {
 function getSelectionKey(properties = []) {
   return properties.map(getPropertyId).filter(Boolean).sort().join("|");
 }
-
 export default function WishlistClient() {
   const router = useRouter();
-
-  const [enquirySubmittedSelectionKey, setEnquirySubmittedSelectionKey] =
-    useState("");
+  const [enquirySubmittedSelectionKey, setEnquirySubmittedSelectionKey] = useState("");
   const [enquirySuccess, setEnquirySuccess] = useState(false);
-
   const { items, count, isInitialized } = useWishlist();
-
   const [compareSelection, setCompareSelection] = useState([]);
   const [enquirySelection, setEnquirySelection] = useState([]);
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
   const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState(false);
   const [enquiryError, setEnquiryError] = useState("");
-
   const [enquiryForm, setEnquiryForm] = useState({
     fullName: "",
     email: "",
@@ -234,32 +228,22 @@ export default function WishlistClient() {
     company: "",
     message: "",
   });
-
   useEffect(() => {
     if (!isInitialized || !items.length) return;
-
     let cancelled = false;
-
     async function repairWishlist() {
       const needsRepair = items.some(
         (property) => !getPropertyId(property) || !getCRMPropertyId(property),
       );
-
       if (!needsRepair) return;
-
       try {
         const response = await fetch("/api/properties", {
           method: "GET",
           cache: "no-store",
         });
-
         const data = await response.json();
-
         if (!response.ok || !data?.success || !Array.isArray(data?.data)) {
-          throw new Error(
-            data?.error ||
-            data?.message ||
-            "Unable to refresh shortlisted properties.",
+          throw new Error(data?.error || data?.message || "Unable to refresh shortlisted properties.",
           );
         }
 
@@ -613,7 +597,7 @@ export default function WishlistClient() {
               </h2>
 
               <p className="mt-2 max-w-sm text-sm text-slate-500">
-                Explore available commercial and residential listings to save
+                Explore available commercial listings to save
                 them to your shortlist.
               </p>
 

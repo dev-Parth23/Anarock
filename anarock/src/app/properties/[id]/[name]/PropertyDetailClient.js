@@ -72,13 +72,7 @@ const normalizeType = (value) => {
 };
 
 const isCoworkingProperty = (property) => {
-  const type = normalizeType(
-    property?.officeType ||
-    property?.office_type ||
-    property?.propertyType ||
-    property?.property_type ||
-    property?.type
-  );
+  const type = normalizeType(property?.officeType);
   return (
     type.includes("cowork") ||
     type.includes("co-working") ||
@@ -94,18 +88,7 @@ const formatDisplayValue = (value) => {
 };
 
 const getPropertyId = (item) => {
-  return String(
-    item?.id ||
-    item?.ID ||
-    item?.rowId ||
-    item?.ROWID ||
-    item?.RowID ||
-    item?.propertyId ||
-    item?.Property_ID ||
-    item?.projectId ||
-    item?.Project_ID ||
-    ""
-  ).trim();
+  return String(item?.id || "").trim();
 };
 
 function DetailField({ label, value, icon: Icon }) {
@@ -509,21 +492,13 @@ export default function PropertyDetailClient({ propertyId }) {
     (image) => image.key === activeImg
   );
 
-  const activeImage =
-    getImageSrc(activeImageItem) ||
-    property?.image ||
-    "";
-
-  const activeIndex = Math.max(
-    0,
-    availableGallery.findIndex(
-      (image) => image.key === activeImg
-    )
+  const activeImage = getImageSrc(activeImageItem) || property?.image || "";
+  const activeIndex = Math.max(0, availableGallery.findIndex(
+    (image) => image.key === activeImg
+  )
   );
-
   const handleImageError = (imageKey) => {
-    const image = gallery.find(
-      (item) => item.key === imageKey
+    const image = gallery.find((item) => item.key === imageKey
     );
     if (!image) return;
 
@@ -1030,8 +1005,6 @@ export default function PropertyDetailClient({ propertyId }) {
               </DetailSection>
             </div>
           </section>
-
-          {/* SIMILAR PROPERTIES / ALL PROPERTIES SORTED BY PRIORITY */}
           {related.length > 0 && (
             <section ref={similarSectionRef} className="mt-10 sm:mt-14 lg:mt-16">
               <div className="mb-4 flex items-end justify-between gap-3 sm:mb-6">

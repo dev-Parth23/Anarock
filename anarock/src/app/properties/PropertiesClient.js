@@ -153,7 +153,7 @@ const getOfficeTypeFromUrl = (value) => {
 };
 
 const getPropertyId = (property) =>
-  String(property?.id || property?.rowId || property?.ROWID || "");
+  String(property?.id || "");
 
 function getPropertySlug(property) {
   if (!property || typeof property !== "object") return "";

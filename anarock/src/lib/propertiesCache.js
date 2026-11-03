@@ -58,13 +58,13 @@ function getFirstValue(property, keys) {
 
 function getPropertyId(property) {
   return String(
-    property?.id ?? property?.rowId ?? property?.ROWID ?? "",
+    property?.id ?? "",
   ).trim();
 }
 
 function getPropertyType(property) {
   return normalizeMatch(
-    getFirstValue(property, ["type", "Type", "officeType", "OfficeType"]),
+    getFirstValue(property, ["officeType"]),
   );
 }
 

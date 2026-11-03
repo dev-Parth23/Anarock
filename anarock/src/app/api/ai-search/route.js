@@ -5,7 +5,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const MAX_PAGE_SIZE = 50;
 const CACHE_TTL = 5 * 60 * 1000;
-const queryCache = globalThis.__anarockAiQueryCache || (globalThis.__anarockAiQueryCache = new Map());
+const queryCache =
+    globalThis.__anarockAiQueryCache ||
+    (globalThis.__anarockAiQueryCache = new Map());
 function str(value) {
     return String(value ?? "").trim();
 }
@@ -315,7 +317,15 @@ function resolveCanonicalCity(properties, requestedCity) {
             "benglaur",
             "bengalorue",
         ],
-        bengaluru: ["bangalore", "bengalore", "banglore", "bangluru", "bengalorue", "blr", "BLR"],
+        bengaluru: [
+            "bangalore",
+            "bengalore",
+            "banglore",
+            "bangluru",
+            "bengalorue",
+            "blr",
+            "BLR",
+        ],
         bombay: ["mumbai"],
         mumbai: ["bombay"],
         calcutta: ["kolkata"],
@@ -427,19 +437,14 @@ function findMarketMatches(properties, requestedMarket) {
     }
 
     const matches = new Map();
-
     for (const property of properties) {
         const market = str(propertyMarket(property));
         const city = str(propertyCity(property));
-
         if (!market || !city) continue;
-
         if (!fuzzyLocationMatch(market, requestedMarket)) {
             continue;
         }
-
         const key = `${locationNorm(city)}::${locationNorm(market)}`;
-
         if (!matches.has(key)) {
             matches.set(key, {
                 city,
@@ -447,7 +452,6 @@ function findMarketMatches(properties, requestedMarket) {
             });
         }
     }
-
     return [...matches.values()];
 }
 
@@ -462,26 +466,20 @@ async function interpretQuery(prompt) {
             "AI search is not configured. Check your .env file and restart the server.",
         );
     }
-
     const cacheKey = norm(prompt);
     const cached = queryCache.get(cacheKey);
-
     if (cached && cached.expiresAt > Date.now()) {
         if (cached.value) return cached.value;
         if (cached.promise) return cached.promise;
     }
-
     const configuredModel = String(process.env.GEMINI_MODEL || "").trim();
-
     const model =
         !configuredModel || configuredModel === "gemini-3.5-flash"
             ? "gemini-3.5-flash"
             : configuredModel;
-
     const promise = (async () => {
         let lastError = null;
         const maxRetries = 2;
-
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 const response = await fetch(
@@ -493,14 +491,13 @@ async function interpretQuery(prompt) {
                             "x-goog-api-key": key,
                         },
                         cache: "no-store",
-                        signal: AbortSignal.timeout(25000), // Increased timeout to 25s for cold starts
+                        signal: AbortSignal.timeout(25000),
                         body: JSON.stringify({
                             systemInstruction: {
                                 parts: [
                                     {
                                         text: `
 Extract hard filters and attribute preferences from commercial property search queries.
-
 Return valid JSON only:
 {
   "city": "",
@@ -564,9 +561,7 @@ Rules:
                         }),
                     },
                 );
-
                 const responseData = await response.json().catch(() => ({}));
-
                 if (!response.ok) {
                     const apiMessage = str(responseData?.error?.message);
                     throw new Error(
@@ -574,7 +569,6 @@ Rules:
                         `Gemini API request failed with status ${response.status}.`,
                     );
                 }
-
                 const generated = responseData?.candidates?.[0]?.content?.parts
                     ?.map((part) => part.text || "")
                     .join("")
@@ -585,10 +579,8 @@ Rules:
                         "Gemini returned an empty response. Please try again.",
                     );
                 }
-
                 const parsed = JSON.parse(generated);
                 const extraction = cleanExtraction(parsed, prompt);
-
                 queryCache.set(cacheKey, {
                     value: extraction,
                     expiresAt: Date.now() + CACHE_TTL,
@@ -970,21 +962,14 @@ export async function POST(request) {
             city: str(body.city) || effectiveCity,
             micromarket: str(body.micromarket) || extraction.micromarket,
         };
-
         const results = hardFilter(properties, effectiveBody, extraction);
-
         sortResults(results, str(body.sort));
-
         const total = results.length;
         const page = pageNumber(body.page);
-
         const pageSize = Math.min(pageNumber(body.pageSize, 30), MAX_PAGE_SIZE);
-
         const totalPages = Math.ceil(total / pageSize);
         const start = (page - 1) * pageSize;
-
         const pageResults = results.slice(start, start + pageSize);
-
         return NextResponse.json(
             {
                 success: true,

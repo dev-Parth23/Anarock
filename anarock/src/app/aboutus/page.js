@@ -68,57 +68,10 @@ const leaders = [
         ),
     },
 ];
-
-// const leaders2 = [
-//     {
-//         name: "Abbishek Sharma",
-//         role: "Executive Director & Head of Operations",
-//         image: "/services/leaders/Abbishek.avif",
-//         linkedin: "https://in.linkedin.com/in/abbishek-sharma",
-//         email: "Abbishek.Sharma@anarock.com",
-//     },
-//     {
-//         name: "Surabhi Gupta",
-//         role: "Executive Director, North India",
-//         image: "/services/leaders/Surabhi.avif",
-//         linkedin: "https://www.linkedin.com/in/surabhi-gupta-93a55212/",
-//         email: "Surabhi.Gupta@anarock.com",
-//     },
-//     {
-//         name: "Atul Khedkar",
-//         role: "Regional Director, Mumbai",
-//         image: "/services/leaders/Atul.avif",
-//         linkedin: "https://www.linkedin.com/in/atul-khedkar-ba63658/",
-//         email: "Atul.Khedkar@anarock.com",
-//     },
-//     {
-//         name: "Pratik Mehta",
-//         role: "Executive Director, Kolkata & Hyderabad",
-//         image: "/services/leaders/Pratik.avif",
-//         linkedin: "https://www.linkedin.com/in/pratik-mehta-78b76318/",
-//         email: "Pratik.Mehta@anarock.com",
-//     },
-//     {
-//         name: "Mazhar Mulani",
-//         role: "Regional Director, Bangalore",
-//         image: "/services/leaders/Mazhar.avif",
-//         linkedin: "https://www.linkedin.com/in/mazharmulani/",
-//         email: "Mazhar.Mulani@anarock.com",
-//     },
-//     {
-//         name: "Kanchana Krishnan",
-//         role: "Executive Director, Chennai",
-//         image: "/services/leaders/Kanchana.avif",
-//         linkedin: "https://in.linkedin.com/in/kanchana-krishnan-mrics",
-//         email: "Kanchana.Krishnan@anarock.com",
-//     },
-// ];
-
 const companyStats = [
     { value: "3000+", label: "Employees" },
     {
-        value: "$100 B",
-        label: "Transacted & Advised since June 2017",
+        value: "$100 B", label: "Transacted & Advised since June 2017",
     },
     { value: "30%", label: "YoY Growth" },
     { value: "15", label: "Offices across India" },
@@ -258,9 +211,6 @@ export default function AboutUsPage() {
                             variants={fadeUp}
                             className="mt-7 border-t border-[#ded9df] pt-6 sm:mt-9 sm:pt-7"
                         >
-                            <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-black">
-                                Our distinction
-                            </p>
 
                             <div className="space-y-5">
                                 {highlights.map((item) => {
@@ -308,11 +258,6 @@ export default function AboutUsPage() {
                             />
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/5" />
-
-                            <div className="absolute left-5 top-5 inline-flex items-center gap-2 bg-white px-3 py-2 text-[10px] font-semibold tracking-[0.12em] text-black sm:left-7 sm:top-7">
-                                <Globe2 size={15} className="text-[#A054A0]" />
-                                Anarock
-                            </div>
 
                             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-9">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white">
@@ -481,18 +426,16 @@ export default function AboutUsPage() {
                                     className="group relative grid grid-cols-1 items-center overflow-hidden rounded-2xl border border-[#e9e3ea] bg-[#faf8fa]/60 p-6 backdrop-blur-sm transition-all duration-300 hover:border-[#d8c3d8] hover:bg-white hover:shadow-[0_16px_40px_rgba(40,25,43,0.06)] sm:p-8 lg:grid-cols-12 lg:gap-12 lg:p-10"
                                 >
                                     <div
-                                        className={`relative flex h-[220px] w-full items-end justify-center overflow-hidden rounded-xl bg-[#f2eaf2] xs:h-[250px] sm:h-[280px] lg:col-span-5 lg:h-[320px] ${isEven ? "lg:order-1" : "lg:order-2"
+                                        className={`relative flex h-[220px] w-full items-end justify-center overflow-hidden rounded-xl border border-slate-500/20 xs:h-[250px] sm:h-[280px] lg:col-span-5 lg:h-[320px] ${isEven ? "lg:order-1" : "lg:order-2"
                                             }`}
                                     >
-                                        <div className="absolute bottom-0 h-[140px] w-[140px] rounded-full bg-[#e4d1e2] transition-transform duration-500 group-hover:scale-110 sm:h-[180px] sm:w-[180px]" />
-
                                         <Image
                                             src={leader.image}
                                             alt={leader.name}
                                             width={300}
                                             height={300}
                                             sizes="(max-width: 1023px) 100vw, 360px"
-                                            className="relative z-10 h-[200px] w-full max-w-[260px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105 sm:h-[240px] lg:h-[290px]"
+                                            className="relative z-10 h-[200px] w-full max-w-[260px] object-cover object-bottom transition-transform duration-500 group-hover:scale-105 sm:h-[240px] lg:h-[290px]"
                                         />
                                     </div>
 

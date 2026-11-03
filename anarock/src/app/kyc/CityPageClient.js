@@ -16,7 +16,10 @@ const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
 function getPropertyId(property) {
-  return String(property?.ROWID || property?.rowId || property?.rowid || property?.id || property?.ID || property?.propertyId || "").trim();
+  log("PARTH");
+  log(property);
+
+  return String(property?.id || "").trim();
 }
 function isFeaturedProperty(property) {
   const featured = property?.Featured ?? property?.featured;

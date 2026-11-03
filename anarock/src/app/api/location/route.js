@@ -158,7 +158,6 @@ async function reverseGeocodeNominatim(latitude, longitude) {
   const cached = locationCache.get(cacheKey);
 
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    // Refresh LRU order.
     locationCache.delete(cacheKey);
     locationCache.set(cacheKey, cached);
 

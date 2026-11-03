@@ -475,108 +475,75 @@ function buildInterestedProperties(selectedProperties) {
     if (!Array.isArray(selectedProperties)) {
         return [];
     }
-
     const rows = [];
 
     const seenIds = new Set();
-
     for (const property of selectedProperties) {
         const id = String(property?.id ?? "").trim();
-
         if (!id) {
             continue;
         }
         if (!/^\d+$/.test(id)) {
             console.warn("[SHORTLIST] Invalid CRM Property ID:", id);
-
             continue;
         }
-
         if (seenIds.has(id)) {
             continue;
         }
-
         seenIds.add(id);
-
         rows.push({
             [PROPERTY_LOOKUP_FIELD]: {
                 id,
             },
         });
     }
-
     console.log(
         "[SHORTLIST] Interested Properties:",
         JSON.stringify(rows, null, 2),
     );
-
     return rows;
 }
 
 async function createLeadInCRM(tokenInfo, recordData) {
     const url = `${tokenInfo.apiDomain}/crm/v8/Leads`;
-
     console.log("[ZOHO CRM] Creating Lead:", JSON.stringify(recordData, null, 2));
-
     const response = await fetch(url, {
         method: "POST",
-
         headers: {
             Authorization: `Zoho-oauthtoken ${tokenInfo.accessToken}`,
-
             "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
             data: [recordData],
             trigger: [],
         }),
-
         cache: "no-store",
-
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
-
     const responseText = await response.text();
-
     let data = {};
-
     try {
         data = responseText ? JSON.parse(responseText) : {};
     } catch {
         const error = new Error("Zoho CRM returned an invalid response.");
-
         error.code = "ZOHO_INVALID_RESPONSE";
-
         error.httpStatus = 502;
-
         throw error;
     }
 
     console.log("[ZOHO CRM] HTTP STATUS:", response.status);
-
     console.log("[ZOHO CRM] FULL RESPONSE:", JSON.stringify(data, null, 2));
-
     if (response.status === 401) {
         const error = new Error("Zoho access token expired.");
-
         error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
-
         throw error;
     }
 
     const zohoResult = data?.data?.[0];
-
     const zohoCode = String(zohoResult?.code || data?.code || "")
         .trim()
         .toUpperCase();
-
     const zohoMessage = String(zohoResult?.message || data?.message || "").trim();
-
-    /* ---------------------------------------------------------------------- */
-    /* Duplicate Lead                                                         */
-    /* ---------------------------------------------------------------------- */
-
     const isDuplicate =
         zohoCode === "DUPLICATE_DATA" ||
         zohoCode === "DUPLICATE" ||
@@ -591,32 +558,24 @@ async function createLeadInCRM(tokenInfo, recordData) {
 
     if (isDuplicate) {
         console.log("[ZOHO CRM] Duplicate Lead detected.");
-
         const duplicateErrors = Array.isArray(zohoResult?.details?.errors)
             ? zohoResult.details.errors
             : [];
-
         let existingLeadId = null;
-
         for (const duplicateError of duplicateErrors) {
             const code = String(duplicateError?.code || "")
                 .trim()
                 .toUpperCase();
-
             if (code === "DUPLICATE_DATA") {
                 const duplicateRecordId = duplicateError?.details?.duplicate_record?.id;
-
                 if (duplicateRecordId) {
                     existingLeadId = String(duplicateRecordId);
-
                     break;
                 }
             }
         }
-
         if (!existingLeadId) {
             const details = zohoResult?.details || data?.details || {};
-
             existingLeadId =
                 details?.duplicate_record?.id ||
                 details?.id ||
@@ -626,63 +585,42 @@ async function createLeadInCRM(tokenInfo, recordData) {
                 details?.module?.record_id ||
                 null;
         }
-
         if (!existingLeadId) {
             const error = new Error(
                 "Duplicate Lead detected, but the existing Lead could not be identified.",
             );
-
             error.code = "DUPLICATE_LEAD_ID_NOT_FOUND";
-
             error.httpStatus = 409;
-
             error.zohoResponse = data;
-
             throw error;
         }
-
         const updateData = {};
-
         Object.entries(recordData || {}).forEach(([key, value]) => {
             if (value === undefined || value === null || value === "") {
                 return;
             }
-
             updateData[key] = value;
         });
-
         delete updateData.id;
-
         const updateUrl = `${tokenInfo.apiDomain}/crm/v8/Leads/${encodeURIComponent(
             existingLeadId,
         )}`;
-
         console.log("[ZOHO CRM] Updating duplicate Lead:", existingLeadId);
-
         const updateResponse = await fetch(updateUrl, {
             method: "PUT",
-
             headers: {
                 Authorization: `Zoho-oauthtoken ${tokenInfo.accessToken}`,
-
                 "Content-Type": "application/json",
             },
-
             body: JSON.stringify({
                 data: [updateData],
-
                 trigger: [],
             }),
-
             cache: "no-store",
-
             signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         });
-
         const updateResponseText = await updateResponse.text();
-
         let updateResponseData = {};
-
         try {
             updateResponseData = updateResponseText
                 ? JSON.parse(updateResponseText)
@@ -691,178 +629,109 @@ async function createLeadInCRM(tokenInfo, recordData) {
             const error = new Error(
                 "Zoho returned an invalid response while updating the existing Lead.",
             );
-
             error.code = "ZOHO_INVALID_RESPONSE";
-
             error.httpStatus = 502;
-
             throw error;
         }
-
         console.log(
             "[ZOHO CRM] DUPLICATE UPDATE RESPONSE:",
             JSON.stringify(updateResponseData, null, 2),
         );
-
         if (updateResponse.status === 401) {
             const error = new Error(
                 "Zoho access token expired while updating duplicate Lead.",
             );
-
             error.code = "ZOHO_ACCESS_TOKEN_EXPIRED";
-
             throw error;
         }
 
         if (!updateResponse.ok) {
             const updateResult = updateResponseData?.data?.[0];
-
             const error = new Error(
                 updateResult?.message ||
                 updateResponseData?.message ||
                 "Unable to update the existing Lead.",
             );
-
             error.code =
                 updateResult?.code ||
                 updateResponseData?.code ||
                 "ZOHO_DUPLICATE_UPDATE_FAILED";
-
             error.zohoResponse = updateResponseData;
-
             error.httpStatus = updateResponse.status;
-
             throw error;
         }
-
         const updatedResult = updateResponseData?.data?.[0];
-
         if (!updatedResult || updatedResult.status !== "success") {
             const error = new Error(
                 updatedResult?.message || "Existing Lead could not be updated.",
             );
-
             error.code = updatedResult?.code || "ZOHO_DUPLICATE_UPDATE_FAILED";
-
             error.zohoResponse = updateResponseData;
-
             error.httpStatus = 502;
-
             throw error;
         }
-
         return {
             success: true,
-
             duplicate: true,
-
             priority: true,
-
             leadId: existingLeadId,
-
             zohoResponse: updateResponseData,
         };
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* Normal CRM Error                                                       */
-    /* ---------------------------------------------------------------------- */
-
     if (!response.ok) {
         const error = new Error(zohoMessage || "Zoho CRM rejected the Lead.");
-
         error.code = zohoCode || "ZOHO_CRM_ERROR";
-
         error.zohoResponse = data;
-
         error.httpStatus = response.status;
-
         throw error;
     }
-
-    /* ---------------------------------------------------------------------- */
-    /* Successful Lead                                                        */
-    /* ---------------------------------------------------------------------- */
-
     const result = data?.data?.[0];
-
     if (!result || result.status !== "success") {
         const error = new Error(
             result?.message || "Lead was not created in Zoho CRM.",
         );
-
         error.code = result?.code || "ZOHO_LEAD_CREATION_FAILED";
-
         error.zohoResponse = data;
-
         error.httpStatus = 502;
-
         throw error;
     }
-
     const leadId = result?.details?.id || null;
-
     console.log("[ZOHO CRM] New Lead created successfully:", leadId);
-
     return {
         success: true,
-
         duplicate: false,
-
         priority: false,
-
         leadId,
-
         zohoResponse: data,
     };
 }
 
-/* -------------------------------------------------------------------------- */
-/* POST                                                                       */
-/* -------------------------------------------------------------------------- */
-
 export async function POST(request) {
     const requestId = createRequestId();
-
     try {
-        /* ------------------------------------------------------------------ */
-        /* Rate limit                                                         */
-        /* ------------------------------------------------------------------ */
-
         const rateLimit = checkRateLimit(request);
-
         if (!rateLimit.allowed) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message: "Too many requests. Please try again shortly.",
-
                     requestId,
                 },
                 {
                     status: 429,
-
                     headers: {
                         "Retry-After": String(rateLimit.retryAfter),
                     },
                 },
             );
         }
-
-        /* ------------------------------------------------------------------ */
-        /* Request validation                                                 */
-        /* ------------------------------------------------------------------ */
-
         const contentLength = Number(request.headers.get("content-length") || 0);
-
         if (contentLength > MAX_BODY_SIZE) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message: "Request is too large.",
-
                     requestId,
                 },
                 {
@@ -870,16 +739,12 @@ export async function POST(request) {
                 },
             );
         }
-
         const contentType = request.headers.get("content-type") || "";
-
         if (!contentType.toLowerCase().includes("application/json")) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message: "Invalid request format.",
-
                     requestId,
                 },
                 {
@@ -887,21 +752,16 @@ export async function POST(request) {
                 },
             );
         }
-
         const body = await request.json();
-
         console.log(
             "[ENQUIRY] Request received:",
             JSON.stringify(
                 {
                     requestId,
-
                     hasLocation: Boolean(body?.location),
-
                     selectedProperties: Array.isArray(body?.selectedProperties)
                         ? body.selectedProperties.length
                         : 0,
-
                     requirementCity:
                         body?.requirementCity || body?.lastSearchedCity || "",
                     requirementType: body?.requirementType || "",
@@ -914,38 +774,27 @@ export async function POST(request) {
         const selectedProperties = Array.isArray(body?.selectedProperties)
             ? body.selectedProperties
             : [];
-
         const interestedProperties = buildInterestedProperties(selectedProperties);
-
         console.log(
             "[ENQUIRY] Selected properties from frontend:",
             JSON.stringify(selectedProperties, null, 2),
         );
-
         console.log(
             "[ENQUIRY] Final CRM subform:",
             JSON.stringify(interestedProperties, null, 2),
         );
-
         let firstName = normalizeText(body?.firstName);
-
         let lastName = normalizeText(body?.lastName);
-
         if (!firstName && !lastName && body?.name) {
             const fullName = normalizeText(body.name);
-
             const nameParts = fullName.split(" ");
-
             firstName = nameParts.shift() || "";
-
             lastName = nameParts.join(" ") || "";
         }
         const rawEmail = normalizeText(body?.email);
-
         const email = isValidEmail(rawEmail) ? rawEmail : "";
         const phone = normalizePhone(body?.phone);
         const company = normalizeText(body?.company);
-
         const message = normalizeText(
             body?.message ||
             body?.Message ||
@@ -961,7 +810,6 @@ export async function POST(request) {
             body?.Requirement_Details ??
             body?.RequirementDetails ??
             message;
-
         const location = body?.location || {};
 
         const street = normalizeText(
@@ -974,7 +822,6 @@ export async function POST(request) {
             location?.Area ||
             "",
         );
-
         const addressCity = normalizeText(
             body?.City ||
             body?.city ||
@@ -1114,9 +961,7 @@ export async function POST(request) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message: "Phone number is required.",
-
                     requestId,
                 },
                 {
@@ -1129,9 +974,7 @@ export async function POST(request) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message: "Please enter a valid phone number.",
-
                     requestId,
                 },
                 {
@@ -1139,16 +982,12 @@ export async function POST(request) {
                 },
             );
         }
-
         if (selectedProperties.length === 0) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message: "Please select at least one shortlisted property.",
-
                     errorCode: "NO_SELECTED_PROPERTIES",
-
                     requestId,
                 },
                 {
@@ -1161,12 +1000,9 @@ export async function POST(request) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message:
                         "The selected properties do not contain valid Zoho CRM Property IDs.",
-
                     errorCode: "PROPERTY_ID_MISSING",
-
                     requestId,
                 },
                 {
@@ -1185,12 +1021,9 @@ export async function POST(request) {
             return NextResponse.json(
                 {
                     success: false,
-
                     message:
                         "One or more selected properties have an invalid Zoho CRM Property ID.",
-
                     errorCode: "INVALID_PROPERTY_ID",
-
                     requestId,
                 },
                 {
@@ -1198,18 +1031,13 @@ export async function POST(request) {
                 },
             );
         }
-
         let tokenInfo = await getZohoAccessToken();
-
         const processLead = async (currentToken) => {
             let requirementCityId = null;
-
             if (requirementCity) {
                 requirementCityId = await findCityId(currentToken, requirementCity);
             }
-
             const leadOwnerTeam = mapLocationToLeadOwnerTeam(addressCity, state);
-
             const recordData = {
                 First_Name: firstName || undefined,
                 Last_Name: lastName || firstName || "Website Enquiry",

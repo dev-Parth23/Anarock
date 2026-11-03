@@ -61,11 +61,7 @@ function getFirstValue(property, fields) {
     for (const field of fields) {
         const value = property?.[field];
 
-        if (
-            value !== undefined &&
-            value !== null &&
-            String(value).trim() !== ""
-        ) {
+        if (value !== undefined && value !== null && String(value).trim() !== "") {
             return value;
         }
     }
@@ -74,28 +70,10 @@ function getFirstValue(property, fields) {
 }
 
 function getPropertyId(property, index) {
-    return String(
-        property?.id ??
-        property?.rowId ??
-        property?.ROWID ??
-        property?.ID ??
-        property?.Id ??
-        property?.propertyId ??
-        property?.PropertyID ??
-        `property-${index}`
-    ).trim();
+    return String(property?.id ?? `property-${index}`).trim();
 }
 function getPropertyCity(property) {
-    const city = normalizeMatch(
-        getFirstValue(property, [
-            "city",
-            "City",
-            "cityName",
-            "CityName",
-            "City_Name",
-            "city_name",
-        ])
-    );
+    const city = normalizeMatch(getFirstValue(property, ["city"]));
 
     const aliases = {
         bangalore: "bengaluru",
@@ -110,81 +88,34 @@ function getPropertyCity(property) {
 }
 
 function getPropertyType(property) {
-    return normalizeOfficeType(
-        getFirstValue(property, [
-            "officeType",
-            "OfficeType",
-            "office_type",
-            "type",
-            "Type",
-            "propertyType",
-            "PropertyType",
-            "Property_Type",
-        ])
-    );
+    return normalizeOfficeType(getFirstValue(property, ["officeType"]));
 }
 
 function getPropertyMicromarket(property) {
-    return normalizeMatch(
-        getFirstValue(property, [
-            "micromarket",
-            "Micromarket",
-            "microMarket",
-            "MicroMarket",
-            "micromarketName",
-            "Micromarket_Name",
-            "MicromarketName",
-        ])
-    );
+    return normalizeMatch(getFirstValue(property, ["micromarket"]));
 }
 
 function getPropertyArea(property) {
-    return parseNumber(
-        getFirstValue(property, [
-            "areaSqft",
-            "offeredSuperArea",
-            "builtupArea",
-            "carpetArea",
-            "totalLeasableAreaAvailable",
-            "centerArea",
-            "floorPlate",
-            "totalDevelopmentSize",
-        ])
-    );
+    return parseNumber(getFirstValue(property, ["totalLeasableAreaAvailable"]));
 }
 
 function getPropertySeats(property) {
-    return parseNumber(
-        getFirstValue(property, [
-            "NoOfSeatsOffered",
-            "noOfSeatsOffered",
-            "seatsOffered",
-        ])
-    );
+    return parseNumber(getFirstValue(property, ["NoOfSeatsOffered"]));
 }
 
 function getPropertyPrice(property) {
     const type = getPropertyType(property);
 
     if (type === "managedofficecoworking") {
-        return parseNumber(
-            getFirstValue(property, [
-                "monthlyCostPerSeat",
-                "MonthlyCostPerSeat",
-            ])
-        );
+        return parseNumber(getFirstValue(property, ["monthlyCostPerSeat"]));
     }
 
-    return parseNumber(
-        getFirstValue(property, [
-            "quotedRent",
-            "QuotedRent",
-        ])
-    );
+    return parseNumber(getFirstValue(property, ["quotedRent"]));
 }
 
-
 function getCoordinates(property) {
+    console.log("PARTH");
+    console.log(property);
     const lat = parseNumber(
         getFirstValue(property, [
             "Latitude",
@@ -192,7 +123,7 @@ function getCoordinates(property) {
             "Lat",
             "lat",
             "Latitude__s",
-        ])
+        ]),
     );
 
     const lng = parseNumber(
@@ -204,7 +135,7 @@ function getCoordinates(property) {
             "Long",
             "long",
             "Longitude__s",
-        ])
+        ]),
     );
 
     if (
@@ -239,17 +170,10 @@ function getDistanceKm(pointA, pointB) {
 
     const a =
         Math.sin(deltaLat / 2) ** 2 +
-        Math.cos(lat1) *
-        Math.cos(lat2) *
-        Math.sin(deltaLng / 2) ** 2;
+        Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) ** 2;
 
-    return (
-        2 *
-        earthRadius *
-        Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    );
+    return 2 * earthRadius * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-
 
 function prepareFilters({
     city,
@@ -270,31 +194,19 @@ function prepareFilters({
     return {
         normalizedCity: normalizeMatch(city),
         normalizedType: normalizeOfficeType(type),
-
         requestedMicromarkets,
-
-        requestedBudget:
-            parseNumber(maxBudget) ??
-            parseNumber(minBudget),
-
+        requestedBudget: parseNumber(maxBudget) ?? parseNumber(minBudget),
         requestedMinBudget: parseNumber(minBudget),
         requestedMaxBudget: parseNumber(maxBudget),
-
         requestedArea: parseNumber(area),
         requestedMaxArea: parseNumber(maxArea),
-
         requestedSeats: parseNumber(seats),
         requestedMaxSeats: parseNumber(maxSeats),
     };
 }
 
-
 function getRelativeDistance(actual, target) {
-    if (
-        actual === null ||
-        target === null ||
-        target <= 0
-    ) {
+    if (actual === null || target === null || target <= 0) {
         return Number.POSITIVE_INFINITY;
     }
 
@@ -310,7 +222,7 @@ function isSameMicromarket(propertyMarket, requestedMarkets) {
         (selected) =>
             propertyMarket === selected ||
             propertyMarket.includes(selected) ||
-            selected.includes(propertyMarket)
+            selected.includes(propertyMarket),
     );
 }
 
@@ -321,17 +233,11 @@ function getBudgetDistance(price, filters) {
 
     const { requestedMinBudget, requestedMaxBudget } = filters;
 
-    if (
-        requestedMinBudget !== null &&
-        price < requestedMinBudget
-    ) {
+    if (requestedMinBudget !== null && price < requestedMinBudget) {
         return requestedMinBudget - price;
     }
 
-    if (
-        requestedMaxBudget !== null &&
-        price > requestedMaxBudget
-    ) {
+    if (requestedMaxBudget !== null && price > requestedMaxBudget) {
         return price - requestedMaxBudget;
     }
 
@@ -347,17 +253,11 @@ function getAreaDistance(area, filters) {
         return Number.POSITIVE_INFINITY;
     }
 
-    if (
-        filters.requestedArea !== null &&
-        area < filters.requestedArea
-    ) {
+    if (filters.requestedArea !== null && area < filters.requestedArea) {
         return filters.requestedArea - area;
     }
 
-    if (
-        filters.requestedMaxArea !== null &&
-        area > filters.requestedMaxArea
-    ) {
+    if (filters.requestedMaxArea !== null && area > filters.requestedMaxArea) {
         return area - filters.requestedMaxArea;
     }
 
@@ -369,8 +269,7 @@ function getAreaDistance(area, filters) {
 }
 
 function getSeatDistance(seats, filters) {
-    if (filters.requestedSeats === null &&
-        filters.requestedMaxSeats === null) {
+    if (filters.requestedSeats === null && filters.requestedMaxSeats === null) {
         return 0;
     }
 
@@ -378,17 +277,11 @@ function getSeatDistance(seats, filters) {
         return Number.POSITIVE_INFINITY;
     }
 
-    if (
-        filters.requestedSeats !== null &&
-        seats < filters.requestedSeats
-    ) {
+    if (filters.requestedSeats !== null && seats < filters.requestedSeats) {
         return filters.requestedSeats - seats;
     }
 
-    if (
-        filters.requestedMaxSeats !== null &&
-        seats > filters.requestedMaxSeats
-    ) {
+    if (filters.requestedMaxSeats !== null && seats > filters.requestedMaxSeats) {
         return seats - filters.requestedMaxSeats;
     }
 
@@ -403,85 +296,43 @@ function scoreSuggestion(property, filters, referenceCoordinates) {
     const propertyCity = getPropertyCity(property);
     const propertyType = getPropertyType(property);
     const propertyMarket = getPropertyMicromarket(property);
-
     const propertyArea = getPropertyArea(property);
     const propertyPrice = getPropertyPrice(property);
     const propertySeats = getPropertySeats(property);
-
     const propertyCoordinates = getCoordinates(property);
-
-    const sameCity = Boolean(
-        filters.normalizedCity &&
-        propertyCity === filters.normalizedCity
-    );
-
-    const sameType = Boolean(
-        filters.normalizedType &&
-        propertyType === filters.normalizedType
-    );
-
-    const sameMicromarket = isSameMicromarket(
-        propertyMarket,
-        filters.requestedMicromarkets
-    );
-
-    const distanceKm = getDistanceKm(
-        referenceCoordinates,
-        propertyCoordinates
-    );
-
-    const areaDistance = getAreaDistance(
-        propertyArea,
-        filters
-    );
-
-    const budgetDistance = getBudgetDistance(
-        propertyPrice,
-        filters
-    );
-
-    const seatDistance = getSeatDistance(
-        propertySeats,
-        filters
-    );
-
+    const sameCity = Boolean(filters.normalizedCity && propertyCity === filters.normalizedCity,);
+    const sameType = Boolean(filters.normalizedType && propertyType === filters.normalizedType,);
+    const sameMicromarket = isSameMicromarket(propertyMarket, filters.requestedMicromarkets,);
+    const distanceKm = getDistanceKm(referenceCoordinates, propertyCoordinates);
+    const areaDistance = getAreaDistance(propertyArea, filters);
+    const budgetDistance = getBudgetDistance(propertyPrice, filters);
+    const seatDistance = getSeatDistance(propertySeats, filters);
     return {
         sameCity,
         sameMicromarket,
         sameType,
-
         distanceKm,
-
         areaDistance,
         budgetDistance,
         seatDistance,
-
         propertyCity,
     };
 }
 
-
 function parsePage(value) {
     const parsed = Number(value);
-
     if (!Number.isFinite(parsed) || parsed < 1) {
         return 1;
     }
-
     return Math.floor(parsed);
 }
-
 function parsePageSize(value) {
     const parsed = Number(value);
-
     if (!Number.isFinite(parsed) || parsed < 1) {
         return 30;
     }
-
     return Math.min(Math.floor(parsed), 50);
 }
-
-
 export async function GET(request) {
     const requestStartedAt = Date.now();
     try {
@@ -501,7 +352,7 @@ export async function GET(request) {
             (searchParams.get("exclude") || "")
                 .split(",")
                 .map((id) => id.trim())
-                .filter(Boolean)
+                .filter(Boolean),
         );
         const properties = await getAllProperties();
         const filters = prepareFilters({
@@ -515,44 +366,24 @@ export async function GET(request) {
             seats,
             maxSeats,
         });
-
-
         const cityProperties = properties.filter(
-            (property) =>
-                getPropertyCity(property) === filters.normalizedCity
+            (property) => getPropertyCity(property) === filters.normalizedCity,
         );
-
-        const cityCoordinates = cityProperties
-            .map(getCoordinates)
-            .filter(Boolean);
-
+        const cityCoordinates = cityProperties.map(getCoordinates).filter(Boolean);
         let referenceCoordinates = null;
-
         if (cityCoordinates.length > 0) {
             referenceCoordinates = {
                 lat:
-                    cityCoordinates.reduce(
-                        (sum, point) => sum + point.lat,
-                        0
-                    ) / cityCoordinates.length,
+                    cityCoordinates.reduce((sum, point) => sum + point.lat, 0) /
+                    cityCoordinates.length,
 
                 lng:
-                    cityCoordinates.reduce(
-                        (sum, point) => sum + point.lng,
-                        0
-                    ) / cityCoordinates.length,
+                    cityCoordinates.reduce((sum, point) => sum + point.lng, 0) /
+                    cityCoordinates.length,
             };
         }
-
-
-        const requestedLat = parseNumber(
-            searchParams.get("referenceLat")
-        );
-
-        const requestedLng = parseNumber(
-            searchParams.get("referenceLng")
-        );
-
+        const requestedLat = parseNumber(searchParams.get("referenceLat"));
+        const requestedLng = parseNumber(searchParams.get("referenceLng"));
         if (
             requestedLat !== null &&
             requestedLng !== null &&
@@ -566,9 +397,7 @@ export async function GET(request) {
                 lng: requestedLng,
             };
         }
-
         const suggestionCandidates = [];
-
         for (let index = 0; index < properties.length; index++) {
             const property = properties[index];
             if (!property || typeof property !== "object") {
@@ -583,27 +412,17 @@ export async function GET(request) {
                 id,
             });
         }
-        const scored = suggestionCandidates.map(
-            ({ property, id }) => ({
-                property,
-                id,
-                ...scoreSuggestion(
-                    property,
-                    filters,
-                    referenceCoordinates
-                ),
-            })
-        );
-
-
-
+        const scored = suggestionCandidates.map(({ property, id }) => ({
+            property,
+            id,
+            ...scoreSuggestion(property, filters, referenceCoordinates),
+        }));
         scored.sort((a, b) => {
             if (a.sameCity !== b.sameCity) {
                 return Number(b.sameCity) - Number(a.sameCity);
             }
             if (a.sameMicromarket !== b.sameMicromarket) {
-                return Number(b.sameMicromarket) -
-                    Number(a.sameMicromarket);
+                return Number(b.sameMicromarket) - Number(a.sameMicromarket);
             }
             if (a.distanceKm !== b.distanceKm) {
                 return a.distanceKm - b.distanceKm;
@@ -620,23 +439,16 @@ export async function GET(request) {
             if (a.seatDistance !== b.seatDistance) {
                 return a.seatDistance - b.seatDistance;
             }
-            return a.id.localeCompare(
-                b.id,
-                undefined,
-                {
-                    numeric: true,
-                    sensitivity: "base",
-                }
-            );
+            return a.id.localeCompare(b.id, undefined, {
+                numeric: true,
+                sensitivity: "base",
+            });
         });
-
         const total = scored.length;
         const totalPages = Math.ceil(total / pageSize);
         const start = (page - 1) * pageSize;
         const end = start + pageSize;
-        const responseData = scored
-            .slice(start, end)
-            .map((item) => item.property);
+        const responseData = scored.slice(start, end).map((item) => item.property);
         const hasMore = page < totalPages;
         return NextResponse.json(
             {
@@ -651,24 +463,20 @@ export async function GET(request) {
                 suggestionPoolCount: total,
                 referenceCoordinates,
                 cachedAt: Date.now(),
-                processingTime:
-                    Date.now() - requestStartedAt,
+                processingTime: Date.now() - requestStartedAt,
             },
             {
                 headers: {
-                    "Cache-Control":
-                        "public, s-maxage=30, stale-while-revalidate=60",
+                    "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
                     "X-Suggestions-Total": String(total),
                     "X-Suggestions-Has-More": String(hasMore),
                     "X-Suggestions-Mode": "relevance-ranking",
                 },
-            }
+            },
         );
-
     } catch (error) {
         console.error("[Suggestions API] ERROR:", error);
         console.error("[Suggestions API] MESSAGE:", error?.message);
-
         return NextResponse.json(
             {
                 success: false,
@@ -680,16 +488,14 @@ export async function GET(request) {
                 hasMore: false,
                 filteredResultCount: 0,
                 suggestionPoolCount: 0,
-                error:
-                    error?.message ||
-                    "Failed to fetch suggested properties",
+                error: error?.message || "Failed to fetch suggested properties",
             },
             {
                 status: 500,
                 headers: {
                     "Cache-Control": "no-store",
                 },
-            }
+            },
         );
     }
 }

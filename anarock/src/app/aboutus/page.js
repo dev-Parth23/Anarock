@@ -68,6 +68,102 @@ const companyStats = [
     { value: "15", label: "Offices across India" },
 ];
 
+
+const companyJourney = [
+    {
+        year: "2017",
+        detail: (
+            <>
+                <strong>Inception</strong> of ANAROCK
+            </>
+        ),
+    },
+    {
+        year: "2018",
+        detail: (
+            <>
+                JV with HVS for Hospitality. <strong>Launch</strong> of
+                Investment Banking, Land Services, Retail Leasing,
+                Strategic Advisory &amp; Valuations.
+            </>
+        ),
+    },
+    {
+        year: "2019",
+        detail: (
+            <>
+                Launch of Anarock Open Market. Certified as a
+                <strong> Great Place To Work</strong>.
+            </>
+        ),
+    },
+    {
+        year: "2020",
+        detail: (
+            <>
+                Forayed into Commercial Strata.
+            </>
+        ),
+    },
+    {
+        year: "2021",
+        detail: (
+            <>
+                <strong>Acquisition</strong> of ANACITY, a community
+                management application. <strong>Launched</strong> 'Astra',
+                an AI/ML tool to boost sales.
+            </>
+        ),
+    },
+    {
+        year: "2022",
+        detail: (
+            <>
+                <strong>Significant investment</strong> in myHQ, a
+                co-working spaces aggregator. <strong>Started</strong>
+                {" "}Retail Strata sales.
+            </>
+        ),
+    },
+    {
+        year: "2023",
+        detail: (
+            <>
+                Launch of Dubai to Dubai Resi Sales. Astra received
+                <strong> Patented status</strong> from GOI.
+            </>
+        ),
+    },
+    {
+        year: "2024",
+        detail: (
+            <>
+                <strong>Raised</strong> ~INR 200cr funding from 360 ONE
+                Asset, the first equity investor.
+            </>
+        ),
+    },
+    {
+        year: "2025",
+        detail: (
+            <>
+                <strong>Launch of PMES</strong> (Project Management &
+                Engineering Services).
+            </>
+        ),
+    },
+    {
+        year: "2026",
+        detail: (
+            <>
+                Commenced <strong>IPO Journey</strong> for Anarock.
+                <strong> Acquired 51% Stake</strong> in DSP Design Associates.
+            </>
+        ),
+    },
+];
+
+
 const partners = [
     { name: "BINSWANGER", IMG: "/services/research/binswanger.png", scale: 2.2 },
     { name: "HVS", IMG: "/services/research/hvs.png", scale: 0.75 },
@@ -76,7 +172,6 @@ const partners = [
     { name: "myHQ", IMG: "/services/research/myhq.svg", scale: 0.75 },
     { name: "UPFLEX", IMG: "/services/research/upflex.png", scale: 2 },
 ];
-
 const highlights = [
     {
         icon: Rocket,
@@ -95,7 +190,6 @@ const highlights = [
         text: "Flex Supply Aggregator",
     },
 ];
-
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -105,75 +199,19 @@ const fadeUp = {
     },
 };
 
-function Eyebrow({ children }) {
-    return (
-        <div className="mb-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#A054A0]">
-            <span className="h-px w-7 bg-[#ad4b9e]" />
-            {children}
-        </div>
-    );
-}
-
-function LocalImage({
-    src,
-    alt,
-    className = "",
-    sizes = "100vw",
-    priority = false,
-}) {
-    const [imageSrc, setImageSrc] = useState(src);
-    const [hasFailed, setHasFailed] = useState(false);
-
-    const fallbackImage =
-        "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80";
-
-    return (
-        <div className={`relative overflow-hidden ${className}`}>
-            <Image
-                src={imageSrc}
-                alt={alt}
-                fill
-                sizes={sizes}
-                priority={priority}
-                unoptimized={hasFailed}
-                onError={() => {
-                    if (!hasFailed) {
-                        setHasFailed(true);
-                        setImageSrc(fallbackImage);
-                    }
-                }}
-                className="object-cover"
-            />
-        </div>
-    );
-}
-
 export default function AboutUsPage() {
     return (
         <main className="w-full min-w-0 overflow-x-clip text-black">
-            {/* Introduction */}
-            <Breadcrumbs
-                items={[
-                    {
-                        label: "About us",
-                        href: "/aboutus",
-                    },
-                ]}
-            />
+            <Breadcrumbs items={[{
+                label: "About us", href: "/aboutus",
+            }]} />
 
             <section className="relative">
                 <div className="relative mx-auto grid w-full max-w-[1440px] min-w-0 grid-cols-1 items-center gap-8 px-4 py-6 sm:gap-10 sm:px-6 sm:py-8 md:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-10 lg:px-12 xl:px-16">
-                    <motion.div
-                        initial="hidden"
-                        animate="visible"
-                        variants={{
-                            hidden: {},
-                            visible: {
-                                transition: { staggerChildren: 0.12 },
-                            },
-                        }}
-                        className="relative z-10"
-                    >
+                    <motion.div initial="hidden" animate="visible" variants={{
+                        hidden: {}, visible: { transition: { staggerChildren: 0.12 }, },
+                    }}
+                        className="relative z-10">
                         <motion.div variants={fadeUp}></motion.div>
 
                         <motion.h1
@@ -263,10 +301,7 @@ export default function AboutUsPage() {
             </section>
 
             {/* Market statistics */}
-            <section
-                aria-label="Commercial real estate market statistics"
-                className="px-4 py-8 sm:px-6 sm:py-12 lg:px-8"
-            >
+            <section aria-label="Commercial real estate market statistics" className="px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
                 <div className="mx-auto w-full max-w-[1600px] min-w-0">
                     <div className="mb-6 px-1 sm:px-2 lg:px-4">
                         <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -356,6 +391,171 @@ export default function AboutUsPage() {
                 </div>
             </section>
 
+            {/* Company Journey */}
+            <section aria-labelledby="company-journey-heading" className="relative isolate overflow-hidden bg-[#faf9fa] px-4 py-12 sm:px-6 sm:py-20 lg:px-10 lg:py-14">
+                <div className="relative mx-auto max-w-[1600px]">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                        className="relative z-10 mb-16 max-w-2xl sm:mb-20 lg:mb-10"
+                    >
+                        <h2 className="text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">
+                            From Foundation to {" "}
+                            <span className=" text-[#A054A0]">Future</span>
+                        </h2>
+                        <p className="mt-5 max-w-lg text-sm leading-7 text-black sm:text-base sm:leading-8">
+                            A journey of expansion, innovation and new opportunities
+                            shaping ANAROCK&apos;s evolution.
+                        </p>
+                    </motion.div>
+                    <div className="relative hidden xl:block">
+                        <div className="pointer-events-none absolute inset-x-[-7vw] bottom-[-75px] -z-10 h-[470px]"
+                            style={{
+                                backgroundImage: `
+                        linear-gradient(to bottom,
+                            rgba(250,249,250,0) 0%,
+                            rgba(250,249,250,0.05) 25%,
+                            rgba(250,249,250,0.35) 65%,
+                            rgba(250,249,250,0.82) 100%
+                        ),
+                        url('/services/TimelineBG.png')
+                    `,
+                                backgroundSize: "cover",
+                                backgroundPosition: "center top",
+                                backgroundRepeat: "no-repeat",
+                            }}
+                        />
+                        <div className="overflow-x-auto overflow-y-hidden pb-20 scrollbar-thin scrollbar-thumb-[#A054A0]/30 scrollbar-track-transparent">
+                            <div className="grid min-w-[1550px] grid-cols-10 items-start">
+                                {companyJourney.map((item, index) => {
+                                    const lastIndex = companyJourney.length - 1;
+                                    return (
+                                        <motion.article
+                                            key={item.year}
+                                            initial={{ opacity: 0, y: 28 }}
+                                            whileInView={{ opacity: 1, y: 0 }}
+                                            viewport={{ once: true, amount: 0.1 }}
+                                            transition={{
+                                                duration: 0.65,
+                                                delay: index * 0.055,
+                                                ease: [0.22, 1, 0.36, 1],
+                                            }}
+                                            style={{
+                                                paddingTop: `${(lastIndex - index) * 22}px`,
+                                            }}
+                                            className="group relative flex min-w-0 flex-col"
+                                        >
+                                            <div className="relative z-10 flex h-[58px] items-center justify-center overflow-hidden bg-[#A054A0] text-white transition-all duration-500 group-hover:bg-[#843D85] group-hover:shadow-[0_8px_22px_rgba(160,84,160,0.25)]"
+                                                style={{
+                                                    clipPath:
+                                                        index === 0
+                                                            ? "polygon(0 0, calc(100% - 17px) 0, 100% 50%, calc(100% - 17px) 100%, 0 100%)"
+                                                            : index === lastIndex
+                                                                ? "polygon(12px 0, calc(100% - 17px) 0, 100% 50%, calc(100% - 17px) 100%, 12px 100%, 0 50%)"
+                                                                : "polygon(12px 0, calc(100% - 17px) 0, 100% 50%, calc(100% - 17px) 100%, 12px 100%, 0 50%)",
+                                                    marginLeft: index === 0 ? 0 : "-1px",
+                                                }}
+
+                                            >
+                                                <span className="relative z-10 text-lg font-semibold tracking-tight transition-transform duration-300 group-hover:scale-95">{item.year}</span>
+                                            </div>
+
+                                            <div className="group/card relative isolate flex min-h-[280px] flex-col bg-transparent px-3.5 pb-5 pt-5 transition-all duration-500 ease-out hover:-translate-y-1">
+                                                <div className="pointer-events-none absolute bottom-0 left-0 top-0 w-px bg-gradient-to-b from-[#dcd5dd]/65 via-[#e5dfe6]/25 to-transparent transition-opacity duration-500 group-hover/card:opacity-70" />
+                                                <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-px bg-gradient-to-b from-[#dcd5dd]/65 via-[#e5dfe6]/25 to-transparent transition-opacity duration-500 group-hover/card:opacity-70" />
+                                                <p className="text-[12px] font-medium leading-[1.75] tracking-wide text-black">{item.detail}</p>
+                                            </div>
+
+                                        </motion.article>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="relative hidden md:block xl:hidden">
+                        <div className="pointer-events-none absolute inset-x-[-25px] bottom-[-40px] -z-10 h-[400px] opacity-50" style={{
+                            backgroundImage: `linear-gradient(to bottom, transparent, rgba(250,249,250,0.8)),url('/services/TimelineBG.png')`,
+                            backgroundPosition: "center bottom",
+                            backgroundSize: "cover",
+                            backgroundRepeat: "no-repeat",
+                        }} />
+                        <div className="overflow-x-auto pb-10 scrollbar-thin scrollbar-thumb-[#A054A0]/30">
+                            <div className="flex min-w-[1050px] items-stretch gap-0">
+                                {companyJourney.map((item, index) => (
+                                    <motion.article
+                                        key={item.year}
+                                        initial={{ opacity: 0, y: 18 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: index * 0.045,
+                                        }} className="group flex w-[220px] shrink-0 flex-col">
+                                        <div className="relative flex h-[54px] items-center justify-center border-r border-white/20 bg-[#A054A0] text-white transition-colors duration-300 group-hover:bg-[#843D85]">
+                                            <span className="text-lg font-semibold">
+                                                {item.year}
+                                            </span>
+                                        </div>
+                                        <div className="relative flex min-h-[220px] flex-1 flex-col border border-[#ebe5ec] bg-white/95 p-4 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
+                                            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A054A0]">
+                                                {item.heading}
+                                            </span>
+                                            <p className="mt-3 text-sm font-semibold leading-6 text-[#29242a]">
+                                                {item.lead}
+                                            </p>
+                                            <p className="mt-2 text-xs leading-6 text-[#777078]">
+                                                {item.detail}
+                                            </p>
+                                            <div className="mt-auto pt-4">
+                                                <div className="h-px w-8 bg-[#d9c3da] transition-all duration-300 group-hover:w-full group-hover:bg-[#A054A0]" />
+                                            </div>
+                                        </div>
+                                    </motion.article>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="relative md:hidden">
+                        <div className="pointer-events-none absolute inset-x-[-20px] bottom-[-40px] -z-10 h-[360px] opacity-50" style={{
+                            backgroundImage: `linear-gradient(to bottom,rgba(250,249,250,0.05), rgba(250,249,250,0.8)),url('/services/TimelineBG.png')`,
+                            backgroundPosition: "center bottom",
+                            backgroundSize: "cover",
+                            backgroundRepeat: "no-repeat",
+                        }} />
+                        <div className="absolute bottom-5 left-[17px] top-3 w-px bg-gradient-to-b from-[#A054A0] via-[#A054A0]/40 to-transparent" />
+                        <div className="space-y-6">
+                            {companyJourney.map((item, index) => (
+                                <motion.article
+                                    key={item.year}
+                                    initial={{ opacity: 0, x: -15 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true, amount: 0.15 }}
+                                    transition={{
+                                        duration: 0.5,
+                                        delay: index * 0.035,
+                                    }} className="group relative flex items-start gap-4">
+                                    <div className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-[3px] border-[#faf9fa] bg-[#A054A0] shadow-[0_0_0_1px_rgba(160,84,160,0.3)] transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_0_4px_rgba(160,84,160,0.12)]">
+                                        <span className="text-[9px] font-bold text-white">{item.year.slice(2)}</span>
+                                    </div>
+                                    <div className="relative min-w-0 flex-1 border border-[#ebe5ec] border-l-[3px] border-l-[#A054A0] bg-white/95 p-4 shadow-[0_4px_15px_rgba(35,20,35,0.035)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:shadow-[0_10px_25px_rgba(35,20,35,0.08)] sm:p-5">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <span className="text-[9px] font-semibold uppercase tracking-[0.13em] text-[#A054A0]">{item.heading}</span>
+                                            <span className="text-lg font-semibold tracking-tight text-[#A054A0]">{item.year}</span>
+                                        </div>
+                                        <div className="mb-3 mt-3 h-px w-8 bg-[#d9c3da] transition-all duration-300 group-hover:w-full group-hover:bg-[#A054A0]" />
+                                        <p className="text-sm font-semibold leading-6 text-[#29242a]">{item.lead}</p>
+                                        <p className="mt-2 text-xs leading-6 text-[#777078]">{item.detail}</p>
+                                    </div>
+                                </motion.article>))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
             {/* Global partners */}
             <section className="px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:px-12 lg:py-20 xl:px-16">
                 <div className="mx-auto grid w-full max-w-[1280px] min-w-0 grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-5 lg:gap-12">
@@ -373,7 +573,7 @@ export default function AboutUsPage() {
                             >
                                 {partner.IMG && (
                                     <div className="flex h-[80px] w-[180px] items-center justify-center">
-                                        <Image
+                                        <img
                                             src={partner.IMG}
                                             alt={partner.name}
                                             loading="lazy"

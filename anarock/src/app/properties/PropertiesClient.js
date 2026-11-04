@@ -2892,7 +2892,8 @@ function PropertiesClientContent() {
                     Property Enquiry
                   </span>
                   <h2 className="text-xl font-bold text-slate-900">
-                    Tell us about your requirement
+                    Fill your Contact Details to Raise an Enquiry
+
                   </h2>
                 </div>
               </div>

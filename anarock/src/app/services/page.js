@@ -448,15 +448,16 @@ function LocalImage({
   );
 }
 
+const serviceSlugToIndex = {
+  "leasing-services": 0,
+  "transaction-management": 1,
+  "advisory-services": 2,
+  "gcc-calculator": 3,
+};
 function CommercialLeasingAndAdvisoryPageContent() {
   const searchParams = useSearchParams();
 
-  const serviceSlugToIndex = {
-    "leasing-services": 0,
-    "transaction-management": 1,
-    "advisory-services": 2,
-    "gcc-calculator": 3,
-  };
+
 
   const requestedService = searchParams.get("service");
   const [activeService, setActiveService] = useState(0);

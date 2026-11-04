@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Award, Rocket, Armchair } from "lucide-react";
-import { useState } from "react";
 import MarketStats from "@/components/home/MarketStats";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 
@@ -110,7 +109,7 @@ const companyJourney = [
         detail: (
             <>
                 <strong>Acquisition</strong> of ANACITY, a community
-                management application. <strong>Launched</strong> 'Astra',
+                management application. <strong>Launched</strong> &apos;Astra&apos;,
                 an AI/ML tool to boost sales.
             </>
         ),
@@ -185,7 +184,7 @@ const highlights = [
     },
     {
         icon: Armchair,
-        prefix: "India's ",
+        prefix: "India&apos;s ",
         emphasis: "Largest",
         text: "Flex Supply Aggregator",
     },
@@ -573,7 +572,7 @@ export default function AboutUsPage() {
                             >
                                 {partner.IMG && (
                                     <div className="flex h-[80px] w-[180px] items-center justify-center">
-                                        <img
+                                        <Image
                                             src={partner.IMG}
                                             alt={partner.name}
                                             loading="lazy"

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CookieConsent from "@/components/common/CookieConsent";
 import HeroSection from "@/components/home/HeroSection";
@@ -11,6 +12,8 @@ import {
   Handshake,
   Leaf,
   Brain,
+  Minus,
+  Plus,
   ArrowRight,
   Search,
   Compass,
@@ -110,6 +113,36 @@ const popularCities = [
   },
 ];
 
+
+const faqs = [
+  {
+    question: "What is commercial leasing?",
+    answer:
+      "Commercial leasing is the process through which businesses secure office or commercial real estate through structured lease agreements. It includes market analysis, property selection, lease negotiations and transaction execution. At Anarock, we help occupiers identify the right workplace solutions through data-driven market intelligence and advisory. Our commercial leasing services enable businesses to secure strategic locations while supporting long-term growth and operational flexibility.",
+  },
+  {
+    question: "How does office leasing work in India?",
+    answer:
+      "Office leasing in India begins with understanding business requirements, workforce needs and location preferences. The process involves market research, property evaluation, lease negotiations and transaction management. At Anarock, we guide occupiers through every stage of the office leasing lifecycle, helping them make informed decisions. Our advisory-led approach ensures businesses secure office spaces aligned with their operational and growth objectives.",
+  },
+  {
+    question: "What services do commercial leasing companies in India offer?",
+    answer:
+      "Commercial leasing companies provide market intelligence, tenant representation, property sourcing, workplace strategy, lease negotiations and portfolio optimisation services. These solutions help occupiers make informed real estate decisions while reducing transaction risks. At Anarock, we offer commercial leasing advisory backed by deep market expertise and occupier-focused solutions. Our services are designed to optimise workplace performance and business outcomes.",
+  },
+  {
+    question: "What is the average lease tenure in India?",
+    answer:
+      "Commercial office lease tenures in India typically range between three and nine years, depending on asset type, location and occupier requirements. Large enterprises often prefer longer tenures for stability and commercial advantages, while flexible workspaces offer shorter commitments. At Anarock, we advise occupiers on selecting lease structures that align with their business strategy and future expansion plans.",
+  },
+  {
+    question:
+      "What is the difference between leasing and renting commercial property?",
+    answer:
+      "Leasing generally involves longer-term agreements with customised commercial terms, while renting is often shorter-term and more standardised. Commercial leases offer greater flexibility around workplace planning, expansion rights and fit-out provisions. At Anarock, we help businesses evaluate leasing versus renting options based on operational requirements, financial goals and long-term growth plans.",
+  },
+
+];
 const features = [
   {
     icon: Users,
@@ -195,6 +228,19 @@ function GlassField({
   );
 }
 
+
+function SectionHeading({ children, subtitle, className = "" }) {
+  return (
+    <div className={`mx-auto mb-10 max-w-4xl text-center ${className}`}>
+      <h2 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl">
+        {children}
+      </h2>
+      {subtitle && (
+        <p className="mt-4 text-base leading-7 text-slate-700">{subtitle}</p>
+      )}
+    </div>
+  );
+}
 function PhoneInput({
   phone,
   selectedCountry,
@@ -490,6 +536,8 @@ function PremiumDropdown({ id, name, value, placeholder, options, onChange }) {
 
 export default function HomePage() {
   const [phone, setPhone] = useState("");
+  const [openFaq, setOpenFaq] = useState(null);
+
   const [phoneError, setPhoneError] = useState("");
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitMessageType, setSubmitMessageType] = useState("success");
@@ -803,9 +851,12 @@ export default function HomePage() {
                   className="group relative isolate w-full min-w-0 overflow-hidden rounded-xl border border-[#A054A0]/20 bg-white shadow-xl transition-all duration-500 ease-out hover:-translate-y-2 hover:border-[#A054A0] hover:shadow-2xl aspect-square min-[600px]:aspect-auto min-[600px]:w-[calc(50%-0.625rem)] min-[600px]:rounded-xl md:w-[calc(33.333%-0.85rem)] lg:w-[calc(25%-0.9375rem)] xl:w-[calc(20%-1rem)]"
                 >
                   <div className="relative h-full aspect-square overflow-hidden bg-[#A054A0]/5 min-[600px]:h-auto min-[600px]:aspect-[4/3] lg:aspect-square">
-                    <img
+                    <Image
                       src={city.url}
                       alt={`${city.name} commercial real estate`}
+                      width={800}
+                      height={600}
+                      unoptimized
                       decoding="async"
                       className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
                     />
@@ -1102,67 +1153,107 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      </div>
 
-      {submitMessage && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/65 px-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="submission-popup-title"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.96 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/90 bg-white/95 p-7 shadow-2xl backdrop-blur-2xl sm:p-8"
+
+        {submitMessage && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/65 px-4 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="submission-popup-title"
           >
-            <div className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl ${submitMessageType === "success" ? "bg-[#A054A0]/15" : "bg-[#A054A0]/10"}`} />
-
-            <button
-              type="button"
-              onClick={() => setSubmitMessage("")}
-              aria-label="Close"
-              className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:rotate-90 hover:bg-white hover:text-[#A054A0]"
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/90 bg-white/95 p-7 shadow-2xl backdrop-blur-2xl sm:p-8"
             >
-              <span className="text-black text-lg leading-none">×</span>
-            </button>
-
-            <div className="relative z-10 text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.1, duration: 0.4, type: "spring", stiffness: 220, damping: 15 }}
-                className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg bg-[#A054A0] text-white"
-              >
-                <CheckCircle2 size={30} strokeWidth={2} />
-              </motion.div>
-
-              <h3 id="submission-popup-title" className="mt-6 text-xl font-bold tracking-tight text-black sm:text-2xl">
-                {submitMessageType === "success" ? "Requirement Submitted" : "Submission Unsuccessful"}
-              </h3>
-
-              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-black/70">
-                {submitMessage}
-              </p>
+              <div className={`pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full blur-3xl ${submitMessageType === "success" ? "bg-[#A054A0]/15" : "bg-[#A054A0]/10"}`} />
 
               <button
                 type="button"
                 onClick={() => setSubmitMessage("")}
-                className="mt-7 inline-flex items-center justify-center rounded-xl bg-[#A054A0] px-7 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#8d478d] hover:shadow-xl"
+                aria-label="Close"
+                className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 text-black shadow-sm backdrop-blur-md transition-all duration-200 hover:rotate-90 hover:bg-white hover:text-[#A054A0]"
               >
-                {submitMessageType === "success" ? "Done" : "Try Again"}
+                <span className="text-black text-lg leading-none">×</span>
               </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-      {/* FAQ */}
 
-      <section>
-        <h2>FAQ</h2>
-      </section>
+              <div className="relative z-10 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1, duration: 0.4, type: "spring", stiffness: 220, damping: 15 }}
+                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg bg-[#A054A0] text-white"
+                >
+                  <CheckCircle2 size={30} strokeWidth={2} />
+                </motion.div>
+
+                <h3 id="submission-popup-title" className="mt-6 text-xl font-bold tracking-tight text-black sm:text-2xl">
+                  {submitMessageType === "success" ? "Requirement Submitted" : "Submission Unsuccessful"}
+                </h3>
+
+                <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-black/70">
+                  {submitMessage}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setSubmitMessage("")}
+                  className="mt-7 inline-flex items-center justify-center rounded-xl bg-[#A054A0] px-7 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#8d478d] hover:shadow-xl"
+                >
+                  {submitMessageType === "success" ? "Done" : "Try Again"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+        {/* FAQ */}
+        <section className="py-10 sm:py-12">
+          <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+            <SectionHeading>Frequently Asked Questions</SectionHeading>
+            <div >
+              {faqs.map((faq, index) => {
+                const isOpen = openFaq === index;
+
+                return (
+                  <article key={faq.question}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? null : index)}
+                      aria-expanded={isOpen}
+                      className="flex w-full items-center gap-3 py-5 text-left"
+                    >
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#A054A0]" />
+                      <span
+                        className={`flex-1 text-sm font-semibold leading-6 sm:text-base ${isOpen ? "text-[#A054A0]" : "text-black"
+                          }`}
+                      >
+                        {faq.question}
+                      </span>
+                      {isOpen ? (
+                        <Minus size={18} className="shrink-0 text-[#A054A0]" />
+                      ) : (
+                        <Plus size={18} className="shrink-0 text-[#A054A0]" />
+                      )}
+                    </button>
+
+                    {isOpen && (
+                      <div className="pb-7 pl-5 pr-2 sm:pl-6">
+                        <p className="text-sm leading-6 text-black sm:text-base">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      </div>
+
       <CookieConsent
         onConsentGiven={() => {
           setConsentGranted(true);

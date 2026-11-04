@@ -24,37 +24,68 @@ import {
   Building,
 } from "lucide-react";
 
-const IMAGE_BASE_URL = "https://property-images.zohostratus.in";
-const IMAGE_EXTENSIONS = [
-  "jpg",
-  "jpeg",
-  "png",
-  "webp",
-  "avif",
-  "gif",
-  "bmp",
-  "tif",
-  "tiff",
-  "svg",
-];
 const AUTO_SCROLL_INTERVAL = 25000;
 const COMPARE_STORAGE_KEY = "anarock_compare_properties";
 const MAX_COMPARE_PROPERTIES = 3;
 const MIN_COMPARE_PROPERTIES = 2;
 
 const IMAGE_FILES = [
-  { key: "project", name: "Project Picture 1", filename: "Project_Picture_1.jpg" },
+  {
+    key: "project",
+    name: "Project Picture 1",
+    filename: "Project_Picture_1.jpg",
+  },
   { key: "floor-plan", name: "Floor Plan 1", filename: "Floor_Plan_1.jpg" },
-  { key: "property-1", name: "Property Photo 1", filename: "Property_Photo_1.jpg" },
-  { key: "property-2", name: "Property Photo 2", filename: "Property_Photo_2.jpg" },
-  { key: "property-3", name: "Property Photo 3", filename: "Property_Photo_3.jpg" },
-  { key: "property-4", name: "Property Photo 4", filename: "Property_Photo_4.jpg" },
-  { key: "property-5", name: "Property Photo 5", filename: "Property_Photo_5.jpg" },
-  { key: "property-6", name: "Property Photo 6", filename: "Property_Photo_6.jpg" },
-  { key: "property-7", name: "Property Photo 7", filename: "Property_Photo_7.jpg" },
-  { key: "property-8", name: "Property Photo 8", filename: "Property_Photo_8.jpg" },
-  { key: "property-9", name: "Property Photo 9", filename: "Property_Photo_9.jpg" },
-  { key: "property-10", name: "Property Photo 10", filename: "Property_Photo_10.jpg" },
+  {
+    key: "property-1",
+    name: "Property Photo 1",
+    filename: "Property_Photo_1.jpg",
+  },
+  {
+    key: "property-2",
+    name: "Property Photo 2",
+    filename: "Property_Photo_2.jpg",
+  },
+  {
+    key: "property-3",
+    name: "Property Photo 3",
+    filename: "Property_Photo_3.jpg",
+  },
+  {
+    key: "property-4",
+    name: "Property Photo 4",
+    filename: "Property_Photo_4.jpg",
+  },
+  {
+    key: "property-5",
+    name: "Property Photo 5",
+    filename: "Property_Photo_5.jpg",
+  },
+  {
+    key: "property-6",
+    name: "Property Photo 6",
+    filename: "Property_Photo_6.jpg",
+  },
+  {
+    key: "property-7",
+    name: "Property Photo 7",
+    filename: "Property_Photo_7.jpg",
+  },
+  {
+    key: "property-8",
+    name: "Property Photo 8",
+    filename: "Property_Photo_8.jpg",
+  },
+  {
+    key: "property-9",
+    name: "Property Photo 9",
+    filename: "Property_Photo_9.jpg",
+  },
+  {
+    key: "property-10",
+    name: "Property Photo 10",
+    filename: "Property_Photo_10.jpg",
+  },
 ];
 
 const getValue = (property, keys, fallback = "-") => {
@@ -68,7 +99,10 @@ const getValue = (property, keys, fallback = "-") => {
 };
 
 const normalizeType = (value) => {
-  return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 };
 
 const isCoworkingProperty = (property) => {
@@ -129,9 +163,8 @@ export default function PropertyDetailClient({ propertyId }) {
   const [gallery, setGallery] = useState([]);
   const [related, setRelated] = useState([]);
   const [activeImg, setActiveImg] = useState("project");
+  const [failedImages, setFailedImages] = useState(() => new Set());
   const { unit, currency } = usePreferences();
-  const [failedImages, setFailedImages] = useState(new Set());
-  const [imageExtensionIndexes, setImageExtensionIndexes] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -180,51 +213,30 @@ export default function PropertyDetailClient({ propertyId }) {
         setError("");
         const response = await fetch(
           `/api/properties/${encodeURIComponent(propertyId)}`,
-          { cache: "no-store", signal: controller.signal }
+          { cache: "no-store", signal: controller.signal },
         );
 
         const data = await response.json();
         if (!response.ok || !data.success) {
           throw new Error(data.error || "Failed to load property");
         }
+
         const propertyData = data.data;
-        const imageFolderPath = String(propertyData.ImageFolderPath || "").replace(/^\/+|\/+$/g, "");
-        const images = imageFolderPath ? IMAGE_FILES.map((image) => {
-          const baseName = image.filename.replace(/\.[^/.]+$/, "");
-          const originalExtension = image.filename
-            .split(".")
-            .pop()
-            .toLowerCase();
-
-          const extensions = [
-            originalExtension,
-            ...IMAGE_EXTENSIONS.filter(
-              (ext) => ext !== originalExtension
-            ),
-          ];
-
-          const candidates = extensions.map(
-            (extension) =>
-              `${IMAGE_BASE_URL}/${imageFolderPath}/${baseName}.${extension}`
-          );
-
-          return {
-            ...image,
-            url: candidates[0],
-            candidates,
-          };
-        })
+        const images = Array.isArray(data.galleryImages)
+          ? data.galleryImages.filter(
+            (image) =>
+              image &&
+              typeof image.url === "string" &&
+              image.url.trim() !== "",
+          )
           : [];
-
-        setProperty({
-          ...propertyData,
-          image: images.find((image) => image.key === "project")?.url || "",
-        });
+        const primaryImage =
+          images.find((image) => image.key === "project") || images[0] || null;
+        setProperty({ ...propertyData, image: primaryImage?.url || "" });
         setGallery(images);
-        setActiveImg("project");
-        setImageExtensionIndexes({});
+        setFailedImages(new Set());
+        setActiveImg(primaryImage?.key || "");
 
-        // Fetch ALL properties from the database to enable intelligent priority sorting & no dead-ends
         try {
           const allResponse = await fetch(`/api/properties`, {
             cache: "no-store",
@@ -235,57 +247,51 @@ export default function PropertyDetailClient({ propertyId }) {
           if (allData.success) {
             const currentId = getPropertyId(propertyData);
             const otherProperties = (allData.data || []).filter(
-              (item) => getPropertyId(item) !== currentId
+              (item) => getPropertyId(item) !== currentId,
             );
-
-            // Prioritization logic:
-            // 1. Same City
-            // 2. Same Micromarket
-            // 3. Similar Type / Rent / Area proximity
             const scoredProperties = otherProperties.map((item) => {
               let score = 0;
-
-              // City match gets highest primary boost
               if (
                 propertyData.city &&
                 item.city &&
-                item.city.trim().toLowerCase() === propertyData.city.trim().toLowerCase()
+                item.city.trim().toLowerCase() ===
+                propertyData.city.trim().toLowerCase()
               ) {
                 score += 100;
               }
-
-              // Micromarket match gets secondary boost
               if (
                 propertyData.micromarket &&
                 item.micromarket &&
-                item.micromarket.trim().toLowerCase() === propertyData.micromarket.trim().toLowerCase()
+                item.micromarket.trim().toLowerCase() ===
+                propertyData.micromarket.trim().toLowerCase()
               ) {
                 score += 50;
               }
-
-              // Property Type match
               const currentType = normalizeType(
-                propertyData.officeType || propertyData.propertyType || propertyData.type
+                propertyData.officeType ||
+                propertyData.propertyType ||
+                propertyData.type,
               );
               const itemType = normalizeType(
-                item.officeType || item.propertyType || item.type
+                item.officeType || item.propertyType || item.type,
               );
               if (currentType && itemType && currentType === itemType) {
                 score += 25;
               }
-
-              // Rent / Price proximity check (closer rent values get small incremental score)
-              const currentRent = Number(propertyData.quotedRent || propertyData.monthlyCostPerSeat || 0);
-              const itemRent = Number(item.quotedRent || item.monthlyCostPerSeat || 0);
+              const currentRent = Number(
+                propertyData.quotedRent || propertyData.monthlyCostPerSeat || 0,
+              );
+              const itemRent = Number(
+                item.quotedRent || item.monthlyCostPerSeat || 0,
+              );
               if (currentRent > 0 && itemRent > 0) {
-                const diffRatio = Math.abs(currentRent - itemRent) / currentRent;
+                const diffRatio =
+                  Math.abs(currentRent - itemRent) / currentRent;
                 if (diffRatio < 0.5) score += 10;
               }
 
               return { item, score };
             });
-
-            // Sort by score descending so highest priority items appear first, but ALL properties remain included
             scoredProperties.sort((a, b) => b.score - a.score);
             setRelated(scoredProperties.map((p) => p.item));
           }
@@ -329,11 +335,11 @@ export default function PropertyDetailClient({ propertyId }) {
     const syncWishlist = () => {
       try {
         const wishlist = JSON.parse(
-          localStorage.getItem("anarock_wishlist_properties") || "[]"
+          localStorage.getItem("anarock_wishlist_properties") || "[]",
         );
         const currentId = getPropertyId(property);
         setIsWishlisted(
-          wishlist.some((item) => getPropertyId(item) === currentId)
+          wishlist.some((item) => getPropertyId(item) === currentId),
         );
       } catch (err) {
         console.error("Wishlist sync failed:", err);
@@ -357,11 +363,11 @@ export default function PropertyDetailClient({ propertyId }) {
       const currentId = getPropertyId(item);
       if (!currentId) return;
       const exists = existing.some(
-        (wishlistItem) => getPropertyId(wishlistItem) === currentId
+        (wishlistItem) => getPropertyId(wishlistItem) === currentId,
       );
       const updated = exists
         ? existing.filter(
-          (wishlistItem) => getPropertyId(wishlistItem) !== currentId
+          (wishlistItem) => getPropertyId(wishlistItem) !== currentId,
         )
         : [...existing, item];
 
@@ -413,7 +419,7 @@ export default function PropertyDetailClient({ propertyId }) {
   const isCompared = useMemo(() => {
     if (!currentPropertyId) return false;
     return compareSelection.some(
-      (item) => getPropertyId(item) === currentPropertyId
+      (item) => getPropertyId(item) === currentPropertyId,
     );
   }, [compareSelection, currentPropertyId]);
 
@@ -424,14 +430,17 @@ export default function PropertyDetailClient({ propertyId }) {
 
     setCompareSelection((previousSelection) => {
       const alreadySelected = previousSelection.some(
-        (item) => getPropertyId(item) === propertyId
+        (item) => getPropertyId(item) === propertyId,
       );
       let updatedSelection = alreadySelected
         ? previousSelection.filter((item) => getPropertyId(item) !== propertyId)
         : [...previousSelection, property].slice(-MAX_COMPARE_PROPERTIES);
 
       try {
-        localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(updatedSelection));
+        localStorage.setItem(
+          COMPARE_STORAGE_KEY,
+          JSON.stringify(updatedSelection),
+        );
         window.dispatchEvent(new Event("compare-updated"));
       } catch (err) {
         console.error("Failed to save compare selection:", err);
@@ -458,7 +467,10 @@ export default function PropertyDetailClient({ propertyId }) {
       return;
     }
     try {
-      localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(compareSelection));
+      localStorage.setItem(
+        COMPARE_STORAGE_KEY,
+        JSON.stringify(compareSelection),
+      );
       window.location.href = "/compare";
     } catch (err) {
       console.error("Failed to open compare page:", err);
@@ -466,70 +478,46 @@ export default function PropertyDetailClient({ propertyId }) {
   }, [compareSelection]);
 
   const availableGallery = useMemo(() => {
-    return gallery.filter(
-      (image) => !failedImages.has(image.key)
-    );
+    return gallery.filter((image) => !failedImages.has(image.key));
   }, [gallery, failedImages]);
 
-  const getImageSrc = (image) => {
-    if (!image) return "";
-    const candidates = image.candidates || [image.url];
-    const index = imageExtensionIndexes[image.key] || 0;
-    return candidates[index] || candidates[0] || "";
-  };
+  const getImageSrc = (image) => image?.url || "";
+
+  const activeImageItem =
+    availableGallery.find((image) => image.key === activeImg) ||
+    availableGallery[0] ||
+    null;
+
+  const activeImage = getImageSrc(activeImageItem);
+
+  const activeIndex = activeImageItem
+    ? availableGallery.findIndex((image) => image.key === activeImageItem.key)
+    : -1;
 
   useEffect(() => {
-    availableGallery.forEach((image) => {
-      const src = getImageSrc(image);
-      if (src) {
-        const img = new window.Image();
-        img.src = src;
-      }
-    });
-  }, [availableGallery, imageExtensionIndexes]);
-
-  const activeImageItem = availableGallery.find(
-    (image) => image.key === activeImg
-  );
-
-  const activeImage = getImageSrc(activeImageItem) || property?.image || "";
-  const activeIndex = Math.max(0, availableGallery.findIndex(
-    (image) => image.key === activeImg
-  )
-  );
-  const handleImageError = (imageKey) => {
-    const image = gallery.find((item) => item.key === imageKey
-    );
-    if (!image) return;
-
-    const candidates = image.candidates || [image.url];
-    const currentIndex = imageExtensionIndexes[imageKey] || 0;
-    if (currentIndex < candidates.length - 1) {
-      setImageExtensionIndexes((previous) => ({
-        ...previous,
-        [imageKey]: currentIndex + 1,
-      }));
+    if (!availableGallery.length) {
+      if (activeImg !== "") setActiveImg("");
       return;
     }
+
+    const activeExists = availableGallery.some(
+      (image) => image.key === activeImg,
+    );
+
+    if (!activeExists) {
+      setActiveImg(availableGallery[0].key);
+    }
+  }, [availableGallery, activeImg]);
+
+  const handleImageError = useCallback((imageKey) => {
     setFailedImages((previous) => {
+      if (previous.has(imageKey)) return previous;
+
       const next = new Set(previous);
       next.add(imageKey);
       return next;
     });
-    if (activeImg === imageKey) {
-      const currentIndexInGallery = availableGallery.findIndex(
-        (img) => img.key === imageKey
-      );
-      const nextImage =
-        availableGallery[currentIndexInGallery + 1] ||
-        availableGallery[currentIndexInGallery - 1];
-
-      if (nextImage) {
-        setActiveImg(nextImage.key);
-      }
-    }
-  };
-
+  }, []);
   const scrollThumbnailToTop = useCallback((imageKey) => {
     const container = thumbnailContainerRef.current;
     const thumbnail = thumbnailRefs.current[imageKey];
@@ -539,7 +527,11 @@ export default function PropertyDetailClient({ propertyId }) {
       const targetTop = thumbnail.offsetTop - container.offsetTop;
       container.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
     } else {
-      thumbnail.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      thumbnail.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
     }
   }, []);
 
@@ -550,7 +542,7 @@ export default function PropertyDetailClient({ propertyId }) {
         scrollThumbnailToTop(imageKey);
       });
     },
-    [scrollThumbnailToTop]
+    [scrollThumbnailToTop],
   );
 
   const goToNextImage = useCallback(() => {
@@ -562,16 +554,21 @@ export default function PropertyDetailClient({ propertyId }) {
 
   const goToPreviousImage = useCallback(() => {
     if (!availableGallery.length) return;
-    const previousIndex = (activeIndex - 1 + availableGallery.length) % availableGallery.length;
+    const previousIndex =
+      (activeIndex - 1 + availableGallery.length) % availableGallery.length;
     const previousImage = availableGallery[previousIndex];
     if (previousImage) selectImage(previousImage.key);
   }, [activeIndex, availableGallery, selectImage]);
 
   useEffect(() => {
     if (availableGallery.length <= 1) return;
-    autoScrollTimeoutRef.current = setTimeout(goToNextImage, AUTO_SCROLL_INTERVAL);
+    autoScrollTimeoutRef.current = setTimeout(
+      goToNextImage,
+      AUTO_SCROLL_INTERVAL,
+    );
     return () => {
-      if (autoScrollTimeoutRef.current) clearTimeout(autoScrollTimeoutRef.current);
+      if (autoScrollTimeoutRef.current)
+        clearTimeout(autoScrollTimeoutRef.current);
     };
   }, [activeImg, availableGallery.length, goToNextImage]);
 
@@ -657,33 +654,63 @@ export default function PropertyDetailClient({ propertyId }) {
         ]}
       />
 
-      <main className={`min-h-screen overflow-x-clip px-3 py-4 sm:px-5 sm:py-6 lg:px-8 xl:px-10 ${compareSelection.length > 0 ? "pb-24 sm:pb-28" : "pb-12 sm:pb-16"
-        }`}>
+      <main
+        className={`min-h-screen overflow-x-clip px-3 py-4 sm:px-5 sm:py-6 lg:px-8 xl:px-10 ${compareSelection.length > 0 ? "pb-24 sm:pb-28" : "pb-12 sm:pb-16"
+          }`}
+      >
         <style jsx global>{`
           @keyframes propertyImageFade {
-            from { opacity: 0.5; transform: scale(1.01); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+              opacity: 0.5;
+              transform: scale(1.01);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
           }
           @keyframes fadeInSlide {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+              opacity: 0;
+              transform: translateY(8px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
-          html { scroll-behavior: smooth; }
-          ::selection { background: rgba(160, 84, 160, 0.15); color: #1a1a1a; }
-          .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
-          .scrollbar-none::-webkit-scrollbar { display: none; }
+          html {
+            scroll-behavior: smooth;
+          }
+          ::selection {
+            background: rgba(160, 84, 160, 0.15);
+            color: #1a1a1a;
+          }
+          .scrollbar-none {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          .scrollbar-none::-webkit-scrollbar {
+            display: none;
+          }
           @media (prefers-reduced-motion: no-preference) {
-            main > div > section { animation: fadeInSlide 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-            main > div > section:nth-of-type(2) { animation-delay: 60ms; }
-            main > div > section:nth-of-type(3) { animation-delay: 100ms; }
+            main > div > section {
+              animation: fadeInSlide 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+            main > div > section:nth-of-type(2) {
+              animation-delay: 60ms;
+            }
+            main > div > section:nth-of-type(3) {
+              animation-delay: 100ms;
+            }
           }
         `}</style>
 
         <div className="mx-auto w-full min-w-0 max-w-[1500px]">
           <div
             className={`sticky top-[60px] z-40 mb-4 overflow-hidden rounded-xl border border-slate-800/15 bg-white/95 px-3.5 py-3.5 shadow-sm backdrop-blur-xl transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none sm:top-[68px] sm:mb-6 sm:px-6 sm:py-4 ${isTitleVisible
-              ? "translate-y-0 opacity-100"
-              : "-translate-y-[calc(100%+12px)] pointer-events-none opacity-0 shadow-none"
+                ? "translate-y-0 opacity-100"
+                : "-translate-y-[calc(100%+12px)] pointer-events-none opacity-0 shadow-none"
               }`}
             aria-hidden={!isTitleVisible}
           >
@@ -691,9 +718,7 @@ export default function PropertyDetailClient({ propertyId }) {
               <div className="min-w-0 flex-1">
                 <div className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[13px] font-bold uppercase tracking-[0.14em] text-[#A054A0]">
                   {property.city && (
-                    <span className="py-0.5 ">
-                      {property.city}
-                    </span>
+                    <span className="py-0.5 ">{property.city}</span>
                   )}
                   {property.micromarket && (
                     <>
@@ -729,12 +754,16 @@ export default function PropertyDetailClient({ propertyId }) {
                   type="button"
                   onClick={handleCompareToggle}
                   className={`group inline-flex min-h-[40px] min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2 text-base font-semibold shadow-sm transition-all duration-200 active:scale-[0.98] sm:flex-none ${isCompared
-                    ? "border-[#A054A0] bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
-                    : "border-slate-800/15 bg-white text-black hover:border-[#A054A0]/50 hover:text-[#A054A0]"
+                      ? "border-[#A054A0] bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
+                      : "border-slate-800/15 bg-white text-black hover:border-[#A054A0]/50 hover:text-[#A054A0]"
                     }`}
                   aria-pressed={isCompared}
                 >
-                  {isCompared ? <X className="h-3.5 w-3.5" /> : <GitCompare className="h-3.5 w-3.5 text-[#A054A0]" />}
+                  {isCompared ? (
+                    <X className="h-3.5 w-3.5" />
+                  ) : (
+                    <GitCompare className="h-3.5 w-3.5 text-[#A054A0]" />
+                  )}
                   <span>{isCompared ? "Compared" : "Compare"}</span>
                 </button>
 
@@ -742,8 +771,8 @@ export default function PropertyDetailClient({ propertyId }) {
                   type="button"
                   onClick={() => handleWishlist(property)}
                   className={`group inline-flex min-h-[40px] min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2 text-base font-semibold shadow-sm transition-all duration-200 active:scale-[0.98] sm:flex-none ${isWishlisted
-                    ? "border-[#A054A0] bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
-                    : "border-slate-800/15 bg-white text-black hover:border-[#A054A0]/50 hover:text-[#A054A0]"
+                      ? "border-[#A054A0] bg-[#A054A0] text-white shadow-sm shadow-[#A054A0]/25"
+                      : "border-slate-800/15 bg-white text-black hover:border-[#A054A0]/50 hover:text-[#A054A0]"
                     }`}
                 >
                   <Heart
@@ -770,7 +799,7 @@ export default function PropertyDetailClient({ propertyId }) {
                     if (availableGallery.length > 1) {
                       autoScrollTimeoutRef.current = setTimeout(
                         goToNextImage,
-                        AUTO_SCROLL_INTERVAL
+                        AUTO_SCROLL_INTERVAL,
                       );
                     }
                   }}
@@ -796,8 +825,8 @@ export default function PropertyDetailClient({ propertyId }) {
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent" />
 
                     <div className="absolute bottom-3 left-3 max-w-[80%] text-xs font-semibold text-white drop-shadow-xs sm:text-sm">
-                      {availableGallery.find((img) => img.key === activeImg)?.name ||
-                        "Property Photo"}
+                      {availableGallery.find((img) => img.key === activeImg)
+                        ?.name || "Property Photo"}
                     </div>
 
                     <div className="absolute right-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-xs">
@@ -846,8 +875,8 @@ export default function PropertyDetailClient({ propertyId }) {
                           aria-label={`View ${image.name}`}
                           aria-current={isActive ? "true" : undefined}
                           className={`group relative w-full shrink-0 overflow-hidden rounded-lg border transition-all duration-200 ${isActive
-                            ? "border-[#A054A0] ring-1 ring-[#A054A0]/40 shadow-sm"
-                            : "border-transparent bg-slate-50 hover:border-slate-200"
+                              ? "border-[#A054A0] ring-1 ring-[#A054A0]/40 shadow-sm"
+                              : "border-transparent bg-slate-50 hover:border-slate-200"
                             }`}
                         >
                           <div className="relative aspect-[16/9] w-full">
@@ -861,8 +890,8 @@ export default function PropertyDetailClient({ propertyId }) {
                             />
                             <div
                               className={`absolute inset-0 transition ${isActive
-                                ? "bg-[#A054A0]/10"
-                                : "bg-black/0 group-hover:bg-black/10"
+                                  ? "bg-[#A054A0]/10"
+                                  : "bg-black/0 group-hover:bg-black/10"
                                 }`}
                             />
                           </div>
@@ -889,8 +918,8 @@ export default function PropertyDetailClient({ propertyId }) {
                             aria-label={`View ${image.name}`}
                             aria-current={isActive ? "true" : undefined}
                             className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border transition-all ${isActive
-                              ? "border-[#A054A0] ring-1 ring-[#A054A0]/40 shadow-sm"
-                              : "border-transparent opacity-80 hover:opacity-100"
+                                ? "border-[#A054A0] ring-1 ring-[#A054A0]/40 shadow-sm"
+                                : "border-transparent opacity-80 hover:opacity-100"
                               }`}
                           >
                             <Image
@@ -901,7 +930,9 @@ export default function PropertyDetailClient({ propertyId }) {
                               sizes="96px"
                               onError={() => handleImageError(image.key)}
                             />
-                            {isActive && <div className="absolute inset-0 bg-[#A054A0]/15" />}
+                            {isActive && (
+                              <div className="absolute inset-0 bg-[#A054A0]/15" />
+                            )}
                           </button>
                         );
                       })}
@@ -1006,7 +1037,10 @@ export default function PropertyDetailClient({ propertyId }) {
             </div>
           </section>
           {related.length > 0 && (
-            <section ref={similarSectionRef} className="mt-10 sm:mt-14 lg:mt-16">
+            <section
+              ref={similarSectionRef}
+              className="mt-10 sm:mt-14 lg:mt-16"
+            >
               <div className="mb-4 flex items-end justify-between gap-3 sm:mb-6">
                 <div>
                   <div className="mb-1.5 flex items-center gap-1.5">
@@ -1019,7 +1053,8 @@ export default function PropertyDetailClient({ propertyId }) {
                     You Might Also Be Interested In
                   </h2>
                   <p className="mt-0.5 text-xs text-slate-500">
-                    Showing all available listings prioritized by location, type, and rent.
+                    Showing all available listings prioritized by location,
+                    type, and rent.
                   </p>
                 </div>
 
@@ -1046,7 +1081,8 @@ export default function PropertyDetailClient({ propertyId }) {
                         <PropertyCard
                           property={item}
                           isCompared={compareSelection.some(
-                            (selected) => getPropertyId(selected) === getPropertyId(item)
+                            (selected) =>
+                              getPropertyId(selected) === getPropertyId(item),
                           )}
                           onCompareToggle={(selectedProperty) => {
                             if (!selectedProperty) return;
@@ -1055,24 +1091,32 @@ export default function PropertyDetailClient({ propertyId }) {
 
                             setCompareSelection((previousSelection) => {
                               const alreadySelected = previousSelection.some(
-                                (selected) => getPropertyId(selected) === selectedId
+                                (selected) =>
+                                  getPropertyId(selected) === selectedId,
                               );
                               const updatedSelection = alreadySelected
                                 ? previousSelection.filter(
-                                  (selected) => getPropertyId(selected) !== selectedId
+                                  (selected) =>
+                                    getPropertyId(selected) !== selectedId,
                                 )
-                                : [...previousSelection, selectedProperty].slice(
-                                  -MAX_COMPARE_PROPERTIES
-                                );
+                                : [
+                                  ...previousSelection,
+                                  selectedProperty,
+                                ].slice(-MAX_COMPARE_PROPERTIES);
 
                               try {
                                 localStorage.setItem(
                                   COMPARE_STORAGE_KEY,
-                                  JSON.stringify(updatedSelection)
+                                  JSON.stringify(updatedSelection),
                                 );
-                                window.dispatchEvent(new Event("compare-updated"));
+                                window.dispatchEvent(
+                                  new Event("compare-updated"),
+                                );
                               } catch (error) {
-                                console.error("Failed to update compare selection:", error);
+                                console.error(
+                                  "Failed to update compare selection:",
+                                  error,
+                                );
                               }
                               return updatedSelection;
                             });
@@ -1092,7 +1136,8 @@ export default function PropertyDetailClient({ propertyId }) {
                         <PropertyCard
                           property={item}
                           isCompared={compareSelection.some(
-                            (selected) => getPropertyId(selected) === getPropertyId(item)
+                            (selected) =>
+                              getPropertyId(selected) === getPropertyId(item),
                           )}
                           onCompareToggle={(selectedProperty) => {
                             if (!selectedProperty) return;
@@ -1101,24 +1146,32 @@ export default function PropertyDetailClient({ propertyId }) {
 
                             setCompareSelection((previousSelection) => {
                               const alreadySelected = previousSelection.some(
-                                (selected) => getPropertyId(selected) === selectedId
+                                (selected) =>
+                                  getPropertyId(selected) === selectedId,
                               );
                               const updatedSelection = alreadySelected
                                 ? previousSelection.filter(
-                                  (selected) => getPropertyId(selected) !== selectedId
+                                  (selected) =>
+                                    getPropertyId(selected) !== selectedId,
                                 )
-                                : [...previousSelection, selectedProperty].slice(
-                                  -MAX_COMPARE_PROPERTIES
-                                );
+                                : [
+                                  ...previousSelection,
+                                  selectedProperty,
+                                ].slice(-MAX_COMPARE_PROPERTIES);
 
                               try {
                                 localStorage.setItem(
                                   COMPARE_STORAGE_KEY,
-                                  JSON.stringify(updatedSelection)
+                                  JSON.stringify(updatedSelection),
                                 );
-                                window.dispatchEvent(new Event("compare-updated"));
+                                window.dispatchEvent(
+                                  new Event("compare-updated"),
+                                );
                               } catch (error) {
-                                console.error("Failed to update compare selection:", error);
+                                console.error(
+                                  "Failed to update compare selection:",
+                                  error,
+                                );
                               }
                               return updatedSelection;
                             });
@@ -1140,7 +1193,8 @@ export default function PropertyDetailClient({ propertyId }) {
                 <div className="flex items-center gap-2">
                   <GitCompare className="h-5 w-5 shrink-0 text-[#A054A0]" />
                   <p className="text-sm font-bold leading-5 text-black sm:text-base">
-                    {compareSelection.length} of {MAX_COMPARE_PROPERTIES} properties selected for comparison
+                    {compareSelection.length} of {MAX_COMPARE_PROPERTIES}{" "}
+                    properties selected for comparison
                   </p>
                 </div>
                 <p className="mt-1 pl-7 text-xs leading-5 text-slate-500 sm:text-sm">

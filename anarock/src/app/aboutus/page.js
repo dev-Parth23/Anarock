@@ -2,18 +2,8 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import {
-    ArrowUpRight,
-    Award,
-    Building2,
-    Globe2,
-    Rocket,
-    Armchair,
-    Mail,
-    Link,
-} from "lucide-react";
+import { Award, Rocket, Armchair } from "lucide-react";
 import { useState } from "react";
-
 import MarketStats from "@/components/home/MarketStats";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 
@@ -71,7 +61,8 @@ const leaders = [
 const companyStats = [
     { value: "3000+", label: "Employees" },
     {
-        value: "$100 B", label: "Transacted & Advised since June 2017",
+        value: "$100 B",
+        label: "Transacted & Advised since June 2017",
     },
     { value: "30%", label: "YoY Growth" },
     { value: "15", label: "Offices across India" },
@@ -211,7 +202,6 @@ export default function AboutUsPage() {
                             variants={fadeUp}
                             className="mt-7 border-t border-[#ded9df] pt-6 sm:mt-9 sm:pt-7"
                         >
-
                             <div className="space-y-5">
                                 {highlights.map((item) => {
                                     const Icon = item.icon;
@@ -375,26 +365,6 @@ export default function AboutUsPage() {
                             <span className="block text-[#A054A0]">global network.</span>
                         </h2>
                     </div>
-
-                    {/* <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
-                        {partners.map((partner) => (
-                            <div
-                                key={partner.name}
-                                className="flex min-h-[110px] items-center justify-center rounded-sm border border-dashed border-slate-400 bg-white p-5 transition-all duration-300 hover:border-[#cda5c7] hover:shadow-sm sm:min-h-[125px]"
-                            >
-                                {partner.IMG && (
-
-                                    <img
-                                        src={partner.IMG}
-                                        alt={partner.name}
-                                        loading="lazy"
-                                        className="h-[55px] w-[140px] object-contain sm:h-[65px] sm:w-[160px] lg:h-[75px] lg:w-[180px]"
-                                    />
-                                )}
-                            </div>
-                        ))}
-                    </div> */}
-
                     <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-3">
                         {partners.map((partner) => (
                             <div
@@ -403,7 +373,7 @@ export default function AboutUsPage() {
                             >
                                 {partner.IMG && (
                                     <div className="flex h-[80px] w-[180px] items-center justify-center">
-                                        <img
+                                        <Image
                                             src={partner.IMG}
                                             alt={partner.name}
                                             loading="lazy"
@@ -422,8 +392,6 @@ export default function AboutUsPage() {
 
             {/* Leadership */}
             <section className="border-t border-[#eae6eb] bg-[#f8f7f8] px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:px-12 lg:py-20 xl:px-16">
-
-
                 <div className="mx-auto w-full max-w-[1200px] px-4 py-16 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-14 sm:mb-20">
@@ -503,57 +471,6 @@ export default function AboutUsPage() {
                         })}
                     </div>
                 </div>
-
-
-                {/* <div className="mx-auto mt-14 grid w-full max-w-[1280px] grid-cols-1 gap-x-8 gap-y-5 sm:mt-16 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-6 lg:grid-cols-3 lg:gap-x-10">
-                    {leaders2.map((leader) => (
-                        <article
-                            key={leader.name}
-                            className="group flex min-w-0 items-center gap-4 border-b border-[#EADBEA]/80 px-1 pb-5 transition-colors duration-300 hover:border-[#A054A0]/50 sm:pb-6"
-                        >
-                            <div className="relative h-[62px] w-[62px] shrink-0 overflow-hidden rounded-full border border-[#EADBEA] bg-white p-0.5  duration-300 group-hover:border-[#A054A0]/50 group-hover:scale-105 sm:h-[70px] sm:w-[70px]">
-                                <LocalImage
-                                    src={leader.image}
-                                    alt={leader.name}
-                                    className="h-full w-full rounded-full bg-[#F5F0F5]"
-                                    sizes="70px"
-                                />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                                <div className="flex min-w-0 items-center justify-between gap-2">
-                                    <h3 className="min-w-0 break-words text-sm font-semibold leading-5 tracking-[-0.01em] text-black transition-colors duration-300 group-hover:text-[#A054A0] group-hover:scale-105 sm:text-[18px]">
-                                        {leader.name}
-                                    </h3>
-
-                                    <div className="flex shrink-0 items-center gap-1">
-                                        <a
-                                            href={leader.linkedin}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            aria-label={`${leader.name} LinkedIn`}
-                                            className="flex h-8 w-8 items-center justify-center rounded-full text-[#A054A0] transition-all duration-200 hover:bg-[#F3EAF3] hover:text-[#7D397D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
-                                        >
-                                            <ArrowUpRight size={16} strokeWidth={1.7} />
-                                        </a>
-
-                                        <a
-                                            href={`mailto:${leader.email}`}
-                                            aria-label={`Email ${leader.name}`}
-                                            className="flex h-8 w-8 items-center justify-center rounded-full text-[#A054A0] transition-all duration-200 hover:bg-[#F3EAF3] hover:text-[#7D397D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A054A0]"
-                                        >
-                                            <Mail size={15} strokeWidth={1.7} />
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <p className="break-words text-xs leading-5 text-black/80 sm:text-[13px]">
-                                    {leader.role}
-                                </p>
-                            </div>
-                        </article>
-                    ))}
-                </div> */}
             </section>
         </main>
     );

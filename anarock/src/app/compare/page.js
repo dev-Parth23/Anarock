@@ -1,10 +1,8 @@
-
 "use client";
 import Image from "next/image";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   MapPin,
   Trash2,
@@ -15,7 +13,6 @@ import {
   Search,
   Filter,
   Check,
-  ImageIcon,
 } from "lucide-react";
 import { formatArea } from "@/lib/format";
 import { usePreferences } from "@/lib/preferences";
@@ -50,7 +47,7 @@ function DynamicPropertyImage({ folder, alt, priority, className }) {
   const currentUrl = `https://property-images.zohostratus.in/${folder}/Project_Picture_1${extensions[extIndex]}`;
 
   return (
-    <img
+    <Image
       src={currentUrl}
       alt={alt}
       className={className}
@@ -77,7 +74,6 @@ export default function ComparePage() {
   const [selectedMicromarkets, setSelectedMicromarkets] = useState([]);
   const [showThirdSlotSkeleton, setShowThirdSlotSkeleton] = useState(false);
 
-
   useEffect(() => {
     setIsMounted(true);
     try {
@@ -92,7 +88,8 @@ export default function ComparePage() {
   }, []);
 
   useEffect(() => {
-    document.title = "Commercial Property Comparison & Office Space Analytics | Compare Workspaces";
+    document.title =
+      "Commercial Property Comparison & Office Space Analytics | Compare Workspaces";
     const setMetaTag = (name, content, isProperty = false) => {
       const attr = isProperty ? "property" : "name";
       let element = document.querySelector(`meta[${attr}="${name}"]`);
@@ -103,14 +100,28 @@ export default function ComparePage() {
       }
       element.setAttribute("content", content);
     };
-    setMetaTag("description", "Compare commercial real estate, managed offices, and coworking spaces side-by-side. Analyze pricing, seating capacity, micro-markets, and square footage.");
-    setMetaTag("keywords", "commercial property comparison, office space comparison, coworking space analytics, managed offices comparison, corporate real estate comparison");
+    setMetaTag(
+      "description",
+      "Compare commercial real estate, managed offices, and coworking spaces side-by-side. Analyze pricing, seating capacity, micro-markets, and square footage.",
+    );
+    setMetaTag(
+      "keywords",
+      "commercial property comparison, office space comparison, coworking space analytics, managed offices comparison, corporate real estate comparison",
+    );
     setMetaTag("geo.region", "IN-DL");
     setMetaTag("geo.placename", "New Delhi, Mumbai, Bengaluru, India");
     setMetaTag("geo.position", "28.6139;77.2090");
     setMetaTag("ICBM", "28.6139, 77.2090");
-    setMetaTag("og:title", "Commercial Property Comparison & Office Space Analytics", true);
-    setMetaTag("og:description", "Evaluate and compare commercial properties and managed workspaces side-by-side with advanced portfolio analysis.", true);
+    setMetaTag(
+      "og:title",
+      "Commercial Property Comparison & Office Space Analytics",
+      true,
+    );
+    setMetaTag(
+      "og:description",
+      "Evaluate and compare commercial properties and managed workspaces side-by-side with advanced portfolio analysis.",
+      true,
+    );
     setMetaTag("og:type", "website", true);
     setMetaTag("og:url", window.location.href, true);
     setMetaTag("og:site_name", "Anarock Commercial Real Estate", true);
@@ -126,18 +137,18 @@ export default function ComparePage() {
     scriptElement.textContent = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebPage",
-      "name": "Commercial Property Comparison Dashboard",
-      "description": "Compare commercial real estate, managed offices, and coworking spaces side-by-side.",
-      "url": window.location.href,
-      "publisher": {
+      name: "Commercial Property Comparison Dashboard",
+      description:
+        "Compare commercial real estate, managed offices, and coworking spaces side-by-side.",
+      url: window.location.href,
+      publisher: {
         "@type": "Organization",
-        "name": "Anarock",
-      }
+        name: "Anarock",
+      },
     });
   }, []);
 
-  const getId = (property) =>
-    String(property?.id || "");
+  const getId = (property) => String(property?.id || "");
 
   const isShortlisted = (property) => {
     const propertyId = getId(property);
@@ -277,8 +288,10 @@ export default function ComparePage() {
   };
 
   const activeProperties = properties.filter(Boolean);
-  const allAreCoworking = activeProperties.length > 0 && activeProperties.every(isCoworking);
-  const allAreConventional = activeProperties.length > 0 && activeProperties.every(isConventional);
+  const allAreCoworking =
+    activeProperties.length > 0 && activeProperties.every(isCoworking);
+  const allAreConventional =
+    activeProperties.length > 0 && activeProperties.every(isConventional);
 
   const CURRENCY_SYMBOLS = {
     INR: "₹",
@@ -293,7 +306,10 @@ export default function ComparePage() {
     if (val === null || val === undefined || val === "" || val === "-") {
       return "-";
     }
-    const numericVal = typeof val === "number" ? val : Number(String(val).replace(/[^0-9.-]/g, ""));
+    const numericVal =
+      typeof val === "number"
+        ? val
+        : Number(String(val).replace(/[^0-9.-]/g, ""));
     if (!Number.isFinite(numericVal) || numericVal <= 0) {
       return val;
     }
@@ -316,7 +332,10 @@ export default function ComparePage() {
 
     return (
       <span className="inline-flex items-center gap-2">
-        <span title={activeCurrency} className="inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-lg  px-1.5 text-xs font-bold text-[#A054A0]">
+        <span
+          title={activeCurrency}
+          className="inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-lg  px-1.5 text-xs font-bold text-[#A054A0]"
+        >
           {symbol}
         </span>
         <span className="font-medium text-black tabular-nums">
@@ -335,8 +354,7 @@ export default function ComparePage() {
     {
       label: "Micromarket",
       show: true,
-      value: (property) =>
-        property?.micromarket || "-",
+      value: (property) => property?.micromarket || "-",
     },
     {
       label: "Type",
@@ -399,20 +417,17 @@ export default function ComparePage() {
     {
       label: "Distance from Metro",
       show: true,
-      value: (property) =>
-        property?.distanceFromMetro || "-",
+      value: (property) => property?.distanceFromMetro || "-",
     },
     {
       label: "Inclusions",
       show: true,
-      value: (property) =>
-        property?.inclusions || "-",
+      value: (property) => property?.inclusions || "-",
     },
     {
       label: "Exclusions",
       show: true,
-      value: (property) =>
-        property?.exclusions || "-",
+      value: (property) => property?.exclusions || "-",
     },
   ];
 
@@ -580,7 +595,8 @@ export default function ComparePage() {
                 No Properties Selected
               </h2>
               <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-slate-500">
-                Select commercial real estate, managed offices, or coworking spaces to evaluate specs, pricing, and locations side by side.
+                Select commercial real estate, managed offices, or coworking
+                spaces to evaluate specs, pricing, and locations side by side.
               </p>
               <Link
                 href="/properties"
@@ -593,7 +609,9 @@ export default function ComparePage() {
             <div className="space-y-6">
               <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
                 <div className="min-w-[950px] lg:min-w-full">
-                  <div className={`grid ${gridColumnsClass} gap-5 pb-6 transition-all duration-300`}>
+                  <div
+                    className={`grid ${gridColumnsClass} gap-5 pb-6 transition-all duration-300`}
+                  >
                     <div className="flex flex-col justify-end pb-2">
                       <span className="text-xs font-bold uppercase tracking-wider text-black">
                         Properties Overview
@@ -638,8 +656,8 @@ export default function ComparePage() {
                                     type="button"
                                     onClick={() => toggleShortlist(property)}
                                     className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur transition hover:bg-white ${isShortlisted(property)
-                                      ? "text-[#A054A0]"
-                                      : "text-slate-600 hover:text-[#A054A0]"
+                                        ? "text-[#A054A0]"
+                                        : "text-slate-600 hover:text-[#A054A0]"
                                       }`}
                                     title={
                                       isShortlisted(property)
@@ -719,7 +737,9 @@ export default function ComparePage() {
 
                   {/* Specification Table */}
                   <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                    <div className={`grid ${gridColumnsClass} border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-black transition-all duration-300`}>
+                    <div
+                      className={`grid ${gridColumnsClass} border-b border-slate-200/80 bg-slate-50/60 text-xs font-bold uppercase tracking-wider text-black transition-all duration-300`}
+                    >
                       <div className="px-6 py-4">Specification</div>
                       {slots.map((property, i) => (
                         <div
@@ -733,7 +753,8 @@ export default function ComparePage() {
                               onClick={handleOpenModal}
                               className="text-[#A054A0] hover:underline font-normal inline-flex items-center gap-1"
                             >
-                              <Plus className="h-3 w-3" /> Add Property Slot {i + 1}
+                              <Plus className="h-3 w-3" /> Add Property Slot{" "}
+                              {i + 1}
                             </button>
                           )}
                         </div>
@@ -757,7 +778,9 @@ export default function ComparePage() {
                             {property ? (
                               row.value(property)
                             ) : (
-                              <span className="text-slate-300 italic font-normal">-- empty --</span>
+                              <span className="text-slate-300 italic font-normal">
+                                -- empty --
+                              </span>
                             )}
                           </div>
                         ))}
@@ -831,7 +854,8 @@ export default function ComparePage() {
             {availableMicromarkets.length > 0 && (
               <div className="mt-3 shrink-0">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Filter by Micromarkets ({selectedMicromarkets.length} selected)
+                  Filter by Micromarkets ({selectedMicromarkets.length}{" "}
+                  selected)
                 </label>
                 <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
                   {availableMicromarkets.map((mm) => {
@@ -842,8 +866,8 @@ export default function ComparePage() {
                         type="button"
                         onClick={() => toggleMicromarketFilter(mm)}
                         className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${isSelected
-                          ? "bg-[#A054A0] text-white"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            ? "bg-[#A054A0] text-white"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                           }`}
                       >
                         {isSelected && <Check className="h-3 w-3" />}

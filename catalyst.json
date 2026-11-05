@@ -8,5 +8,8 @@
       "name": "Anarock",
       "source": "D:\\Catalyst\\Anarock"
     }
-  ]
+  ],
+  "apig": {
+    "enabled": true
+  }
 }
